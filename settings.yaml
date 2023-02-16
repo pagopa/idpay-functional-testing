@@ -1,0 +1,4 @@
+SECRET_PATH: "conf/.secrets.yaml"
+# Default environment. Overriden if specifies through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
+TARGET_ENV: "dev"
+API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
