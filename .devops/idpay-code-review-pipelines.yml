@@ -26,14 +26,17 @@ steps:
       python -m pip install --upgrade pip
       pip install setup
       pip install -r requirements.txt
-
     workingDirectory: $(projectRoot)
     displayName: "Install requirements"
 
-  - script: |
-      echo "dev:\n  api_key: xxx\n\nuat:\n  api_key: yyy\n" > ./conf/.secrets.yaml
-    workingDirectory: $(projectRoot)
-    displayName: "Create dummy secret file for testing purposes"
+  - task: DownloadSecureFile@1
+    name: idpay_secrets
+    displayName: 'Download IDPay secrets'
+    inputs:
+      secureFile: '.secrets.yaml'
+    # Set output variable
+    env:
+      IDPAY_SECRET_PATH: $[task.getvariable('idpay_secrets.secureFilePath')]
 
   - script: |
       source .venv/bin/activate
