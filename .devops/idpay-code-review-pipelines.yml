@@ -4,21 +4,33 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  # Python version: 3.10
+  pythonVersion: '3.10'
+
+  # folder name of this sub-repository
+  working-dir: '.'
+
+  # Project root folder
+  projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
+
 steps:
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.x' # The version of Python to install
+      versionSpec: '$(pythonVersion)'
+    displayName: 'Use Python $(pythonVersion)'
 
-  - task: PythonScript@0
-    inputs:
-      scriptSource: 'inline'
-      script: |
-        python --version
-        pip --version
-        python -m venv --help 
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install -r requirements.txt
+  - script: |
+      python --version
+      pip --version
+      python -m venv --help 
+      python -m venv .venv
+      source .venv/bin/activate
+      python -m pip install --upgrade pip
+      pip install setup
+      pip install -r requirements.txt
+    workingDirectory: $(projectRoot)
+    displayName: "Install requirements"
 
   - script: |
       pytest --junitxml=tests/reports/junit.xml -vv
