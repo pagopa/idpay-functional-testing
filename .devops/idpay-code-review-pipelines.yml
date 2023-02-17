@@ -21,19 +21,19 @@ steps:
     displayName: 'Use Python $(pythonVersion)'
 
   - script: |
-      python --version
-      pip --version
-      python -m venv --help 
       python -m venv .venv
       source .venv/bin/activate
       python -m pip install --upgrade pip
       pip install setup
       pip install -r requirements.txt
+
     workingDirectory: $(projectRoot)
     displayName: "Install requirements"
 
   - script: |
+      source .venv/bin/activate
       pytest --junitxml=tests/reports/junit.xml -vv
+    workingDirectory: $(projectRoot)
     displayName: 'Run tests with Pytest'
 
   - task: PublishTestResults@2
