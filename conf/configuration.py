@@ -2,7 +2,7 @@
 """
 from dynaconf import Dynaconf
 
-IDPAY_ENV_VAR_PREFIX = 'IDPAY_'
+IDPAY_ENV_VAR_PREFIX = 'IDPAY'
 
 # `envvar_prefix` = export envvars with IDPAY_ENV_VAR_PREFIX as prefix.
 # `settings_files` = Load settings files in the order.
