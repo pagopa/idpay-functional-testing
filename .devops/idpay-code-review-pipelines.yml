@@ -31,6 +31,11 @@ steps:
     displayName: "Install requirements"
 
   - script: |
+      echo "dev:\n  api_key: xxx\n\nuat:\n  api_key: yyy\n" > ./conf/.secrets.yaml
+    workingDirectory: $(projectRoot)
+    displayName: "Create dummy secret file for testing purposes"
+
+  - script: |
       source .venv/bin/activate
       pytest --junitxml=tests/reports/junit.xml -vv
     workingDirectory: $(projectRoot)
