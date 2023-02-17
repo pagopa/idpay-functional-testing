@@ -13,6 +13,9 @@ steps:
     inputs:
       scriptSource: 'inline'
       script: |
+        python --version
+        pip --version
+        python -m venv --help 
         python -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt
