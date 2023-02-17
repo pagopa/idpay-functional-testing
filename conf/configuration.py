@@ -16,6 +16,5 @@ secrets = {}
 
 all_secrets = Dynaconf(settings_files=settings.SECRET_PATH)
 
-print(all_secrets.as_dict())
 if settings.TARGET_ENV in all_secrets:
     secrets = all_secrets[settings.TARGET_ENV]
