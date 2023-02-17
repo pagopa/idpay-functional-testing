@@ -37,7 +37,7 @@ steps:
 
   - script: |
       source .venv/bin/activate
-      IDPAY_SECRET_PATH=$[task.getvariable('idpay_secrets.secureFilePath')] pytest --junitxml=tests/reports/junit.xml -vv
+      IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) pytest --junitxml=tests/reports/junit.xml -vv
     workingDirectory: $(projectRoot)
     displayName: 'Run tests with Pytest'
 
