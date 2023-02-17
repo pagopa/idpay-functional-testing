@@ -1,0 +1,29 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x' # The version of Python to install
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'inline'
+      script: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt
+
+  - script: |
+      pytest --junitxml=tests/reports/junit.xml -vv
+    displayName: 'Run tests with Pytest'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'tests/reports/junit.xml'
+      testRunTitle: 'Pytest Results'
+      failTaskOnFailedTests: true
