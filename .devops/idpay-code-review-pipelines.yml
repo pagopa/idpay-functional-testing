@@ -14,6 +14,15 @@ variables:
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
 
+parameters:
+  - name: env
+    displayName: Target Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - uat
+
 steps:
   - task: UsePythonVersion@0
     inputs:
@@ -24,7 +33,6 @@ steps:
       python -m venv .venv
       source .venv/bin/activate
       python -m pip install --upgrade pip
-      pip install setup
       pip install -r requirements.txt
     workingDirectory: $(projectRoot)
     displayName: "Install requirements"
@@ -37,7 +45,7 @@ steps:
 
   - script: |
       source .venv/bin/activate
-      IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) pytest --junitxml=tests/reports/junit.xml -vv
+      IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV=$(parameters.env) pytest --junitxml=tests/reports/junit.xml -vv
     workingDirectory: $(projectRoot)
     displayName: 'Run tests with Pytest'
 
