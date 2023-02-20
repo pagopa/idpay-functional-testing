@@ -18,9 +18,8 @@ parameters:
   - name: env
     displayName: Target Environment
     type: string
-    default: dev
+    default: uat
     values:
-      - dev
       - uat
 
 steps:
