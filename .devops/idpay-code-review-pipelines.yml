@@ -8,7 +8,7 @@ variables:
   # Python version: 3.10
   pythonVersion: '3.10'
 
-  # folder name of this sub-repository
+  # Folder name of this sub-repository
   working-dir: '.'
 
   # Project root folder
