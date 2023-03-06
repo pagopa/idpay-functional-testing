@@ -49,3 +49,7 @@ For example this command runs verbose all API test and save the junitxml report 
 ```commandline
 pytest --junitxml=tests/reports/junit.xml -vv -m "API"
 ```
+
+## Available initiatives:
+
+- `not_started` : initiative that is not started yet.
