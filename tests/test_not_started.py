@@ -1,13 +1,12 @@
-"""Endpoint tests
+"""Tests on a not yet started initiative
 """
 import pytest
-from faker import Faker
 
-from api.onboarding_io import acceptTandC
+from api.enrollment_issuer import enroll
+from api.onboarding_io import accept_terms_and_condition
 from api.token_io import login
-from conf.configuration import secrets
-
-fake = Faker('it_IT')
+from conf.configuration import secrets, settings
+from util import faker_wrapper
 
 
 @pytest.mark.IO
@@ -15,8 +14,7 @@ def test_fail_onboarding():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    fake_cf = fake.ssn()
-    my_fiscal_code = f'{fake_cf[:11]}X000{fake_cf[15:]}'
+    test_fc = faker_wrapper.fake_fc()
 
     res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
     token = res.content.decode('utf-8')
@@ -32,8 +30,7 @@ def test_fail_onboarding_wrong_token():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    fake_cf = fake.ssn()
-    my_fiscal_code = f'{fake_cf[:11]}X000{fake_cf[15:]}'
+    test_fc = faker_wrapper.fake_fc()
 
     res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
     token = res.content.decode('utf-8')
