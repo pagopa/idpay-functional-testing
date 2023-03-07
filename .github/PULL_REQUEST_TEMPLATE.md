@@ -44,7 +44,7 @@
 - [ ] Poor performance
 - [ ] Good performance
 
-### Did you update secret accordingly?
+### Did you update secrets accordingly?
 
 - [ ] Yes
 - [ ] Not needed
