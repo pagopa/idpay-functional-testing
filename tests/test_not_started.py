@@ -16,13 +16,15 @@ def test_fail_onboarding():
     """
     test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = acceptTandC("https://api-io.uat.cstar.pagopa.it/idpay/onboarding/", token, secrets.initiatives.not_started.id)
+    res = accept_terms_and_condition(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token,
+        secrets.initiatives.not_started.id)
 
     assert res.json()['code'] == 403
-    assert res.json()['message'] == 'The initiative has not yet begun'
-    assert res.json()['details'] == 'INITIATIVE_NOT_STARTED'
+    assert res.json()['message'] == settings.initiatives.not_started.message
+    assert res.json()['details'] == settings.initiatives.not_started.details
 
 
 @pytest.mark.IO
@@ -32,8 +34,9 @@ def test_fail_onboarding_wrong_token():
     """
     test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = acceptTandC("https://api-io.uat.cstar.pagopa.it/idpay/onboarding/", token + '0',
-                      secrets.initiatives.not_started.id)
+    res = accept_terms_and_condition(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token + '0',
+        secrets.initiatives.not_started.id)
     assert res.status_code == 401

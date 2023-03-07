@@ -3,7 +3,7 @@
 import pytest
 
 from conf.configuration import settings, secrets
-from util.utils import TextFormat
+from util.text_formatter import TextFormat
 
 
 def pytest_configure():

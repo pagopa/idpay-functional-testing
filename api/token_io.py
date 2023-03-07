@@ -1,4 +1,5 @@
 import requests
+
 from conf.configuration import settings, secrets
 
 
@@ -10,7 +11,7 @@ def login(url, taxCode):
         :rtype: requests.Response
     """
     return requests.post(url,
-                         headers={settings['API_KEY_HEADER']: secrets.api_key,
+                         headers={settings.API_KEY_HEADER: secrets.api_key,
                                   'Content-Type': 'application/json', },
                          params={'fiscalCode': taxCode},
                          timeout=5000)

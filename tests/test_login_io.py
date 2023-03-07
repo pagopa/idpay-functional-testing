@@ -15,8 +15,8 @@ def test_login_io():
 
     test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = introspect("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/user", token)
+    res = introspect(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}', token)
 
     assert res.json()['fiscal_code'] == test_fc
