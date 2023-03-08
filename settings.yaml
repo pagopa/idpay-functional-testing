@@ -7,6 +7,7 @@ mauth_paths:
   key: "conf/certs/acquirer_test_UAT.key"
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
+  CSTAR: "https://api.uat.cstar.pagopa.it"
 BPD:
   domain: "/bpd"
   endpoints:
@@ -16,6 +17,9 @@ IDPAY:
   domain: "/idpay"
   endpoints:
     onboarding: "/onboarding"
+    enrollment:
+      start_path: "/hb/wallet"
+      end_path: "/instruments"
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
