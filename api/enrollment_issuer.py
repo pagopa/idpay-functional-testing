@@ -2,7 +2,8 @@
 """
 import requests
 
-from conf.configuration import settings, secrets
+from conf.configuration import secrets
+from util.certs_loader import load_certificates
 
 
 def enroll(url, tax_code, body):
@@ -13,7 +14,8 @@ def enroll(url, tax_code, body):
         :returns:  The response of the call.
         :rtype: requests.Response
     """
-    cert = (settings.mauth_paths.cert, settings.mauth_paths.key)
+
+    cert = load_certificates()
     return requests.put(url,
                         cert=cert,
                         headers={

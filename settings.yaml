@@ -2,9 +2,6 @@ SECRET_PATH: "conf/.secrets.yaml"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
 TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
-mauth_paths:
-  cert: "conf/certs/acquirer_test_UAT.pem"
-  key: "conf/certs/acquirer_test_UAT.key"
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
