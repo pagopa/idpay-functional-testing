@@ -1,13 +1,12 @@
-"""Endpoint tests
+"""Tests on a not yet started initiative
 """
 import pytest
-from faker import Faker
 
-from api.onboarding_io import acceptTandC
+from api.enrollment_issuer import enroll
+from api.onboarding_io import accept_terms_and_condition
 from api.token_io import login
-from conf.configuration import secrets
-
-fake = Faker('it_IT')
+from conf.configuration import secrets, settings
+from util import faker_wrapper
 
 
 @pytest.mark.IO
@@ -15,16 +14,17 @@ def test_fail_onboarding():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    fake_cf = fake.ssn()
-    my_fiscal_code = f'{fake_cf[:11]}X000{fake_cf[15:]}'
+    test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = acceptTandC("https://api-io.uat.cstar.pagopa.it/idpay/onboarding/", token, secrets.initiatives.not_started.id)
+    res = accept_terms_and_condition(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token,
+        secrets.initiatives.not_started.id)
 
     assert res.json()['code'] == 403
-    assert res.json()['message'] == 'The initiative has not yet begun'
-    assert res.json()['details'] == 'INITIATIVE_NOT_STARTED'
+    assert res.json()['message'] == settings.initiatives.not_started.message
+    assert res.json()['details'] == settings.initiatives.not_started.details
 
 
 @pytest.mark.IO
@@ -32,11 +32,55 @@ def test_fail_onboarding_wrong_token():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    fake_cf = fake.ssn()
-    my_fiscal_code = f'{fake_cf[:11]}X000{fake_cf[15:]}'
+    test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = acceptTandC("https://api-io.uat.cstar.pagopa.it/idpay/onboarding/", token + '0',
-                      secrets.initiatives.not_started.id)
+    res = accept_terms_and_condition(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token + '0',
+        secrets.initiatives.not_started.id)
     assert res.status_code == 401
+
+
+@pytest.mark.enroll
+def test_fail_onboarding_issuer_citizen_not_onboard():
+    """Issuer enroll of a non-onboard citizen. The expected result is a 404 obtained from IDPay.
+    This is due to the missing onboard of a citizen.
+    """
+    test_fc = faker_wrapper.fake_fc()
+
+    res = enroll(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.enrollment.end_path}',
+        test_fc, {
+            "brand": "VISA",
+            "type": "DEB",
+            "pgpPan": secrets.initiatives.not_started.pgpan,
+            "expireMonth": "08",
+            "expireYear": "2023",
+            "issuerAbiCode": "03069",
+            "holder": "TEST"
+        })
+
+    assert res.status_code == 404
+
+
+@pytest.mark.enroll
+def test_fail_onboarding_issuer_malformed_pgp():
+    """Issuer enroll of a non-onboard citizen. The expected result is a 404 obtained from IDPay.
+    This is due to the missing onboard of a citizen.
+    """
+    test_fc = faker_wrapper.fake_fc()
+
+    res = enroll(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.enrollment.end_path}',
+        test_fc, {
+            "brand": "VISA",
+            "type": "DEB",
+            "pgpPan": "0" + secrets.initiatives.not_started.pgpan,
+            "expireMonth": "08",
+            "expireYear": "2023",
+            "issuerAbiCode": "03069",
+            "holder": "TEST"
+        })
+
+    assert res.status_code == 500

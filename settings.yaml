@@ -2,3 +2,22 @@ SECRET_PATH: "conf/.secrets.yaml"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
 TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
+base_path:
+  IO: "https://api-io.uat.cstar.pagopa.it"
+  CSTAR: "https://api.uat.cstar.pagopa.it"
+BPD:
+  domain: "/bpd"
+  endpoints:
+    login: "/pagopa/api/v1/login"
+    user: "/pagopa/api/v1/user"
+IDPAY:
+  domain: "/idpay"
+  endpoints:
+    onboarding: "/onboarding"
+    enrollment:
+      start_path: "/hb/wallet"
+      end_path: "/instruments"
+initiatives:
+  not_started:
+    message: 'The initiative has not yet begun'
+    details: 'INITIATIVE_NOT_STARTED'

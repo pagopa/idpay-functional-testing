@@ -1,11 +1,10 @@
 """Endpoint tests
 """
 import pytest
-from faker import Faker
 
 from api.token_io import introspect, login
-
-fake = Faker('it_IT')
+from conf.configuration import settings
+from util import faker_wrapper
 
 
 @pytest.mark.IO
@@ -14,11 +13,10 @@ def test_login_io():
     and then introspect the token
     """
 
-    fake_cf = fake.ssn()
-    my_fiscal_code = f'{fake_cf[:11]}X000{fake_cf[15:]}'
+    test_fc = faker_wrapper.fake_fc()
 
-    res = login("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/login", my_fiscal_code)
+    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
-    res = introspect("https://api-io.uat.cstar.pagopa.it/bpd/pagopa/api/v1/user", token)
+    res = introspect(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}', token)
 
-    assert res.json()['fiscal_code'] == my_fiscal_code
+    assert res.json()['fiscal_code'] == test_fc

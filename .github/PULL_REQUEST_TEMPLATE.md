@@ -44,6 +44,13 @@
 - [ ] Poor performance
 - [ ] Good performance
 
+### Did you update secrets accordingly?
+
+- [ ] Pipelines' secure file
+- [ ] [.secrets_template.yaml](..%2Fconf%2F.secrets_template.yaml) file
+- [ ] Not needed
+- [ ] No (_please provide further information_)
+
 ### Other information
 
 <!-- Any other information that is important to this PR such as screenshots of how the component looks before and after the change. -->
