@@ -18,7 +18,7 @@ def test_fail_onboarding():
     res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
     res = accept_terms_and_condition(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token,
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token,
         secrets.initiatives.not_started.id)
 
     assert res.json()['code'] == 403
@@ -35,6 +35,6 @@ def test_fail_onboarding_wrong_token():
     res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
     token = res.content.decode('utf-8')
     res = accept_terms_and_condition(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding}', token + '0',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token + '0',
         secrets.initiatives.not_started.id)
     assert res.status_code == 401

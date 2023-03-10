@@ -15,7 +15,7 @@ def test_fail_onboarding_issuer_citizen_not_onboard():
     test_fc = faker_wrapper.fake_fc()
 
     res = enroll(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.enrollment.end_path}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
         test_fc, {
             "brand": "VISA",
             "type": "DEB",
@@ -36,7 +36,7 @@ def test_fail_onboarding_issuer_malformed_pgp():
     test_fc = faker_wrapper.fake_fc()
 
     res = enroll(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.enrollment.end_path}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
         test_fc, {
             "brand": "VISA",
             "type": "DEB",
