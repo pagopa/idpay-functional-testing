@@ -25,3 +25,5 @@ initiatives:
   not_started:
     message: 'The initiative has not yet begun'
     details: 'INITIATIVE_NOT_STARTED'
+  cashback_like:
+    id: 'CASHBACK_LIKE'
