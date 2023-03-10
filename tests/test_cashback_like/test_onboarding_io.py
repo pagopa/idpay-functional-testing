@@ -10,6 +10,7 @@ from util import faker_wrapper
 
 @pytest.mark.IO
 @pytest.mark.onboard
+@pytest.mark.use_case('1.1')
 def test_onboard_io():
     """Onboarding process through IO
     """
