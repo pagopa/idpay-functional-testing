@@ -20,12 +20,6 @@
 - [ ] Test case
 - [ ] Test suite
 
-### Affected environment
-
-- [ ] Development (DEV)
-- [ ] User Acceptance / Third Part Integration (UAT)
-- [ ] Production (PROD)
-
 ### Test type
 
 - [ ] Smoke test
