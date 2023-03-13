@@ -13,11 +13,17 @@ BPD:
 IDPAY:
   domain: "/idpay"
   endpoints:
-    onboarding: "/onboarding"
-    enrollment:
-      start_path: "/hb/wallet"
-      end_path: "/instruments"
+    onboarding:
+      path: "/onboarding"
+      initiative: "/onboarding/initiative"
+      enrollment:
+        start_path: "/hb/wallet"
+        end_path: "/instruments"
+      consent: "/onboarding/consent"
+      status: '/status'
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
     details: 'INITIATIVE_NOT_STARTED'
+  cashback_like:
+    id: 'CASHBACK_LIKE'

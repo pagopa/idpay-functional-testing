@@ -53,3 +53,4 @@ pytest --junitxml=tests/reports/junit.xml -vv -m "API"
 ## Available initiatives:
 
 - `not_started` : initiative that is not started yet.
+- `cashback_like` : initiative like cashback.
