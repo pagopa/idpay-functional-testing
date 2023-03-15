@@ -2,7 +2,7 @@
 """
 import requests
 
-from conf.configuration import secrets
+from conf.configuration import secrets, settings
 from util.certs_loader import load_certificates
 
 
@@ -19,7 +19,7 @@ def enroll(url, tax_code, body):
     return requests.put(url,
                         cert=cert,
                         headers={
-                            "Ocp-Apim-Subscription-Key": secrets.api_key_issuer,
+                            settings.API_KEY_HEADER: secrets.api_key.IDPAY_APP_ISSUER_PRODUCT,
                             "Accept-Language": "it_IT",
                             "Fiscal-Code": tax_code
                         },
