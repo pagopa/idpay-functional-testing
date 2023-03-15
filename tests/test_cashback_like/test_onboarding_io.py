@@ -5,7 +5,7 @@ import pytest
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import introspect, login
 from conf.configuration import settings, secrets
-from util import faker_wrapper
+from util import dataset_utility
 
 
 @pytest.mark.IO
@@ -15,9 +15,9 @@ def test_onboard_io():
     """Onboarding process through IO
     """
 
-    test_fc = faker_wrapper.fake_fc()
+    test_fc = dataset_utility.fake_fc()
 
-    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
+    res = login(test_fc)
     token = res.content.decode('utf-8')
     res = introspect(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}', token)
     assert res.json()['fiscal_code'] == test_fc
@@ -38,4 +38,4 @@ def test_onboard_io():
         token,
         secrets.initiatives.cashback_like.id)
     assert res.status_code == 200
-    assert res.json()['status'] in ('ONBOARDING_KO', 'ON_EVALUATION')
+    assert res.json()['status'] in ('ONBOARDING_OK', 'ON_EVALUATION')
