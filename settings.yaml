@@ -5,6 +5,7 @@ API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
+  RTD: "https://api.uat.cstar.pagopa.it"
 BPD:
   domain: "/bpd"
   endpoints:
@@ -21,6 +22,19 @@ IDPAY:
         end_path: "/instruments"
       consent: "/onboarding/consent"
       status: '/status'
+    timeline: '/timeline'
+RTD:
+  domain: "/rtd"
+  endpoints:
+    transactions:
+      path: "/csv-transaction"
+      public_key: "/publickey"
+      SAS_token: "/rtd/sas"
+    pagopastorage: "/pagopastorage"
+    payment_instrument_manager:
+      path: '/payment-instrument-manager'
+      salt: '/salt'
+      version: '/v3'
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
