@@ -20,3 +20,9 @@ def load_certificates():
     key_file.close()
 
     return cert_file.name, key_file.name
+
+
+def load_pm_public_key():
+    """Decode PM public key in base64 from secrets.
+    """
+    return base64.b64decode(secrets.pm.pub_key).decode('utf-8')
