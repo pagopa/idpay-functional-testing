@@ -5,7 +5,7 @@ import pytest
 from api.onboarding_io import accept_terms_and_condition
 from api.token_io import login
 from conf.configuration import secrets, settings
-from util import faker_wrapper
+from util import dataset_utility
 
 
 @pytest.mark.IO
@@ -13,9 +13,9 @@ def test_fail_onboarding():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    test_fc = faker_wrapper.fake_fc()
+    test_fc = dataset_utility.fake_fc()
 
-    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
+    res = login(test_fc)
     token = res.content.decode('utf-8')
     res = accept_terms_and_condition(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token,
@@ -31,8 +31,8 @@ def test_fail_onboarding_wrong_token():
     """IO login is emulated by a stub which allows to get a token from a tax code
     and then introspect the token
     """
-    test_fc = faker_wrapper.fake_fc()
-    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
+    test_fc = dataset_utility.fake_fc()
+    res = login(test_fc)
     token = res.content.decode('utf-8')
     res = accept_terms_and_condition(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token + '0',
