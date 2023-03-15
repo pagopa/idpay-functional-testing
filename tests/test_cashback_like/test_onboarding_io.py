@@ -19,7 +19,7 @@ def test_onboard_io():
 
     res = login(test_fc)
     token = res.content.decode('utf-8')
-    res = introspect(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}', token)
+    res = introspect(token)
     assert res.json()['fiscal_code'] == test_fc
     res = accept_terms_and_condition(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token,

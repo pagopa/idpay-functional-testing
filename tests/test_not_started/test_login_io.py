@@ -3,8 +3,7 @@
 import pytest
 
 from api.token_io import introspect, login
-from conf.configuration import settings
-from util import faker_wrapper
+from util import dataset_utility
 
 
 @pytest.mark.IO
@@ -13,10 +12,10 @@ def test_login_io():
     and then introspect the token
     """
 
-    test_fc = faker_wrapper.fake_fc()
+    test_fc = dataset_utility.fake_fc()
 
-    res = login(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}', test_fc)
+    res = login(test_fc)
     token = res.content.decode('utf-8')
-    res = introspect(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}', token)
+    res = introspect(token)
 
     assert res.json()['fiscal_code'] == test_fc
