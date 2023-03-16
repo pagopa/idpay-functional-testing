@@ -21,20 +21,17 @@ def test_onboard_io():
     token = res.content.decode('utf-8')
     res = introspect(token)
     assert res.json()['fiscal_code'] == test_fc
-    res = accept_terms_and_condition(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}', token,
-        secrets.initiatives.cashback_like.id)
+    res = accept_terms_and_condition(token, secrets.initiatives.cashback_like.id)
     assert res.status_code == 204
     res = check_prerequisites(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.initiative}', token,
+        token,
         secrets.initiatives.cashback_like.id)
     assert res.status_code == 200
     res = pdnd_autocertification(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}', token,
+        token,
         secrets.initiatives.cashback_like.id)
     assert res.status_code == 202
     res = status_onboarding(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}/{secrets.initiatives.cashback_like.id}{settings.IDPAY.endpoints.onboarding.status}',
         token,
         secrets.initiatives.cashback_like.id)
     assert res.status_code == 200

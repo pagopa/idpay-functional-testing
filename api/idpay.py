@@ -5,8 +5,9 @@ from conf.configuration import settings
 
 def timeline(initiative_id, token):
     """API to get timeline of a user
-        :param token: token IO
-        :returns:  The response of the call.
+        :param initiative_id: ID of the initiative of interest.
+        :param token: token IO.
+        :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(

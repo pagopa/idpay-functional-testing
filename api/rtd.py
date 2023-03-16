@@ -8,7 +8,7 @@ from util.certs_loader import load_certificates
 
 def pm_salt():
     """API to obtain the current salt from the payment manager
-       :returns:  The response of the call.
+       :returns: the response of the call.
        :rtype: requests.Response
     """
     cert = load_certificates()
@@ -24,7 +24,7 @@ def pm_salt():
 
 def public_key():
     """API to obtain RTD public key to encrypt transactions file.
-           :returns:  The response of the call.
+           :returns: the response of the call.
            :rtype: requests.Response
     """
     cert = load_certificates()
@@ -40,7 +40,7 @@ def public_key():
 
 def sas_token():
     """API to obtain a SAS token for PGP upload.
-        :returns:  The response of the call.
+        :returns: the response of the call.
         :rtype: requests.Response
     """
     cert = load_certificates()
@@ -61,7 +61,7 @@ def upload_file(authorized_container, encrypted_file_path, sas):
         :param authorized_container: destination container
         :param encrypted_file_path: path to pgp file
         :param sas: current token SAS
-        :returns:  The response of the call.
+        :returns: the response of the call.
         :rtype: requests.Response
     """
     cert = load_certificates()

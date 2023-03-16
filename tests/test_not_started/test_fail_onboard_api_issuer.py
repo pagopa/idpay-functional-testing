@@ -3,7 +3,7 @@
 import pytest
 
 from api.issuer import enroll
-from conf.configuration import secrets, settings
+from conf.configuration import secrets
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.encrypt_wrapper import pgp_string_routine
@@ -17,17 +17,18 @@ def test_fail_onboarding_issuer_citizen_not_onboard():
     test_fc = dataset_utility.fake_fc()
     test_pan = dataset_utility.fake_pan()
 
-    res = enroll(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
-        test_fc, {
-            "brand": "VISA",
-            "type": "DEB",
-            "pgpPan": pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
-            "expireMonth": "08",
-            "expireYear": "2023",
-            "issuerAbiCode": "03069",
-            "holder": "TEST"
-        })
+    res = enroll(secrets.initiatives.not_started.id,
+                 test_fc,
+                 {
+                     "brand": "VISA",
+                     "type": "DEB",
+                     "pgpPan": pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
+                     "expireMonth": "08",
+                     "expireYear": "2023",
+                     "issuerAbiCode": "03069",
+                     "holder": "TEST"
+                 }
+                 )
     assert res.status_code == 404
 
 
@@ -39,16 +40,15 @@ def test_fail_onboarding_issuer_malformed_pgp():
     test_fc = dataset_utility.fake_fc()
     test_pan = dataset_utility.fake_pan()
 
-    res = enroll(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{secrets.initiatives.not_started.id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
-        test_fc, {
-            "brand": "VISA",
-            "type": "DEB",
-            "pgpPan": '0' + pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
-            "expireMonth": "08",
-            "expireYear": "2023",
-            "issuerAbiCode": "03069",
-            "holder": "TEST"
-        })
+    res = enroll(secrets.initiatives.not_started.id,
+                 test_fc, {
+                     "brand": "VISA",
+                     "type": "DEB",
+                     "pgpPan": '0' + pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
+                     "expireMonth": "08",
+                     "expireYear": "2023",
+                     "issuerAbiCode": "03069",
+                     "holder": "TEST"
+                 })
 
     assert res.status_code == 500
