@@ -16,3 +16,21 @@ def timeline(initiative_id, token):
             "Authorization": f'Bearer {token}',
         },
         timeout=5000)
+
+
+def enroll_iban(initiative_id, token, body):
+    """API to enroll an IBAN
+        :param initiative_id: ID of the initiative of interest.
+        :param token: token IO.
+        :param body: JSON of IBAN and its description.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.start_path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
+        headers={
+            "Authorization": f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        json=body,
+        timeout=5000)
