@@ -1,7 +1,9 @@
+import math
 import random
 from hashlib import sha256
 
 from faker import Faker
+from schwifty import IBAN
 
 from api.rtd import pm_salt
 
@@ -35,3 +37,11 @@ def fake_pan():
     :rtype: str
     """
     return fake.credit_card_number(random.choice(circuits))
+
+
+def fake_iban(abi):
+    """Faker wrapper that calls schwifty's IBAN method with arbitrary ABI code.
+    :returns:  A fake IBAN.
+    :rtype: str
+    """
+    return IBAN.generate('IT', bank_code=abi, account_code=str(round(random.random() * math.pow(10, 12)))).compact
