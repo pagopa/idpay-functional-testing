@@ -20,12 +20,13 @@ def test_enrollment_iban():
     curr_iban = dataset_utility.fake_iban('00000')
 
     # Onboard IO
-    assert onboard_io(test_fc).json()['status'] == 'ONBOARDING_OK'
+    assert onboard_io(test_fc, secrets.initiatives.cashback_like.id).json()['status'] == 'ONBOARDING_OK'
 
     token = get_io_token(test_fc)
 
     assert any(
-        operation['operationType'] == 'ADD_IBAN' for operation in iban_enroll(token, curr_iban).json()['operationList'])
+        operation['operationType'] == 'ADD_IBAN' for operation in
+        iban_enroll(token, curr_iban, secrets.initiatives.cashback_like.id).json()['operationList'])
 
 
 @pytest.mark.IO

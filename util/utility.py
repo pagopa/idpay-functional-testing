@@ -6,46 +6,52 @@ from api.idpay import timeline, enroll_iban
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import login, introspect
-from conf.configuration import secrets
 from util.certs_loader import load_pm_public_key
 from util.encrypt_utilities import pgp_string_routine
 
 
 def get_io_token(fc):
-    """Onboarding process through IO
+    """Login through IO
+    :param fc: fiscal code to log in.
     """
     return login(fc).content.decode('utf-8')
 
 
-def onboard_io(fc):
+def onboard_io(fc, initiative_id):
     """Onboarding process through IO
+    :param fc: fiscal code to onboard
+    :param initiative_id: ID of the initiative of interest.
     """
     res = login(fc)
     token = res.content.decode('utf-8')
     res = introspect(token)
     assert res.json()['fiscal_code'] == fc
 
-    res = accept_terms_and_condition(token, secrets.initiatives.cashback_like.id)
+    res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
 
-    res = check_prerequisites(token, secrets.initiatives.cashback_like.id)
+    res = check_prerequisites(token, initiative_id)
     assert res.status_code == 200
 
-    res = pdnd_autocertification(token, secrets.initiatives.cashback_like.id)
+    res = pdnd_autocertification(token, initiative_id)
     assert res.status_code == 202
 
-    res = status_onboarding(token, secrets.initiatives.cashback_like.id)
+    res = status_onboarding(token, initiative_id)
     assert res.status_code == 200
 
     retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                        initiative_id=secrets.initiatives.cashback_like.id, field='status', tries=10, delay=3,
+                        initiative_id=initiative_id, field='status', tries=10, delay=3,
                         message='Citizen onboard not OK')
 
-    return status_onboarding(token, secrets.initiatives.cashback_like.id)
+    return status_onboarding(token, initiative_id)
 
 
-def iban_enroll(token, iban):
-    res = enroll_iban(secrets.initiatives.cashback_like.id,
+def iban_enroll(token, iban, initiative_id):
+    """Enroll an IBAN through IO
+    :param token: IO token of the current user.
+    :param iban: IBAN that needs to be enrolled.
+    """
+    res = enroll_iban(initiative_id,
                       token,
                       {
                           "iban": iban,
@@ -55,14 +61,18 @@ def iban_enroll(token, iban):
     assert res.status_code == 200
 
     retry_timeline(expected='ADD_IBAN', request=timeline, token=token,
-                   initiative_id=secrets.initiatives.cashback_like.id, field='operationType', tries=10, delay=3,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='IBAN not enrolled')
 
-    return timeline(secrets.initiatives.cashback_like.id, token)
+    return timeline(initiative_id, token)
 
 
-def card_enroll(fc, pan):
-    res = enroll(secrets.initiatives.cashback_like.id,
+def card_enroll(fc, pan, initiative_id):
+    """Enroll a card through API Issuer
+        :param fc: Fiscal Code of the citizen
+        :param pan: PAN to be enrolled.
+        """
+    res = enroll(initiative_id,
                  fc,
                  {
                      "brand": "VISA",
@@ -80,10 +90,10 @@ def card_enroll(fc, pan):
     token = get_io_token(fc)
 
     retry_timeline(expected='ADD_INSTRUMENT', request=timeline, token=token,
-                   initiative_id=secrets.initiatives.cashback_like.id, field='operationType', tries=10, delay=3,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='Card not enrolled')
 
-    return timeline(secrets.initiatives.cashback_like.id, token)
+    return timeline(initiative_id, token)
 
 
 def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
