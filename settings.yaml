@@ -22,6 +22,9 @@ IDPAY:
         end_path: "/instruments"
       consent: "/onboarding/consent"
       status: '/status'
+      iban:
+        start_path: "/wallet"
+        end_path: "/iban"
     timeline: '/timeline'
 RTD:
   domain: "/rtd"
