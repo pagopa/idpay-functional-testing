@@ -6,7 +6,7 @@ from api.issuer import enroll
 from conf.configuration import secrets
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
-from util.encrypt_wrapper import pgp_string_routine
+from util.encrypt_utilities import pgp_string_routine
 
 
 @pytest.mark.enroll

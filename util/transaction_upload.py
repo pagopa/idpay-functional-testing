@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from api.rtd import public_key, sas_token, upload_file
-from util.encrypt_wrapper import pgp_file_routine
+from util.encrypt_utilities import pgp_file_routine
 
 TRANSACTION_FILE_EXTENSION = "csv"
 APPLICATION_PREFIX_FILE_NAME = "CSTAR"
