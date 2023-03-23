@@ -11,20 +11,23 @@ TRANSACTION_LOG_FIXED_SEGMENT = "TRNLOG"
 CHECKSUM_PREFIX = "#sha256sum:"
 
 
-def encrypt_and_upload(source_file_path: str):
+def encrypt_and_upload(transactions: str):
     """Utility to encrypt and upload transactions.
-    :param source_file_path: path of the file that needs to be encrypted and uploaded.
+    :param transactions: content of transaction file to be encrypted and uploaded.
     :returns: the response of the upload.
     :rtype: requests.Response
     """
+    input_file_name = input_trx_name_formatter('IDPAY')
+    with open(input_file_name, 'w') as f:
+        f.write(transactions)
     pub_key = public_key()
-    encrypted_file_path = pgp_file_routine(source_file_path, pub_key.text)
+    encrypted_file_path = pgp_file_routine(input_file_name, pub_key.text)
     res = sas_token()
     sas = res.json()['sas']
     authorized_container = res.json()['authorizedContainer']
     res = upload_file(authorized_container, encrypted_file_path, sas)
 
-    return res
+    return res, input_file_name
 
 
 def input_trx_name_formatter(sender_code: str):
