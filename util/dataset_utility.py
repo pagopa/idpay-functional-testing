@@ -40,8 +40,16 @@ def fake_pan():
 
 
 def fake_iban(abi):
-    """Faker wrapper that calls schwifty's IBAN method with arbitrary ABI code.
+    """Wrapper that calls schwifty's IBAN method with arbitrary ABI code.
     :returns:  A fake IBAN.
     :rtype: str
     """
     return IBAN.generate('IT', bank_code=abi, account_code=str(round(random.random() * math.pow(10, 12)))).compact
+
+
+def fake_vat():
+    """Faker wrapper that calls faker's vat method.
+    :returns: a fake VAT.
+    :rtype: str
+    """
+    return fake.company_vat()[2:]
