@@ -1,4 +1,9 @@
+import datetime
+import os
+import random
 import time
+import uuid
+from hashlib import sha256
 
 import pytest
 
@@ -6,7 +11,9 @@ from api.idpay import timeline, enroll_iban
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import login, introspect
+from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import hash_pan, fake_vat
 from util.encrypt_utilities import pgp_string_routine
 
 
@@ -23,11 +30,17 @@ def onboard_io(fc, initiative_id):
     :param initiative_id: ID of the initiative of interest.
     """
     res = login(fc)
+    # print(res.status_code)
+    # print(res.reason)
+    # print(len(res.request.url))
     token = res.content.decode('utf-8')
     res = introspect(token)
     assert res.json()['fiscal_code'] == fc
 
     res = accept_terms_and_condition(token, initiative_id)
+    # print(res.status_code)
+    # print(res.reason)
+    # print(len(res.request.url))
     assert res.status_code == 204
 
     res = check_prerequisites(token, initiative_id)
@@ -122,3 +135,16 @@ def retry_timeline(expected, request, token, initiative_id, field, tries=3, dela
         time.sleep(delay * (count * backoff))
         res = request(initiative_id, token)
         success = any(operation[field] == expected for operation in res.json()['operationList'])
+
+
+def transactions_hash(transactions: str):
+    return f'#sha256sum:{sha256(f"{transactions}".encode()).hexdigest()}'
+
+
+def custom_transaction(pan: str, amount):
+    return f'IDPAY;00;00;{hash_pan(pan)};{(datetime.datetime.now() + datetime.timedelta(hours=random.randint(1, 48))).strftime("%Y-%m-%dT%H:%M:%S.000Z")};{uuid.uuid4().int};{uuid.uuid4().int};{uuid.uuid4().int};{amount};978;IDPAY;{uuid.uuid4().int};{uuid.uuid4().int};521870;1234;{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+
+
+def clean_trx_files(source_filename: str):
+    os.remove(source_filename)
+    os.remove(f'{source_filename}.pgp')
