@@ -45,3 +45,5 @@ initiatives:
     details: 'INITIATIVE_NOT_STARTED'
   cashback_like:
     id: 'CASHBACK_LIKE'
+    cashback_percentage: 30.22
+    max_cashback: 51.5
