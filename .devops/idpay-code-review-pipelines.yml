@@ -49,7 +49,9 @@ steps:
     displayName: 'Run tests with Pytest'
 
   - task: PublishTestResults@2
+    condition: true
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'tests/reports/junit.xml'
       testRunTitle: 'Pytest Results'
+      failTaskOnFailedTests: true
