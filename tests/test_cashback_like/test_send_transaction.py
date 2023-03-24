@@ -50,8 +50,7 @@ def test_send_transaction():
 
     res = timeline(initiative_id, token)
 
-    assert any(
-        operation['operationType'] == 'TRANSACTION' for operation in res.json()['operationList'])
+    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
 
     expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
 
