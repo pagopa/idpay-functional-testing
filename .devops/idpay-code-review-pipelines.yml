@@ -11,11 +11,8 @@ variables:
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
 
-  selfHostedAgentPool: $(UAT_AGENT_POOL)
-
 pool:
   vmImage: 'ubuntu-latest'
-  name: $(selfHostedAgentPool)
 
 parameters:
   - name: env
