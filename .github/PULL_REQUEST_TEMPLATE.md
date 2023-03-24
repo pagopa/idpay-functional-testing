@@ -22,6 +22,7 @@
 
 ### Test type
 
+- [ ] Functional test
 - [ ] Smoke test
 - [ ] End to end
 - [ ] Performance
