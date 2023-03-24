@@ -1,28 +1,28 @@
 import requests
 
+from conf.configuration import settings
 
-def login(url, tax_code):
+
+def login(tax_code):
     """API to obtain an IO like token from a stub
-        :param url: loginUrl
         :param tax_code: taxCode of the user
-        :returns:  The response of the call.
+        :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.post(url,
+    return requests.post(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}',
                          headers={
                              'Content-Type': 'application/json', },
                          params={'fiscalCode': tax_code},
                          timeout=5000)
 
 
-def introspect(url, token):
+def introspect(token):
     """API to introspect an IOtoken and get user data
-        :param url: loginUrl
-        :param taxCode: taxCode of the user 
-        :returns:  The response of the call.
+        :param token: IO token to introspect
+        :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.get(url,
+    return requests.get(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}',
                         headers={
                             'Content-Type': 'application/json'
                         },

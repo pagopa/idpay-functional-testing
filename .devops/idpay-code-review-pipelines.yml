@@ -1,9 +1,6 @@
 trigger:
   - main
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
   # Python version: 3.10
   pythonVersion: '3.10'
@@ -13,6 +10,9 @@ variables:
 
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 parameters:
   - name: env
@@ -49,8 +49,10 @@ steps:
     displayName: 'Run tests with Pytest'
 
   - task: PublishTestResults@2
+    condition: true
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'tests/reports/junit.xml'
       testRunTitle: 'Pytest Results'
+      searchFolder: $(projectRoot)
       failTaskOnFailedTests: true
