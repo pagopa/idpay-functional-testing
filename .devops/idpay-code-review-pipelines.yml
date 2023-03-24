@@ -54,4 +54,5 @@ steps:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'tests/reports/junit.xml'
       testRunTitle: 'Pytest Results'
+      searchFolder: $(projectRoot)
       failTaskOnFailedTests: true
