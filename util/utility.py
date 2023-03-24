@@ -30,17 +30,11 @@ def onboard_io(fc, initiative_id):
     :param initiative_id: ID of the initiative of interest.
     """
     res = login(fc)
-    # print(res.status_code)
-    # print(res.reason)
-    # print(len(res.request.url))
     token = res.content.decode('utf-8')
     res = introspect(token)
     assert res.json()['fiscal_code'] == fc
 
     res = accept_terms_and_condition(token, initiative_id)
-    # print(res.status_code)
-    # print(res.reason)
-    # print(len(res.request.url))
     assert res.status_code == 204
 
     res = check_prerequisites(token, initiative_id)
