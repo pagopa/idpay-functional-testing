@@ -11,7 +11,7 @@ variables:
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
 
-  selfHostedAgentPool: $(UAT_AGENT_POOL)
+  selfHostedAgentPool: 'cstar-uat-linux'
 
 pool:
   vmImage: 'ubuntu-latest'
