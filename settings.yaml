@@ -46,4 +46,4 @@ initiatives:
   cashback_like:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
-    max_cashback: 51.5
+    budget_per_citizen: 51.5

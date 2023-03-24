@@ -14,8 +14,8 @@ from util.utility import onboard_io, card_enroll, get_io_token, iban_enroll, ret
 
 initiative_id = secrets.initiatives.cashback_like.id
 cashback_percentage = settings.initiatives.cashback_like.cashback_percentage
-max_cashback = settings.initiatives.cashback_like.max_cashback
-max_amount = (max_cashback / cashback_percentage * 100) * 100
+budget_per_citizen = settings.initiatives.cashback_like.budget_per_citizen
+max_amount = (budget_per_citizen / cashback_percentage * 100) * 100
 
 
 @pytest.mark.IO
@@ -102,7 +102,7 @@ def test_send_transaction_award_max():
 
     res = wallet(initiative_id, token)
 
-    assert res.json()['accrued'] == max_cashback
+    assert res.json()['accrued'] == budget_per_citizen
 
     clean_trx_files(curr_file_name)
 
@@ -146,7 +146,7 @@ def test_send_transactions_award_only_one():
 
     res = wallet(initiative_id, token)
 
-    assert res.json()['accrued'] == max_cashback
+    assert res.json()['accrued'] == budget_per_citizen
 
     # Send a second transaction
     amount = floor(random.random() * max_amount)
@@ -162,7 +162,7 @@ def test_send_transactions_award_only_one():
 
     res = wallet(initiative_id, token)
 
-    assert res.json()['accrued'] == max_cashback
+    assert res.json()['accrued'] == budget_per_citizen
 
     res = timeline(initiative_id, token)
 
