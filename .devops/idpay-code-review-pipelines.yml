@@ -27,6 +27,12 @@ parameters:
 
 steps:
   - script: |
+      python --version
+      pip --version
+    workingDirectory: $(projectRoot)
+    displayName: "Display Python version"
+
+  - script: |
       pip install --upgrade pip
       python -m pip install --user virtualenv
       python -m virtualenv .venv
