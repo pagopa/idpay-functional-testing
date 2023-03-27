@@ -60,6 +60,7 @@ def test_send_transaction():
 
     res = wallet(initiative_id, token)
 
+    assert res.json()['amount'] == budget_per_citizen - expected_accrued
     assert res.json()['accrued'] == expected_accrued
 
     clean_trx_files(curr_file_name)
@@ -164,6 +165,7 @@ def test_send_transactions_award_only_one():
 
     res = wallet(initiative_id, token)
 
+    assert res.json()['amount'] == 0
     assert res.json()['accrued'] == budget_per_citizen
 
     res = timeline(initiative_id, token)
@@ -388,6 +390,7 @@ def test_send_transaction_ko_card_enroll():
 
     res = wallet(initiative_id, token)
 
+    assert res.json()['amount'] == budget_per_citizen
     assert res.json()['accrued'] == expected_accrued
 
     clean_trx_files(curr_file_name)
