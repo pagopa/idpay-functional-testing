@@ -135,10 +135,14 @@ def transactions_hash(transactions: str):
     return f'#sha256sum:{sha256(f"{transactions}".encode()).hexdigest()}'
 
 
-def custom_transaction(pan: str, amount):
-    return f'IDPAY;00;00;{hash_pan(pan)};{(datetime.datetime.now() + datetime.timedelta(hours=random.randint(1, 48))).strftime("%Y-%m-%dT%H:%M:%S.000Z")};{uuid.uuid4().int};{uuid.uuid4().int};{uuid.uuid4().int};{amount};978;IDPAY;{uuid.uuid4().int};{uuid.uuid4().int};521870;1234;{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+def custom_transaction(pan: str, amount, curr_date: str = (
+        datetime.datetime.now() + datetime.timedelta(hours=random.randint(1, 48))).strftime("%Y-%m-%dT%H:%M:%S.000Z")):
+    return f'IDPAY;00;00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{uuid.uuid4().int};{amount};978;IDPAY;{uuid.uuid4().int};{uuid.uuid4().int};521870;1234;{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
 
 
 def clean_trx_files(source_filename: str):
-    os.remove(source_filename)
-    os.remove(f'{source_filename}.pgp')
+    try:
+        os.remove(source_filename)
+    except OSError as e:  # name the Exception `e`
+        print(e.strerro)
+        print(e.code)
