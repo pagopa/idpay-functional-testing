@@ -391,3 +391,91 @@ def test_send_transaction_ko_card_enroll():
     assert res.json()['accrued'] == expected_accrued
 
     clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('7')
+def test_send_small_amount_no_refund():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+
+    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
+    assert list(operation['operationType'] for operation in
+                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
+
+    token = get_io_token(test_fc)
+    assert list(operation['operationType'] for operation in
+                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
+
+    # Send the transaction
+    amount = floor(random.randint(1, 3))
+
+    transaction = custom_transaction(pan, amount)
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    res = timeline(initiative_id, token)
+
+    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 0
+
+    expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
+
+    res = wallet(initiative_id, token)
+
+    assert res.json()['amount'] == budget_per_citizen
+    assert res.json()['accrued'] == expected_accrued
+
+    clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('8')
+def test_send_minimum_awardable_amount():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+
+    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
+    assert list(operation['operationType'] for operation in
+                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
+
+    token = get_io_token(test_fc)
+    assert list(operation['operationType'] for operation in
+                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
+
+    # Send the transaction
+    amount = floor(4)
+
+    transaction = custom_transaction(pan, amount)
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    assert res.status_code == 201
+
+    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction not received')
+
+    res = timeline(initiative_id, token)
+
+    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
+
+    expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
+
+    res = wallet(initiative_id, token)
+
+    assert res.json()['amount'] == budget_per_citizen - expected_accrued
+    assert res.json()['accrued'] == expected_accrued
+
+    clean_trx_files(curr_file_name)
