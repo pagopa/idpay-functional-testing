@@ -14,7 +14,7 @@ variables:
   selfHostedAgentPool: 'cstar-uat-linux'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'python:3.11-slim-buster@sha256:6d4b1a970e49fc2c37b4ad7b71ea4396a75abcd9d4f0331304743aba00932975'
   name: $(selfHostedAgentPool)
 
 parameters:
