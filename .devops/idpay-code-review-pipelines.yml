@@ -27,9 +27,10 @@ parameters:
 
 steps:
   - script: |
-      python -m venv .venv
+      pip install --upgrade pip
+      python -m pip install --user virtualenv
+      python -m virtualenv .venv
       source .venv/bin/activate
-      python -m pip install --upgrade pip
       pip install -r requirements.txt
     workingDirectory: $(projectRoot)
     displayName: "Install requirements"
