@@ -28,7 +28,7 @@ parameters:
 steps:
   - script: |
       python3 --version
-      pip --version
+      pip3 --version
     workingDirectory: $(projectRoot)
     displayName: "Display Python version"
 
