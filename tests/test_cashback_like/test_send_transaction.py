@@ -105,6 +105,7 @@ def test_send_transaction_award_max():
 
     res = wallet(initiative_id, token)
 
+    assert res.json()['amount'] == 0
     assert res.json()['accrued'] == budget_per_citizen
 
     clean_trx_files(curr_file_name)
