@@ -483,3 +483,46 @@ def test_send_minimum_awardable_amount():
     assert res.json()['accrued'] == expected_accrued
 
     clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('10')
+def test_send_transaction_after_fruition_period():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+
+    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
+    assert list(operation['operationType'] for operation in
+                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
+
+    token = get_io_token(test_fc)
+    assert list(operation['operationType'] for operation in
+                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
+
+    # Send the transaction
+    amount = floor(random.random() * max_amount)
+
+    transaction = custom_transaction(pan, amount, '2999-01-01T00:00:00.000Z')
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    res = timeline(initiative_id, token)
+
+    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 0
+
+    expected_accrued = 0
+
+    res = wallet(initiative_id, token)
+
+    assert res.json()['amount'] == budget_per_citizen - expected_accrued
+    assert res.json()['accrued'] == expected_accrued
+
+    clean_trx_files(curr_file_name)
