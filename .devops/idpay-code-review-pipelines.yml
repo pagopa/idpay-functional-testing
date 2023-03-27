@@ -2,8 +2,8 @@ trigger:
   - main
 
 variables:
-  # Python version: 3.9
-  pythonVersion: '3.9'
+  # Python version: 3.x
+  pythonVersion: '3.x'
 
   # Folder name of this sub-repository
   working-dir: '.'
