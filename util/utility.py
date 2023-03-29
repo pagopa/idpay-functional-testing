@@ -7,7 +7,7 @@ from hashlib import sha256
 
 import pytest
 
-from api.idpay import timeline, enroll_iban
+from api.idpay import timeline, enroll_iban, wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import login, introspect
@@ -122,7 +122,8 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                    message='Test failed'):
     count = 0
     res = request(initiative_id, token)
-    success = any(operation[field] == expected for operation in res.json()['operationList'])
+    success = list(operation[field] for operation in
+                   res.json()['operationList']).count(expected) == num_required
     while not success:
         count += 1
         if count == tries:
@@ -133,6 +134,33 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                        res.json()['operationList']).count(expected) == num_required
     assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
     return res
+
+
+def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
+                 message='Test failed'):
+    count = 0
+    res = request(initiative_id, token)
+    success = (expected == res.json()[field])
+    while not success:
+        count += 1
+        if count == tries:
+            pytest.fail(f'{message} after {delay * (tries * backoff)}s')
+        time.sleep(delay * (count * backoff))
+        res = request(initiative_id, token)
+        success = (expected == res.json()[field])
+    assert expected == res.json()[field]
+    return res
+
+
+def expect_wallet_cuonters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
+                           tries: int = 3, delay: int = 5):
+    retry_wallet(expected=expected_amount, request=wallet, token=token,
+                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay,
+                 message='Wrong amount left')
+
+    retry_wallet(expected=expected_accrued, request=wallet, token=token,
+                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay,
+                 message='Wrong accrued amount')
 
 
 def transactions_hash(transactions: str):
