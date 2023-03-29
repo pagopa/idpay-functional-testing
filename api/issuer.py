@@ -21,8 +21,8 @@ def enroll(initiative_id, tax_code, body):
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_APP_ISSUER_PRODUCT,
-            "Accept-Language": "it_IT",
-            "Fiscal-Code": tax_code
+            'Accept-Language': 'it_IT',
+            'Fiscal-Code': tax_code
         },
         json=body,
         timeout=5000

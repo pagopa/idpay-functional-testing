@@ -19,7 +19,7 @@ def hash_pan(pan: str):
     :rtype: str
     """
     salt = pm_salt()
-    return sha256(f"{pan}{salt}".encode()).hexdigest()
+    return sha256(f'{pan}{salt}'.encode()).hexdigest()
 
 
 def fake_fc():

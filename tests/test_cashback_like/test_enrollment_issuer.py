@@ -35,13 +35,13 @@ def test_fail_enrollment_issuer_not_onboard():
     res = enroll(secrets.initiatives.cashback_like.id,
                  test_fc,
                  {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "03069",
-                     "holder": "TEST"
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '03069',
+                     'holder': 'TEST'
                  }
                  )
     assert res.status_code == 404

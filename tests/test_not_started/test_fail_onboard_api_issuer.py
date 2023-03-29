@@ -20,13 +20,13 @@ def test_fail_onboarding_issuer_citizen_not_onboard():
     res = enroll(secrets.initiatives.not_started.id,
                  test_fc,
                  {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "03069",
-                     "holder": "TEST"
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '03069',
+                     'holder': 'TEST'
                  }
                  )
     assert res.status_code == 404
@@ -42,13 +42,13 @@ def test_fail_onboarding_issuer_malformed_pgp():
 
     res = enroll(secrets.initiatives.not_started.id,
                  test_fc, {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": '0' + pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "03069",
-                     "holder": "TEST"
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': '0' + pgp_string_routine(test_pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '03069',
+                     'holder': 'TEST'
                  })
 
     assert res.status_code == 500
