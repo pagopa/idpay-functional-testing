@@ -25,7 +25,9 @@ IDPAY:
       iban:
         start_path: "/wallet"
         end_path: "/iban"
-    wallet: '/wallet'
+    wallet:
+      path: '/wallet'
+      unsubscribe: '/unsubscribe'
     timeline: '/timeline'
 RTD:
   domain: "/rtd"
