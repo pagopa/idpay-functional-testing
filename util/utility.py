@@ -46,49 +46,49 @@ def onboard_io(fc, initiative_id):
     res = status_onboarding(token, initiative_id)
     assert res.status_code == 200
 
-    retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                        initiative_id=initiative_id, field='status', tries=10, delay=3,
-                        message='Citizen onboard not OK')
-
-    return status_onboarding(token, initiative_id)
+    res = retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
+                              initiative_id=initiative_id, field='status', tries=10, delay=3,
+                              message='Citizen onboard not OK')
+    return res
 
 
 def iban_enroll(token, iban, initiative_id):
     """Enroll an IBAN through IO
     :param token: IO token of the current user.
     :param iban: IBAN that needs to be enrolled.
+    :param initiative_id: ID of the initiative of interest.
     """
     res = enroll_iban(initiative_id,
                       token,
                       {
-                          "iban": iban,
-                          "description": "conto di test"
+                          'iban': iban,
+                          'description': 'TEST Bank account'
                       }
                       )
     assert res.status_code == 200
 
-    retry_timeline(expected='ADD_IBAN', request=timeline, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='IBAN not enrolled')
-
-    return timeline(initiative_id, token)
+    res = retry_timeline(expected='ADD_IBAN', request=timeline, token=token,
+                         initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                         message='IBAN not enrolled')
+    return res
 
 
 def card_enroll(fc, pan, initiative_id):
     """Enroll a card through API Issuer
         :param fc: Fiscal Code of the citizen
         :param pan: PAN to be enrolled.
+        :param initiative_id: ID of the initiative of interest.
         """
     res = enroll(initiative_id,
                  fc,
                  {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "03069",
-                     "holder": "TEST"
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '03069',
+                     'holder': 'TEST'
                  }
                  )
 
@@ -96,11 +96,10 @@ def card_enroll(fc, pan, initiative_id):
 
     token = get_io_token(fc)
 
-    retry_timeline(expected='ADD_INSTRUMENT', request=timeline, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='Card not enrolled')
-
-    return timeline(initiative_id, token)
+    res = retry_timeline(expected='ADD_INSTRUMENT', request=timeline, token=token,
+                         initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                         message='Card not enrolled')
+    return res
 
 
 def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
@@ -115,9 +114,11 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
         time.sleep(delay * (count * backoff))
         res = request(token, initiative_id)
         success = (expected == res.json()[field])
+    assert expected == res.json()[field]
+    return res
 
 
-def retry_timeline(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
+def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5, backoff=1,
                    message='Test failed'):
     count = 0
     res = request(initiative_id, token)
@@ -128,7 +129,10 @@ def retry_timeline(expected, request, token, initiative_id, field, tries=3, dela
             pytest.fail(f'{message} after {delay * (tries * backoff)}s')
         time.sleep(delay * (count * backoff))
         res = request(initiative_id, token)
-        success = any(operation[field] == expected for operation in res.json()['operationList'])
+        success = list(operation[field] for operation in
+                       res.json()['operationList']).count(expected) == num_required
+    assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
+    return res
 
 
 def transactions_hash(transactions: str):
@@ -136,7 +140,7 @@ def transactions_hash(transactions: str):
 
 
 def custom_transaction(pan: str, amount, curr_date: str = (
-        datetime.datetime.now() + datetime.timedelta(hours=random.randint(1, 48))).strftime("%Y-%m-%dT%H:%M:%S.000Z")):
+        datetime.datetime.now() + datetime.timedelta(hours=random.randint(1, 48))).strftime('%Y-%m-%dT%H:%M:%S.000Z')):
     return f'IDPAY;00;00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{uuid.uuid4().int};{amount};978;IDPAY;{uuid.uuid4().int};{uuid.uuid4().int};521870;1234;{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
 
 
