@@ -145,8 +145,8 @@ def custom_transaction(pan: str, amount, curr_date: str = (
 
 
 def clean_trx_files(source_filename: str):
-    try:
+    if os.path.exists(source_filename) and os.path.exists(f'{source_filename}.pgp'):
         os.remove(source_filename)
-    except OSError as e:  # name the Exception `e`
-        print(e.strerro)
-        print(e.code)
+        os.remove(f'{source_filename}.pgp')
+    else:
+        print(f'The file {source_filename} and its encrypted version does not exist')
