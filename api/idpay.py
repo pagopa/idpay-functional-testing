@@ -13,7 +13,7 @@ def timeline(initiative_id, token):
     return requests.get(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline}/{initiative_id}/?page=0&size=10',
         headers={
-            "Authorization": f'Bearer {token}',
+            'Authorization': f'Bearer {token}',
         },
         timeout=5000)
 
@@ -26,9 +26,9 @@ def wallet(initiative_id, token):
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet}/{initiative_id}',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}',
         headers={
-            "Authorization": f'Bearer {token}',
+            'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
         timeout=5000)
@@ -45,7 +45,7 @@ def enroll_iban(initiative_id, token, body):
     return requests.put(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.start_path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
         headers={
-            "Authorization": f'Bearer {token}',
+            'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
         json=body,
