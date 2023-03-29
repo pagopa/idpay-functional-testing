@@ -2,12 +2,12 @@
 """
 import pytest
 
-from api.issuer import enroll
 from conf.configuration import secrets
+from idpay import wallet, enroll_iban
 from util import dataset_utility
-from util.certs_loader import load_pm_public_key
-from util.encrypt_utilities import pgp_string_routine
-from util.utility import onboard_io, get_io_token, iban_enroll
+from util.utility import onboard_io, get_io_token, iban_enroll, retry_wallet
+
+initiative_id = secrets.initiatives.cashback_like.id
 
 
 @pytest.mark.IO
@@ -20,33 +20,36 @@ def test_enrollment_iban():
     curr_iban = dataset_utility.fake_iban('00000')
 
     # Onboard IO
-    assert onboard_io(test_fc, secrets.initiatives.cashback_like.id).json()['status'] == 'ONBOARDING_OK'
+    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
 
     token = get_io_token(test_fc)
 
-    assert any(
-        operation['operationType'] == 'ADD_IBAN' for operation in
-        iban_enroll(token, curr_iban, secrets.initiatives.cashback_like.id).json()['operationList'])
+    iban_enroll(token, curr_iban, secrets.initiatives.cashback_like.id)
+
+    retry_wallet(expected='NOT_REFUNDABLE_ONLY_IBAN', request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not registered')
 
 
 @pytest.mark.IO
 @pytest.mark.onboard
 @pytest.mark.use_case('1.3')
-def test_fail_enrollment_issuer_not_onboard():
-    """IBAN enrollment process through IO API
+def test_fail_enrollment_iban_citizen_not_onboard():
+    """Fail IBAN enrollment process through IO API, citizen not onboard
     """
 
     test_fc = dataset_utility.fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
 
-    res = enroll(secrets.initiatives.cashback_like.id,
-                 test_fc, {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": pgp_string_routine('0000000000000000', load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "03069",
-                     "holder": "TEST"
-                 })
+    token = get_io_token(test_fc)
+    res = enroll_iban(initiative_id,
+                      token,
+                      {
+                          'iban': curr_iban,
+                          'description': 'TEST Bank account'
+                      }
+                      )
+    assert res.status_code == 404
 
+    res = wallet(initiative_id, token)
     assert res.status_code == 404
