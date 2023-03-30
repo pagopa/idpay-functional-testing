@@ -6,6 +6,7 @@ base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
   RTD: "https://api.uat.cstar.pagopa.it"
+  INTERNAL: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
 BPD:
   domain: "/bpd"
   endpoints:
