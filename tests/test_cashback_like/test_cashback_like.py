@@ -79,11 +79,12 @@ def test_send_single_transaction():
 @pytest.mark.reward
 @pytest.mark.cashback
 @pytest.mark.use_case('1.3')
-def test_send_single_transaction_max_award():
+def test_send_50_transaction_erode_budget_max_award():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
+    min_amount = 340.833885
 
     # 1.3.1
     onboard_io(test_fc, initiative_id).json()
@@ -102,20 +103,18 @@ def test_send_single_transaction_max_award():
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='IBAN not enrolled')
 
-    # Send the transaction with an amount greater than the amount awarded with budget_per_citizen
-    amount = floor(max_amount + random.randint(1, 999999))
+    transactions = []
+    for i in range(50):
+        amount = floor(random.random() * max_amount + min_amount)
+        transactions.append(custom_transaction(pan, amount))
+    trx_file_content = '\n'.join(transactions)
+    trx_file_content_complete = '\n'.join([transactions_hash(trx_file_content), trx_file_content])
 
-    transaction = custom_transaction(pan, amount)
-    transactions_hash(transaction)
-    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
-
-    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    res, curr_file_name = encrypt_and_upload(trx_file_content_complete)
     # 1.3.4
     assert res.status_code == 201
-    # 1.3.4
-    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='Transaction not received')
+
+    time.sleep(random.randint(10, 15))
 
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
@@ -126,184 +125,84 @@ def test_send_single_transaction_max_award():
 
 
 @pytest.mark.IO
-@pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.enroll
 @pytest.mark.reward
-@pytest.mark.use_case('1.4.2')
-def test_send_transactions_award_only_one():
+@pytest.mark.cashback
+@pytest.mark.use_case('1.4')
+def test_send_single_200e_transaction_erode_budget_max_award():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
     token = get_io_token(test_fc)
-    assert list(
-        operation['operationType'] for operation in
-        iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
 
-    # Send the transaction
-    amount = floor(max_amount + random.randint(1, 999999))
+    # 1.4.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.4.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
 
-    transaction = custom_transaction(pan, amount)
-    transactions_hash(transaction)
-    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    # 1.4.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
 
-    res, curr_file_name = encrypt_and_upload(trx_file_content)
-    assert res.status_code == 201
-
-    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='Transaction not received')
-
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['accrued'] == budget_per_citizen
-
-    # Send a second transaction
-    amount = floor(random.random() * max_amount)
-
-    transaction = custom_transaction(pan, amount)
-    transactions_hash(transaction)
-    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
-
-    res, curr_file_name = encrypt_and_upload(trx_file_content)
-    assert res.status_code == 201
-
-    time.sleep(random.randint(5, 10))
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == 0
-    assert res.json()['accrued'] == budget_per_citizen
-
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
-
-    clean_trx_files(curr_file_name)
-
-
-@pytest.mark.IO
-@pytest.mark.enroll
-@pytest.mark.onboard
-@pytest.mark.reward
-@pytest.mark.use_case('2')
-def test_send_50_transaction_erode_budget():
-    test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
-    pan = fake_pan()
-
-    min_amount = 340.833885
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
-    token = get_io_token(test_fc)
-    assert list(operation['operationType'] for operation in
-                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
-
-    # Send the transactions
-    transactions = []
-    for i in range(50):
-        amount = floor(random.random() * max_amount + min_amount)
-        transactions.append(custom_transaction(pan, amount))
-    trx_file_content = '\n'.join(transactions)
-    trx_file_content_complete = '\n'.join([transactions_hash(trx_file_content), trx_file_content])
-
-    res, curr_file_name = encrypt_and_upload(trx_file_content_complete)
-    assert res.status_code == 201
-
-    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='Transaction not received')
-
-    time.sleep(random.randint(5, 10))
-
-    res = timeline(initiative_id, token)
-
-    assert 'TRANSACTION' in list(operation['operationType'] for operation in res.json()['operationList'])
-
-    expected_accrued = budget_per_citizen
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == 0
-    assert res.json()['accrued'] == expected_accrued
-
-    clean_trx_files(curr_file_name)
-
-
-@pytest.mark.IO
-@pytest.mark.enroll
-@pytest.mark.onboard
-@pytest.mark.reward
-@pytest.mark.use_case('3')
-def test_send_transaction_200e_erode_budget():
-    test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
-    pan = fake_pan()
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
-    token = get_io_token(test_fc)
-    assert list(operation['operationType'] for operation in
-                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
-
-    # Send the transaction
     amount = 20000
     transaction = custom_transaction(pan, amount)
+    transactions_hash(transaction)
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
 
     res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.4.4
     assert res.status_code == 201
-
-    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
+    # 1.4.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
                    initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='Transaction not received')
 
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
-
     expected_accrued = budget_per_citizen
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == 0
-    assert res.json()['accrued'] == expected_accrued
+    expected_amount_left = 0
+    # 1.4.4
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
 
 @pytest.mark.IO
-@pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.enroll
 @pytest.mark.reward
-@pytest.mark.use_case('4')
-def test_send_transaction_100e_150e_erode_budget():
+@pytest.mark.cashback
+@pytest.mark.use_case('1.5')
+def test_not_award_after_budget_erosion():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
     token = get_io_token(test_fc)
-    assert list(operation['operationType'] for operation in
-                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
 
-    # Send the transaction
+    # 1.5.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.5.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+
+    # 1.5.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
     amount1 = 10000
     amount2 = 15000
     transaction1 = custom_transaction(pan, amount1)
@@ -312,45 +211,37 @@ def test_send_transaction_100e_150e_erode_budget():
     trx_file1_content_complete = '\n'.join([transactions_hash(trx_file1_content), trx_file1_content])
 
     res, curr_file_name = encrypt_and_upload(trx_file1_content_complete)
+    # 1.5.4
     assert res.status_code == 201
-
-    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
+    # 1.5.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=2, token=token,
                    initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='Transaction not received')
 
-    time.sleep(random.randint(5, 10))
-
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 2
-
     expected_accrued = budget_per_citizen
+    expected_amount_left = 0
+    # 1.5.4
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
 
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == 0
-    assert res.json()['accrued'] == expected_accrued
+    clean_trx_files(curr_file_name)
 
     amount3 = 3500
-
     transaction3 = custom_transaction(pan, amount3)
     trx_file2_content_complete = '\n'.join([transactions_hash(transaction3), transaction3])
-
     res, curr_file_name = encrypt_and_upload(trx_file2_content_complete)
     assert res.status_code == 201
 
     time.sleep(random.randint(10, 15))
 
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 2
+    # 1.5.6
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=2, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction not received')
 
     expected_accrued = budget_per_citizen
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == 0
-    assert res.json()['accrued'] == expected_accrued
+    expected_amount_left = 0
+    # 1.5.6
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
