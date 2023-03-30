@@ -11,7 +11,7 @@ def timeline(initiative_id, token):
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline}/{initiative_id}/?page=0&size=10',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page=0&size=10',
         headers={
             'Authorization': f'Bearer {token}',
         },
