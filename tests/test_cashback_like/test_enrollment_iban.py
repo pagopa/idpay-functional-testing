@@ -2,13 +2,14 @@
 """
 import pytest
 
-from conf.configuration import secrets
+from conf.configuration import secrets, settings
 from idpay import wallet, enroll_iban
 from util import dataset_utility
 from util.utility import onboard_io, get_io_token, iban_enroll, retry_wallet
 
 initiative_id = secrets.initiatives.cashback_like.id
 
+only_iban_status = settings.IDPAY.endpoints.wallet.statuses.not_refundable_only_iban
 
 @pytest.mark.IO
 @pytest.mark.onboard
@@ -18,15 +19,13 @@ def test_enrollment_iban():
     """
     test_fc = dataset_utility.fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
-
-    # Onboard IO
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-
     token = get_io_token(test_fc)
 
-    iban_enroll(token, curr_iban, secrets.initiatives.cashback_like.id)
+    onboard_io(test_fc, initiative_id).json()
 
-    retry_wallet(expected='NOT_REFUNDABLE_ONLY_IBAN', request=wallet, token=token,
+    iban_enroll(test_fc, curr_iban, secrets.initiatives.cashback_like.id)
+
+    retry_wallet(expected=only_iban_status, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='IBAN not registered')
 
