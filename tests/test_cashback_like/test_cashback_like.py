@@ -4,7 +4,7 @@ from math import floor
 
 import pytest
 
-from api.idpay import timeline, wallet, unsubscribe
+from api.idpay import timeline, wallet
 from api.issuer import enroll
 from conf.configuration import secrets, settings
 from util import dataset_utility
@@ -363,13 +363,13 @@ def test_send_transaction_ko_card_enroll():
     res = enroll(initiative_id,
                  test_fc,
                  {
-                     "brand": "VISA",
-                     "type": "DEB",
-                     "pgpPan": pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
-                     "expireMonth": "08",
-                     "expireYear": "2023",
-                     "issuerAbiCode": "",
-                     "holder": "TEST"
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '',
+                     'holder': 'TEST'
                  }
                  )
     print(res.status_code)
