@@ -28,6 +28,11 @@ IDPAY:
         end_path: "/iban"
     wallet: '/wallet'
     timeline: '/timeline'
+    initiative:
+      path: '/initiative'
+      microservice_path: '/idpayinitiativestatistics'
+      start_path: '/organization'
+      end_path: '/statistics'
 RTD:
   domain: "/rtd"
   endpoints:
