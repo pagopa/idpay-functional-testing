@@ -39,6 +39,7 @@ IDPAY:
         add_iban: 'ADD_IBAN'
         add_instrument: 'ADD_INSTRUMENT'
         transaction: 'TRANSACTION'
+        reversal: 'REVERSAL'
 RTD:
   domain: "/rtd"
   endpoints:
