@@ -11,11 +11,13 @@ from api.idpay import timeline, enroll_iban, wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import login, introspect
+from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import hash_pan, fake_vat
 from util.encrypt_utilities import pgp_string_routine
 
+timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 def get_io_token(fc):
     """Login through IO
@@ -29,8 +31,7 @@ def onboard_io(fc, initiative_id):
     :param fc: fiscal code to onboard
     :param initiative_id: ID of the initiative of interest.
     """
-    res = login(fc)
-    token = res.content.decode('utf-8')
+    token = get_io_token(fc)
     res = introspect(token)
     assert res.json()['fiscal_code'] == fc
 
@@ -52,12 +53,13 @@ def onboard_io(fc, initiative_id):
     return res
 
 
-def iban_enroll(token, iban, initiative_id):
+def iban_enroll(fc, iban, initiative_id):
     """Enroll an IBAN through IO
-    :param token: IO token of the current user.
-    :param iban: IBAN that needs to be enrolled.
-    :param initiative_id: ID of the initiative of interest.
-    """
+        :param fc: Fiscal Code of the citizen
+        :param iban: IBAN that needs to be enrolled.
+        :param initiative_id: ID of the initiative of interest.
+        """
+    token = get_io_token(fc)
     res = enroll_iban(initiative_id,
                       token,
                       {
@@ -67,7 +69,7 @@ def iban_enroll(token, iban, initiative_id):
                       )
     assert res.status_code == 200
 
-    res = retry_timeline(expected='ADD_IBAN', request=timeline, token=token,
+    res = retry_timeline(expected=timeline_operations.add_iban, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='IBAN not enrolled')
     return res
@@ -95,8 +97,7 @@ def card_enroll(fc, pan, initiative_id):
     assert res.status_code == 200
 
     token = get_io_token(fc)
-
-    res = retry_timeline(expected='ADD_INSTRUMENT', request=timeline, token=token,
+    res = retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='Card not enrolled')
     return res
