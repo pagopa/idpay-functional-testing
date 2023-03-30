@@ -19,6 +19,7 @@ from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
+
 def get_io_token(fc):
     """Login through IO
     :param fc: fiscal code to log in.
