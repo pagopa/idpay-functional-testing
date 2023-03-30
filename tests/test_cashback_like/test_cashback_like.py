@@ -45,7 +45,7 @@ def test_send_single_transaction():
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not subscribed')
+                 message='Card not enrolled')
 
     # 1.2.3
     iban_enroll(test_fc, curr_iban, initiative_id)
@@ -95,7 +95,7 @@ def test_send_50_transaction_erode_budget_max_award():
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not subscribed')
+                 message='Card not enrolled')
 
     # 1.3.3
     iban_enroll(test_fc, curr_iban, initiative_id)
@@ -145,7 +145,7 @@ def test_send_single_200e_transaction_erode_budget_max_award():
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not subscribed')
+                 message='Card not enrolled')
 
     # 1.4.3
     iban_enroll(test_fc, curr_iban, initiative_id)
@@ -195,7 +195,7 @@ def test_not_award_after_budget_erosion():
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not subscribed')
+                 message='Card not enrolled')
 
     # 1.5.3
     iban_enroll(test_fc, curr_iban, initiative_id)
