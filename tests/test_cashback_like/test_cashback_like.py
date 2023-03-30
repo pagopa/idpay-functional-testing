@@ -4,7 +4,7 @@ from math import floor
 
 import pytest
 
-from api.idpay import timeline, wallet
+from api.idpay import timeline, wallet, unsubscribe
 from api.issuer import enroll
 from conf.configuration import secrets, settings
 from util import dataset_utility
@@ -13,55 +13,62 @@ from util.dataset_utility import fake_fc, fake_pan
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
 from util.utility import onboard_io, card_enroll, get_io_token, iban_enroll, retry_timeline, transactions_hash, \
-    custom_transaction, clean_trx_files
+    custom_transaction, clean_trx_files, retry_wallet, expect_wallet_cuonters
 
 initiative_id = secrets.initiatives.cashback_like.id
 cashback_percentage = settings.initiatives.cashback_like.cashback_percentage
 budget_per_citizen = settings.initiatives.cashback_like.budget_per_citizen
 max_amount = (budget_per_citizen / cashback_percentage * 100) * 100
 
+wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
+timeline_operations = settings.IDPAY.endpoints.timeline.operations
+
 
 @pytest.mark.IO
-@pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.enroll
 @pytest.mark.reward
-@pytest.mark.use_case('1.4.0')
-def test_send_transaction():
+@pytest.mark.cashback
+@pytest.mark.use_case('1.2')
+def test_send_single_transaction():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
     token = get_io_token(test_fc)
-    assert list(operation['operationType'] for operation in
-                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
 
-    # Send the transaction
+    # 1.2.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.2.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+
+    # 1.2.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
     amount = floor(random.random() * max_amount)
-
     transaction = custom_transaction(pan, amount)
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
-
     res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.2.4
     assert res.status_code == 201
-
-    retry_timeline(expected='TRANSACTION', request=timeline, token=token,
+    # 1.2.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
                    initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='Transaction not received')
 
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 1
-
     expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == budget_per_citizen - expected_accrued
-    assert res.json()['accrued'] == expected_accrued
+    # 1.2.4
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
