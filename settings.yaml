@@ -28,7 +28,17 @@ IDPAY:
     wallet:
       path: '/wallet'
       unsubscribe: '/unsubscribe'
-    timeline: '/timeline'
+      statuses:
+        not_refundable: 'NOT_REFUNDABLE'
+        not_refundable_only_instrument: 'NOT_REFUNDABLE_ONLY_INSTRUMENT'
+        not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
+        refundable: 'REFUNDABLE'
+    timeline:
+      path: '/timeline'
+      operations:
+        add_iban: 'ADD_IBAN'
+        add_instrument: 'ADD_INSTRUMENT'
+        transaction: 'TRANSACTION'
 RTD:
   domain: "/rtd"
   endpoints:
