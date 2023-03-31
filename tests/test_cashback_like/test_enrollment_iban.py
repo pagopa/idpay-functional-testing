@@ -2,14 +2,20 @@
 """
 import pytest
 
-from conf.configuration import secrets, settings
-from idpay import wallet, enroll_iban
+from conf.configuration import secrets
+from conf.configuration import settings
+from idpay import enroll_iban
+from idpay import wallet
 from util import dataset_utility
-from util.utility import onboard_io, get_io_token, iban_enroll, retry_wallet
+from util.utility import get_io_token
+from util.utility import iban_enroll
+from util.utility import onboard_io
+from util.utility import retry_wallet
 
 initiative_id = secrets.initiatives.cashback_like.id
 
 only_iban_status = settings.IDPAY.endpoints.wallet.statuses.not_refundable_only_iban
+
 
 @pytest.mark.IO
 @pytest.mark.onboard

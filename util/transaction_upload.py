@@ -2,7 +2,9 @@
 """
 from datetime import datetime
 
-from api.rtd import public_key, sas_token, upload_file
+from api.rtd import public_key
+from api.rtd import sas_token
+from api.rtd import upload_file
 from util.encrypt_utilities import pgp_file_routine
 
 TRANSACTION_FILE_EXTENSION = 'csv'

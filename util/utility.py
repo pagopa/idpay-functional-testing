@@ -7,14 +7,23 @@ from hashlib import sha256
 
 import pytest
 
-from api.idpay import timeline, enroll_iban, wallet, get_payment_instruments, remove_payment_instrument
+from api.idpay import enroll_iban
+from api.idpay import get_payment_instruments
+from api.idpay import remove_payment_instrument
+from api.idpay import timeline
+from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
-from api.token_io import login, introspect
+from api.onboarding_io import accept_terms_and_condition
+from api.onboarding_io import check_prerequisites
+from api.onboarding_io import pdnd_autocertification
+from api.onboarding_io import status_onboarding
+from api.token_io import introspect
+from api.token_io import login
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
-from util.dataset_utility import hash_pan, fake_vat
+from util.dataset_utility import fake_vat
+from util.dataset_utility import hash_pan
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations

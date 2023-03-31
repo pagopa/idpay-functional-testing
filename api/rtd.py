@@ -2,7 +2,8 @@ import os
 
 import requests
 
-from conf.configuration import secrets, settings
+from conf.configuration import secrets
+from conf.configuration import settings
 from util.certs_loader import load_certificates
 
 

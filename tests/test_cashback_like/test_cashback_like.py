@@ -4,16 +4,31 @@ from math import floor
 
 import pytest
 
-from api.idpay import timeline, wallet, unsubscribe, enroll_iban, get_payment_instruments
+from api.idpay import enroll_iban
+from api.idpay import get_payment_instruments
+from api.idpay import timeline
+from api.idpay import unsubscribe
+from api.idpay import wallet
 from api.issuer import enroll
-from conf.configuration import secrets, settings
+from conf.configuration import secrets
+from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
-from util.dataset_utility import fake_fc, fake_pan
+from util.dataset_utility import fake_fc
+from util.dataset_utility import fake_pan
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
-from util.utility import onboard_io, card_enroll, get_io_token, iban_enroll, retry_timeline, transactions_hash, \
-    custom_transaction, clean_trx_files, retry_wallet, expect_wallet_counters, card_removal
+from util.utility import card_enroll
+from util.utility import card_removal
+from util.utility import clean_trx_files
+from util.utility import custom_transaction
+from util.utility import expect_wallet_counters
+from util.utility import get_io_token
+from util.utility import iban_enroll
+from util.utility import onboard_io
+from util.utility import retry_timeline
+from util.utility import retry_wallet
+from util.utility import transactions_hash
 
 initiative_id = secrets.initiatives.cashback_like.id
 cashback_percentage = settings.initiatives.cashback_like.cashback_percentage
