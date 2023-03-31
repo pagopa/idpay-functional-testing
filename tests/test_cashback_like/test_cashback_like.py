@@ -707,22 +707,52 @@ def test_send_minimum_awardable_amount():
 @pytest.mark.enroll
 @pytest.mark.onboard
 @pytest.mark.reward
-@pytest.mark.use_case('10')
+@pytest.mark.use_case('1.12')
 def test_send_transaction_after_fruition_period():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
-
-    assert onboard_io(test_fc, initiative_id).json()['status'] == 'ONBOARDING_OK'
-    assert list(operation['operationType'] for operation in
-                card_enroll(test_fc, pan, initiative_id).json()['operationList']).count('ADD_INSTRUMENT') == 1
-
     token = get_io_token(test_fc)
-    assert list(operation['operationType'] for operation in
-                iban_enroll(token, curr_iban, initiative_id).json()['operationList']).count('ADD_IBAN') == 1
 
-    # Send the transaction
+    # 1.12.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.12.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.12.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
     amount = floor(random.random() * max_amount)
+    transaction = custom_transaction(pan=pan, amount=amount, curr_date='2999-01-01T00:00:00.000Z')
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.12.5
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 1.12.5
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+
+    # 1.12.6
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
 
     transaction = custom_transaction(pan, amount, '2999-01-01T00:00:00.000Z')
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
