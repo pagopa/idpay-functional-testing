@@ -2,7 +2,8 @@
 """
 import pytest
 
-from conf.configuration import settings, secrets
+from conf.configuration import secrets
+from conf.configuration import settings
 from util.text_formatter import TextFormat
 
 
