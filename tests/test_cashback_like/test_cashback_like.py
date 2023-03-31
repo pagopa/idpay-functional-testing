@@ -4,7 +4,7 @@ from math import floor
 
 import pytest
 
-from api.idpay import timeline, wallet, unsubscribe, enroll_iban
+from api.idpay import timeline, wallet, unsubscribe, enroll_iban, get_payment_instruments
 from api.issuer import enroll
 from conf.configuration import secrets, settings
 from util import dataset_utility
@@ -754,23 +754,58 @@ def test_send_transaction_after_fruition_period():
     clean_trx_files(curr_file_name)
 
 
-    transaction = custom_transaction(pan, amount, '2999-01-01T00:00:00.000Z')
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('1.22')
+def test_send_transaction_after_unsubscribe():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 1.22.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected='NOT_REFUNDABLE', request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.22.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected='NOT_REFUNDABLE_ONLY_INSTRUMENT', request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+
+    # 1.22.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected='REFUNDABLE', request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
+    res = unsubscribe(initiative_id, token)
+    # 1.22.4
+    assert res.status_code == 204
+    # 1.22.4
+    retry_wallet(expected='UNSUBSCRIBED', request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+    # 1.22.6
+    assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
+
+    # Send the transaction
+    amount = floor(10)
+    transaction = custom_transaction(pan, amount)
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
 
     res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.22.7
     assert res.status_code == 201
 
     time.sleep(random.randint(10, 15))
 
-    res = timeline(initiative_id, token)
-
-    assert list(operation['operationType'] for operation in res.json()['operationList']).count('TRANSACTION') == 0
-
     expected_accrued = 0
-
-    res = wallet(initiative_id, token)
-
-    assert res.json()['amount'] == budget_per_citizen - expected_accrued
-    assert res.json()['accrued'] == expected_accrued
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 1.22.8
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token=token, initiative_id=initiative_id)
 
     clean_trx_files(curr_file_name)
