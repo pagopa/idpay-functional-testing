@@ -76,11 +76,12 @@ def iban_enroll(fc, iban, initiative_id):
     return res
 
 
-def card_enroll(fc, pan, initiative_id):
+def card_enroll(fc, pan, initiative_id, num_required: int = 1):
     """Enroll a card through API Issuer
         :param fc: Fiscal Code of the citizen
         :param pan: PAN to be enrolled.
         :param initiative_id: ID of the initiative of interest.
+        :param num_required: required number of card enrollment events.
         """
     res = enroll(initiative_id,
                  fc,
@@ -99,8 +100,8 @@ def card_enroll(fc, pan, initiative_id):
 
     token = get_io_token(fc)
     res = retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token,
-                         initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                         message='Card not enrolled')
+                         initiative_id=initiative_id, field='operationType', num_required=num_required, tries=10,
+                         delay=3, message='Card not enrolled')
     return res
 
 
