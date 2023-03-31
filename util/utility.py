@@ -7,7 +7,7 @@ from hashlib import sha256
 
 import pytest
 
-from api.idpay import timeline, enroll_iban, wallet
+from api.idpay import timeline, enroll_iban, wallet, get_payment_instruments, remove_payment_instrument
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition, check_prerequisites, pdnd_autocertification, status_onboarding
 from api.token_io import login, introspect
@@ -102,6 +102,29 @@ def card_enroll(fc, pan, initiative_id, num_required: int = 1):
     res = retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', num_required=num_required, tries=10,
                          delay=3, message='Card not enrolled')
+    return res
+
+
+def card_removal(fc, initiative_id, card_position: int = 1):
+    """Remove a card through IO
+        :param fc: Fiscal Code of the citizen
+        :param initiative_id: ID of the initiative of interest.
+        :param card_position: position on wallet of the card that needs to be deleted.
+        If not specified the first card is deleted.
+        """
+    token = get_io_token(fc)
+
+    res = get_payment_instruments(initiative_id=initiative_id, token=token)
+    assert res.status_code == 200
+
+    instrument_id = res.json()['instrumentList'][card_position - 1]['instrumentId']
+
+    res = remove_payment_instrument(initiative_id=initiative_id, token=token, instrument_id=instrument_id)
+    assert res.status_code == 200
+
+    res = retry_timeline(expected=timeline_operations.delete_instrument, request=timeline, token=token,
+                         initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                         message='Card not deleted')
     return res
 
 
