@@ -1,11 +1,11 @@
 """IBAN enrollment test
 """
 import pytest
+from idpay import enroll_iban
+from idpay import wallet
 
 from conf.configuration import secrets
 from conf.configuration import settings
-from idpay import enroll_iban
-from idpay import wallet
 from util import dataset_utility
 from util.utility import get_io_token
 from util.utility import iban_enroll
