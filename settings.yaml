@@ -27,6 +27,7 @@ IDPAY:
         end_path: "/iban"
     wallet:
       path: '/wallet'
+      end_path: '/instruments'
       unsubscribe: '/unsubscribe'
       statuses:
         not_refundable: 'NOT_REFUNDABLE'
@@ -38,6 +39,7 @@ IDPAY:
       operations:
         add_iban: 'ADD_IBAN'
         add_instrument: 'ADD_INSTRUMENT'
+        delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
 RTD:
@@ -60,3 +62,4 @@ initiatives:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
+    fruition_end: '2099-03-13T22:59:59.000Z'
