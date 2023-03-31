@@ -437,7 +437,7 @@ def test_send_transaction_ko_card_enroll():
 @pytest.mark.reward
 @pytest.mark.cashback
 @pytest.mark.use_case('1.8')
-def test_remove_card():
+def test_remove_card_and_enroll_again():
     test_fc = fake_fc()
     curr_iban = dataset_utility.fake_iban('00000')
     pan = fake_pan()
