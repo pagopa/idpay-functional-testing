@@ -178,7 +178,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
     return res
 
 
-def expect_wallet_cuonters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
+def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
                            tries: int = 3, delay: int = 5):
     retry_wallet(expected=expected_amount, request=wallet, token=token,
                  initiative_id=initiative_id, field='amount', tries=tries, delay=delay,

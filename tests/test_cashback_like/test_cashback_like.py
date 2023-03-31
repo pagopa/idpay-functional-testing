@@ -13,7 +13,7 @@ from util.dataset_utility import fake_fc, fake_pan
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
 from util.utility import onboard_io, card_enroll, get_io_token, iban_enroll, retry_timeline, transactions_hash, \
-    custom_transaction, clean_trx_files, retry_wallet, expect_wallet_cuonters, card_removal
+    custom_transaction, clean_trx_files, retry_wallet, expect_wallet_counters, card_removal
 
 initiative_id = secrets.initiatives.cashback_like.id
 cashback_percentage = settings.initiatives.cashback_like.cashback_percentage
@@ -68,7 +68,7 @@ def test_send_single_transaction():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.2.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -119,7 +119,7 @@ def test_send_50_transaction_erode_budget_max_award():
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
     # 1.3.4
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -169,7 +169,7 @@ def test_send_single_200e_transaction_erode_budget_max_award():
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
     # 1.4.4
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -221,7 +221,7 @@ def test_not_award_after_budget_erosion():
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
     # 1.5.4
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -241,7 +241,7 @@ def test_not_award_after_budget_erosion():
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
     # 1.5.6
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -298,7 +298,7 @@ def test_award_again_after_reversal():
     expected_accrued = budget_per_citizen
     expected_amount_left = 0
     # 1.6.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -315,7 +315,7 @@ def test_award_again_after_reversal():
                    initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                    message='Transaction received')
     # 1.6.9
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     reversal_transaction = custom_transaction(pan=pan, amount=curr_amount, correlation_id=latest_trx_correlation_id,
                                               reversal=True)
@@ -334,7 +334,7 @@ def test_award_again_after_reversal():
     expected_accrued = budget_per_citizen - expected_reversal
     expected_amount_left = expected_reversal
     # 1.6.12
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -354,7 +354,7 @@ def test_award_again_after_reversal():
     expected_accrued = round(budget_per_citizen - expected_reversal + floor(amount * cashback_percentage) / 10000, 2)
     expected_amount_left = round(budget_per_citizen - expected_accrued, 2)
     # 1.6.14
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -426,7 +426,7 @@ def test_send_transaction_ko_card_enroll():
     expected_accrued = 0
     expected_amount_left = budget_per_citizen
     # 1.7.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -475,7 +475,7 @@ def test_remove_card_and_enroll_again():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.8.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -499,7 +499,7 @@ def test_remove_card_and_enroll_again():
                    message='Transaction received')
 
     # 1.8.10
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.8.12
     card_enroll(test_fc, pan, initiative_id, num_required=2)
@@ -527,7 +527,7 @@ def test_remove_card_and_enroll_again():
         float(budget_per_citizen - expected_accrued), 2)
 
     # 1.8.14
-    expect_wallet_cuonters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=token,
+    expect_wallet_counters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=token,
                            initiative_id=initiative_id)
 
 
@@ -593,7 +593,7 @@ def test_ko_iban_enroll():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.9.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -650,7 +650,7 @@ def test_small_amount_no_award():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.10.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -698,7 +698,7 @@ def test_send_minimum_awardable_amount():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.11.5
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -749,7 +749,7 @@ def test_send_transaction_after_fruition_period():
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
 
     # 1.12.6
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
 
@@ -806,6 +806,6 @@ def test_send_transaction_after_unsubscribe():
     expected_accrued = 0
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
     # 1.22.8
-    expect_wallet_cuonters(expected_amount_left, expected_accrued, token=token, initiative_id=initiative_id)
+    expect_wallet_counters(expected_amount_left, expected_accrued, token=token, initiative_id=initiative_id)
 
     clean_trx_files(curr_file_name)
