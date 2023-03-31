@@ -4,7 +4,7 @@ from math import floor
 
 import pytest
 
-from api.idpay import timeline, wallet, unsubscribe
+from api.idpay import timeline, wallet, unsubscribe, enroll_iban
 from api.issuer import enroll
 from conf.configuration import secrets, settings
 from util import dataset_utility
@@ -529,6 +529,79 @@ def test_remove_card_and_enroll_again():
     # 1.8.14
     expect_wallet_cuonters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=token,
                            initiative_id=initiative_id)
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.cashback
+@pytest.mark.use_case('1.9')
+def test_ko_iban_enroll():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 1.9.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+
+    # 1.9.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.9.3
+    res = enroll_iban(initiative_id,
+                      token,
+                      {
+                          'iban': '',
+                          'description': 'TEST Bank account'
+                      }
+                      )
+    assert res.status_code != 200
+
+    time.sleep(random.randint(10, 15))
+
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN enrolled')
+    retry_timeline(expected=timeline_operations.add_iban, request=timeline, token=token,
+                   initiative_id=initiative_id, field='operationType', num_required=0, tries=3, delay=3,
+                   message='IBAN not enrolled')
+
+    amount = floor(random.random() * max_amount)
+
+    transaction = custom_transaction(pan, amount)
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.9.4
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 1.9.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction not received')
+
+    expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+
+    # 1.9.5
+    expect_wallet_cuonters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+    # 1.9.7
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
 
 
 @pytest.mark.IO
