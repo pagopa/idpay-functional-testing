@@ -266,6 +266,7 @@ def test_not_award_after_budget_erosion():
 @pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.cashback
+@pytest.mark.reversal
 @pytest.mark.use_case('1.6')
 def test_award_again_after_reversal():
     test_fc = fake_fc()
