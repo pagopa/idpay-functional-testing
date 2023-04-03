@@ -20,6 +20,7 @@ IDPAY:
       enrollment:
         start_path: "/hb/wallet"
         end_path: "/instruments"
+        unsubscribed_message: "You are unsubscribed at this initiative!"
       consent: "/onboarding/consent"
       status: '/status'
       iban:
@@ -34,6 +35,7 @@ IDPAY:
         not_refundable_only_instrument: 'NOT_REFUNDABLE_ONLY_INSTRUMENT'
         not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
         refundable: 'REFUNDABLE'
+        unsubscribed: 'UNSUBSCRIBED'
     timeline:
       path: '/timeline'
       operations:
@@ -63,3 +65,5 @@ initiatives:
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
     fruition_end: '2099-03-13T22:59:59.000Z'
+    unsubscribed_message: 'Unsubscribed to initiative'
+    unsubscribed_error_details: 'GENERIC_ERROR'

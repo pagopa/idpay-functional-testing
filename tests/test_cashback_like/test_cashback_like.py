@@ -3,6 +3,7 @@ import time
 from math import floor
 
 import pytest
+from onboarding_io import accept_terms_and_condition
 
 from api.idpay import enroll_iban
 from api.idpay import get_payment_instruments
@@ -783,18 +784,18 @@ def test_send_transaction_after_unsubscribe():
 
     # 1.22.1
     onboard_io(test_fc, initiative_id).json()
-    retry_wallet(expected='NOT_REFUNDABLE', request=wallet, token=token,
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='Not subscribed')
     # 1.22.2
     card_enroll(test_fc, pan, initiative_id)
-    retry_wallet(expected='NOT_REFUNDABLE_ONLY_INSTRUMENT', request=wallet, token=token,
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not subscribed')
+                 message='Card not enrolled')
 
     # 1.22.3
     iban_enroll(test_fc, curr_iban, initiative_id)
-    retry_wallet(expected='REFUNDABLE', request=wallet, token=token,
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='IBAN not enrolled')
 
@@ -802,7 +803,7 @@ def test_send_transaction_after_unsubscribe():
     # 1.22.4
     assert res.status_code == 204
     # 1.22.4
-    retry_wallet(expected='UNSUBSCRIBED', request=wallet, token=token,
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='Not unsubscribed')
     # 1.22.6
@@ -825,3 +826,72 @@ def test_send_transaction_after_unsubscribe():
     expect_wallet_counters(expected_amount_left, expected_accrued, token=token, initiative_id=initiative_id)
 
     clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('1.24')
+def test_onboarding_after_unsubscribe():
+    test_fc = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 1.24.0
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.24.0
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.24.0
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
+    res = unsubscribe(initiative_id, token)
+    # 1.24.0
+    assert res.status_code == 204
+    # 1.24.0
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+    # 1.24.0
+    assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
+
+    # 1.24.1
+    res = accept_terms_and_condition(token, initiative_id)
+    assert res.status_code == 400
+    assert 400 == res.json()['code']
+    assert settings.initiatives.cashback_like.unsubscribed_message == res.json()['message']
+    assert settings.initiatives.cashback_like.unsubscribed_error_details == res.json()['details']
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+
+    res = enroll(initiative_id,
+                 test_fc,
+                 {
+                     'brand': 'VISA',
+                     'type': 'DEB',
+                     'pgpPan': pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
+                     'expireMonth': '08',
+                     'expireYear': '2023',
+                     'issuerAbiCode': '03069',
+                     'holder': 'TEST'
+                 }
+                 )
+    # 1.24.2
+    assert res.status_code == 400
+    assert 400 == res.json()['code']
+    assert settings.IDPAY.endpoints.onboarding.enrollment.unsubscribed_message == res.json()['message']
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
