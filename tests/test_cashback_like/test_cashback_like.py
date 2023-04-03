@@ -748,7 +748,7 @@ def test_send_transaction_after_fruition_period():
                  message='IBAN not enrolled')
 
     amount = floor(random.random() * max_amount)
-    transaction = custom_transaction(pan=pan, amount=amount, curr_date='2999-01-01T00:00:00.000Z')
+    transaction = custom_transaction(pan=pan, amount=amount, curr_date='2099-03-13T23:00:00.000Z')
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 1.12.5
