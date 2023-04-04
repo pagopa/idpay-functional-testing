@@ -810,7 +810,7 @@ def test_send_transaction_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     # Send the transaction
-    amount = floor(10)
+    amount = floor(1000)
     transaction = custom_transaction(pan, amount)
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
 
@@ -895,3 +895,91 @@ def test_onboarding_after_unsubscribe():
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='Not unsubscribed')
+
+
+@pytest.mark.IO
+@pytest.mark.enroll
+@pytest.mark.onboard
+@pytest.mark.reward
+@pytest.mark.use_case('1.28')
+def test_onboarding_after_unsubscribe():
+    test_fc_a = fake_fc()
+    test_fc_b = fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    pan_a = fake_pan()
+    pan_b = fake_pan()
+    token_a = get_io_token(test_fc_a)
+    token_b = get_io_token(test_fc_b)
+
+    # 1.28.1
+    onboard_io(test_fc_a, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_a,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.28.2
+    card_enroll(test_fc_a, pan_a, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_a,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.28.3
+    iban_enroll(test_fc_a, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_a,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
+    # 1.28.4
+    onboard_io(test_fc_b, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_b,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.28.5
+    card_enroll(test_fc_b, pan_b, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_b,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.28.6
+    iban_enroll(test_fc_b, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_b,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
+    res = unsubscribe(initiative_id, token_a)
+    # 1.28.7
+    assert res.status_code == 204
+    # 1.28.7
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_a,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+    # 1.28.8
+    assert [] == get_payment_instruments(initiative_id=initiative_id, token=token_a).json()['instrumentList']
+
+    # 1.28.9
+    res = accept_terms_and_condition(token_a, initiative_id)
+    assert res.status_code == 400
+    assert 400 == res.json()['code']
+    assert settings.initiatives.cashback_like.unsubscribed_message == res.json()['message']
+    assert settings.initiatives.cashback_like.unsubscribed_error_details == res.json()['details']
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_a,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+
+    amount = floor(2500)
+    transaction = custom_transaction(pan_b, amount)
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.28.10
+    assert res.status_code == 201
+    # 1.28.10
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token_b,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction not received')
+
+    expected_accrued = round(floor(amount * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+
+    # 1.28.11
+    expect_wallet_counters(expected_amount_left, expected_accrued, token_b, initiative_id)
+
+    clean_trx_files(curr_file_name)
