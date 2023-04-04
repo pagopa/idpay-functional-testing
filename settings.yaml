@@ -20,13 +20,31 @@ IDPAY:
       enrollment:
         start_path: "/hb/wallet"
         end_path: "/instruments"
+        unsubscribed_message: "You are unsubscribed at this initiative!"
+        not_active_for_user_message: "The requested initiative is not active for the current user!"
       consent: "/onboarding/consent"
       status: '/status'
       iban:
         start_path: "/wallet"
         end_path: "/iban"
-    wallet: '/wallet'
-    timeline: '/timeline'
+    wallet:
+      path: '/wallet'
+      end_path: '/instruments'
+      unsubscribe: '/unsubscribe'
+      statuses:
+        not_refundable: 'NOT_REFUNDABLE'
+        not_refundable_only_instrument: 'NOT_REFUNDABLE_ONLY_INSTRUMENT'
+        not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
+        refundable: 'REFUNDABLE'
+        unsubscribed: 'UNSUBSCRIBED'
+    timeline:
+      path: '/timeline'
+      operations:
+        add_iban: 'ADD_IBAN'
+        add_instrument: 'ADD_INSTRUMENT'
+        delete_instrument: 'DELETE_INSTRUMENT'
+        transaction: 'TRANSACTION'
+        reversal: 'REVERSAL'
 RTD:
   domain: "/rtd"
   endpoints:
@@ -47,3 +65,6 @@ initiatives:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
+    fruition_end: '2099-03-13T22:59:59.000Z'
+    unsubscribed_message: 'Unsubscribed to initiative'
+    unsubscribed_error_details: 'GENERIC_ERROR'

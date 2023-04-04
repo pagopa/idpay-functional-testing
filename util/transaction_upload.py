@@ -2,13 +2,15 @@
 """
 from datetime import datetime
 
-from api.rtd import public_key, sas_token, upload_file
+from api.rtd import public_key
+from api.rtd import sas_token
+from api.rtd import upload_file
 from util.encrypt_utilities import pgp_file_routine
 
-TRANSACTION_FILE_EXTENSION = "csv"
-APPLICATION_PREFIX_FILE_NAME = "CSTAR"
-TRANSACTION_LOG_FIXED_SEGMENT = "TRNLOG"
-CHECKSUM_PREFIX = "#sha256sum:"
+TRANSACTION_FILE_EXTENSION = 'csv'
+APPLICATION_PREFIX_FILE_NAME = 'CSTAR'
+TRANSACTION_LOG_FIXED_SEGMENT = 'TRNLOG'
+CHECKSUM_PREFIX = '#sha256sum:'
 
 
 def encrypt_and_upload(transactions: str):
@@ -36,6 +38,6 @@ def input_trx_name_formatter(sender_code: str):
     :returns: well formatted output file name.
     :rtype: str
     """
-    return "{}.{}.{}.{}.001.01.{}".format(APPLICATION_PREFIX_FILE_NAME, sender_code, TRANSACTION_LOG_FIXED_SEGMENT,
+    return '{}.{}.{}.{}.001.01.{}'.format(APPLICATION_PREFIX_FILE_NAME, sender_code, TRANSACTION_LOG_FIXED_SEGMENT,
                                           datetime.now().strftime('%Y%m%d.%H%M%S'),
                                           TRANSACTION_FILE_EXTENSION)

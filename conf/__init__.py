@@ -1,3 +1,3 @@
 """Conf package
 """
-PACKAGE_NAME = "conf"
+PACKAGE_NAME = 'conf'
