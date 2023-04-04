@@ -3,7 +3,6 @@ import time
 from math import floor
 
 import pytest
-from onboarding_io import accept_terms_and_condition
 
 from api.idpay import enroll_iban
 from api.idpay import get_payment_instruments
@@ -11,6 +10,7 @@ from api.idpay import timeline
 from api.idpay import unsubscribe
 from api.idpay import wallet
 from api.issuer import enroll
+from api.onboarding_io import accept_terms_and_condition
 from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
