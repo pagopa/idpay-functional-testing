@@ -21,6 +21,7 @@ IDPAY:
         start_path: "/hb/wallet"
         end_path: "/instruments"
         unsubscribed_message: "You are unsubscribed at this initiative!"
+        not_active_for_user_message: "The requested initiative is not active for the current user!"
       consent: "/onboarding/consent"
       status: '/status'
       iban:
