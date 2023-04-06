@@ -5,6 +5,7 @@ import requests
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.certs_loader import load_certificates
+from util.utility import get_auth_token
 
 
 def pm_salt():
@@ -79,3 +80,16 @@ def upload_file(authorized_container, encrypted_file_path, sas):
             },
         )
     return response
+
+
+def post_transaction(transaction):
+    event_hub_secrets = secrets.event_hub
+    return requests.post(
+        f'https://{event_hub_secrets.servicebus_name}.servicebus.windows.net/{event_hub_secrets.event_hub_name}/messages?timeout=60&api-version=2014-01',
+        headers={
+            'Authorization': f"{get_auth_token(event_hub_secrets.servicebus_name, event_hub_secrets.event_hub_name, event_hub_secrets.shared_access_name, event_hub_secrets.shared_access_key)['token']}",
+            'Content-Type': 'application/atom+xml;type=entry;charset=utf-8 ',
+            'Host': f'{event_hub_secrets.servicebus_name}.servicebus.windows.net'
+        },
+        json=transaction,
+        timeout=5000)
