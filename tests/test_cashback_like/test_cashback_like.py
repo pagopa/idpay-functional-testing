@@ -11,10 +11,12 @@ from api.idpay import unsubscribe
 from api.idpay import wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition
+from api.rtd import post_transaction
 from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import custom_transaction_json
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_pan
 from util.encrypt_utilities import pgp_string_routine
@@ -22,7 +24,6 @@ from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
 from util.utility import card_removal
 from util.utility import clean_trx_files
-from util.utility import custom_transaction
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import iban_enroll
@@ -70,9 +71,7 @@ def test_send_single_transaction():
                  message='IBAN not enrolled')
 
     amount = floor(random.random() * max_amount)
-    transaction = custom_transaction(pan, amount)
-    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
-    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    res = post_transaction(custom_transaction_json(pan, amount))
     # 1.2.4
     assert res.status_code == 201
     # 1.2.4
@@ -85,8 +84,6 @@ def test_send_single_transaction():
 
     # 1.2.5
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
-
-    clean_trx_files(curr_file_name)
 
 
 @pytest.mark.IO
