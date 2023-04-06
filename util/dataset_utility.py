@@ -1,5 +1,7 @@
+import datetime
 import math
 import random
+import uuid
 from hashlib import sha256
 
 from faker import Faker
@@ -83,3 +85,58 @@ def get_random_unicode(length):
         for code_point in range(current_range[0], current_range[1] + 1)
     ]
     return ''.join(random.choice(alphabet) for i in range(length))
+
+
+def custom_transaction(pan: str,
+                       amount: int,
+                       correlation_id: str = None,
+                       curr_date: str = None,
+                       reversal: bool = False,
+                       mcc: str = None):
+    if not correlation_id:
+        correlation_id = uuid.uuid4().int
+    if not curr_date:
+        curr_date = (datetime.datetime.utcnow() + datetime.timedelta(seconds=random.randint(10, 60))).strftime(
+            '%Y-%m-%dT%H:%M:%S.000Z')
+    if not mcc:
+        mcc = '1234'
+
+    return f'IDPAY;{"01" if reversal else "00"};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+
+
+def custom_transaction_json(pan: str,
+                            amount: int,
+                            correlation_id: str = None,
+                            curr_date: str = None,
+                            reversal: bool = False,
+                            mcc: str = None):
+    if not correlation_id:
+        correlation_id = uuid.uuid4().int
+    if not curr_date:
+        curr_date = (datetime.datetime.utcnow() + datetime.timedelta(seconds=random.randint(10, 60))).strftime(
+            '%Y-%m-%dT%H:%M:%S.000Z')
+    if not mcc:
+        mcc = '1234'
+
+    transaction = {
+        'circuitType': '00',
+        'hpan': hash_pan(pan),
+        'trxDate': curr_date,
+        'idTrxAcquirer': uuid.uuid4().int,
+        'idTrxIssuer': uuid.uuid4().int,
+        'correlationId': correlation_id,
+        'amount': amount,
+        'amountCurrency': '978',
+        'acquirerId': '12345',
+        'merchantId': uuid.uuid4().int,
+        'terminalId': uuid.uuid4().int,
+        'bin': pan[:8],
+        'mcc': mcc,
+        'fiscalCode': fake_fc(),
+        'vat': fake_vat(),
+        'posType': '00',
+        'par': sha256(f'{pan}'.encode()).hexdigest().upper()[:29],
+        'acquirerCode': 'IDPAY',
+        'operationType': '01' if reversal else '00'
+    }
+    return transaction
