@@ -1,8 +1,9 @@
-import datetime
+import base64
+import hashlib
+import hmac
 import os
-import random
 import time
-import uuid
+import urllib
 from hashlib import sha256
 
 import pytest
@@ -20,10 +21,7 @@ from api.onboarding_io import status_onboarding
 from api.token_io import introspect
 from api.token_io import login
 from conf.configuration import settings
-from util import dataset_utility
 from util.certs_loader import load_pm_public_key
-from util.dataset_utility import fake_vat
-from util.dataset_utility import hash_pan
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -208,3 +206,20 @@ def clean_trx_files(source_filename: str):
         os.remove(f'{source_filename}.pgp')
     else:
         print(f'The file {source_filename} and its encrypted version does not exist')
+
+
+def get_auth_token(sb_name, eh_name, sas_name, sas_value):
+    """
+    Returns an authorization token dictionary
+    for making calls to Event Hubs REST API.
+    """
+    uri = urllib.parse.quote_plus(f'https://{sb_name}.servicebus.windows.net/{eh_name}')
+    sas = sas_value.encode('utf-8')
+    expiry = str(int(time.time() + 60))
+    string_to_sign = (uri + '\n' + expiry).encode('utf-8')
+    signed_hmac_sha256 = hmac.HMAC(sas, string_to_sign, hashlib.sha256)
+    signature = urllib.parse.quote(base64.b64encode(signed_hmac_sha256.digest()))
+    return {'sb_name': sb_name,
+            'eh_name': eh_name,
+            'token': f'SharedAccessSignature sr={uri}&sig={signature}&se={expiry}&skn={sas_name}'
+            }
