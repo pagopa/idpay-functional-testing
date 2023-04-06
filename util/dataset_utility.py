@@ -8,10 +8,7 @@ from faker import Faker
 from schwifty import IBAN
 from six import unichr
 
-from api.rtd import pm_salt
-
 fake = Faker('it_IT')
-
 circuits = ['visa', 'mastercard', 'maestro', 'amex']
 
 
@@ -21,6 +18,7 @@ def hash_pan(pan: str):
     :returns:  The hashed  PAN.
     :rtype: str
     """
+    from api.rtd import pm_salt
     salt = pm_salt()
     return sha256(f'{pan}{salt}'.encode()).hexdigest()
 
