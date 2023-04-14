@@ -19,7 +19,7 @@ only_iban_status = settings.IDPAY.endpoints.wallet.statuses.not_refundable_only_
 
 @pytest.mark.IO
 @pytest.mark.onboard
-@pytest.mark.use_case('1.3')
+@pytest.mark.enroll
 def test_enrollment_iban():
     """IBAN enrollment process through IO API
     """
@@ -38,7 +38,7 @@ def test_enrollment_iban():
 
 @pytest.mark.IO
 @pytest.mark.onboard
-@pytest.mark.use_case('1.3')
+@pytest.mark.enroll
 def test_fail_enrollment_iban_citizen_not_onboard():
     """Fail IBAN enrollment process through IO API, citizen not onboard
     """
@@ -58,3 +58,40 @@ def test_fail_enrollment_iban_citizen_not_onboard():
 
     res = wallet(initiative_id, token)
     assert res.status_code == 404
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+def test_enroll_same_iban_on_different_citizens():
+    """IBAN enrollment process through IO API
+    """
+    curr_iban = dataset_utility.fake_iban('00000')
+    citizens = []
+    for i in range(10):
+        citizens.append(dataset_utility.fake_fc())
+
+    for citizen in citizens:
+        token = get_io_token(citizen)
+        onboard_io(citizen, initiative_id).json()
+        iban_enroll(citizen, curr_iban, secrets.initiatives.cashback_like.id)
+        retry_wallet(expected=only_iban_status, request=wallet, token=token,
+                     initiative_id=initiative_id, field='status', tries=3, delay=3,
+                     message='IBAN not registered')
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+def test_enroll_iban_more_times():
+    test_fc = dataset_utility.fake_fc()
+    curr_iban = dataset_utility.fake_iban('00000')
+    token = get_io_token(test_fc)
+
+    onboard_io(test_fc, initiative_id).json()
+
+    for i in range(10):
+        iban_enroll(test_fc, curr_iban, secrets.initiatives.cashback_like.id)
+        retry_wallet(expected=only_iban_status, request=wallet, token=token,
+                     initiative_id=initiative_id, field='status', tries=3, delay=3,
+                     message='IBAN not registered')
