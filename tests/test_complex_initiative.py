@@ -4,7 +4,9 @@ from math import floor
 
 import pytest
 
+from api.idpay import get_payment_instruments
 from api.idpay import timeline
+from api.idpay import unsubscribe
 from api.idpay import wallet
 from conf.configuration import secrets
 from conf.configuration import settings
@@ -2144,8 +2146,8 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
 @pytest.mark.onboard
 @pytest.mark.enroll
 @pytest.mark.reward
+@pytest.mark.mcc
 @pytest.mark.complex
-@pytest.mark.reversal
 @pytest.mark.use_case('2.21')
 def test_no_award_wrong_mcc():
     test_fc = fake_fc()
@@ -2221,8 +2223,8 @@ def test_no_award_wrong_mcc():
 @pytest.mark.onboard
 @pytest.mark.enroll
 @pytest.mark.reward
+@pytest.mark.mcc
 @pytest.mark.complex
-@pytest.mark.reversal
 @pytest.mark.use_case('2.22')
 def test_no_award_wrong_mcc_on_first_transaction():
     test_fc = fake_fc()
@@ -2299,7 +2301,7 @@ def test_no_award_wrong_mcc_on_first_transaction():
 @pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.complex
-@pytest.mark.reversal
+@pytest.mark.card_removal
 @pytest.mark.use_case('2.25')
 def test_award_transactions_done_with_two_payment_methods():
     test_fc = fake_fc()
@@ -2392,6 +2394,193 @@ def test_award_transactions_done_with_two_payment_methods():
     expected_accrued = round(floor((amount2 + amount3) * cashback_percentage) / 10000, 2)
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
     # 2.25.7
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.unsubscribe
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.complex
+@pytest.mark.card_removal
+@pytest.mark.use_case('2.26')
+def test_not_award_transactions_after_unsubscribe():
+    test_fc = fake_fc()
+    curr_iban = fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 2.26.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    # 2.26.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=20, delay=0.5,
+                 message='Card not enrolled')
+
+    # 2.26.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='IBAN not enrolled')
+
+    res = unsubscribe(initiative_id, token)
+    # 2.26.4
+    assert res.status_code == 204
+    # 2.26.4
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+    # 2.26.5
+    assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
+
+    amount1 = floor(1000)
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 2.26.6
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 2.26.6
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=1, delay=1,
+                   message='Transaction received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 2.26.7
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+    amount2 = floor(2000)
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 2.26.9
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 2.26.9
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.1,
+                   message='Transaction not received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 2.26.10
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.unsubscribe
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.complex
+@pytest.mark.card_removal
+@pytest.mark.use_case('2.27')
+def test_unsubscribe_after_first_transaction():
+    test_fc = fake_fc()
+    curr_iban = fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 2.27.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    # 2.27.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=20, delay=0.5,
+                 message='Card not enrolled')
+
+    # 2.27.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='IBAN not enrolled')
+
+    amount1 = floor(1000)
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 2.27.4
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 2.27.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=1, delay=1,
+                   message='Transaction received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 2.27.4
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+    amount2 = floor(5000)
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 2.27.7
+    assert res.status_code == 201
+
+    # 2.27.7
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.1,
+                   message='Transaction not received')
+
+    expected_accrued = round(floor(amount2 * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 2.27.8
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+    res = unsubscribe(initiative_id, token)
+    # 2.27.10
+    assert res.status_code == 204
+    # 2.27.10
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not unsubscribed')
+    # 2.27.10
+    assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
+
+    amount3 = floor(5000)
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 2.27.11
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 2.27.11
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.1,
+                   message='Transaction not received')
+
+    expected_accrued = round(floor(amount2 * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 2.27.12
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
