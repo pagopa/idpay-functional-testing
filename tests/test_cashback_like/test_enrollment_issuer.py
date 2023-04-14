@@ -5,11 +5,11 @@ import random
 import string
 
 import pytest
-from idpay import get_payment_instruments
-from idpay import remove_payment_instrument
-from idpay import unsubscribe
-from idpay import wallet
 
+from api.idpay import get_payment_instruments
+from api.idpay import remove_payment_instrument
+from api.idpay import unsubscribe
+from api.idpay import wallet
 from api.issuer import enroll
 from conf.configuration import secrets
 from conf.configuration import settings
