@@ -453,6 +453,7 @@ def test_send_transaction_ko_card_enroll():
 @pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.cashback
+@pytest.mark.card_removal
 @pytest.mark.use_case('1.8')
 def test_remove_card_and_enroll_again():
     test_fc = fake_fc()
@@ -774,6 +775,7 @@ def test_send_transaction_after_fruition_period():
 @pytest.mark.IO
 @pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
 @pytest.mark.reward
 @pytest.mark.use_case('1.22')
 def test_send_transaction_after_unsubscribe():
@@ -831,6 +833,7 @@ def test_send_transaction_after_unsubscribe():
 @pytest.mark.IO
 @pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
 @pytest.mark.reward
 @pytest.mark.use_case('1.24')
 def test_onboarding_after_unsubscribe():
@@ -898,8 +901,9 @@ def test_onboarding_after_unsubscribe():
 
 
 @pytest.mark.IO
-@pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
+@pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.use_case('1.28')
 def test_onboarding_after_unsubscribe():
