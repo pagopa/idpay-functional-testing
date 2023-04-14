@@ -560,6 +560,8 @@ def test_no_award_insufficient_amount():
 
     clean_trx_files(curr_file_name)
 
+    time.sleep(random.randint(5, 10))
+
     amount3 = floor(125)
     amount4 = floor(123)
     transaction3 = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
@@ -1407,6 +1409,8 @@ def test_no_reward_on_reverted_not_awarded_transaction():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     clean_trx_files(curr_file_name)
+
+    time.sleep(random.randint(5, 10))
 
     amount3 = floor(2000)
     transaction_c = custom_transaction(pan=pan, amount=amount3,
