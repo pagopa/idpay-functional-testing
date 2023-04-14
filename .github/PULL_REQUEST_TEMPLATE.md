@@ -42,7 +42,7 @@
 ### Did you update secrets accordingly?
 
 - [ ] Pipelines' secure file
-- [ ] [.secrets_template.yaml](..%2Fconf%2F.secrets_template.yaml) file
+- [ ] `.secrets_template.yaml`
 - [ ] Not needed
 - [ ] No (_please provide further information_)
 
