@@ -200,6 +200,23 @@ def transactions_hash(transactions: str):
     return f'#sha256sum:{sha256(f"{transactions}".encode()).hexdigest()}'
 
 
+def custom_transaction(pan: str,
+                       amount: int,
+                       correlation_id: str = None,
+                       curr_date: str = None,
+                       reversal: bool = False,
+                       mcc: str = None):
+    if not correlation_id:
+        correlation_id = uuid.uuid4().int
+    if not curr_date:
+        curr_date = (datetime.datetime.utcnow() + datetime.timedelta(seconds=random.randint(10, 60))).strftime(
+            '%Y-%m-%dT%H:%M:%S.000Z')
+    if not mcc:
+        mcc = '1234'
+
+    return f'IDPAY;{"01" if reversal else "00"};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+
+
 def clean_trx_files(source_filename: str):
     if os.path.exists(source_filename) and os.path.exists(f'{source_filename}.pgp'):
         os.remove(source_filename)

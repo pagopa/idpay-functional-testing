@@ -14,10 +14,10 @@ from api.onboarding_io import accept_terms_and_condition
 from api.rtd import post_transaction
 from conf.configuration import secrets
 from conf.configuration import settings
-from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import custom_transaction_json
 from util.dataset_utility import fake_fc
+from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
@@ -49,7 +49,7 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 @pytest.mark.use_case('1.2')
 def test_send_single_transaction():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -94,7 +94,7 @@ def test_send_single_transaction():
 @pytest.mark.use_case('1.3')
 def test_send_50_transaction_erode_budget_max_award():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
     min_amount = 340.833885
@@ -145,7 +145,7 @@ def test_send_50_transaction_erode_budget_max_award():
 @pytest.mark.use_case('1.4')
 def test_send_single_200e_transaction_erode_budget_max_award():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -195,7 +195,7 @@ def test_send_single_200e_transaction_erode_budget_max_award():
 @pytest.mark.use_case('1.5')
 def test_not_award_after_budget_erosion():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -268,7 +268,7 @@ def test_not_award_after_budget_erosion():
 @pytest.mark.use_case('1.6')
 def test_award_again_after_reversal():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
     curr_amount = floor(3408.33885)
@@ -381,7 +381,7 @@ def test_award_again_after_reversal():
 @pytest.mark.use_case('1.7')
 def test_send_transaction_ko_card_enroll():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -450,10 +450,11 @@ def test_send_transaction_ko_card_enroll():
 @pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.cashback
+@pytest.mark.card_removal
 @pytest.mark.use_case('1.8')
 def test_remove_card_and_enroll_again():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -553,7 +554,7 @@ def test_remove_card_and_enroll_again():
 @pytest.mark.use_case('1.9')
 def test_ko_iban_enroll():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -625,7 +626,7 @@ def test_ko_iban_enroll():
 @pytest.mark.use_case('1.10')
 def test_small_amount_no_award():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -676,7 +677,7 @@ def test_small_amount_no_award():
 @pytest.mark.use_case('1.11')
 def test_send_minimum_awardable_amount():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -724,7 +725,7 @@ def test_send_minimum_awardable_amount():
 @pytest.mark.use_case('1.12')
 def test_send_transaction_after_fruition_period():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -771,11 +772,12 @@ def test_send_transaction_after_fruition_period():
 @pytest.mark.IO
 @pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
 @pytest.mark.reward
 @pytest.mark.use_case('1.22')
 def test_send_transaction_after_unsubscribe():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -828,11 +830,12 @@ def test_send_transaction_after_unsubscribe():
 @pytest.mark.IO
 @pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
 @pytest.mark.reward
 @pytest.mark.use_case('1.24')
 def test_onboarding_after_unsubscribe():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
@@ -895,14 +898,15 @@ def test_onboarding_after_unsubscribe():
 
 
 @pytest.mark.IO
-@pytest.mark.enroll
 @pytest.mark.onboard
+@pytest.mark.unsubscribe
+@pytest.mark.enroll
 @pytest.mark.reward
 @pytest.mark.use_case('1.28')
 def test_onboarding_after_unsubscribe():
     test_fc_a = fake_fc()
     test_fc_b = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan_a = fake_pan()
     pan_b = fake_pan()
     token_a = get_io_token(test_fc_a)
@@ -991,7 +995,7 @@ def test_onboarding_after_unsubscribe():
 @pytest.mark.use_case('1.27')
 def test_homocode_onboarding():
     test_fc = fake_fc()
-    curr_iban = dataset_utility.fake_iban('00000')
+    curr_iban = fake_iban('00000')
     pan = fake_pan()
     token = get_io_token(test_fc)
 
