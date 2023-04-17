@@ -1,3 +1,4 @@
+import datetime
 import random
 import time
 from math import floor
@@ -1042,3 +1043,59 @@ def test_homocode_onboarding():
     res = accept_terms_and_condition(token1, initiative_id)
     # 1.27.7
     assert res.status_code != 204
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.timing
+@pytest.mark.cashback
+@pytest.mark.use_case('1.29')
+def test_no_reward_transaction_1sec_before_card_enrollment():
+    test_fc = fake_fc()
+    curr_iban = fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 1.29.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Not subscribed')
+    # 1.29.2
+    # Save card enrollment time
+    trx_time = (datetime.datetime.utcnow() - datetime.timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+    card_enroll(test_fc, pan, initiative_id)
+
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='Card not enrolled')
+
+    # 1.29.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3,
+                 message='IBAN not enrolled')
+
+    amount = floor(10)
+    transaction = custom_transaction(pan=pan, amount=amount, curr_date=trx_time)
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.29.4
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 1.29.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+
+    # 1.29.5
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
