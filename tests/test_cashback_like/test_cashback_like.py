@@ -1078,7 +1078,7 @@ def test_no_reward_transaction_1sec_before_card_enrollment():
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='IBAN not enrolled')
 
-    amount = floor(10)
+    amount = floor(1000)
     transaction = custom_transaction(pan=pan, amount=amount, curr_date=trx_time)
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
