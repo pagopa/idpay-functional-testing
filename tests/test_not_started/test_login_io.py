@@ -2,7 +2,8 @@
 """
 import pytest
 
-from api.token_io import introspect, login
+from api.token_io import introspect
+from api.token_io import login
 from util import dataset_utility
 
 

@@ -15,7 +15,7 @@ def accept_terms_and_condition(token, initiative_id):
     return requests.put(f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}',
                         headers={
                             'Content-Type': 'application/json',
-                            "Authorization": f'Bearer {token}',
+                            'Authorization': f'Bearer {token}',
                         },
                         json={'initiativeId': initiative_id},
                         timeout=5000)
@@ -32,7 +32,7 @@ def check_prerequisites(token, initiative_id):
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.initiative}',
         headers={
             'Content-Type': 'application/json',
-            "Authorization": f'Bearer {token}',
+            'Authorization': f'Bearer {token}',
         },
         json={'initiativeId': initiative_id},
         timeout=5000)
@@ -48,15 +48,15 @@ def pdnd_autocertification(token, initiative_id):
     return requests.put(f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}',
                         headers={
                             'Content-Type': 'application/json',
-                            "Authorization": f'Bearer {token}',
+                            'Authorization': f'Bearer {token}',
                         },
                         json={'initiativeId': initiative_id,
-                              "pdndAccept": 'true',
-                              "selfDeclarationList": [
+                              'pdndAccept': 'true',
+                              'selfDeclarationList': [
                                   {
-                                      "_type": "boolean",
-                                      "code": "1",
-                                      "accepted": 'true'
+                                      '_type': 'boolean',
+                                      'code': '1',
+                                      'accepted': 'true'
                                   }]
                               },
                         timeout=5000)
@@ -73,7 +73,7 @@ def status_onboarding(token, initiative_id):
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.status}',
         headers={
             'Content-Type': 'application/json',
-            "Authorization": f'Bearer {token}',
+            'Authorization': f'Bearer {token}',
         },
         json={'initiativeId': initiative_id},
         timeout=5000)

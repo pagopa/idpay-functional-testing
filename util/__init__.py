@@ -1,3 +1,3 @@
 """Util package
 """
-PACKAGE_NAME = "util"
+PACKAGE_NAME = 'util'

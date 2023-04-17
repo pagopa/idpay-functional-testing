@@ -4,7 +4,8 @@ import pytest
 
 from api.onboarding_io import accept_terms_and_condition
 from api.token_io import login
-from conf.configuration import secrets, settings
+from conf.configuration import secrets
+from conf.configuration import settings
 from util import dataset_utility
 
 

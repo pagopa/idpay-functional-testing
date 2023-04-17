@@ -2,7 +2,8 @@ import os
 
 import requests
 
-from conf.configuration import secrets, settings
+from conf.configuration import secrets
+from conf.configuration import settings
 from util.certs_loader import load_certificates
 
 
@@ -33,7 +34,7 @@ def public_key():
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
-            "Content-Type": "application/octet-stream",
+            'Content-Type': 'application/octet-stream',
         },
         timeout=5000)
 
@@ -49,9 +50,9 @@ def sas_token():
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
-            "Content-Type": "application/octet-stream",
-            "x-ms-blob-type": "BlockBlob",
-            "x-ms-version": "2021-08-06"
+            'Content-Type': 'application/octet-stream',
+            'x-ms-blob-type': 'BlockBlob',
+            'x-ms-version': '2021-08-06'
         },
         timeout=5000)
 
@@ -72,9 +73,9 @@ def upload_file(authorized_container, encrypted_file_path, sas):
             data=f,
             headers={
                 settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
-                "Content-Type": "application/octet-stream",
-                "x-ms-blob-type": "BlockBlob",
-                "x-ms-version": "2021-08-06"
+                'Content-Type': 'application/octet-stream',
+                'x-ms-blob-type': 'BlockBlob',
+                'x-ms-version': '2021-08-06'
             },
         )
     return response
