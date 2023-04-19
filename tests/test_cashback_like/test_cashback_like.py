@@ -1265,6 +1265,86 @@ def test_no_reward_after_complete_reversal():
 @pytest.mark.reward
 @pytest.mark.reversal
 @pytest.mark.cashback
+@pytest.mark.use_case('1.33')
+def test_reward_transaction_after_complete_reversal():
+    test_fc = fake_fc()
+    curr_iban = fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 1.33.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    # 1.33.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=20, delay=0.5,
+                 message='Card not enrolled')
+
+    # 1.33.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='IBAN not enrolled')
+
+    amount1 = floor(1000)
+    transaction_a = custom_transaction(pan, amount1)
+    transaction_a_correlation_id = transaction_a.split(';')[7]
+    trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.33.4
+    assert res.status_code == 201
+
+    # 1.33.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.1,
+                   message='Transaction not received')
+
+    expected_accrued = round(floor(amount1 * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 1.33.5
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+    reverse_amount = floor(1000)
+    transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
+                                                correlation_id=transaction_a_correlation_id,
+                                                reversal=True)
+    trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 1.33.8
+    assert res.status_code == 201
+
+    # 1.33.8
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.1,
+                   message='Transaction not received')
+
+    # 1.33.8
+    retry_timeline(expected=timeline_operations.reversal, request=timeline,
+                   num_required=1,
+                   token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Reversal received')
+
+    expected_accrued = round(floor(amount1 * cashback_percentage) / 10000, 2) - round(
+        floor(reverse_amount * cashback_percentage) / 10000, 2)
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 1.33.9
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.reversal
+@pytest.mark.cashback
 @pytest.mark.use_case('1.34')
 def test_reward_transaction_after_partial_reversal():
     test_fc = fake_fc()
@@ -1353,8 +1433,6 @@ def test_reward_transaction_after_partial_reversal():
         floor(reverse_amount * cashback_percentage) / 10000, 2) + round(
         floor(amount2 * cashback_percentage) / 10000, 2)
     expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
-    print(expected_accrued)
-    print(expected_amount_left)
     # 1.34.12
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
