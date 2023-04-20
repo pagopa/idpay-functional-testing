@@ -65,6 +65,7 @@ initiatives:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
     unsubscribed_message: 'Unsubscribed to initiative'
     unsubscribed_error_details: 'GENERIC_ERROR'
