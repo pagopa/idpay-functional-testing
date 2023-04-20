@@ -110,7 +110,7 @@ def card_enroll(fc, pan, initiative_id, num_required: int = 1):
     token = get_io_token(fc)
     res = retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', num_required=num_required, tries=50,
-                         delay=0.5, message='Card not enrolled')
+                         delay=1, message='Card not enrolled')
     return res
 
 
