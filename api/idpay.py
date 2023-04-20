@@ -4,15 +4,16 @@ from conf.configuration import settings
 from util.certs_loader import load_certificates
 
 
-def timeline(initiative_id, token):
+def timeline(initiative_id, token, page: int = 1):
     """API to get timeline of a user
         :param initiative_id: ID of the initiative of interest.
         :param token: token IO.
+        :param page: page to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page=0&size=10',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page={page}&size=10',
         headers={
             'Authorization': f'Bearer {token}',
         },
