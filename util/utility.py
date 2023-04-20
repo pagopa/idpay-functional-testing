@@ -154,17 +154,17 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
 
 
 def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5, backoff=1,
-                   message='Test failed'):
+                   message='Test failed', page: int = 0):
     count = 0
-    res = request(initiative_id, token)
+    res = request(initiative_id, token, page)
     success = list(operation[field] for operation in
                    res.json()['operationList']).count(expected) == num_required
     while not success:
         count += 1
         if count == tries:
             pytest.fail(f'{message} after {delay * (tries * backoff)}s')
-        time.sleep(delay * (count * backoff))
-        res = request(initiative_id, token)
+        time.sleep(delay)
+        res = request(initiative_id, token, page)
         success = list(operation[field] for operation in
                        res.json()['operationList']).count(expected) == num_required
     assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
