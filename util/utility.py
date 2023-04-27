@@ -8,6 +8,8 @@ from hashlib import sha256
 import pytest
 
 from api.idpay import enroll_iban
+from api.idpay import get_iban_info
+from api.idpay import get_iban_list
 from api.idpay import get_payment_instruments
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
@@ -182,6 +184,25 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
         time.sleep(delay)
         res = request(initiative_id, token)
         success = (expected == res.json()[field])
+    assert expected == res.json()[field]
+    return res
+
+
+def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, message='Test failed'):
+    count = 0
+    res = request(iban, token)
+    print(res.json())
+    success = False
+    if res.status_code == 200:
+        success = (expected == res.json()[field])
+    while not success:
+        count += 1
+        if count == tries:
+            pytest.fail(f'{message} after {delay * tries}s')
+        time.sleep(delay)
+        res = request(iban, token)
+        if res.status_code == 200:
+            success = (expected == res.json()[field])
     assert expected == res.json()[field]
     return res
 
