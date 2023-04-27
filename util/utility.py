@@ -9,7 +9,6 @@ import pytest
 
 from api.idpay import enroll_iban
 from api.idpay import get_iban_info
-from api.idpay import get_iban_list
 from api.idpay import get_payment_instruments
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
@@ -84,6 +83,11 @@ def iban_enroll(fc, iban, initiative_id):
     res = retry_timeline(expected=timeline_operations.add_iban, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='IBAN not enrolled')
+
+    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
+                    token=token, field='checkIbanStatus', tries=50,
+                    delay=0.1, message='Wrong checkIbanStatus')
+
     return res
 
 
@@ -191,7 +195,6 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
 def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, message='Test failed'):
     count = 0
     res = request(iban, token)
-    print(res.json())
     success = False
     if res.status_code == 200:
         success = (expected == res.json()[field])

@@ -27,6 +27,7 @@ IDPAY:
       iban:
         start_path: "/wallet"
         end_path: "/iban"
+        unknown_psp: "UNKNOWN_PSP"
     wallet:
       path: '/wallet'
       end_path: '/instruments'
