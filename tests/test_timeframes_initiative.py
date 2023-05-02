@@ -1507,3 +1507,56 @@ def test_enroll_same_iban_2():
     expect_wallet_counters(expected_amount_left, expected_accrued, token_z, initiative_id)
 
     clean_trx_files(curr_file_name)
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+@pytest.mark.reward
+@pytest.mark.timing
+@pytest.mark.timeframes
+@pytest.mark.use_case('3.22')
+def test_not_award_transaction_wrong_day_sunday():
+    test_fc = fake_fc()
+    curr_iban = fake_iban('00000')
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+
+    # 3.22.1
+    onboard_io(test_fc, initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    # 3.22.2
+    card_enroll(test_fc, pan, initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='Card not enrolled')
+
+    # 3.22.3
+    iban_enroll(test_fc, curr_iban, initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                 message='IBAN not enrolled')
+
+    amount1 = floor(3000)
+    transaction = custom_transaction(pan=pan, amount=amount1,
+                                     curr_date=awardable_timeframes['sunday'].trx_date + 'T11:30:00.000Z')
+    trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
+    res, curr_file_name = encrypt_and_upload(trx_file_content)
+    # 3.22.4
+    assert res.status_code == 201
+
+    time.sleep(random.randint(10, 15))
+
+    # 3.22.4
+    retry_timeline(expected=timeline_operations.transaction, request=timeline, num_required=0, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=50, delay=0.2,
+                   message='Transaction received')
+
+    expected_accrued = 0
+    expected_amount_left = round(float(budget_per_citizen - expected_accrued), 2)
+    # 3.22.5
+    expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
+
+    clean_trx_files(curr_file_name)
