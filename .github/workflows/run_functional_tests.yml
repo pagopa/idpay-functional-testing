@@ -1,0 +1,29 @@
+name: Run functional tests
+
+env:
+  SECRETS_FILENAME: /tmp/.secrets.yaml
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  run-tests:
+    runs-on: python:latest
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - name: Save secret
+        env:
+          secrets: ${{ secrets.SECRETS }}
+        run: |
+          echo "$secrets" > $SECRETS_FILENAME
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run pytest
+        run: |
+          IDPAY_SECRET_PATH=$SECRETS_FILENAME IDPAY_TARGET_ENV=uat pytest --junitxml=tests/reports/junit.xml -vv -m unsubscribe
