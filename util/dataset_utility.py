@@ -1,6 +1,7 @@
 import datetime
 import math
 import random
+from dataclasses import dataclass
 from hashlib import sha256
 
 from faker import Faker
@@ -12,6 +13,12 @@ from api.rtd import pm_salt
 fake = Faker('it_IT')
 
 circuits = ['visa', 'mastercard', 'maestro', 'amex']
+
+
+@dataclass()
+class Reward:
+    iban: str
+    amount: float
 
 
 def hash_pan(pan: str):
