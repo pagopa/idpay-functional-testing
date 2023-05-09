@@ -4,15 +4,16 @@ from conf.configuration import settings
 from util.certs_loader import load_certificates
 
 
-def timeline(initiative_id, token):
+def timeline(initiative_id, token, page: int = 1):
     """API to get timeline of a user
         :param initiative_id: ID of the initiative of interest.
         :param token: token IO.
+        :param page: page to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page=0&size=10',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page={page}&size=10',
         headers={
             'Authorization': f'Bearer {token}',
         },
@@ -77,6 +78,39 @@ def get_payment_instruments(initiative_id, token):
     cert = load_certificates()
     return requests.get(
         f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.end_path}',
+        cert=cert,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'Accept-Language': 'it_IT',
+        },
+        timeout=5000)
+
+
+def get_iban_list(token):
+    """API to get list of IBANs associated to a citizen.
+        :param token: token IO.
+    """
+    cert = load_certificates()
+    return requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
+        cert=cert,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'Accept-Language': 'it_IT',
+        },
+        timeout=5000)
+
+
+def get_iban_info(iban, token):
+    """API to get information about an IBAN enrolled by a citizen.
+        :param iban: IBAN of interest.
+        :param token: token IO.
+    """
+    cert = load_certificates()
+    return requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}/{iban}',
         cert=cert,
         headers={
             'Authorization': f'Bearer {token}',

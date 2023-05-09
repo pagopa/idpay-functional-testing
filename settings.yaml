@@ -27,6 +27,7 @@ IDPAY:
       iban:
         start_path: "/wallet"
         end_path: "/iban"
+        unknown_psp: "UNKNOWN_PSP"
     wallet:
       path: '/wallet'
       end_path: '/instruments'
@@ -65,6 +66,7 @@ initiatives:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
     unsubscribed_message: 'Unsubscribed to initiative'
     unsubscribed_error_details: 'GENERIC_ERROR'
@@ -79,5 +81,18 @@ initiatives:
     budget_per_citizen: 100
     mcc_whitelist: [ '0743', '0744', '0763', '0742', '1353', '0780' ]
     fruition_end: '2099-03-31T22:59:59.000Z'
+    unsubscribed_message: 'Unsubscribed to initiative'
+    unsubscribed_error_details: 'GENERIC_ERROR'
+  timeframes:
+    id: 'TIMEFRAMES'
+    flat_cashback_amount: 5.01
+    min_trx_number: 2
+    max_trx_number: 3
+    min_trx_amount: 501
+    max_trx_amount: 200001
+    daily_budget: 400002
+    budget_per_citizen: 100
+    fruition_start: '2023-04-17T00:00:00.000+01:00'
+    fruition_end: '2099-04-17T22:59:59.000Z'
     unsubscribed_message: 'Unsubscribed to initiative'
     unsubscribed_error_details: 'GENERIC_ERROR'

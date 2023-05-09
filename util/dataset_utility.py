@@ -1,3 +1,4 @@
+import datetime
 import math
 import random
 from hashlib import sha256
@@ -83,3 +84,24 @@ def get_random_unicode(length):
         for code_point in range(current_range[0], current_range[1] + 1)
     ]
     return ''.join(random.choice(alphabet) for i in range(length))
+
+
+def get_random_time(start_time: str, end_time: str):
+    """ Pick a random second between start_hour and end_time.
+    :param start_time: Lower bound time formatted in hh:mm:ss.
+    :param end_time: Upper bound time formatted in hh:mm:ss.
+    :returns: A random timestamp formatted in hh:mm:ss.
+    """
+    curr_timestamp = random.randint(get_seconds(start_time), get_seconds(end_time))
+
+    # "{:0>8}".format(MY_VAR) left-pads a string with '0' until it is 8 char long
+    return '{:0>8}'.format(str(datetime.timedelta(seconds=curr_timestamp)))
+
+
+def get_seconds(time_str: str):
+    """ Convert timestamp in second span,
+    :param time_str: Time formatted hh:mm:ss.
+    :returns: The number of seconds, starting from 00:00:00, corresponding to the given time formatted in hh:mm:ss.
+    """
+    hh, mm, ss = time_str.split(':')
+    return int(hh) * 3600 + int(mm) * 60 + int(ss)
