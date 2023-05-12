@@ -40,6 +40,14 @@ def fake_fc():
     return f'{fake_cf[:11]}X000{fake_cf[15:]}'
 
 
+def fake_temporary_fc():
+    """Utility to get a temporary fiscal code.
+    :returns:  A temporary fiscal code.
+    :rtype: str
+    """
+    return str(random.randint(0, 9999999999)).zfill(11)
+
+
 def fake_pan():
     """Faker wrapper that calls faker's credit_card_number method and random circuit.
     :returns:  A fake PAN.
@@ -112,3 +120,7 @@ def get_seconds(time_str: str):
     """
     hh, mm, ss = time_str.split(':')
     return int(hh) * 3600 + int(mm) * 60 + int(ss)
+
+
+def tomorrow_date():
+    return (datetime.datetime.now() + datetime.timedelta(days=2)).strftime('%Y-%m-%d')
