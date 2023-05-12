@@ -24,6 +24,7 @@ IDPAY:
         end_path: "/instruments"
         unsubscribed_message: "You are unsubscribed at this initiative!"
         not_active_for_user_message: "The requested initiative is not active for the current user!"
+        invalid_fc_message: 'Fiscal code not valid!'
       consent: "/onboarding/consent"
       status: '/status'
       iban:
