@@ -6,6 +6,8 @@ base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
   RTD: "https://api.uat.cstar.pagopa.it"
+  IDPAY:
+    internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
 BPD:
   domain: "/bpd"
   endpoints:
@@ -46,6 +48,11 @@ IDPAY:
         delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
+    rewards:
+      path: '/idpayrewardnotification/idpay'
+      force_reward: '/reward/notification/exports/start?notificationDateToSearch='
+    statistics:
+      path: '/idpayinitiativestatistics/idpay'
 RTD:
   domain: "/rtd"
   endpoints:
