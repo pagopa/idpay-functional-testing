@@ -135,4 +135,25 @@ def remove_payment_instrument(initiative_id, token, instrument_id):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=default_timeout)
+
+
+def force_reward():
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}{settings.IDPAY.endpoints.rewards.force_reward}{tomorrow_date()}',
+        timeout=long_timeout
+    )
+
+
+def get_reward_content(organization_id, initiative_id, export_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}/organization/{organization_id}/initiative/{initiative_id}/reward/notification/exports/{export_id}/content',
+        timeout=default_timeout
+    )
+
+
+def get_initiative_statistics(organization_id, initiative_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
+        timeout=default_timeout
+    )
