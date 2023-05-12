@@ -8,8 +8,11 @@ from hashlib import sha256
 import pytest
 
 from api.idpay import enroll_iban
+from api.idpay import force_reward
 from api.idpay import get_iban_info
+from api.idpay import get_initiative_statistics
 from api.idpay import get_payment_instruments
+from api.idpay import get_reward_content
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import wallet
@@ -25,6 +28,7 @@ from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
+from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -248,3 +252,56 @@ def clean_trx_files(source_filename: str):
         os.remove(f'{source_filename}.pgp')
     else:
         print(f'The file {source_filename} and its encrypted version does not exist')
+
+
+def check_statistics(organization_id: str,
+                     initiative_id: str,
+                     old_statistics: dict,
+                     onboarded_citizen_count_increment: int,
+                     accrued_rewards_increment: float,
+                     rewarded_trxs_increment: int = 1,
+                     skip_trx_check: bool = False):
+    current_statistics = get_initiative_statistics(organization_id=organization_id,
+                                                   initiative_id=initiative_id).json()
+
+    assert current_statistics['onboardedCitizenCount'] == old_statistics[
+        'onboardedCitizenCount'] + onboarded_citizen_count_increment
+    if not skip_trx_check:
+        assert current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment
+    assert float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
+        old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2)
+
+
+def check_rewards(initiative_id,
+                  expected_rewards: [Reward],
+                  check_absence: bool = False):
+    export_ids = []
+    organization_id = None
+    res = force_reward()
+    exported_initiatives = res.json()
+    for i in exported_initiatives:
+        if i:
+            curr_export = i[0]
+            if curr_export['initiativeId'] == initiative_id and curr_export['status'] == 'EXPORTED':
+                export_ids.append(curr_export['id'])
+                organization_id = curr_export['organizationId']
+
+    if check_absence:
+        if len(export_ids) == 0:
+            return
+    else:
+        assert len(export_ids) != 0
+
+    for export_id in export_ids:
+        res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
+        actual_rewards = res.json()
+        for expected_reward in expected_rewards:
+            is_rewarded = False
+            for r in actual_rewards:
+                if r['iban'] == expected_reward.iban:
+                    if r['amount'] == expected_reward.amount and r['status'] == 'EXPORTED':
+                        is_rewarded = True
+            if check_absence:
+                assert not is_rewarded
+            else:
+                assert is_rewarded
