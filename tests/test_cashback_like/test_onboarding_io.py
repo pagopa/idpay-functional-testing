@@ -4,15 +4,17 @@ import json
 import math
 import random
 import string
-import time
 
 import pytest
 
 from api.idpay import wallet
+from api.onboarding_io import accept_terms_and_condition
+from api.token_io import introspect
 from api.token_io import login
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.dataset_utility import fake_fc
+from util.dataset_utility import fake_temporary_fc
 from util.dataset_utility import get_random_unicode
 from util.utility import get_io_token
 from util.utility import onboard_io
@@ -27,6 +29,15 @@ def test_onboard_io():
     """Onboarding process through IO
     """
     test_fc = fake_fc()
+    onboard_io(test_fc, initiative_id).json()
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+def test_onboard_io_temporary_fc():
+    """Onboarding process through IO with a temporary fiscal code
+    """
+    test_fc = fake_temporary_fc()
     onboard_io(test_fc, initiative_id).json()
 
 
