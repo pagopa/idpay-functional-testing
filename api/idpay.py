@@ -2,6 +2,10 @@ import requests
 
 from conf.configuration import settings
 from util.certs_loader import load_certificates
+from util.dataset_utility import tomorrow_date
+
+default_timeout = 5000
+long_timeout = 60000
 
 
 def timeline(initiative_id, token, page: int = 1):
@@ -17,7 +21,8 @@ def timeline(initiative_id, token, page: int = 1):
         headers={
             'Authorization': f'Bearer {token}',
         },
-        timeout=5000)
+        timeout=default_timeout
+    )
 
 
 def wallet(initiative_id, token):
@@ -33,7 +38,7 @@ def wallet(initiative_id, token):
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def unsubscribe(initiative_id, token):
@@ -49,7 +54,7 @@ def unsubscribe(initiative_id, token):
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def enroll_iban(initiative_id, token, body):
@@ -67,7 +72,7 @@ def enroll_iban(initiative_id, token, body):
             'Content-Type': 'application/json',
         },
         json=body,
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def get_payment_instruments(initiative_id, token):
@@ -84,7 +89,7 @@ def get_payment_instruments(initiative_id, token):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def get_iban_list(token):
@@ -100,7 +105,7 @@ def get_iban_list(token):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def get_iban_info(iban, token):
@@ -117,7 +122,7 @@ def get_iban_info(iban, token):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=default_timeout)
 
 
 def remove_payment_instrument(initiative_id, token, instrument_id):
