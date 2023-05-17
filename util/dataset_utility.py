@@ -31,13 +31,25 @@ def hash_pan(pan: str):
     return sha256(f'{pan}{salt}'.encode()).hexdigest()
 
 
-def fake_fc():
+def fake_fc(age: int = None):
     """Faker wrapper that calls faker's ssn method and uses non-existing birthplace characters.
+    :param age: Age of the fake fiscal code.
     :returns:  A fake fiscal code.
     :rtype: str
     """
     fake_cf = fake.ssn()
-    return f'{fake_cf[:11]}X000{fake_cf[15:]}'
+
+    surname = fake_cf[:3]
+    name = fake_cf[3:6]
+    day = fake_cf[6:8]
+    month = fake_cf[8]
+    year = fake_cf[9:11]
+    checksum = fake_cf[15]
+
+    if age is not None:
+        year = (datetime.datetime.now() - datetime.timedelta(days=age * 365)).strftime('%Y')[2:]
+
+    return f'{surname}{name}{day}{month}{year}X000{checksum}'
 
 
 def fake_temporary_fc():
