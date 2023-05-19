@@ -139,3 +139,11 @@ def tomorrow_date(is_iso: bool = False):
     if is_iso:
         tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000Z'
     return (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(tomorrow_date_format)
+
+
+def moth_number_to_fc_letter(month_num):
+    months = ['A', 'B', 'C', 'D', 'E', 'H', 'L', 'M', 'P', 'R', 'S', 'T']
+    if 1 <= int(month_num) <= 12:
+        return months[int(month_num) - 1]
+    else:
+        return 'A'
