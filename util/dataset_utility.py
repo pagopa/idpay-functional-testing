@@ -134,5 +134,8 @@ def get_seconds(time_str: str):
     return int(hh) * 3600 + int(mm) * 60 + int(ss)
 
 
-def tomorrow_date():
-    return (datetime.datetime.now() + datetime.timedelta(days=2)).strftime('%Y-%m-%d')
+def tomorrow_date(is_iso: bool = False):
+    tomorrow_date_format = '%Y-%m-%d'
+    if is_iso:
+        tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000Z'
+    return (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(tomorrow_date_format)
