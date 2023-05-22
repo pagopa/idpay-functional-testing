@@ -26,5 +26,5 @@ def enroll(initiative_id, tax_code, body):
             'Fiscal-Code': tax_code
         },
         json=body,
-        timeout=5000
+        timeout=settings.default_timeout
     )

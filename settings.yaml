@@ -2,6 +2,8 @@ SECRET_PATH: "conf/.secrets.yaml"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
 TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
+default_timeout: 5000
+long_timeout: 60000
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"

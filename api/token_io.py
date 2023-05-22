@@ -13,7 +13,8 @@ def login(tax_code):
                          headers={
                              'Content-Type': 'application/json', },
                          params={'fiscalCode': tax_code},
-                         timeout=5000)
+                         timeout=settings.default_timeout
+                         )
 
 
 def introspect(token):
@@ -29,4 +30,5 @@ def introspect(token):
                         params={
                             'token': token
                         },
-                        timeout=5000)
+                        timeout=settings.default_timeout
+                        )

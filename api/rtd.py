@@ -18,7 +18,8 @@ def pm_salt():
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
-        }
+        },
+        timeout=settings.default_timeout
     )
     return response.text
 
@@ -36,7 +37,8 @@ def public_key():
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
             'Content-Type': 'application/octet-stream',
         },
-        timeout=5000)
+        timeout=settings.default_timeout
+    )
 
 
 def sas_token():
@@ -54,7 +56,8 @@ def sas_token():
             'x-ms-blob-type': 'BlockBlob',
             'x-ms-version': '2021-08-06'
         },
-        timeout=5000)
+        timeout=settings.default_timeout
+    )
 
 
 def upload_file(authorized_container, encrypted_file_path, sas):
@@ -77,5 +80,6 @@ def upload_file(authorized_container, encrypted_file_path, sas):
                 'x-ms-blob-type': 'BlockBlob',
                 'x-ms-version': '2021-08-06'
             },
+            timeout=settings.long_timeout
         )
     return response
