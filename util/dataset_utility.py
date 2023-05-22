@@ -1,6 +1,7 @@
 import datetime
 import math
 import random
+from dataclasses import dataclass
 from hashlib import sha256
 
 from faker import Faker
@@ -14,6 +15,12 @@ fake = Faker('it_IT')
 circuits = ['visa', 'mastercard', 'maestro', 'amex']
 
 
+@dataclass()
+class Reward:
+    iban: str
+    amount: float
+
+
 def hash_pan(pan: str):
     """Function that hashes a PAN with salt got from the Payment Manager
     :param pan: Clear PAN to be encrypted.
@@ -24,13 +31,49 @@ def hash_pan(pan: str):
     return sha256(f'{pan}{salt}'.encode()).hexdigest()
 
 
-def fake_fc():
-    """Faker wrapper that calls faker's ssn method and uses non-existing birthplace characters.
-    :returns:  A fake fiscal code.
+def fake_fc(age: int = None, custom_month: int = None, custom_day: int = None, sex: str = None):
+    """Faker wrapper that generates a fake fiscal code with customizable parameters.
+    :param age: Age of the fake fiscal code.
+    :param custom_month: Custom month for the fiscal code (1-12).
+    :param custom_day: Custom day for the fiscal code (1-31).
+    :param sex: Sex of the person ('M' or 'F').
+    :returns: A fake fiscal code.
     :rtype: str
     """
     fake_cf = fake.ssn()
-    return f'{fake_cf[:11]}X000{fake_cf[15:]}'
+
+    surname = fake_cf[:3]
+    name = fake_cf[3:6]
+    year = fake_cf[9:11]
+    checksum = fake_cf[15]
+
+    if age is not None:
+        year = (datetime.datetime.now() - datetime.timedelta(days=int(age) * 365)).strftime('%Y')[2:]
+
+    if custom_month is not None and 1 <= custom_month <= 12:
+        month_letter = moth_number_to_fc_letter(custom_month)
+    else:
+        month_letter = fake_cf[8]
+
+    if custom_day is not None and 1 <= custom_day <= 31:
+        day = str(custom_day).zfill(2)
+        if sex == 'F':
+            day = int(day) + 40
+        else:
+            if int(day) > 31:
+                day = str(int(day) - 40).zfill(2)
+    else:
+        day = fake_cf[6:8]
+
+    return f'{surname}{name}{day}{month_letter}{year}X000{checksum}'
+
+
+def fake_temporary_fc():
+    """Utility to get a temporary fiscal code.
+    :returns:  A temporary fiscal code.
+    :rtype: str
+    """
+    return str(random.randint(0, 9999999999)).zfill(11)
 
 
 def fake_pan():
@@ -105,3 +148,18 @@ def get_seconds(time_str: str):
     """
     hh, mm, ss = time_str.split(':')
     return int(hh) * 3600 + int(mm) * 60 + int(ss)
+
+
+def tomorrow_date(is_iso: bool = False):
+    tomorrow_date_format = '%Y-%m-%d'
+    if is_iso:
+        tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000Z'
+    return (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(tomorrow_date_format)
+
+
+def moth_number_to_fc_letter(month_num):
+    months = ['A', 'B', 'C', 'D', 'E', 'H', 'L', 'M', 'P', 'R', 'S', 'T']
+    if 1 <= int(month_num) <= 12:
+        return months[int(month_num) - 1]
+    else:
+        return 'A'

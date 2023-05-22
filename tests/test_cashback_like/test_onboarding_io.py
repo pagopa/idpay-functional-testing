@@ -4,15 +4,17 @@ import json
 import math
 import random
 import string
-import time
 
 import pytest
 
 from api.idpay import wallet
+from api.onboarding_io import accept_terms_and_condition
+from api.token_io import introspect
 from api.token_io import login
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.dataset_utility import fake_fc
+from util.dataset_utility import fake_temporary_fc
 from util.dataset_utility import get_random_unicode
 from util.utility import get_io_token
 from util.utility import onboard_io
@@ -27,6 +29,15 @@ def test_onboard_io():
     """Onboarding process through IO
     """
     test_fc = fake_fc()
+    onboard_io(test_fc, initiative_id).json()
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+def test_onboard_io_temporary_fc():
+    """Onboarding process through IO with a temporary fiscal code
+    """
+    test_fc = fake_temporary_fc()
     onboard_io(test_fc, initiative_id).json()
 
 
@@ -61,12 +72,18 @@ def test_onboard_unicode():
     test_fc = get_random_unicode(random.randint(0, 100))
     token = get_io_token(test_fc)
 
-    onboard_io(test_fc, initiative_id).json()
-    time.sleep(random.randint(10, 15))
+    res = introspect(token)
+    assert res.json()['fiscal_code'] == test_fc
+
+    res = accept_terms_and_condition(token, initiative_id)
+    assert res.status_code == 400
+    assert res.json()['code'] == 400
+    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
+
     res = wallet(initiative_id=initiative_id, token=token)
-    assert res.status_code == 404
-    assert res.json()['code'] == 404
-    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.not_active_for_user_message
+    assert res.status_code == 400
+    assert res.json()['code'] == 400
+    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
 
 @pytest.mark.IO
@@ -78,14 +95,18 @@ def test_onboard_long_fc():
     test_fc = ''.join(random.choices(string.ascii_uppercase + string.digits, k=int((math.pow(2, 10)))))
     token = get_io_token(test_fc)
 
-    onboard_io(test_fc, initiative_id).json()
+    res = introspect(token)
+    assert res.json()['fiscal_code'] == test_fc
 
-    time.sleep(random.randint(10, 15))
+    res = accept_terms_and_condition(token, initiative_id)
+    assert res.status_code == 400
+    assert res.json()['code'] == 400
+    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
     res = wallet(initiative_id=initiative_id, token=token)
-    assert res.status_code == 404
-    assert res.json()['code'] == 404
-    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.not_active_for_user_message
+    assert res.status_code == 400
+    assert res.json()['code'] == 400
+    assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
 
 @pytest.mark.IO
