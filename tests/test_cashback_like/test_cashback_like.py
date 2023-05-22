@@ -1064,8 +1064,8 @@ def test_onboarding_after_unsubscribe():
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 400
-    assert settings.initiatives.cashback_like.unsubscribed_message == res.json()['message']
-    assert settings.initiatives.cashback_like.unsubscribed_error_details == res.json()['details']
+    assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
+    assert settings.IDPAY.endpoints.onboarding.unsubscribed_error_details == res.json()['details']
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='Not unsubscribed')
@@ -1224,8 +1224,8 @@ def test_onboarding_after_unsubscribe():
     res = accept_terms_and_condition(token_a, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 400
-    assert settings.initiatives.cashback_like.unsubscribed_message == res.json()['message']
-    assert settings.initiatives.cashback_like.unsubscribed_error_details == res.json()['details']
+    assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
+    assert settings.IDPAY.endpoints.onboarding.unsubscribed_error_details == res.json()['details']
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_a,
                  initiative_id=initiative_id, field='status', tries=3, delay=3,
                  message='Not unsubscribed')
