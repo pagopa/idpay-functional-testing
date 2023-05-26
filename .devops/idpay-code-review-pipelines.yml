@@ -14,6 +14,14 @@ variables:
 pool:
   vmImage: 'ubuntu-22.04'
 
+parameters:
+  - name: env
+    displayName: Target Environment
+    type: string
+    default: uat
+    values:
+      - uat
+
 stages:
   - stage: Functional_tests
     dependsOn: []
