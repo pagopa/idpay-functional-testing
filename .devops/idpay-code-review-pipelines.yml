@@ -96,6 +96,8 @@ stages:
                     secureFile: '.secrets.yaml'
 
       - job: run_functional_tests
+        condition: succeeded()
+        dependsOn: [prepare_config]
         timeoutInMinutes: $[variables.TIME_OUT]
         steps:
           - script: |
