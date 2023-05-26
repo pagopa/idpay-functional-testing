@@ -23,7 +23,7 @@ parameters:
       - uat
 
 stages:
-  - stage: Functional-tests
+  - stage: Functional_tests
     dependsOn: []
     condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
     pool:
