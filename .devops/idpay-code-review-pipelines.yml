@@ -70,29 +70,30 @@ stages:
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      steps:
-        - checkout: self
-        - script: |
-            ls -la
-            python3 --version
-            pip3 --version
-          workingDirectory: $(projectRoot)
-          displayName: "Display Python version"
+      - job: prepare_config
+        steps:
+          - checkout: self
+          - script: |
+              ls -la
+              python3 --version
+              pip3 --version
+            workingDirectory: $(projectRoot)
+            displayName: "Display Python version"
 
-        - script: |
-            python3 --version
-            python3 -m pip install --user virtualenv
-            python3 -m virtualenv .venv
-            source .venv/bin/activate
-            pip install -r requirements.txt
-          workingDirectory: $(projectRoot)
-          displayName: "Install requirements"
+          - script: |
+              python3 --version
+              python3 -m pip install --user virtualenv
+              python3 -m virtualenv .venv
+              source .venv/bin/activate
+              pip install -r requirements.txt
+            workingDirectory: $(projectRoot)
+            displayName: "Install requirements"
 
-        - task: DownloadSecureFile@1
-          name: idpay_secrets
-          displayName: 'Download IDPay secrets'
-          inputs:
-            secureFile: '.secrets.yaml'
+          - task: DownloadSecureFile@1
+            name: idpay_secrets
+            displayName: 'Download IDPay secrets'
+            inputs:
+                    secureFile: '.secrets.yaml'
 
             # - job: run_functional_tests
             #   timeoutInMinutes: $[variables.TIME_OUT]
