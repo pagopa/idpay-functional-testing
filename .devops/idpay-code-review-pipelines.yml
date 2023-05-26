@@ -51,6 +51,13 @@ stages:
             displayName: 'Download IDPay secrets'
             inputs:
               secureFile: '.secrets.yaml'
+
+
+      - job: run_functional_tests
+        condition: succeeded()
+        dependsOn: [prepare_config]
+        timeoutInMinutes: $[variables.TIME_OUT]
+        steps:
           - script: |
               ls -la
               pwd
@@ -66,22 +73,3 @@ stages:
               testRunTitle: 'Pytest Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
-
-      # - job: run_functional_tests
-      #   condition: succeeded()
-      #   dependsOn: [prepare_config]
-      #   timeoutInMinutes: $[variables.TIME_OUT]
-      #   steps:
-      #     - script: |
-      #         source .venv/bin/activate
-      #         IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV="${{ parameters.env }}" pytest --junitxml=tests/reports/junit.xml -vv
-      #       workingDirectory: $(Build.SourcesDirectory)
-      #       displayName: 'Run tests with Pytest'
-      #     - task: PublishTestResults@2
-      #       condition: true
-      #       inputs:
-      #         testResultsFormat: 'JUnit'
-      #         testResultsFiles: 'tests/reports/junit.xml'
-      #         testRunTitle: 'Pytest Results'
-      #         searchFolder: $(Build.SourcesDirectory)
-      #         failTaskOnFailedTests: true
