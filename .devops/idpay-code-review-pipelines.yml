@@ -25,7 +25,7 @@ parameters:
 stages:
   - stage: Functional-tests
     dependsOn: []
-    condition: and(succeeded(), eq(${{parameters.DEV}}, true))
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
     pool:
       name: $(selfHostedAgentPool)
     jobs:
