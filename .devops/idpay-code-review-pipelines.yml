@@ -72,7 +72,6 @@ stages:
     jobs:
       - deployment: CONFIGURE_TEST_ENVIRONMENT
         continueOnError: false
-        environment: ${{parameters.env}}
         strategy:
           runOnce:
             deploy:
