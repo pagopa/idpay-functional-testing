@@ -25,7 +25,6 @@ parameters:
 stages:
   - stage: Functional_tests
     dependsOn: []
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
     pool:
       name: $(selfHostedAgentPool)
     jobs:
