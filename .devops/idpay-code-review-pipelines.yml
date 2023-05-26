@@ -29,7 +29,7 @@ stages:
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      - job: prepare-config
+      - job: prepare_config
         timeoutInMinutes: $[variables.TIME_OUT]
         steps:
           - script: |
@@ -53,7 +53,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
 
-      - job: run-functional-tests
+      - job: run_functional_tests
         timeoutInMinutes: $[variables.TIME_OUT]
         steps:
           - script: |
