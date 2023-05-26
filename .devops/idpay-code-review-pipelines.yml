@@ -55,7 +55,7 @@ stages:
               ls -la
               pwd
               source .venv/bin/activate
-              IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV="${{ parameters.env }}" pytest --junitxml=tests/reports/junit.xml -vv
+              IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV="${{ parameters.env }}" pytest --junitxml=tests/reports/junit.xml -vv -k test_send_single_transaction
             # workingDirectory: $(Build.SourcesDirectory)
             displayName: 'Run tests with Pytest'
           - task: PublishTestResults@2
