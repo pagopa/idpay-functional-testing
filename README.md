@@ -17,7 +17,7 @@ cd idpay-functional-testing
 Create a virtual environment:
 
 ```commandline
-python -m venv venv
+python3 -m venv venv
 ```
 
 Enter the virtual environment:
