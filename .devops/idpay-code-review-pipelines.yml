@@ -33,9 +33,9 @@ stages:
           - checkout: self
           - script: |
               ls -la
+              pwd
               python3 --version
               pip3 --version
-            workingDirectory: $(projectRoot)
             displayName: "Display Python version"
 
           - script: |
@@ -44,24 +44,19 @@ stages:
               python3 -m virtualenv .venv
               source .venv/bin/activate
               pip install -r requirements.txt
-            workingDirectory: $(projectRoot)
             displayName: "Install requirements"
 
           - task: DownloadSecureFile@1
             name: idpay_secrets
             displayName: 'Download IDPay secrets'
             inputs:
-                    secureFile: '.secrets.yaml'
-
-      - job: run_functional_tests
-        condition: succeeded()
-        dependsOn: [prepare_config]
-        timeoutInMinutes: $[variables.TIME_OUT]
-        steps:
+              secureFile: '.secrets.yaml'
           - script: |
+              ls -la
+              pwd
               source .venv/bin/activate
               IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV="${{ parameters.env }}" pytest --junitxml=tests/reports/junit.xml -vv
-            workingDirectory: $(Build.SourcesDirectory)
+            # workingDirectory: $(Build.SourcesDirectory)
             displayName: 'Run tests with Pytest'
           - task: PublishTestResults@2
             condition: true
@@ -71,3 +66,22 @@ stages:
               testRunTitle: 'Pytest Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
+
+      # - job: run_functional_tests
+      #   condition: succeeded()
+      #   dependsOn: [prepare_config]
+      #   timeoutInMinutes: $[variables.TIME_OUT]
+      #   steps:
+      #     - script: |
+      #         source .venv/bin/activate
+      #         IDPAY_SECRET_PATH=$(idpay_secrets.secureFilePath) IDPAY_TARGET_ENV="${{ parameters.env }}" pytest --junitxml=tests/reports/junit.xml -vv
+      #       workingDirectory: $(Build.SourcesDirectory)
+      #       displayName: 'Run tests with Pytest'
+      #     - task: PublishTestResults@2
+      #       condition: true
+      #       inputs:
+      #         testResultsFormat: 'JUnit'
+      #         testResultsFiles: 'tests/reports/junit.xml'
+      #         testRunTitle: 'Pytest Results'
+      #         searchFolder: $(Build.SourcesDirectory)
+      #         failTaskOnFailedTests: true
