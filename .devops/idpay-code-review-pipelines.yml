@@ -11,7 +11,7 @@ variables:
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
 
-  selfHostedAgentPool: 'cstar-uat-linux'
+  selfHostedAgentPool: 'cstar-uat-deleteme-app'
 
 pool:
 #  vmImage: 'python:3.11-slim-buster@sha256:6d4b1a970e49fc2c37b4ad7b71ea4396a75abcd9d4f0331304743aba00932975'
