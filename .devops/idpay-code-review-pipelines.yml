@@ -79,6 +79,7 @@ stages:
               steps:
                 - checkout: self
                 - script: |
+                    ls -la
                     python3 --version
                     pip3 --version
                   workingDirectory: $(projectRoot)
