@@ -54,6 +54,7 @@ stages:
 
           - script: |
               ls -la
+              pwd
 
       - job: run_functional_tests
         condition: succeeded()
@@ -62,6 +63,7 @@ stages:
         steps:
           - script: |
               ls -la
+              pwd
           - script: |
               ls -la
               pwd
