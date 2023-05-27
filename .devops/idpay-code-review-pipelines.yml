@@ -52,12 +52,16 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
 
+          - script: |
+              ls -la
 
       - job: run_functional_tests
         condition: succeeded()
         dependsOn: [prepare_config]
         timeoutInMinutes: $[variables.TIME_OUT]
         steps:
+          - script: |
+              ls -la
           - script: |
               ls -la
               pwd
