@@ -1,22 +1,28 @@
+import datetime
+import uuid
+
 import requests
 
 from conf.configuration import settings
 from util.certs_loader import load_certificates
+from util.dataset_utility import tomorrow_date
 
 
-def timeline(initiative_id, token):
+def timeline(initiative_id, token, page: int = 1):
     """API to get timeline of a user
         :param initiative_id: ID of the initiative of interest.
         :param token: token IO.
+        :param page: page to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page=0&size=10',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.timeline.path}/{initiative_id}/?page={page}&size=10',
         headers={
             'Authorization': f'Bearer {token}',
         },
-        timeout=5000)
+        timeout=settings.default_timeout
+    )
 
 
 def wallet(initiative_id, token):
@@ -32,7 +38,7 @@ def wallet(initiative_id, token):
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=settings.default_timeout)
 
 
 def unsubscribe(initiative_id, token):
@@ -48,7 +54,7 @@ def unsubscribe(initiative_id, token):
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=settings.default_timeout)
 
 
 def internal_initiative_statistics(organization_id: str, initiative_id: str):
@@ -81,7 +87,7 @@ def enroll_iban(initiative_id, token, body):
             'Content-Type': 'application/json',
         },
         json=body,
-        timeout=5000)
+        timeout=settings.default_timeout)
 
 
 def get_payment_instruments(initiative_id, token):
@@ -98,7 +104,40 @@ def get_payment_instruments(initiative_id, token):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=settings.default_timeout)
+
+
+def get_iban_list(token):
+    """API to get list of IBANs associated to a citizen.
+        :param token: token IO.
+    """
+    cert = load_certificates()
+    return requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
+        cert=cert,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'Accept-Language': 'it_IT',
+        },
+        timeout=settings.default_timeout)
+
+
+def get_iban_info(iban, token):
+    """API to get information about an IBAN enrolled by a citizen.
+        :param iban: IBAN of interest.
+        :param token: token IO.
+    """
+    cert = load_certificates()
+    return requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}/{iban}',
+        cert=cert,
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'Accept-Language': 'it_IT',
+        },
+        timeout=settings.default_timeout)
 
 
 def remove_payment_instrument(initiative_id, token, instrument_id):
@@ -116,4 +155,25 @@ def remove_payment_instrument(initiative_id, token, instrument_id):
             'Content-Type': 'application/json',
             'Accept-Language': 'it_IT',
         },
-        timeout=5000)
+        timeout=settings.default_timeout)
+
+
+def force_reward():
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}{settings.IDPAY.endpoints.rewards.force_reward}{tomorrow_date()}',
+        timeout=settings.long_timeout
+    )
+
+
+def get_reward_content(organization_id, initiative_id, export_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}/organization/{organization_id}/initiative/{initiative_id}/reward/notification/exports/{export_id}/content',
+        timeout=settings.default_timeout
+    )
+
+
+def get_initiative_statistics(organization_id, initiative_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
+        timeout=settings.default_timeout
+    )

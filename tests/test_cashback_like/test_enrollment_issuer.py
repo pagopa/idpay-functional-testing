@@ -317,3 +317,62 @@ def test_cannot_enroll_same_payment_instrument_of_another_citizen_that_removed_i
                  )
     assert res.status_code == 403
     assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+def test_ok_card_enroll_already_associated_to_another_initiative_same_citizen():
+    test_fc = fake_fc()
+    pan = fake_pan()
+    token = get_io_token(test_fc)
+    cashback_initiative_id = secrets.initiatives.cashback_like.id
+    complex_initiative_id = secrets.initiatives.complex.id
+
+    onboard_io(test_fc, cashback_initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    card_enroll(test_fc, pan, cashback_initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
+                 message='Card not enrolled')
+
+    onboard_io(test_fc, complex_initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    card_enroll(test_fc, pan, complex_initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
+                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1,
+                 message='Card not enrolled')
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.enroll
+def test_abnormal_of_card_enroll():
+    test_fc = fake_fc()
+    token = get_io_token(test_fc)
+    cashback_initiative_id = secrets.initiatives.cashback_like.id
+    n = 100
+    onboard_io(test_fc, cashback_initiative_id).json()
+    retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
+                 message='Not subscribed')
+    for i in range(n):
+        pan = fake_pan()
+        res = enroll(cashback_initiative_id,
+                     test_fc,
+                     {
+                         'brand': 'VISA',
+                         'type': 'DEB',
+                         'pgpPan': pgp_string_routine(pan, load_pm_public_key()).decode('unicode_escape'),
+                         'expireMonth': '08',
+                         'expireYear': '2023',
+                         'issuerAbiCode': '03069',
+                         'holder': 'TEST'
+                     }
+                     )
+
+        assert res.status_code == 200

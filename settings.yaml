@@ -2,11 +2,14 @@ SECRET_PATH: "conf/.secrets.yaml"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
 TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
+default_timeout: 5000
+long_timeout: 60000
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
   RTD: "https://api.uat.cstar.pagopa.it"
-  INTERNAL: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
+  IDPAY:
+    internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
 BPD:
   domain: "/bpd"
   endpoints:
@@ -23,11 +26,15 @@ IDPAY:
         end_path: "/instruments"
         unsubscribed_message: "You are unsubscribed at this initiative!"
         not_active_for_user_message: "The requested initiative is not active for the current user!"
+        invalid_fc_message: 'Fiscal code not valid!'
       consent: "/onboarding/consent"
       status: '/status'
       iban:
         start_path: "/wallet"
         end_path: "/iban"
+        unknown_psp: "UNKNOWN_PSP"
+      unsubscribed_message: 'Unsubscribed to initiative'
+      unsubscribed_error_details: 'GENERIC_ERROR'
     wallet:
       path: '/wallet'
       end_path: '/instruments'
@@ -46,11 +53,11 @@ IDPAY:
         delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
-    initiative:
-      path: '/initiative'
-      microservice_path: '/idpayinitiativestatistics'
-      start_path: '/organization'
-      end_path: '/statistics'
+    rewards:
+      path: '/idpayrewardnotification/idpay'
+      force_reward: '/reward/notification/exports/start?notificationDateToSearch='
+    statistics:
+      path: '/idpayinitiativestatistics/idpay'
 RTD:
   domain: "/rtd"
   endpoints:
@@ -71,9 +78,8 @@ initiatives:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
-    unsubscribed_message: 'Unsubscribed to initiative'
-    unsubscribed_error_details: 'GENERIC_ERROR'
   complex:
     id: 'COMPLEX'
     cashback_percentage: 100
@@ -85,5 +91,14 @@ initiatives:
     budget_per_citizen: 100
     mcc_whitelist: [ '0743', '0744', '0763', '0742', '1353', '0780' ]
     fruition_end: '2099-03-31T22:59:59.000Z'
-    unsubscribed_message: 'Unsubscribed to initiative'
-    unsubscribed_error_details: 'GENERIC_ERROR'
+  timeframes:
+    id: 'TIMEFRAMES'
+    flat_cashback_amount: 5.01
+    min_trx_number: 2
+    max_trx_number: 3
+    min_trx_amount: 501
+    max_trx_amount: 200001
+    daily_budget: 400002
+    budget_per_citizen: 100
+    fruition_start: '2023-04-17T00:00:00.000+01:00'
+    fruition_end: '2099-04-17T22:59:59.000Z'

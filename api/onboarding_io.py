@@ -18,7 +18,8 @@ def accept_terms_and_condition(token, initiative_id):
                             'Authorization': f'Bearer {token}',
                         },
                         json={'initiativeId': initiative_id},
-                        timeout=5000)
+                        timeout=settings.default_timeout
+                        )
 
 
 def check_prerequisites(token, initiative_id):
@@ -35,7 +36,8 @@ def check_prerequisites(token, initiative_id):
             'Authorization': f'Bearer {token}',
         },
         json={'initiativeId': initiative_id},
-        timeout=5000)
+        timeout=settings.default_timeout
+    )
 
 
 def pdnd_autocertification(token, initiative_id):
@@ -59,7 +61,8 @@ def pdnd_autocertification(token, initiative_id):
                                       'accepted': 'true'
                                   }]
                               },
-                        timeout=5000)
+                        timeout=settings.default_timeout
+                        )
 
 
 def status_onboarding(token, initiative_id):
@@ -76,4 +79,5 @@ def status_onboarding(token, initiative_id):
             'Authorization': f'Bearer {token}',
         },
         json={'initiativeId': initiative_id},
-        timeout=5000)
+        timeout=settings.default_timeout
+    )

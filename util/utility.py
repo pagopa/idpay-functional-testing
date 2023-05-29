@@ -8,7 +8,11 @@ from hashlib import sha256
 import pytest
 
 from api.idpay import enroll_iban
+from api.idpay import force_reward
+from api.idpay import get_iban_info
+from api.idpay import get_initiative_statistics
 from api.idpay import get_payment_instruments
+from api.idpay import get_reward_content
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import wallet
@@ -24,6 +28,7 @@ from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
+from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -58,7 +63,7 @@ def onboard_io(fc, initiative_id):
     assert res.status_code == 200
 
     res = retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                              initiative_id=initiative_id, field='status', tries=10, delay=3,
+                              initiative_id=initiative_id, field='status', tries=50, delay=0.1,
                               message='Citizen onboard not OK')
     return res
 
@@ -82,6 +87,11 @@ def iban_enroll(fc, iban, initiative_id):
     res = retry_timeline(expected=timeline_operations.add_iban, request=timeline, token=token,
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='IBAN not enrolled')
+
+    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
+                    token=token, field='checkIbanStatus', tries=50,
+                    delay=0.1, message='Wrong checkIbanStatus')
+
     return res
 
 
@@ -109,8 +119,8 @@ def card_enroll(fc, pan, initiative_id, num_required: int = 1):
 
     token = get_io_token(fc)
     res = retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token,
-                         initiative_id=initiative_id, field='operationType', num_required=num_required, tries=10,
-                         delay=3, message='Card not enrolled')
+                         initiative_id=initiative_id, field='operationType', num_required=num_required, tries=50,
+                         delay=1, message='Card not enrolled')
     return res
 
 
@@ -137,7 +147,7 @@ def card_removal(fc, initiative_id, card_position: int = 1):
     return res
 
 
-def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
+def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5,
                         message='Test failed'):
     count = 0
     res = request(token, initiative_id)
@@ -145,44 +155,61 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * (tries * backoff)}s')
-        time.sleep(delay * (count * backoff))
+            pytest.fail(f'{message} after {delay * tries}s')
+        time.sleep(delay)
         res = request(token, initiative_id)
         success = (expected == res.json()[field])
     assert expected == res.json()[field]
     return res
 
 
-def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5, backoff=1,
-                   message='Test failed'):
+def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5,
+                   message='Test failed', page: int = 0):
     count = 0
-    res = request(initiative_id, token)
+    res = request(initiative_id, token, page)
     success = list(operation[field] for operation in
                    res.json()['operationList']).count(expected) == num_required
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * (tries * backoff)}s')
-        time.sleep(delay * (count * backoff))
-        res = request(initiative_id, token)
+            pytest.fail(f'{message} after {delay * tries}s')
+        time.sleep(delay)
+        res = request(initiative_id, token, page)
         success = list(operation[field] for operation in
                        res.json()['operationList']).count(expected) == num_required
     assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
     return res
 
 
-def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5, backoff=1,
-                 message='Test failed'):
+def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5, message='Test failed'):
     count = 0
     res = request(initiative_id, token)
     success = (expected == res.json()[field])
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * (tries * backoff)}s')
-        time.sleep(delay * (count * backoff))
+            pytest.fail(f'{message} after {delay * tries}s')
+        time.sleep(delay)
         res = request(initiative_id, token)
         success = (expected == res.json()[field])
+    assert expected == res.json()[field]
+    return res
+
+
+def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, message='Test failed'):
+    count = 0
+    res = request(iban, token)
+    success = False
+    if res.status_code == 200:
+        success = (expected == res.json()[field])
+    while not success:
+        count += 1
+        if count == tries:
+            pytest.fail(f'{message} after {delay * tries}s')
+        time.sleep(delay)
+        res = request(iban, token)
+        if res.status_code == 200:
+            success = (expected == res.json()[field])
     assert expected == res.json()[field]
     return res
 
@@ -225,3 +252,56 @@ def clean_trx_files(source_filename: str):
         os.remove(f'{source_filename}.pgp')
     else:
         print(f'The file {source_filename} and its encrypted version does not exist')
+
+
+def check_statistics(organization_id: str,
+                     initiative_id: str,
+                     old_statistics: dict,
+                     onboarded_citizen_count_increment: int,
+                     accrued_rewards_increment: float,
+                     rewarded_trxs_increment: int = 1,
+                     skip_trx_check: bool = False):
+    current_statistics = get_initiative_statistics(organization_id=organization_id,
+                                                   initiative_id=initiative_id).json()
+
+    assert current_statistics['onboardedCitizenCount'] == old_statistics[
+        'onboardedCitizenCount'] + onboarded_citizen_count_increment
+    if not skip_trx_check:
+        assert current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment
+    assert float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
+        old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2)
+
+
+def check_rewards(initiative_id,
+                  expected_rewards: [Reward],
+                  check_absence: bool = False):
+    export_ids = []
+    organization_id = None
+    res = force_reward()
+    exported_initiatives = res.json()
+    for i in exported_initiatives:
+        if i:
+            curr_export = i[0]
+            if curr_export['initiativeId'] == initiative_id and curr_export['status'] == 'EXPORTED':
+                export_ids.append(curr_export['id'])
+                organization_id = curr_export['organizationId']
+
+    if check_absence:
+        if len(export_ids) == 0:
+            return
+    else:
+        assert len(export_ids) != 0
+
+    for export_id in export_ids:
+        res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
+        actual_rewards = res.json()
+        for expected_reward in expected_rewards:
+            is_rewarded = False
+            for r in actual_rewards:
+                if r['iban'] == expected_reward.iban:
+                    if r['amount'] == expected_reward.amount and r['status'] == 'EXPORTED':
+                        is_rewarded = True
+            if check_absence:
+                assert not is_rewarded
+            else:
+                assert is_rewarded
