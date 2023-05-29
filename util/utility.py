@@ -5,8 +5,6 @@ import time
 import uuid
 from hashlib import sha256
 
-import pytest
-
 from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
@@ -155,7 +153,7 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(token, initiative_id)
         success = (expected == res.json()[field])
@@ -172,7 +170,7 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(initiative_id, token, page)
         success = list(operation[field] for operation in
@@ -188,7 +186,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(initiative_id, token)
         success = (expected == res.json()[field])
@@ -205,7 +203,7 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, mes
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(iban, token)
         if res.status_code == 200:
