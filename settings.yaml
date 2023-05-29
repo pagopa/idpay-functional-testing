@@ -58,6 +58,11 @@ IDPAY:
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
     statistics:
       path: '/idpayinitiativestatistics/idpay'
+    payment:
+      path: '/payment'
+      qr_code:
+        path: '/qr-code/'
+        merchant: '/merchant'
 RTD:
   domain: "/rtd"
   endpoints:
