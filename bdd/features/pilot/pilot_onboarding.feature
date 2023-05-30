@@ -67,3 +67,20 @@ Feature: A Citizen onboards the pilot initiative
     And the citizen onboarded
     When the citizen tries to onboard
     Then the onboard is KO
+
+  @onboarding
+  @pilot
+  Scenario: User in age range with self-declared correct criteria tries onboarding
+    Given the citizen is 25 years old tomorrow
+    And the citizen accepts terms and condition
+    When the citizen insert self-declared criteria correctly
+    Then the onboard is OK
+
+  @onboarding
+  @pilot
+  @need_fix
+  Scenario: User in age range with self-declared incorrect criteria tries onboarding
+    Given the citizen is 25 years old at most
+    And the citizen accepts terms and condition
+    When the citizen insert self-declared criteria not correctly
+    Then the onboard is KO
