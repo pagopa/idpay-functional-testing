@@ -9,6 +9,7 @@ from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
+from bdd.steps.rewards_step import step_set_expected_accrued
 
 
 @when('the merchant tries to generate a transaction of amount {amount_cents} cents')
@@ -40,8 +41,21 @@ def step_check_transaction_status(context, status):
         context.latest_trx_details = get_transaction_detail(context.trx_id)
         assert context.latest_trx_details.json()['status'] == status
 
+    if status == 'AUTHORIZED':
+        context.latest_trx_details = get_transaction_detail(context.trx_id)
+        assert context.latest_trx_details.json()['status'] == status
+
+        step_set_expected_accrued(context)
+        assert context.latest_trx_details.json()['rewardCents'] == context.expected_accrued_cents
+
     if status == 'NOT CREATED':
         assert context.create_transaction_response.status_code != 201
+
+    if status == 'NOT AUTHORIZED':
+        assert context.pre_authorization_response.status_code == 403
+
+        context.latest_trx_details = get_transaction_detail(context.trx_id)
+        assert context.latest_trx_details.json()['status'] == 'REJECTED'
 
 
 @given('the merchant generated {trx_num} transactions of amount {amount_cents} cents')
