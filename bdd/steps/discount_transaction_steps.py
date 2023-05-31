@@ -103,6 +103,11 @@ def step_when_citizen_authorize_transaction(context):
     context.latest_trx_details = res
 
 
+@when('the citizen tries to authorize the transaction')
+def step_citizen_tries_pre_authorize_transaction(context):
+    context.pre_authorization_response = put_pre_authorize_payment(context.trx_code, context.token_io)
+
+
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
