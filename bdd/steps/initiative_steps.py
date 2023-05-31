@@ -12,6 +12,8 @@ def step_given_initiative_id(context, initiative_name):
     context.initiatives_settings = settings.initiatives[initiative_name]
 
     context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.cashback_percentage = context.initiatives_settings['cashback_percentage']
+    context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
 
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
