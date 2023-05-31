@@ -26,3 +26,31 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant generated a transaction of amount 200000 cents
     When the citizen authorizes the transaction
     Then the citizen is rewarded accordingly
+
+  @transaction
+  @pilot
+  @need_fix
+  Scenario: budget completely eroded with 10 trx
+    Given the citizen is onboard
+    And the merchant generated 10 transactions of amount 200000 cents
+    When the citizen authorizes the transaction
+    When the citizen confirms all the transaction
+    Then the citizen is rewarded accordingly
+
+  @transaction
+  @pilot
+  Scenario: A transaction is not authorized if the budget is eroded
+    Given the citizen is onboard
+    And the citizen's budget is eroded
+    And the merchant generated a transaction of amount 200000 cents
+    When the citizen tries to authorize the transaction
+    Then the transaction is not authorized
+
+  @transaction
+  @pilot
+  Scenario: A transaction greater than the budget by 1 cent is authorized
+    Given the citizen is onboard
+    And the merchant generated a transaction of amount 30001 cents
+    When the citizen authorizes the transaction
+    Then the transaction is authorized
+    And the citizen is rewarded accordingly
