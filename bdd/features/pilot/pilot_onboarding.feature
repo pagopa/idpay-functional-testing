@@ -79,7 +79,6 @@ Feature: A Citizen onboards the pilot initiative
   @onboarding
   @pilot
   @need_fix
-  @test
   Scenario: User in age range with self-declared incorrect criteria tries onboarding
     Given the citizen is 25 years old at most
     And the citizen accepts terms and condition
