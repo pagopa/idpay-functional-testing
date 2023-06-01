@@ -14,8 +14,11 @@ from bdd.steps.rewards_step import step_set_expected_accrued
 
 @when('the merchant tries to generate a transaction of amount {amount_cents} cents')
 def step_when_merchant_tries_to_create_a_transaction(context, amount_cents):
-    context.create_transaction_response = post_merchant_create_transaction_acquirer(context.initiative_id, amount_cents)
     step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.create_transaction_response = post_merchant_create_transaction_acquirer(initiative_id=context.initiative_id,
+                                                                                    amount_cents=amount_cents,
+                                                                                    trx_date=context.trx_date
+                                                                                    )
 
 
 @given('the merchant generated a transaction of amount {amount_cents} cents')
@@ -65,7 +68,9 @@ def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amou
     step_given_amount_cents(context=context, amount_cents=amount_cents)
 
     for i in range(int(trx_num)):
-        res = post_merchant_create_transaction_acquirer(context.initiative_id, amount_cents)
+        res = post_merchant_create_transaction_acquirer(initiative_id=context.initiative_id,
+                                                        amount_cents=amount_cents,
+                                                        trx_date=context.trx_date)
         context.create_transaction_response = res
         context.latest_trx_details = res
         step_check_transaction_status(context=context, status='CREATED')
