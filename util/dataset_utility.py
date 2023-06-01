@@ -4,6 +4,7 @@ import random
 from dataclasses import dataclass
 from hashlib import sha256
 
+import pytz
 from faker import Faker
 from schwifty import IBAN
 from six import unichr
@@ -153,8 +154,9 @@ def get_seconds(time_str: str):
 def tomorrow_date(is_iso: bool = False):
     tomorrow_date_format = '%Y-%m-%d'
     if is_iso:
-        tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000Z'
-    return (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(tomorrow_date_format)
+        tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000%z'
+    return (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
+        tomorrow_date_format)
 
 
 def moth_number_to_fc_letter(month_num):
