@@ -47,3 +47,11 @@ def step_citizen_fc_from_age_and_precision(context, age: int, precision: str):
     context.token_io = get_io_token(context.citizen_fc)
     res = introspect(context.token_io)
     assert res.json()['fiscal_code'] == context.citizen_fc
+
+
+@given('the transaction is created before fruition period')
+def step_trx_before_fruition_period(context):
+    date_format = '%Y-%m-%dT%H:%M:%S.000%z'
+    context.trx_date = (
+            datetime.datetime.strptime(context.fruition_start, date_format) - datetime.timedelta(days=1)).strftime(
+        date_format)
