@@ -54,3 +54,36 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen authorizes the transaction
     Then the transaction is authorized
     And the citizen is rewarded accordingly
+
+  @transaction
+  @pilot
+  @need_fix
+  Scenario: The transaction is not authorized before the expendable period
+    Given the citizen is onboard
+    And the transaction is created before fruition period
+    And the merchant generated a transaction of amount 200000 cents
+    When the citizen tries to authorize the transaction
+    Then the transaction is not authorized
+
+  @transaction
+  @pilot
+  Scenario: The transaction is not authorized for onboarding citizen KO
+    Given the citizen is not onboard
+    Given the merchant generated a transaction of amount 3000 cents
+    When the citizen tries to authorize the transaction
+    Then the transaction is not authorized
+
+  @transaction
+  @pilot
+  Scenario: The transaction is not authorized for ever registered citizen
+    Given the merchant generated a transaction of amount 3000 cents
+    When the citizen tries to authorize the transaction
+    Then the transaction is not authorized
+
+  @transaction
+  @pilot
+  @need_fix
+  Scenario: The transaction is not generated for an amount equal to 0 cents
+    Given the merchant is qualified
+    When the merchant tries to generate a transaction of amount 0 cents
+    Then the transaction is not created
