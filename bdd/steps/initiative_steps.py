@@ -1,3 +1,6 @@
+import datetime
+
+import pytz
 from behave import given
 from behave import then
 
@@ -14,6 +17,10 @@ def step_given_initiative_id(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
     context.cashback_percentage = context.initiatives_settings['cashback_percentage']
     context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
+    context.fruition_start = context.initiatives_settings['fruition_start']
+
+    context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
+        settings.iso_date_format)
 
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
