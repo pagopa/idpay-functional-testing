@@ -26,6 +26,12 @@ def step_citizen_onboard(context):
     step_check_onboarding_status(context=context, status='OK')
 
 
+@given('the citizen is not onboard')
+def step_citizen_not_onboard(context):
+    step_citizen_accept_terms_and_condition(context=context)
+    step_insert_self_declared_criteria(context=context, correctness='not correctly')
+
+
 @when('the citizen tries to onboard')
 def step_citizen_tries_to_onboard(context):
     step_citizen_accept_terms_and_condition(context=context)
