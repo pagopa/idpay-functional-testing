@@ -116,3 +116,8 @@ def step_citizen_tries_pre_authorize_transaction(context):
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
+
+
+@then('the transaction expires')
+def step_transaction_expires(context):
+    pass
