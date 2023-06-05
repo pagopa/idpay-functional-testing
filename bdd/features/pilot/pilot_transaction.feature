@@ -33,7 +33,6 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: budget completely eroded with 10 trx
     Given the citizen is onboard
     And the merchant generated 10 transactions of amount 200000 cents
-    When the citizen authorizes the transaction
     When the citizen confirms all the transaction
     Then the citizen is rewarded accordingly
 
@@ -87,3 +86,15 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant is qualified
     When the merchant tries to generate a transaction of amount 0 cents
     Then the transaction is not created
+
+  @transaction
+  @pilot
+  @need_fix
+  Scenario: the transaction expires, if not authorized within 3 days by the citizen
+    Given the merchant is qualified
+    And the citizen is onboard
+    And the transaction is created 3 days ago
+    And the merchant generated a transaction of amount 19999 cents
+    When the citizen tries to authorize the transaction
+    Then the transaction is not authorized
+    And the transaction expires
