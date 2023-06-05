@@ -1,9 +1,11 @@
 import datetime
 import random
 
+import pytz
 from behave import given
 
 from api.token_io import introspect
+from conf.configuration import settings
 from util.dataset_utility import fake_fc
 from util.utility import get_io_token
 
@@ -51,7 +53,14 @@ def step_citizen_fc_from_age_and_precision(context, age: int, precision: str):
 
 @given('the transaction is created before fruition period')
 def step_trx_before_fruition_period(context):
-    date_format = '%Y-%m-%dT%H:%M:%S.000%z'
     context.trx_date = (
-            datetime.datetime.strptime(context.fruition_start, date_format) - datetime.timedelta(days=1)).strftime(
-        date_format)
+            datetime.datetime.strptime(context.fruition_start, settings.iso_date_format) - datetime.timedelta(
+        days=1)).strftime(
+        settings.iso_date_format)
+
+
+@given('the transaction is created {days_back} days ago')
+def step_trx_date_days_ago(context, days_back):
+    context.trx_date = (
+            datetime.datetime.now(pytz.timezone('Europe/Rome')) - datetime.timedelta(days=int(days_back))).strftime(
+        settings.iso_date_format)
