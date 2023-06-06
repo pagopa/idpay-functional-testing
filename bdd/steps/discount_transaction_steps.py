@@ -10,6 +10,10 @@ from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from bdd.steps.rewards_step import step_set_expected_accrued
+from conf.configuration import secrets
+from util.utility import get_io_token
+
+merchant_id = secrets.merchant_id
 
 
 @when('the merchant tries to generate a transaction of amount {amount_cents} cents')
@@ -17,6 +21,7 @@ def step_when_merchant_tries_to_create_a_transaction(context, amount_cents):
     step_given_amount_cents(context=context, amount_cents=amount_cents)
     context.create_transaction_response = post_merchant_create_transaction_acquirer(initiative_id=context.initiative_id,
                                                                                     amount_cents=amount_cents,
+                                                                                    merchant_id=merchant_id,
                                                                                     trx_date=context.trx_date
                                                                                     )
 
@@ -41,11 +46,15 @@ def step_check_transaction_status(context, status):
         assert 'id' in context.latest_trx_details.json()
         context.trx_id = context.latest_trx_details.json()['id']
 
-        context.latest_trx_details = get_transaction_detail(context.trx_id)
+        context.latest_trx_details = get_transaction_detail(context.trx_id,
+                                                            merchant_id=merchant_id
+                                                            )
         assert context.latest_trx_details.json()['status'] == status
 
     if status == 'AUTHORIZED':
-        context.latest_trx_details = get_transaction_detail(context.trx_id)
+        context.latest_trx_details = get_transaction_detail(context.trx_id,
+                                                            merchant_id=merchant_id
+                                                            )
         assert context.latest_trx_details.json()['status'] == status
 
         step_set_expected_accrued(context)
@@ -57,7 +66,9 @@ def step_check_transaction_status(context, status):
     if status == 'NOT AUTHORIZED':
         assert context.pre_authorization_response.status_code == 403
 
-        context.latest_trx_details = get_transaction_detail(context.trx_id)
+        context.latest_trx_details = get_transaction_detail(context.trx_id,
+                                                            merchant_id=merchant_id
+                                                            )
         assert context.latest_trx_details.json()['status'] == 'REJECTED'
 
 
@@ -70,6 +81,7 @@ def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amou
     for i in range(int(trx_num)):
         res = post_merchant_create_transaction_acquirer(initiative_id=context.initiative_id,
                                                         amount_cents=amount_cents,
+                                                        merchant_id=merchant_id,
                                                         trx_date=context.trx_date)
         context.create_transaction_response = res
         context.latest_trx_details = res

@@ -167,7 +167,7 @@ def get_initiative_statistics(organization_id, initiative_id):
 def post_merchant_create_transaction_acquirer(initiative_id,
                                               amount_cents: int,
                                               merchant_id: str = 'MERCHANTID',
-                                              acquirer_id: str = 'ACQUIRERID',
+                                              acquirer_id: str = settings.idpay.acquirer_id,
                                               apim_request_id: str = 'APIMREQUESTID',
                                               mcc: str = '1234',
                                               merchant_fiscal_code: str = '12345678901',
@@ -195,7 +195,7 @@ def post_merchant_create_transaction_acquirer(initiative_id,
 
 def get_transaction_detail(transaction_id,
                            merchant_id: str = 'MERCHANTID',
-                           acquirer_id: str = 'ACQUIRERID',
+                           acquirer_id: str = settings.idpay.acquirer_id,
                            ):
     response = requests.get(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
@@ -210,15 +210,15 @@ def get_transaction_detail(transaction_id,
 
 def put_merchant_confirms_payment(transaction_id,
                                   merchant_id: str = 'MERCHANTID',
-                                  acquirer_id: str = 'ACQUIRERID',
-                                  api_request_id: str = 'TEST'
+                                  acquirer_id: str = settings.idpay.acquirer_id,
+                                  apim_request_id: str = 'APIMREQUESTID'
                                   ):
     response = requests.put(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}/confirm',
         headers={
             'x-merchant-id': merchant_id,
             'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': api_request_id
+            'x-apim-request-id': apim_request_id
         }
     )
     return response
