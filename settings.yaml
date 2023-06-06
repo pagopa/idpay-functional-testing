@@ -64,6 +64,7 @@ IDPAY:
       qr_code:
         path: '/qr-code/'
         merchant: '/merchant'
+  acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
   endpoints:
