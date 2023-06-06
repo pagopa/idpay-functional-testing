@@ -15,14 +15,14 @@ def step_citizen_fc_exact_or_random(context, citizen_fc):
     if citizen_fc == 'random':
         citizen_fc = fake_fc()
 
-    context.citizen_fc = citizen_fc
-    context.token_io = get_io_token(context.citizen_fc)
-    res = introspect(context.token_io)
-    assert res.json()['fiscal_code'] == context.citizen_fc
+    context.latest_citizen_fc = citizen_fc
+    context.latest_token_io = get_io_token(citizen_fc)
+    res = introspect(context.latest_token_io)
+    assert res.json()['fiscal_code'] == citizen_fc
 
 
-@given('the citizen is {age} years old {precision}')
-def step_citizen_fc_from_age_and_precision(context, age: int, precision: str):
+@given('the citizen {citizen_name} is {age} years old {precision}')
+def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age: int, precision: str):
     citizen_fc = fake_fc(age=age)
     if precision == 'at most':
         current_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(30, 90))
@@ -45,10 +45,11 @@ def step_citizen_fc_from_age_and_precision(context, age: int, precision: str):
         current_day = current_date.day
         citizen_fc = fake_fc(age=age, custom_month=current_month, custom_day=current_day)
 
-    context.citizen_fc = citizen_fc
-    context.token_io = get_io_token(context.citizen_fc)
-    res = introspect(context.token_io)
-    assert res.json()['fiscal_code'] == context.citizen_fc
+    context.latest_citizen_fc = citizen_fc
+    context.latest_token_io = get_io_token(citizen_fc)
+    res = introspect(context.latest_token_io)
+    assert res.json()['fiscal_code'] == citizen_fc
+    context.citizens_fc[citizen_name] = citizen_fc
 
 
 @given('the transaction is created before fruition period')

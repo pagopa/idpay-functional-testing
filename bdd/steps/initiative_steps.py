@@ -25,6 +25,8 @@ def step_given_initiative_id(context, initiative_name):
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
     context.num_new_onboards = 0
+    context.citizens_fc = {}
+
     context.num_new_trxs = 0
     context.organization_id = secrets.organization_id
 

@@ -6,10 +6,12 @@ from behave import when
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import status_onboarding
+from conf.configuration import secrets
 from conf.configuration import settings
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.utility import card_enroll
+from util.utility import get_io_token
 from util.utility import iban_enroll
 from util.utility import retry_io_onboarding
 from util.utility import retry_wallet
@@ -18,35 +20,37 @@ wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 
-@given('the citizen onboarded')
-@given('the citizen is onboard')
-def step_citizen_onboard(context):
-    step_citizen_accept_terms_and_condition(context=context)
-    step_insert_self_declared_criteria(context=context, correctness='correctly')
-    step_check_onboarding_status(context=context, status='OK')
+@given('the citizen {citizen_name} onboarded')
+@given('the citizen {citizen_name} is onboard')
+def step_named_citizen_onboard(context, citizen_name):
+    step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 
-@given('the citizen is not onboard')
-def step_citizen_not_onboard(context):
-    step_citizen_accept_terms_and_condition(context=context)
+@given('the citizen {citizen_name} is not onboard')
+def step_citizen_not_onboard(context, citizen_name):
+    step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, correctness='not correctly')
 
 
-@when('the citizen tries to onboard')
-def step_citizen_tries_to_onboard(context):
-    step_citizen_accept_terms_and_condition(context=context)
-    step_insert_self_declared_criteria(context=context, correctness='correctly')
+@when('the citizen {citizen_name} tries to onboard')
+def step_citizen_tries_to_onboard(context, citizen_name):
+    step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
 
 
-@given('the citizen accepts terms and condition')
-def step_citizen_accept_terms_and_condition(context):
-    context.accept_tc_response = accept_terms_and_condition(token=context.token_io, initiative_id=context.initiative_id)
+@given('the citizen {citizen_name} accepts terms and condition')
+def step_citizen_accept_terms_and_condition(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    context.accept_tc_response = accept_terms_and_condition(token=token_io, initiative_id=context.initiative_id)
     assert context.accept_tc_response.status_code == 204
 
 
-@then('the onboard is {status}')
-def step_check_onboarding_status(context, status):
-    res = status_onboarding(context.token_io, context.initiative_id)
+@then('the onboard of {citizen_name} is {status}')
+def step_check_onboarding_status(context, citizen_name, status):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    res = status_onboarding(token_io, context.initiative_id)
     assert res.status_code == 200
 
     if status == 'pending':
@@ -54,13 +58,14 @@ def step_check_onboarding_status(context, status):
     else:
         expected_status = f'ONBOARDING_{status}'
 
-    retry_io_onboarding(expected=expected_status, request=status_onboarding, token=context.token_io,
+    retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                         initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
                         message=f'Citizen onboard not {status}')
 
 
-@when('the citizen insert self-declared criteria {correctness}')
-def step_insert_self_declared_criteria(context, correctness):
+@when('the citizen {citizen_name} insert self-declared criteria {correctness}')
+def step_insert_self_declared_criteria(context, citizen_name, correctness):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
     if correctness == 'not correctly':
         pdnd_accept = 'false'
         expected_status_code = 400
@@ -72,7 +77,7 @@ def step_insert_self_declared_criteria(context, correctness):
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}',
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {context.token_io}',
+            'Authorization': f'Bearer {token_io}',
         },
         json={'initiativeId': context.initiative_id,
               'pdndAccept': pdnd_accept,
@@ -97,19 +102,21 @@ def step_merchant_qualified(context, is_qualified):
         return True
 
 
-@given('the citizen enroll a random card')
-def step_card_enroll(context):
+@given('the citizen {citizen_name} enrolls a random card')
+def step_card_enroll(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
     context.card = fake_pan()
-    card_enroll(fc=context.citizen_fc, pan=context.card, initiative_id=context.initiative_id)
-    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=context.token_io,
+    card_enroll(fc=context.citizens_fc[citizen_name], pan=context.card, initiative_id=context.initiative_id)
+    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_io,
                  initiative_id=context.initiative_id, field='status', tries=3, delay=3,
                  message='Card not enrolled')
 
 
-@given('the citizen enroll a random iban')
-def step_iban_enroll(context):
+@given('the citizen {citizen_name} enrolls a random iban')
+def step_iban_enroll(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
     context.iban = fake_iban('00000')
-    iban_enroll(fc=context.citizen_fc, iban=context.iban, initiative_id=context.initiative_id)
-    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=context.token_io,
+    iban_enroll(fc=context.citizens_fc[citizen_name], iban=context.iban, initiative_id=context.initiative_id)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                  initiative_id=context.initiative_id, field='status', tries=3, delay=3,
                  message='IBAN not enrolled')
