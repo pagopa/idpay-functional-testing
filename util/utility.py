@@ -51,6 +51,10 @@ def onboard_io(fc, initiative_id):
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
 
+    retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
+                        initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                        message='Citizen not ACCEPTED_TC')
+
     res = check_prerequisites(token, initiative_id)
     assert res.status_code == 200
 
