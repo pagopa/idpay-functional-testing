@@ -4,14 +4,20 @@ from behave import given
 from behave import then
 
 from util.utility import expect_wallet_counters
+from util.utility import get_io_token
 
 
-@then('the citizen is rewarded accordingly')
-def step_check_rewards_on_wallet(context):
+def step_check_rewards_on_wallet(context, token_io):
     step_set_expected_accrued(context=context)
     step_set_expected_amount_left(context=context)
-    expect_wallet_counters(context.expected_amount_left, context.expected_accrued, context.token_io,
+    expect_wallet_counters(context.expected_amount_left, context.expected_accrued, token_io,
                            context.initiative_id)
+
+
+@then('the citizen {citizen_name} is rewarded accordingly')
+def step_check_rewards_of_citizen(context, citizen_name):
+    latest_token_io = get_io_token(context.citizens_fc[citizen_name])
+    step_check_rewards_on_wallet(context=context, token_io=latest_token_io)
 
 
 @given('an expected accrued')
