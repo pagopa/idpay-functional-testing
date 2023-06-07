@@ -8,7 +8,7 @@ variables:
   working-dir: '.'
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
-  selfHostedAgentPool: 'cstar-uat-deleteme-app'
+  selfHostedAgentPool: 'cstar-u-linux'
   TIME_OUT: 10
 
 pool:
