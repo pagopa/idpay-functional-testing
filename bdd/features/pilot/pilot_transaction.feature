@@ -1,100 +1,133 @@
 Feature: A transaction is generated, authorized and confirmed
 
   Background:
-    Given the initiative is "pilot"
-    And the citizen is 25 years old at most
+    Given the initiative is "Scontoditipo1"
+    And the citizen A is 25 years old at most
 
   @transaction
   @pilot
   Scenario: the merchant tries to generate the trx
     Given the merchant is qualified
-    When the merchant tries to generate a transaction of amount 30000 cents
-    Then the transaction is created
+    When the merchant tries to generate the transaction X of amount 30000 cents
+    Then the transaction X is created
 
   @transaction
   @pilot
-  @need_fix
   Scenario: the merchant not qualified tries to generate the trx
     Given the merchant is not qualified
-    When the merchant tries to generate a transaction of amount 30000 cents
-    Then the transaction is not created
+    When the merchant tries to generate the transaction X of amount 30000 cents
+    Then the transaction X is not created
 
   @transaction
   @pilot
   Scenario: budget completely eroded with one trx
-    Given the citizen is onboard
-    And the merchant generated a transaction of amount 200000 cents
-    When the citizen authorizes the transaction
-    Then the citizen is rewarded accordingly
+    Given the merchant is qualified
+    And the citizen A is onboard
+    And the merchant generates the transaction X of amount 200000 cents
+    When the citizen A confirms the transaction X
+    Then the citizen A is rewarded accordingly
 
   @transaction
   @pilot
   @need_fix
+  @later
   Scenario: budget completely eroded with 10 trx
-    Given the citizen is onboard
+    Given the merchant is qualified
+    And the citizen A is onboard
     And the merchant generated 10 transactions of amount 200000 cents
     When the citizen confirms all the transaction
-    Then the citizen is rewarded accordingly
+    Then the citizen A is rewarded accordingly
 
   @transaction
   @pilot
   Scenario: A transaction is not authorized if the budget is eroded
-    Given the citizen is onboard
-    And the citizen's budget is eroded
-    And the merchant generated a transaction of amount 200000 cents
-    When the citizen tries to authorize the transaction
-    Then the transaction is not authorized
+    Given the merchant is qualified
+    And the citizen A is onboard
+    And the citizen A's budget is eroded
+    And the merchant generates the transaction X of amount 200000 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
 
   @transaction
   @pilot
   Scenario: A transaction greater than the budget by 1 cent is authorized
-    Given the citizen is onboard
-    And the merchant generated a transaction of amount 30001 cents
-    When the citizen authorizes the transaction
-    Then the transaction is authorized
-    And the citizen is rewarded accordingly
+    Given the merchant is qualified
+    And the citizen A is onboard
+    And the merchant generates the transaction X of amount 30001 cents
+    When the citizen A confirms the transaction X
+    Then the transaction X is authorized
+    And the citizen A is rewarded accordingly
 
   @transaction
   @pilot
   @need_fix
   Scenario: The transaction is not authorized before the expendable period
-    Given the citizen is onboard
+    Given the merchant is qualified
+    And the citizen A is onboard
     And the transaction is created before fruition period
-    And the merchant generated a transaction of amount 200000 cents
-    When the citizen tries to authorize the transaction
-    Then the transaction is not authorized
+    And the merchant generates the transaction X of amount 30001 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
 
   @transaction
   @pilot
   Scenario: The transaction is not authorized for onboarding citizen KO
-    Given the citizen is not onboard
-    Given the merchant generated a transaction of amount 3000 cents
-    When the citizen tries to authorize the transaction
-    Then the transaction is not authorized
+    Given the merchant is qualified
+    And the citizen A is not onboard
+    And the merchant generates the transaction X of amount 30000 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
 
   @transaction
   @pilot
   Scenario: The transaction is not authorized for ever registered citizen
-    Given the merchant generated a transaction of amount 3000 cents
-    When the citizen tries to authorize the transaction
-    Then the transaction is not authorized
+    Given the merchant is qualified
+    And the merchant generates the transaction X of amount 30000 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
 
   @transaction
   @pilot
   @need_fix
   Scenario: The transaction is not generated for an amount equal to 0 cents
     Given the merchant is qualified
-    When the merchant tries to generate a transaction of amount 0 cents
-    Then the transaction is not created
+    When the merchant tries to generate the transaction X of amount 0 cents
+    Then the transaction X is not created
 
   @transaction
   @pilot
   @need_fix
+  @test
   Scenario: the transaction expires, if not authorized within 3 days by the citizen
     Given the merchant is qualified
-    And the citizen is onboard
+    And the citizen A is onboard
     And the transaction is created 3 days ago
-    And the merchant generated a transaction of amount 19999 cents
-    When the citizen tries to authorize the transaction
-    Then the transaction is not authorized
-    And the transaction expires
+    And the merchant generates the transaction X of amount 19999 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
+    And the transaction X expires
+
+  @transaction
+  @pilot
+  Scenario: against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
+    Given the merchant is qualified
+    And the citizen A is onboard
+    And the merchant generates the transaction X of amount 10000 cents
+    And the merchant generates the transaction Y of amount 20000 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction Y is created
+
+
+  @transaction
+  @pilot
+  Scenario:
+    Given the merchant is qualified
+    And the citizen A is 20 years old at most
+    And the citizen A is onboard
+    And the citizen B is 20 years old at most
+    And the citizen B is onboard
+    And the merchant generates the transaction X of amount 30000 cents
+    When the citizen A confirms the transaction X
+    Then the citizen A is rewarded accordingly
+    When the citizen B confirms the transaction
+    Then the transaciton is not present
