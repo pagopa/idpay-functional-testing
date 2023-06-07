@@ -8,7 +8,7 @@ variables:
   working-dir: '.'
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
-  selfHostedAgentPool: 'cstar-u-linux'
+  selfHostedAgentPool: 'cstar-uat-linux'
   TIME_OUT: 10
 
 pool:
