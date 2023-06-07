@@ -20,6 +20,14 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo1
+  @need_fix
+  Scenario: User just 120 tries onboarding
+    Given the citizen A is 120 years old exactly
+    When the citizen A tries to onboard
+    Then the onboard of A is KO
+
+  @onboarding
+  @Scontoditipo1
   Scenario: User over the maximum age tries onboarding
     Given the citizen A is 36 years old at most
     When the citizen A tries to onboard
