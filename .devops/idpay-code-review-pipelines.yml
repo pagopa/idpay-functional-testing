@@ -49,7 +49,7 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               source .venv/bin/activate
-              pytest --junitxml=tests/reports/junit.xml -vv
+              pytest --junitxml=tests/reports/junit.xml -vv -m cashback
             displayName: 'Run tests with Pytest'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
