@@ -1,86 +1,86 @@
-Feature: A Citizen onboards the pilot initiative
+Feature: A citizen A onboards the pilot initiative
 
   Background:
-    Given the initiative is "pilot"
+    Given the initiative is "Scontoditipo1"
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   Scenario: User under the minimum age tries onboarding
-    Given the citizen is 17 years old at most
-    When the citizen tries to onboard
-    Then the onboard is KO
+    Given the citizen A is 17 years old at most
+    When the citizen A tries to onboard
+    Then the onboard of A is KO
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: User just 18 tries onboarding
-    Given the citizen is 18 years old exactly
-    When the citizen tries to onboard
-    Then the onboard is OK
+    Given the citizen A is 18 years old exactly
+    When the citizen A tries to onboard
+    Then the onboard of A is OK
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   Scenario: User over the maximum age tries onboarding
-    Given the citizen is 36 years old at most
-    When the citizen tries to onboard
-    Then the onboard is KO
+    Given the citizen A is 36 years old at most
+    When the citizen A tries to onboard
+    Then the onboard of A is KO
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: User over the maximum age tries onboarding
-    Given the citizen is 36 years old tomorrow
-    When the citizen tries to onboard
-    Then the onboard is OK
+    Given the citizen A is 36 years old tomorrow
+    When the citizen A tries to onboard
+    Then the onboard of A is OK
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: User with self-declared incorrect criteria tries onboarding
-    Given the citizen is 23 years old at most
-    And the citizen accepts terms and condition
-    When the citizen insert self-declared criteria not correctly
-    Then the onboard is KO
+    Given the citizen A is 23 years old at most
+    And the citizen A accepts terms and condition
+    When the citizen A insert self-declared criteria not correctly
+    Then the onboard of A is KO
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: User under minimum age and with incorrect self-declared criteria tries onboarding
-    Given the citizen is 17 years old at most
-    And the citizen accepts terms and condition
-    When the citizen insert self-declared criteria not correctly
-    Then the onboard is KO
+    Given the citizen A is 17 years old at most
+    And the citizen A accepts terms and condition
+    When the citizen A insert self-declared criteria not correctly
+    Then the onboard of A is KO
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   Scenario: User over the maximum age and with incorrect self-declared criteria tries onboarding
-    Given the citizen is 36 years old at most
-    And the citizen accepts terms and condition
-    When the citizen insert self-declared criteria not correctly
-    Then the onboard is pending
+    Given the citizen A is 36 years old at most
+    And the citizen A accepts terms and condition
+    When the citizen A insert self-declared criteria not correctly
+    Then the onboard of A is pending
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: user onboarded tries to onboard again
-    Given the citizen is 23 years old at most
-    And the citizen onboarded
-    When the citizen tries to onboard
-    Then the onboard is KO
+    Given the citizen A is 23 years old at most
+    And the citizen A onboarded
+    When the citizen A tries to onboard
+    Then the onboard of A is KO
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   Scenario: User in age range with self-declared correct criteria tries onboarding
-    Given the citizen is 25 years old tomorrow
-    And the citizen accepts terms and condition
-    When the citizen insert self-declared criteria correctly
-    Then the onboard is OK
+    Given the citizen A is 25 years old tomorrow
+    And the citizen A accepts terms and condition
+    When the citizen A insert self-declared criteria correctly
+    Then the onboard of A is OK
 
   @onboarding
-  @pilot
+  @Scontoditipo1
   @need_fix
   Scenario: User in age range with self-declared incorrect criteria tries onboarding
-    Given the citizen is 25 years old at most
-    And the citizen accepts terms and condition
-    When the citizen insert self-declared criteria not correctly
-    Then the onboard is KO
+    Given the citizen A is 25 years old at most
+    And the citizen A accepts terms and condition
+    When the citizen A insert self-declared criteria not correctly
+    Then the onboard of A is KO
