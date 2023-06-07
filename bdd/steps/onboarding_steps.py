@@ -95,11 +95,10 @@ def step_insert_self_declared_criteria(context, citizen_name, correctness):
 
 @given('the merchant is {is_qualified}')
 def step_merchant_qualified(context, is_qualified):
-    # Merchant qualification still needs to be implemented
     if is_qualified == 'qualified':
-        return True
+        context.merchant_id = secrets.merchant_id
     else:
-        return True
+        context.merchant_id = 'UNQUALIFIED'
 
 
 @given('the citizen {citizen_name} enrolls a random card')
