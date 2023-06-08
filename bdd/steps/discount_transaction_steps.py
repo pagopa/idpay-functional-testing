@@ -67,7 +67,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert trx_details['status'] == 'REJECTED'
 
 
-@given('the merchant generated {trx_num} transactions of amount {amount_cents} cents')
+@given('the merchant generated {trx_num} transactions of amount {amount_cents} cents each')
 def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amount_cents):
     context.trx_ids = []
     context.trx_codes = []
@@ -78,19 +78,21 @@ def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amou
                                                         amount_cents=amount_cents,
                                                         merchant_id=merchant_id,
                                                         trx_date=context.trx_date)
+        context.transactions[str(i)] = res
         context.create_transaction_response = res
         context.latest_trx_details = res
-        step_check_named_transaction_status(context=context, status='CREATED')
+        step_check_named_transaction_status(context=context, trx_name=str(i), expected_status='CREATED')
         context.trx_ids.append(res.json()['id'])
         context.trx_codes.append(res.json()['trxCode'])
 
 
-@when('the citizen confirms all the transaction')
-def step_when_citizen_authorizes_all_transactions(context):
+@when('the citizen {citizen_name} confirms all the transaction')
+def step_when_citizen_authorizes_all_transactions(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
     for curr_trx_code in context.trx_codes:
-        res = put_pre_authorize_payment(curr_trx_code, context.token_io)
+        res = put_pre_authorize_payment(curr_trx_code, token_io)
         assert res.status_code == 200
-        res = put_authorize_payment(curr_trx_code, context.token_io)
+        res = put_authorize_payment(curr_trx_code, token_io)
         assert res.status_code == 200
         context.latest_trx_details = res
         time.sleep(1)
