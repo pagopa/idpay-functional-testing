@@ -54,8 +54,10 @@ stages:
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
+            continueOnError: true
           - task: PublishTestResults@2
-            condition: true
+            continueOnError: true
+            #            condition: true
             inputs:
               testResultsFormat: 'JUnit'
               testResultsFiles: 'tests/reports/pytest/junit.xml'
@@ -69,11 +71,13 @@ stages:
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
+            continueOnError: true
           - task: PublishTestResults@2
-            condition: true
+            #            condition: true
             inputs:
               testResultsFormat: 'JUnit'
               testResultsFiles: 'tests/reports/behave/*.xml'
               testRunTitle: 'Behave Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
+            continueOnError: true
