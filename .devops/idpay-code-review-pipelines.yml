@@ -47,6 +47,21 @@ stages:
             displayName: 'Download IDPay secrets'
             inputs:
               secureFile: '.secrets.yaml'
+          #          - script: |
+          #              source .venv/bin/activate
+          #              pytest --junitxml=tests/reports/junit.xml -vv
+          #            displayName: 'Run tests with Pytest'
+          #            env:
+          #              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
+          #              IDPAY_TARGET_ENV: ${{ parameters.env }}
+          #          - task: PublishTestResults@2
+          #            condition: true
+          #            inputs:
+          #              testResultsFormat: 'JUnit'
+          #              testResultsFiles: 'tests/reports/junit.xml'
+          #              testRunTitle: 'Pytest Results'
+          #              searchFolder: $(Build.SourcesDirectory)
+          #              failTaskOnFailedTests: true
           - script: |
               source .venv/bin/activate
               pytest --junitxml=tests/reports/junit.xml -vv
