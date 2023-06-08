@@ -47,24 +47,24 @@ stages:
             displayName: 'Download IDPay secrets'
             inputs:
               secureFile: '.secrets.yaml'
-          #          - script: |
-          #              source .venv/bin/activate
-          #              pytest --junitxml=tests/reports/junit.xml -vv
-          #            displayName: 'Run tests with Pytest'
-          #            env:
-          #              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
-          #              IDPAY_TARGET_ENV: ${{ parameters.env }}
-          #          - task: PublishTestResults@2
-          #            condition: true
-          #            inputs:
-          #              testResultsFormat: 'JUnit'
-          #              testResultsFiles: 'tests/reports/junit.xml'
-          #              testRunTitle: 'Pytest Results'
-          #              searchFolder: $(Build.SourcesDirectory)
-          #              failTaskOnFailedTests: true
           - script: |
               source .venv/bin/activate
-              behave --junit --junit-directory "tests/reports/" --tags @onboarding
+              pytest --junitxml=tests/reports/pytest/junit.xml -vv -m reversal
+            displayName: 'Run tests with Pytest'
+            env:
+              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
+              IDPAY_TARGET_ENV: ${{ parameters.env }}
+          - task: PublishTestResults@2
+            condition: true
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'tests/reports/pytest/junit.xml'
+              testRunTitle: 'Pytest Results'
+              searchFolder: $(Build.SourcesDirectory)
+              failTaskOnFailedTests: true
+          - script: |
+              source .venv/bin/activate
+              behave --junit --junit-directory "tests/reports/behave" --tags @onboarding
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
@@ -73,7 +73,7 @@ stages:
             condition: true
             inputs:
               testResultsFormat: 'JUnit'
-              testResultsFiles: 'tests/reports/*.xml'
-              testRunTitle: 'Pytest Results'
+              testResultsFiles: 'tests/reports/behave/*.xml'
+              testRunTitle: 'Behave Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
