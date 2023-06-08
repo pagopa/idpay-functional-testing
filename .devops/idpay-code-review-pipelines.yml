@@ -64,8 +64,8 @@ stages:
           #              failTaskOnFailedTests: true
           - script: |
               source .venv/bin/activate
-              pytest --junitxml=tests/reports/junit.xml -vv
-            displayName: 'Run tests with Pytest'
+              behave --junit --junit-directory "tests/reports/" --tags @onboarding
+            displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
@@ -73,7 +73,7 @@ stages:
             condition: true
             inputs:
               testResultsFormat: 'JUnit'
-              testResultsFiles: 'tests/reports/junit.xml'
+              testResultsFiles: 'tests/reports/*.xml'
               testRunTitle: 'Pytest Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
