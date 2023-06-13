@@ -9,7 +9,6 @@ from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
-from bdd.steps.rewards_step import step_set_expected_accrued
 from conf.configuration import secrets
 from util.utility import get_io_token
 
@@ -90,11 +89,13 @@ def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amou
 def step_when_citizen_authorizes_all_transactions(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     for curr_trx_code in context.trx_codes:
-        res = put_pre_authorize_payment(curr_trx_code, token_io)
-        assert res.status_code == 200
-        res = put_authorize_payment(curr_trx_code, token_io)
-        assert res.status_code == 200
-        context.latest_trx_details = res
+        res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=token_io)
+
+        if citizen_name not in context.accrued_per_citizen.keys():
+            context.accrued_per_citizen[citizen_name] = res.json()['reward']
+        else:
+            context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
+
         time.sleep(1)
 
 
@@ -108,56 +109,29 @@ def step_erode_budget(context, citizen_name):
     step_when_citizen_confirms_transaction(context=context, citizen_name=citizen_name, trx_name=erode_budget_trx)
 
 
-@when('the citizen authorizes the transaction')
-def step_when_citizen_authorize_transaction(context):
-    latest_token_io = get_io_token(context.latest_citizen_fc)
-    complete_transaction_confirmation(context=context, token_io=latest_token_io)
-
-
-@when('the citizen {citizen_name} authorizes the transaction')
-def step_when_named_citizen_authorize_transaction(context, citizen_name):
-    latest_token_io = get_io_token(context.citizens_fc[citizen_name])
-    complete_transaction_confirmation(context=context, token_io=latest_token_io)
-
-
-def complete_transaction_confirmation(context, token_io):
-    res = put_pre_authorize_payment(context.latest_trx_code, token_io)
+def complete_transaction_confirmation(context, trx_code, token_io):
+    res = put_pre_authorize_payment(trx_code, token_io)
     assert res.status_code == 200
 
-    res = put_authorize_payment(context.latest_trx_code, token_io)
+    res = put_authorize_payment(trx_code, token_io)
     assert res.status_code == 200
 
     context.latest_trx_details = res
-
-
-@when('the citizen authorizes the transaction {trx_name}')
-def step_when_citizen_authorize_transaction(context, trx_name):
-    curr_token_io = get_io_token(context.latest_citizen_fc)
-    res = put_pre_authorize_payment(context.transactions[trx_name]['trxCode'], curr_token_io)
-    print(res)
-    assert res.status_code == 200
-
-    res = put_authorize_payment(context.transactions[trx_name]['trxCode'], curr_token_io)
-    assert res.status_code == 200
-
-    context.latest_trx_details = res
+    return res
 
 
 @when('the citizen {citizen_name} confirms the transaction {trx_name}')
 def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
+    curr_trx_code = context.transactions[trx_name]['trxCode']
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
-    res = put_pre_authorize_payment(context.transactions[trx_name]['trxCode'], curr_token_io)
-    assert res.status_code == 200
-
-    res = put_authorize_payment(context.transactions[trx_name]['trxCode'], curr_token_io)
-    assert res.status_code == 200
+    res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=curr_token_io)
 
     context.authorize_payment_response = res
 
-    step_set_expected_accrued(context)
-    print(context.authorize_payment_response.json())
-    print(context.expected_accrued_cents)
-    assert context.authorize_payment_response.json()['reward'] == context.expected_accrued_cents
+    if citizen_name not in context.accrued_per_citizen.keys():
+        context.accrued_per_citizen[citizen_name] = res.json()['reward']
+    else:
+        context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
 
 
 @when('the citizen {citizen_name} tries to confirm the transaction {trx_name}')
