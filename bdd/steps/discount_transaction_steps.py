@@ -18,7 +18,7 @@ merchant_id = secrets.merchant_id
 @when('the merchant tries to generate the transaction {trx_name} of amount {amount_cents} cents')
 def step_when_merchant_tries_to_create_a_transaction(context, trx_name, amount_cents):
     step_given_amount_cents(context=context, amount_cents=amount_cents)
-    context.transactions[trx_name] = post_merchant_create_transaction_acquirer(
+    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer(
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
         merchant_id=context.merchant_id,
@@ -27,26 +27,26 @@ def step_when_merchant_tries_to_create_a_transaction(context, trx_name, amount_c
 
 
 @given('the merchant generates the transaction {trx_name} of amount {amount_cents} cents')
+@when('the merchant generates the transaction {trx_name} of amount {amount_cents} cents')
 def step_when_merchant_generated_a_named_transaction(context, trx_name, amount_cents):
     step_when_merchant_tries_to_create_a_transaction(context=context, trx_name=trx_name, amount_cents=amount_cents)
-    assert context.transactions[trx_name].status_code == 201
+    assert context.latest_create_transaction_response.status_code == 201
 
-    step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
     step_given_amount_cents(context=context, amount_cents=amount_cents)
 
-    context.transactions[trx_name] = get_transaction_detail(context.transactions[trx_name].json()['id'],
+    context.transactions[trx_name] = get_transaction_detail(context.latest_create_transaction_response.json()['id'],
                                                             merchant_id=merchant_id).json()
+    step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
 
 
 @then('the transaction {trx_name} is {expected_status}')
 def step_check_named_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
     if status == 'NOT CREATED':
-        assert context.transactions[trx_name].status_code != 201
+        assert context.latest_create_transaction_response.status_code != 201
     else:
-        print(context.transactions[trx_name])
         trx_details = get_transaction_detail(
-            context.transactions[trx_name].json()['id'],
+            context.transactions[trx_name]['id'],
             merchant_id=merchant_id
         ).json()
 
@@ -57,7 +57,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert trx_details['status'] == status
 
         if status == 'NOT CREATED':
-            print(context.latest_create_transaction_response.json())
             assert context.latest_create_transaction_response.status_code != 201
 
         if status == 'NOT AUTHORIZED':
@@ -76,13 +75,13 @@ def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amou
         res = post_merchant_create_transaction_acquirer(initiative_id=context.initiative_id,
                                                         amount_cents=amount_cents,
                                                         merchant_id=merchant_id,
-                                                        trx_date=context.trx_date)
+                                                        trx_date=context.trx_date).json()
         context.transactions[str(i)] = res
         context.create_transaction_response = res
         context.latest_trx_details = res
         step_check_named_transaction_status(context=context, trx_name=str(i), expected_status='CREATED')
-        context.trx_ids.append(res.json()['id'])
-        context.trx_codes.append(res.json()['trxCode'])
+        context.trx_ids.append(res['id'])
+        context.trx_codes.append(res['trxCode'])
 
 
 @when('the citizen {citizen_name} confirms all the transaction')

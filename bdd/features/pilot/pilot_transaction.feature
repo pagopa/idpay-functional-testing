@@ -8,7 +8,7 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo1
   Scenario: the merchant tries to generate the trx
     Given the merchant is qualified
-    When the merchant tries to generate the transaction X of amount 30000 cents
+    When the merchant generates the transaction X of amount 30000 cents
     Then the transaction X is created
 
   @transaction
@@ -95,7 +95,6 @@ Feature: A transaction is generated, authorized and confirmed
   @transaction
   @Scontoditipo1
   @need_fix
-  @test
   Scenario: the transaction expires, if not authorized within 3 days by the citizen
     Given the merchant is qualified
     And the citizen A is onboard
