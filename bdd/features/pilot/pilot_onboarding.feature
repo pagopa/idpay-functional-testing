@@ -43,7 +43,6 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo1
-  @need_fix
   Scenario: User with self-declared incorrect criteria tries onboarding
     Given the citizen A is 23 years old at most
     And the citizen A accepts terms and condition
@@ -52,7 +51,6 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo1
-  @need_fix
   Scenario: User under minimum age and with incorrect self-declared criteria tries onboarding
     Given the citizen A is 17 years old at most
     And the citizen A accepts terms and condition
@@ -86,7 +84,6 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo1
-  @need_fix
   Scenario: User in age range with self-declared incorrect criteria tries onboarding
     Given the citizen A is 25 years old at most
     And the citizen A accepts terms and condition
