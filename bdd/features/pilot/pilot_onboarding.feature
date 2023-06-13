@@ -36,7 +36,7 @@ Feature: A citizen A onboards the pilot initiative
   @onboarding
   @Scontoditipo1
   @need_fix
-  Scenario: User over the maximum age tries onboarding
+  Scenario: The user will be 36 years old the day after onboarding.
     Given the citizen A is 36 years old tomorrow
     When the citizen A tries to onboard
     Then the onboard of A is OK
@@ -63,7 +63,7 @@ Feature: A citizen A onboards the pilot initiative
     Given the citizen A is 36 years old at most
     And the citizen A accepts terms and condition
     When the citizen A insert self-declared criteria not correctly
-    Then the onboard of A is pending
+    Then the onboard of A is KO
 
   @onboarding
   @Scontoditipo1
