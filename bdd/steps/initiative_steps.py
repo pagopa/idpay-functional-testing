@@ -32,6 +32,8 @@ def step_given_initiative_id(context, initiative_name):
     context.num_new_trxs = 0
     context.organization_id = secrets.organization_id
 
+    context.accrued_per_citizen = {}
+
 
 @then('the initiative counters are updated')
 def step_check_initiative_statistics_updated(context):
