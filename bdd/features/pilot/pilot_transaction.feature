@@ -29,8 +29,6 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  @need_fix
-  @later
   Scenario: budget completely eroded with 10 trx
     Given the merchant is qualified
     And the citizen A is onboard
