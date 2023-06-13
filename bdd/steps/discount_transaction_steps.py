@@ -64,6 +64,13 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
             assert trx_details['status'] == 'REJECTED'
 
+        if status == 'NOT PRESENT':
+            print(context.pre_authorization_response.json())
+            assert context.pre_authorization_response.status_code == 403
+            assert context.pre_authorization_response.json()['code'] == 'FORBIDDEN'
+            assert context.pre_authorization_response.json()[
+                       'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already assigned to another user'
+
 
 @given('the merchant generated {trx_num} transactions of amount {amount_cents} cents each')
 def step_when_merchant_creates_n_transaction_successfully(context, trx_num, amount_cents):

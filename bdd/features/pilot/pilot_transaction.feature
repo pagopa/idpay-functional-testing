@@ -126,5 +126,5 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant generates the transaction X of amount 30000 cents
     When the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
-    When the citizen B confirms the transaction
-    Then the transaciton is not present
+    When the citizen B tries to confirm the transaction X
+    Then the transaction X is not present
