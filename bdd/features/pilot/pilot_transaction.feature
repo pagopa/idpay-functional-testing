@@ -129,6 +129,19 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
+  Scenario: If a transaction is authorized by citizen A, B receives an error upon pre-authorizing the same transaction.
+    Given the merchant 1 is qualified
+    And the citizen A is 20 years old at most
+    And the citizen A is onboard
+    And the citizen B is 20 years old at most
+    And the citizen B is onboard
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the citizen A confirms the transaction X
+    When the citizen B tries to confirm the transaction X
+    Then the transaction X is not present
+
+  @transaction
+  @Scontoditipo1
   Scenario:
     Given the merchant is qualified
     And the citizen A is 20 years old at most
