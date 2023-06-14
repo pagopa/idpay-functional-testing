@@ -61,8 +61,9 @@ IDPAY:
       path: '/idpayinitiativestatistics/idpay'
     payment:
       path: '/payment'
+      internal_path: '/idpaypayment/idpay'
       qr_code:
-        path: '/qr-code/'
+        path: '/qr-code'
         merchant: '/merchant'
   acquirer_id: 'PAGOPA'
 RTD:
