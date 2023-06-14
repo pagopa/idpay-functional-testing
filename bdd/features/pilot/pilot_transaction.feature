@@ -138,7 +138,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A confirms the transaction X
     When the citizen B tries to confirm the transaction X
-    Then the transaction X is not present
+    Then the transaction X is already confirmed
 
   @transaction
   @Scontoditipo1

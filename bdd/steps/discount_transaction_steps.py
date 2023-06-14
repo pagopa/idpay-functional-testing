@@ -67,7 +67,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
             assert trx_details['status'] == 'REJECTED'
 
-        if status == 'NOT PRESENT':
+        if status == 'ALREADY CONFIRMED':
             assert context.pre_authorization_response.status_code == 403
             assert context.pre_authorization_response.json()['code'] == 'FORBIDDEN'
             assert context.pre_authorization_response.json()[
