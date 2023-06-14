@@ -128,6 +128,7 @@ def complete_transaction_confirmation(context, trx_code, token_io):
 
 
 @when('the citizen {citizen_name} confirms the transaction {trx_name}')
+@given('the citizen {citizen_name} confirms the transaction {trx_name}')
 def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
     curr_trx_code = context.transactions[trx_name]['trxCode']
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
