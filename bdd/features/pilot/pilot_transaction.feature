@@ -142,14 +142,33 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  Scenario:
-    Given the merchant is qualified
+  Scenario: 2 transactions cannot be authorized by the same citizen if at least one seconds has not passed between authorizations.
+    Given the merchant 1 is qualified
     And the citizen A is 20 years old at most
     And the citizen A is onboard
     And the citizen B is 20 years old at most
     And the citizen B is onboard
-    And the merchant generates the transaction X of amount 30000 cents
+    And the merchant 1 generates the transaction X of amount 3000 cents
+    And the merchant 1 generates the transaction Y of amount 3000 cents
+    And the merchant 1 generates the transaction Z of amount 3000 cents
     When the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
-    When the citizen B tries to confirm the transaction X
-    Then the transaction X is not present
+    When the citizen B confirms the transaction Y
+    When the citizen B tries to confirm the transaction Z
+    Then the transaction Z is exceeding rate limit
+
+  @transaction
+  @Scontoditipo1
+  Scenario: 2 transactions are authorized correctly by the same citizen if authorizations are 1 second apart one from the other.
+    Given the merchant 1 is qualified
+    And the citizen A is 20 years old at most
+    And the citizen A is onboard
+    And the citizen B is 20 years old at most
+    And the citizen B is onboard
+    And the merchant 1 generates the transaction X of amount 3000 cents
+    And the merchant 1 generates the transaction Y of amount 3000 cents
+    And the merchant 1 generates the transaction Z of amount 3000 cents
+    And the citizen A confirms the transaction X
+    And the citizen B confirms the transaction Y
+    When 1 second/s pass
+    And the citizen B tries to confirm the transaction Z
+    Then the transaction Z is authorized

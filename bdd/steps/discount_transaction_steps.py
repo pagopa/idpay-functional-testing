@@ -63,15 +63,23 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert context.latest_create_transaction_response.status_code != 201
 
         if status == 'NOT AUTHORIZED':
-            assert context.pre_authorization_response.status_code == 403
+            assert context.latest_pre_authorization_response.status_code == 403
 
             assert trx_details['status'] == 'REJECTED'
 
         if status == 'ALREADY CONFIRMED':
-            assert context.pre_authorization_response.status_code == 403
-            assert context.pre_authorization_response.json()['code'] == 'FORBIDDEN'
-            assert context.pre_authorization_response.json()[
+            assert context.latest_pre_authorization_response.status_code == 403
+
+            assert context.latest_pre_authorization_response.json()['code'] == 'FORBIDDEN'
+            assert context.latest_pre_authorization_response.json()[
                        'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already assigned to another user'
+
+        if status == 'EXCEEDING RATE LIMIT':
+            assert context.latest_authorization_response.status_code == 429
+
+            assert context.latest_authorization_response.json()['code'] == 'REWARD CALCULATOR'
+            assert context.latest_authorization_response.json()[
+                       'message'] == f'Too many request on the ms reward'
 
 
 @given('the merchant {merchant_name} generated {trx_num} transactions of amount {amount_cents} cents each')
@@ -146,7 +154,10 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
 def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     trx_code = context.transactions[trx_name]['trxCode']
-    context.pre_authorization_response = put_pre_authorize_payment(trx_code, token_io)
+
+    context.latest_pre_authorization_response = put_pre_authorize_payment(trx_code, token_io)
+
+    context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
 @given('the amount in cents is {amount_cents}')
