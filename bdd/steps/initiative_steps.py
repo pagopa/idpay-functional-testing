@@ -34,6 +34,8 @@ def step_given_initiative_id(context, initiative_name):
 
     context.accrued_per_citizen = {}
 
+    context.merchant_ids = {}
+
 
 @then('the initiative counters are updated')
 def step_check_initiative_statistics_updated(context):

@@ -93,12 +93,14 @@ def step_insert_self_declared_criteria(context, citizen_name, correctness):
     assert context.pdnd_autocertification_response.status_code == expected_status_code
 
 
-@given('the merchant is {is_qualified}')
-def step_merchant_qualified(context, is_qualified):
+@given('the merchant {merchant_name} is {is_qualified}')
+def step_merchant_qualified(context, merchant_name, is_qualified):
     if is_qualified == 'qualified':
-        context.merchant_id = secrets.merchant_id
+        curr_merchant_id = secrets[f'merchant_id_{merchant_name}']
     else:
-        context.merchant_id = 'UNQUALIFIED'
+        curr_merchant_id = 'UNQUALIFIED'
+
+    context.merchant_ids[merchant_name] = curr_merchant_id
 
 
 @given('the citizen {citizen_name} enrolls a random card')
