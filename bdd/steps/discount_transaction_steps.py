@@ -163,6 +163,20 @@ def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
+@given('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
+@when('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
+def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    trx_code = context.transactions[trx_name]['trxCode']
+
+    context.latest_pre_authorization_response = put_pre_authorize_payment(trx_code, token_io)
+
+
+@then('the latest pre-authorization fails')
+def step_check_latest_pre_authorization_failed(context):
+    assert context.latest_pre_authorization_response.status_code == 403
+
+
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
