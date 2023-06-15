@@ -172,3 +172,19 @@ Feature: A transaction is generated, authorized and confirmed
     When 1 second/s pass
     And the citizen B tries to confirm the transaction Z
     Then the transaction Z is authorized
+
+  @transaction
+  @Scontoditipo1
+  Scenario: Citizen A (with eroded budget) fails to authorize a transaction, citizen B fail authorizing the same transaction because it is already assigned
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the citizen A's budget is eroded
+    And the citizen B is 25 years old at most
+    And the citizen B is onboard
+    And the merchant 1 generates the transaction X of amount 200000 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
+    When the citizen B tries to confirm the transaction X
+    Then the transaction X is already confirmed
