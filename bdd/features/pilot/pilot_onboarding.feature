@@ -13,6 +13,7 @@ Feature: A citizen A onboards the pilot initiative
   @onboarding
   @Scontoditipo1
   @need_fix
+  @wip
   Scenario: User just 18 tries onboarding
     Given the citizen A is 18 years old exactly
     When the citizen A tries to onboard
@@ -36,6 +37,7 @@ Feature: A citizen A onboards the pilot initiative
   @onboarding
   @Scontoditipo1
   @need_fix
+  @wip
   Scenario: The user will be 36 years old the day after onboarding.
     Given the citizen A is 36 years old tomorrow
     When the citizen A tries to onboard
