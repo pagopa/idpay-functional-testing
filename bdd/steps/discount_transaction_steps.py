@@ -56,6 +56,9 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         if status == 'CREATED':
             assert trx_details['status'] == status
 
+        if status == 'IDENTIFIED':
+            assert trx_details['status'] == status
+
         if status == 'AUTHORIZED':
             assert trx_details['status'] == status
 
