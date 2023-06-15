@@ -233,7 +233,7 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is identified
 
   @transaction
-  @Scontoditipo1 @wip
+  @Scontoditipo1
   Scenario: Citizen tries to pre-authorize a transaction already pre-authorized by another citizen
     Given the merchant 1 is qualified
     And the merchant 1 is qualified
