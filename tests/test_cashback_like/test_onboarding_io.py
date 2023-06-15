@@ -77,12 +77,12 @@ def test_onboard_unicode():
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 400
-    assert res.json()['code'] == 400
+    assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
     res = wallet(initiative_id=initiative_id, token=token)
     assert res.status_code == 400
-    assert res.json()['code'] == 400
+    assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
 
@@ -100,12 +100,12 @@ def test_onboard_long_fc():
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 400
-    assert res.json()['code'] == 400
+    assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
     res = wallet(initiative_id=initiative_id, token=token)
     assert res.status_code == 400
-    assert res.json()['code'] == 400
+    assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
 
 

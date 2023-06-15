@@ -151,8 +151,8 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 3000 cents
     And the merchant 1 generates the transaction Y of amount 3000 cents
     And the merchant 1 generates the transaction Z of amount 3000 cents
-    When the citizen A confirms the transaction X
-    When the citizen B confirms the transaction Y
+    And the citizen A confirms the transaction X
+    And the citizen B confirms the transaction Y
     When the citizen B tries to confirm the transaction Z
     Then the transaction Z is exceeding rate limit
 
