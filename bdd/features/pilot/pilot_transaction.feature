@@ -188,3 +188,61 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is not authorized
     When the citizen B tries to confirm the transaction X
     Then the transaction X is already confirmed
+
+  @transaction
+  @Scontoditipo1
+  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized, A receives an error upon authorizing the transaction Y
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction Y of amount 300000 cents
+    And the citizen A pre-authorizes the transaction X
+    And the citizen A pre-authorizes the transaction Y
+    And the citizen A confirms the transaction X
+    When the citizen A tries to confirm the transaction Y
+    Then the transaction X is authorized
+    And the citizen A is rewarded accordingly
+    And the transaction Y is not authorized
+
+  @transaction
+  @Scontoditipo1
+  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized, Y remains identified
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction Y of amount 300000 cents
+    And the citizen A pre-authorizes the transaction X
+    And the citizen A pre-authorizes the transaction Y
+    When the citizen A confirms the transaction X
+    Then the transaction Y is identified
+
+  @transaction
+  @Scontoditipo1
+  Scenario: Citizen pre-authorize 2 times a transaction and it is still identified
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the citizen A pre-authorizes the transaction X
+    When the citizen A tries to pre-authorize the transaction X
+    Then the transaction X is identified
+
+  @transaction
+  @Scontoditipo1 @wip
+  Scenario: Citizen tries to pre-authorize a transaction already pre-authorized by another citizen
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the citizen B is 25 years old at most
+    And the citizen B is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the citizen A pre-authorizes the transaction X
+    When the citizen B tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails
+    And the transaction X is identified
