@@ -18,8 +18,8 @@ def step_check_rewards_on_wallet(context, token_io):
 def step_check_rewards_of_citizen(context, citizen_name):
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
     expected_accrued = context.accrued_per_citizen[citizen_name] / 100
-    expected_amount_left = context.initiatives_settings['budget_per_citizen'] * 100 - context.accrued_per_citizen[
-        citizen_name]
+    expected_amount_left = (context.initiatives_settings['budget_per_citizen'] * 100 - context.accrued_per_citizen[
+        citizen_name]) / 100
 
     expect_wallet_counters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=curr_token_io,
                            initiative_id=context.initiative_id)
