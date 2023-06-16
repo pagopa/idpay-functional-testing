@@ -5,6 +5,7 @@ from behave import given
 from behave import then
 from behave import when
 
+from api.idpay import delete_payment_merchant
 from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
@@ -47,6 +48,12 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
     if status == 'NOT CREATED':
         assert context.latest_create_transaction_response.status_code != 201
+    elif status == 'CANCELLED':
+        res = get_transaction_detail(
+            context.transactions[trx_name]['id'],
+            merchant_id=context.latest_merchant_id
+        )
+        assert res.status_code == 404
     else:
         trx_details = get_transaction_detail(
             context.transactions[trx_name]['id'],
@@ -185,3 +192,14 @@ def step_given_amount_cents(context, amount_cents):
 @then('the transaction {trx_name} expires')
 def step_transaction_expires(context, trx_name):
     pass
+
+
+@when('the merchant {merchant_name} cancels the transaction {trx_name}')
+def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
+    curr_merchant_id = context.merchant_ids[merchant_name]
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                  merchant_id=curr_merchant_id
+                                  )
+    assert res.status_code == 200
