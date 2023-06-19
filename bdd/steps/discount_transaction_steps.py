@@ -9,6 +9,7 @@ from api.idpay import delete_payment_merchant
 from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
+from api.idpay import put_merchant_confirms_payment
 from api.idpay import put_pre_authorize_payment
 from util.utility import get_io_token
 
@@ -17,7 +18,7 @@ default_merchant_name = '1'
 
 @when('the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents')
 def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx_name, amount_cents):
-    curr_merchant_id = context.merchant_ids[merchant_name]
+    curr_merchant_id = context.merchants[merchant_name]['id']
     context.latest_merchant_id = curr_merchant_id
 
     step_given_amount_cents(context=context, amount_cents=amount_cents)
@@ -196,7 +197,7 @@ def step_transaction_expires(context, trx_name):
 
 @when('the merchant {merchant_name} cancels the transaction {trx_name}')
 def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
-    curr_merchant_id = context.merchant_ids[merchant_name]
+    curr_merchant_id = context.merchants[merchant_name]['id']
     curr_trx_id = context.transactions[trx_name]['id']
 
     res = delete_payment_merchant(transaction_id=curr_trx_id,
