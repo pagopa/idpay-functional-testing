@@ -3,6 +3,8 @@ from math import floor
 from behave import given
 from behave import then
 
+from util.dataset_utility import Reward
+from util.utility import check_rewards
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 
@@ -43,3 +45,10 @@ def step_set_expected_accrued(context):
 @given('an expected amount left')
 def step_set_expected_amount_left(context):
     context.expected_amount_left = round(float(context.budget_per_citizen - context.expected_accrued), 2)
+
+
+@then('the merchant {merchant_name} is refunded {expected_refund} euros')
+def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
+    curr_iban = context.merchants[merchant_name]['iban']
+    check_rewards(initiative_id=context.initiative_id,
+                  expected_rewards=[Reward(curr_iban, float(expected_refund))])
