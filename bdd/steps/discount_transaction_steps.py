@@ -70,6 +70,14 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         if status == 'AUTHORIZED':
             assert trx_details['status'] == status
 
+            # for testing purposes the transaction is confirmed by the merchant
+            res = put_merchant_confirms_payment(
+                transaction_id=context.transactions[trx_name]['id'],
+                merchant_id=context.latest_merchant_id
+            )
+            assert res.status_code == 200
+            assert res.json()['status'] == 'REWARDED'
+
         if status == 'NOT CREATED':
             assert context.latest_create_transaction_response.status_code != 201
 
@@ -113,6 +121,7 @@ def step_when_merchant_creates_n_transaction_successfully(context, merchant_name
 @when('the citizen {citizen_name} confirms all the transaction')
 def step_when_citizen_authorizes_all_transactions(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
+    i = 0
     for curr_trx_code in context.trx_codes:
         res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=token_io)
 
@@ -121,6 +130,8 @@ def step_when_citizen_authorizes_all_transactions(context, citizen_name):
         else:
             context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
 
+        step_check_named_transaction_status(context=context, trx_name=str(i), expected_status='AUTHORIZED')
+        i = i + 1
         time.sleep(1)
 
 
