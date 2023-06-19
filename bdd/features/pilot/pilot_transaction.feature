@@ -23,9 +23,10 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: budget completely eroded with one trx
     Given the merchant 1 is qualified
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 200000 cents
+    And the merchant 1 generates the transaction X of amount 1 cents
     When the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the transaction X is authorized
+    And the citizen A is rewarded accordingly
 
   @transaction
   @Scontoditipo1
