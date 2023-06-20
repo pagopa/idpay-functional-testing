@@ -25,7 +25,7 @@ def step_citizen_fc_exact_or_random(context, citizen_fc):
 def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age: int, precision: str):
     citizen_fc = fake_fc(age=age)
     if precision == 'at most':
-        current_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(30, 90))
+        current_date = datetime.datetime.now() - datetime.timedelta(days=random.randint(30, 90))
         current_month = current_date.month
         current_day = current_date.day
         citizen_fc = fake_fc(age=age, custom_month=current_month, custom_day=current_day)
