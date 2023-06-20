@@ -20,3 +20,11 @@ Feature: A merchant gets refunded if a transaction is discounted
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
     When the citizen A confirms all the transactions
     Then the merchant 1 is refunded 150.0 euros
+
+  @refunds
+  @Scontoditipo1
+  Scenario: Merchant receive discount transaction refund
+    Given the merchant 1 generates the transaction X of amount 1 cents
+    When the citizen A confirms the transaction X
+    Then the transaction X is authorized
+    And the merchant 1 is refunded 0.01 euros
