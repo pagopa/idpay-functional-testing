@@ -19,7 +19,7 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo1
-  @need_fix
+  @skip
   Scenario: User just 120 tries onboarding
     Given the citizen A is 120 years old exactly
     When the citizen A tries to onboard

@@ -126,7 +126,8 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 2 generates the transaction Y of amount 30000 cents
     And the citizen A confirms the transaction Y
     When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    Then the latest pre-authorization fails
+    And the transaction X is cancelled
 
   @transaction
   @Scontoditipo1

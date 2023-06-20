@@ -89,14 +89,13 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         if status == 'ALREADY CONFIRMED':
             assert context.latest_pre_authorization_response.status_code == 403
 
-            assert context.latest_pre_authorization_response.json()['code'] == 'FORBIDDEN'
+            assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_VALID'
             assert context.latest_pre_authorization_response.json()[
                        'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already assigned to another user'
 
         if status == 'EXCEEDING RATE LIMIT':
             assert context.latest_authorization_response.status_code == 429
-
-            assert context.latest_authorization_response.json()['code'] == 'REWARD CALCULATOR'
+            assert context.latest_authorization_response.json()['code'] == 'PAYMENT_TOO_MANY_REQUESTS'
             assert context.latest_authorization_response.json()[
                        'message'] == f'Too many request on the ms reward'
 
