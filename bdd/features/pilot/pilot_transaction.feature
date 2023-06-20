@@ -95,6 +95,14 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
+  Scenario: A transaction of amount 0 cents is generated but cannot be confirmed by the citizen
+    Given the merchant 1 is qualified
+    And the merchant 1 generates the transaction X of amount 0 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is not authorized
+
+  @transaction
+  @Scontoditipo1
   @skip
   Scenario: the transaction expires, if not authorized within 3 days by the citizen
     Given the merchant 1 is qualified
