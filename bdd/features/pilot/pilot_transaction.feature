@@ -34,7 +34,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the merchant 1 generated 10 transactions of amount 3000 cents each
-    When the citizen A confirms all the transaction
+    When the citizen A confirms all the transactions
     Then the citizen A is rewarded accordingly
 
   @transaction

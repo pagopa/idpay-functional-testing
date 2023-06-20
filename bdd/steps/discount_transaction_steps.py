@@ -117,7 +117,7 @@ def step_when_merchant_creates_n_transaction_successfully(context, merchant_name
         context.trx_codes.append(res.json()['trxCode'])
 
 
-@when('the citizen {citizen_name} confirms all the transaction')
+@when('the citizen {citizen_name} confirms all the transactions')
 def step_when_citizen_authorizes_all_transactions(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     i = 0
