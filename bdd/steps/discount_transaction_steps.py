@@ -85,6 +85,20 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert context.latest_pre_authorization_response.status_code == 403
 
             assert trx_details['status'] == 'REJECTED'
+            assert context.latest_pre_authorization_response.json()['code'] == f'PAYMENT_GENERIC_REJECTED'
+            assert context.latest_pre_authorization_response.json()[
+                       'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is rejected'
+
+        if status == 'NOT AUTHORIZED FOR BUDGET ERODED':
+            assert context.latest_pre_authorization_response.status_code == 403
+
+            assert trx_details['status'] == 'REJECTED'
+
+            assert context.latest_pre_authorization_response.json()['code'] == f'PAYMENT_BUDGET_EXHAUSTED'
+            assert context.latest_pre_authorization_response.json()['message'].startswith(
+                f'Budget exhausted for user [')
+            assert context.latest_pre_authorization_response.json()['message'].endswith(
+                f'] and initiative [{context.initiative_id}]')
 
         if status == 'ALREADY CONFIRMED':
             assert context.latest_pre_authorization_response.status_code == 403

@@ -45,7 +45,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A's budget is eroded
     And the merchant 1 generates the transaction X of amount 200000 cents
     When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    Then the transaction X is not authorized for budget eroded
 
   @transaction
   @Scontoditipo1
@@ -195,7 +195,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 200000 cents
     When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    Then the transaction X is not authorized for budget eroded
     When the citizen B tries to confirm the transaction X
     Then the transaction X is already confirmed
 
@@ -214,7 +214,7 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen A tries to confirm the transaction Y
     Then the transaction X is authorized
     And the citizen A is rewarded accordingly
-    And the transaction Y is not authorized
+    And the transaction Y is not authorized for budget eroded
 
   @transaction
   @Scontoditipo1
