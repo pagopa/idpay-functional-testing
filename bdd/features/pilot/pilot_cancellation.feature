@@ -22,6 +22,7 @@ Feature: A transaction can be cancelled by the merchant
     When 1 second/s pass
     And the merchant 1 cancels the transaction X
     Then the transaction X is cancelled
+    And the citizen A has its transaction cancelled
 
   @cancellation
   @Scontoditipo1
@@ -30,4 +31,14 @@ Feature: A transaction can be cancelled by the merchant
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
     When the merchant 1 cancels the transaction X
+    Then the transaction X is cancelled
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: an authorized and cancelled transaction X cannot be pre-authorised
+    Given the merchant 1 generates the transaction X of amount 15000 cents
+    And the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the merchant 1 cancels the transaction X
+    When the citizen A tries to confirm the transaction X
     Then the transaction X is cancelled
