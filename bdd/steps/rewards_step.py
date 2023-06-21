@@ -3,10 +3,12 @@ from math import floor
 from behave import given
 from behave import then
 
+from api.idpay import timeline
 from util.dataset_utility import Reward
 from util.utility import check_rewards
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
+from util.utility import retry_timeline
 
 
 def step_check_rewards_on_wallet(context, token_io):
@@ -25,6 +27,25 @@ def step_check_rewards_of_citizen(context, citizen_name):
 
     expect_wallet_counters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=curr_token_io,
                            initiative_id=context.initiative_id)
+
+
+@then('the citizen {citizen_name} has its transaction cancelled')
+def step_check_transaction_cancellation_on_citizen(context, citizen_name):
+    curr_token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    expect_wallet_counters(expected_amount=context.initiatives_settings['budget_per_citizen'], expected_accrued=0,
+                           token=curr_token_io,
+                           initiative_id=context.initiative_id)
+
+    retry_timeline(expected='CANCELLED',
+                   request=timeline,
+                   num_required=1,
+                   token=curr_token_io,
+                   initiative_id=context.initiative_id,
+                   field='status',
+                   tries=10,
+                   delay=3,
+                   message='Cancellation not received')
 
 
 @given('an expected accrued')
