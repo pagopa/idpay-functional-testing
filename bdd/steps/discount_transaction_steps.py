@@ -224,6 +224,7 @@ def step_transaction_expires(context, trx_name):
     pass
 
 
+@given('the merchant {merchant_name} cancels the transaction {trx_name}')
 @when('the merchant {merchant_name} cancels the transaction {trx_name}')
 def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
     curr_merchant_id = context.merchants[merchant_name]['id']
