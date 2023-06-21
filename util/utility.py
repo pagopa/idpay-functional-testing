@@ -169,17 +169,29 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                    message='Test failed', page: int = 0):
     count = 0
     res = request(initiative_id, token, page)
-    success = list(operation[field] for operation in
-                   res.json()['operationList']).count(expected) == num_required
+
+    operations = []
+    for operation in res.json()['operationList']:
+        if field in operation:
+            if operation[field] == expected:
+                operations.append(operation)
+    success = len(operations) == num_required
+
     while not success:
         count += 1
         if count == tries:
             break
         time.sleep(delay)
         res = request(initiative_id, token, page)
-        success = list(operation[field] for operation in
-                       res.json()['operationList']).count(expected) == num_required
-    assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
+
+        operations = []
+        for operation in res.json()['operationList']:
+            if field in operation:
+                if operation[field] == expected:
+                    operations.append(operation)
+        success = len(operations) == num_required
+
+    assert success
     return res
 
 
