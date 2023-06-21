@@ -59,14 +59,13 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  @need_fix
   Scenario: The transaction is not authorized before the expendable period
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the transaction is created before fruition period
     And the merchant 1 generates the transaction X of amount 30001 cents
     When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    Then the transaction X is expired
 
   @transaction
   @Scontoditipo1
@@ -103,15 +102,13 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  @skip
   Scenario: the transaction expires, if not authorized within 3 days by the citizen
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the transaction is created 3 days ago
     And the merchant 1 generates the transaction X of amount 19999 cents
     When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
-    And the transaction X expires
+    Then the transaction X is expired
 
   @transaction
   @Scontoditipo1
