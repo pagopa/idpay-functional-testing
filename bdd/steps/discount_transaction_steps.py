@@ -113,6 +113,11 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert context.latest_authorization_response.json()[
                        'message'] == f'Too many request on the ms reward'
 
+        if status == 'EXPIRED':
+            assert context.latest_pre_authorization_response.status_code == 404
+            assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
+            assert context.latest_pre_authorization_response.json()[
+                       'message'] == f'Cannot find transaction with trxCode [{context.transactions[trx_name]["trxCode"]}]'
 
 @given('the merchant {merchant_name} generated {trx_num} transactions of amount {amount_cents} cents each')
 def step_when_merchant_creates_n_transaction_successfully(context, merchant_name, trx_num, amount_cents):
