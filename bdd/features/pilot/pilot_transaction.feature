@@ -101,14 +101,36 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is not authorized
 
   @transaction
-  @Scontoditipo1
-  Scenario: the transaction expires, if not authorized within 3 days by the citizen
+    @Scontoditipo1
+  Scenario Outline: The transaction expires if not authorized after 3 days by the citizen
     Given the merchant 1 is qualified
     And the citizen A is onboard
-    And the transaction is created 3 days ago
+    And the transaction is created <days_back> days ago
     And the merchant 1 generates the transaction X of amount 19999 cents
     When the citizen A tries to confirm the transaction X
     Then the transaction X is expired
+
+    Examples: Days Back
+      | days_back |
+      | 3         |
+      | 4         |
+      | 5         |
+
+  @transaction
+    @Scontoditipo1
+  Scenario Outline: The transaction does not expires if not authorized within 3 days by the citizen
+    Given the merchant 1 is qualified
+    And the citizen A is onboard
+    And the transaction is created <days_back> days ago
+    And the merchant 1 generates the transaction X of amount 19999 cents
+    When the citizen A tries to confirm the transaction X
+    Then the transaction X is confirmed
+
+    Examples: Days Back
+      | days_back |
+      | 0         |
+      | 1         |
+      | 2         |
 
   @transaction
   @Scontoditipo1
