@@ -9,7 +9,6 @@ from api.idpay import delete_payment_merchant
 from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
-from api.idpay import put_merchant_confirms_payment
 from api.idpay import put_pre_authorize_payment
 from util.utility import get_io_token
 
@@ -70,14 +69,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         if status == 'AUTHORIZED':
             assert trx_details['status'] == status
 
-            # for testing purposes the transaction is confirmed by the merchant
-            res = put_merchant_confirms_payment(
-                transaction_id=context.transactions[trx_name]['id'],
-                merchant_id=context.latest_merchant_id
-            )
-            assert res.status_code == 200
-            assert res.json()['status'] == 'REWARDED'
-
         if status == 'NOT CREATED':
             assert context.latest_create_transaction_response.status_code != 201
 
@@ -120,6 +111,12 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
                        'message'] == f'Cannot find transaction with trxCode [{context.transactions[trx_name]["trxCode"]}]'
 
 
+@then('every transaction is {expected_status}')
+def step_check_every_transaction_status(context, expected_status):
+    for i in range(len(context.trx_codes)):
+        step_check_named_transaction_status(context=context, trx_name=str(i), expected_status=expected_status)
+
+
 @given('the merchant {merchant_name} generated {trx_num} transactions of amount {amount_cents} cents each')
 def step_when_merchant_creates_n_transaction_successfully(context, merchant_name, trx_num, amount_cents):
     context.trx_ids = []
@@ -137,6 +134,7 @@ def step_when_merchant_creates_n_transaction_successfully(context, merchant_name
         context.trx_codes.append(res.json()['trxCode'])
 
 
+@given('the citizen {citizen_name} confirms each transaction')
 @when('the citizen {citizen_name} confirms all the transactions')
 def step_when_citizen_authorizes_all_transactions(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
@@ -184,6 +182,8 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
     res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=curr_token_io)
 
     context.authorize_payment_response = res
+
+    step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
 
     if citizen_name not in context.accrued_per_citizen.keys():
         context.accrued_per_citizen[citizen_name] = res.json()['reward']
@@ -235,3 +235,18 @@ def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
                                   merchant_id=curr_merchant_id
                                   )
     assert res.status_code == 200
+
+
+@when('the merchant {merchant_name} cancels every transaction')
+def step_merchant_cancels_every_transaction(context, merchant_name):
+    for curr_trx_id in context.trx_ids:
+        curr_merchant_id = context.merchants[merchant_name]['id']
+        curr_trx_id = curr_trx_id
+
+        res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                      merchant_id=curr_merchant_id
+                                      )
+
+        assert res.status_code == 200
+
+        time.sleep(1)
