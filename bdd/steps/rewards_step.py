@@ -1,8 +1,11 @@
+import time
 from math import floor
 
 from behave import given
 from behave import then
+from behave import when
 
+from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
 from util.dataset_utility import Reward
 from util.utility import check_rewards
@@ -73,3 +76,25 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     curr_iban = context.merchants[merchant_name]['iban']
     check_rewards(initiative_id=context.initiative_id,
                   expected_rewards=[Reward(curr_iban, float(expected_refund))])
+
+
+@when('the batch process confirms the transaction {trx_name}')
+def step_merchant_confirms_a_transactions(context, trx_name):
+    assert_merchant_confirmation(trx_id=context.transactions[trx_name]['id'], merchant_id=context.latest_merchant_id)
+
+
+@when('the batch process confirms all the transactions')
+def step_merchant_confirms_all_transactions(context):
+    for curr_trx_id in context.trx_ids:
+        assert_merchant_confirmation(trx_id=curr_trx_id, merchant_id=context.latest_merchant_id)
+
+
+def assert_merchant_confirmation(trx_id, merchant_id):
+    # for testing purposes the transaction is confirmed by the merchant as the batch process would do
+    res = put_merchant_confirms_payment(
+        transaction_id=trx_id,
+        merchant_id=merchant_id
+    )
+    assert res.status_code == 200
+    assert res.json()['status'] == 'REWARDED'
+    time.sleep(1)
