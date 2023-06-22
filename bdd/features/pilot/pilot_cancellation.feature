@@ -35,10 +35,21 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  Scenario: an authorized and cancelled transaction X cannot be pre-authorised
+  Scenario: An authorized and cancelled transaction X cannot be pre-authorised
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
     And 1 second/s pass
     And the merchant 1 cancels the transaction X
     When the citizen A tries to confirm the transaction X
     Then the transaction X is cancelled
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: After the eroded budget, if the merchant cancels the last transaction the citizen can make another transaction
+    Given the merchant 1 generates the transaction X of amount 30000 cents
+    And the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the merchant 1 cancels the transaction X
+    And the merchant 1 generates the transaction Y of amount 15000 cents
+    When the citizen A confirms the transaction Y
+    Then the transaction Y is authorized
