@@ -9,22 +9,23 @@ Feature: A merchant gets refunded if a transaction is discounted
   @refunds
   @Scontoditipo1
   Scenario: Merchant receive discount transaction refund
-    And the merchant 1 generates the transaction X of amount 30001 cents
-    When the citizen A confirms the transaction X
-    Then the transaction X is authorized
-    And the merchant 1 is refunded 300.0 euros
+    Given the merchant 1 generates the transaction X of amount 30001 cents
+    And the citizen A confirms the transaction X
+    When the batch process confirms the transaction X
+    Then the merchant 1 is refunded 300.0 euros
 
   @refunds
   @Scontoditipo1
-  Scenario: after 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
+  Scenario: After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
-    When the citizen A confirms all the transactions
+    And the citizen A confirms each transaction
+    When the batch process confirms all the transactions
     Then the merchant 1 is refunded 150.0 euros
 
   @refunds
   @Scontoditipo1
   Scenario: Merchant receive discount transaction refund for 1 cents transaction
     Given the merchant 1 generates the transaction X of amount 1 cents
-    When the citizen A confirms the transaction X
-    Then the transaction X is authorized
-    And the merchant 1 is refunded 0.01 euros
+    And the citizen A confirms the transaction X
+    When the batch process confirms the transaction X
+    Then the merchant 1 is refunded 0.01 euros
