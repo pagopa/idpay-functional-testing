@@ -23,7 +23,7 @@ Feature: A merchant gets refunded if a transaction is discounted
 
   @refunds
   @Scontoditipo1
-  Scenario: Merchant receive discount transaction refund
+  Scenario: Merchant receive discount transaction refund for 1 cents transaction
     Given the merchant 1 generates the transaction X of amount 1 cents
     When the citizen A confirms the transaction X
     Then the transaction X is authorized
