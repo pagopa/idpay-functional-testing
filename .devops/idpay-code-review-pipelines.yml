@@ -22,9 +22,14 @@ parameters:
     values:
       - uat
 
+  - name: tag
+    displayName: Target tests tag
+    type: string
+    default: ''
+
 stages:
   - stage: Functional_tests
-    dependsOn: []
+    dependsOn: [ ]
     pool:
       name: $(selfHostedAgentPool)
     jobs:
@@ -49,8 +54,12 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               source .venv/bin/activate
-              pytest --junitxml=tests/reports/pytest/junit.xml -vv -m reversal
-            displayName: 'Run tests with Pytest'
+              if [ -z "${{ parameters.tag }}" ]; then
+                pytest --junitxml=tests/reports/pytest/junit.xml -vv --collect-only
+              else
+                pytest --junitxml=tests/reports/pytest/junit.xml -vv -m "${{ parameters.tag }}"" --collect-only
+              fi
+              displayName: 'Run tests with Pytest'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
@@ -66,7 +75,11 @@ stages:
               failTaskOnFailedTests: true
           - script: |
               source .venv/bin/activate
-              behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+              if [ -z "${{ parameters.tag }}" ]; then
+                behave --junit --junit-directory "tests/reports/behave" --tags ~@skip -d
+              else
+                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }} -d"
+              fi
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
