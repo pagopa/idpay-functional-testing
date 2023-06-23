@@ -78,7 +78,7 @@ stages:
               if [ -z "${{ parameters.tag }}" ]; then
                 behave --junit --junit-directory "tests/reports/behave" --tags ~@skip -d
               else
-                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }} -d"
+                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}" -d
               fi
             displayName: 'Run tests with Behave'
             env:
