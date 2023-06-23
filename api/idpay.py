@@ -198,6 +198,7 @@ def post_merchant_create_transaction_acquirer(initiative_id,
         json={
             'amountCents': amount_cents,
             'idTrxIssuer': uuid.uuid4().int,
+            'idTrxAcquirer': uuid.uuid4().int,
             'initiativeId': initiative_id,
             'mcc': mcc,
             'merchantFiscalCode': merchant_fiscal_code,
