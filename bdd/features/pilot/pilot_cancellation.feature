@@ -26,12 +26,11 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  @skip
   Scenario: The transaction cancellation fails if done shortly after the confirmation
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
-    When the merchant 1 cancels the transaction X
-    Then the transaction X is cancelled
+    When the merchant 1 tries to cancel the transaction X
+    Then the latest cancellation fails
 
   @cancellation
   @Scontoditipo1
