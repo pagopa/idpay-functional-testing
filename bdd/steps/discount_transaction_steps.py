@@ -229,6 +229,11 @@ def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
 
 
+@then('the latest cancellation fails')
+def step_check_latest_pre_authorization_failed(context):
+    assert context.latest_cancellation_response.status_code == 429
+
+
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
@@ -249,6 +254,30 @@ def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
                                   merchant_id=curr_merchant_id
                                   )
     assert res.status_code == 200
+    context.latest_cancellation_response = res
+
+
+@when('the merchant {merchant_name} tries to cancel the transaction {trx_name}')
+def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_name):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                  merchant_id=curr_merchant_id
+                                  )
+    context.latest_cancellation_response = res
+
+
+@given('the merchant {merchant_name} fails cancelling the transaction {trx_name}')
+def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_name, trx_name):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                  merchant_id=curr_merchant_id
+                                  )
+    assert res.status_code == 429
+    context.latest_cancellation_response = res
 
 
 @when('the merchant {merchant_name} cancels every transaction')
