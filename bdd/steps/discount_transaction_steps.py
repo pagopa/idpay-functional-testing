@@ -24,8 +24,7 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
     context.latest_create_transaction_response = post_merchant_create_transaction_acquirer(
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
-        merchant_id=curr_merchant_id,
-        trx_date=context.trx_date
+        merchant_id=curr_merchant_id
     )
 
 

@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 import requests
@@ -186,7 +185,6 @@ def post_merchant_create_transaction_acquirer(initiative_id,
                                               apim_request_id: str = 'APIMREQUESTID',
                                               mcc: str = '1234',
                                               merchant_fiscal_code: str = '12345678901',
-                                              trx_date: datetime = tomorrow_date(is_iso=True),
                                               vat: str = '12345678901'):
     response = requests.post(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}',
@@ -197,12 +195,10 @@ def post_merchant_create_transaction_acquirer(initiative_id,
         },
         json={
             'amountCents': amount_cents,
-            'idTrxIssuer': uuid.uuid4().int,
             'idTrxAcquirer': uuid.uuid4().int,
             'initiativeId': initiative_id,
             'mcc': mcc,
             'merchantFiscalCode': merchant_fiscal_code,
-            'trxDate': trx_date,
             'vat': vat,
         },
     )
