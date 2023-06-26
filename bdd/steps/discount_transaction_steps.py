@@ -115,13 +115,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
                        'message'] == f'Too many request on the ms reward'
             return
 
-        if status == 'EXPIRED':
-            assert context.latest_pre_authorization_response.status_code == 404
-            assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
-            assert context.latest_pre_authorization_response.json()[
-                       'message'] == f'Cannot find transaction with trxCode [{context.transactions[trx_name]["trxCode"]}]'
-            return
-
     assert False, 'Status not implemented'
 
 
