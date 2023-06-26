@@ -65,7 +65,7 @@ RTD:
       path: '/payment-instrument-manager'
       salt: '/salt'
       version: '/v3'
-    mock-io:
+    mock_io:
       login: "/mock-io/login"
       user: "/mock-io/user"
 initiatives:
