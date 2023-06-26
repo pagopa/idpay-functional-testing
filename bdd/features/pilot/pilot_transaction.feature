@@ -137,7 +137,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A confirms the transaction X
     When the citizen B tries to confirm the transaction X
-    Then the transaction X is already confirmed
+    Then the transaction X is already assigned
 
   @transaction
   @Scontoditipo1
@@ -186,7 +186,7 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen A tries to confirm the transaction X
     Then the transaction X is not authorized for budget eroded
     When the citizen B tries to confirm the transaction X
-    Then the transaction X is already confirmed
+    Then the transaction X is already assigned
 
   @transaction
   @Scontoditipo1

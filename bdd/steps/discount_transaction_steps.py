@@ -47,12 +47,16 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
     if status == 'NOT CREATED':
         assert context.latest_create_transaction_response.status_code != 201
+        return
+
     elif status == 'CANCELLED':
         res = get_transaction_detail(
             context.transactions[trx_name]['id'],
             merchant_id=context.latest_merchant_id
         )
         assert res.status_code == 404
+        return
+
     else:
         trx_details = get_transaction_detail(
             context.transactions[trx_name]['id'],
@@ -61,15 +65,19 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
         if status == 'CREATED':
             assert trx_details['status'] == status
+            return
 
         if status == 'IDENTIFIED':
             assert trx_details['status'] == status
+            return
 
         if status == 'AUTHORIZED':
             assert trx_details['status'] == status
+            return
 
         if status == 'NOT CREATED':
             assert context.latest_create_transaction_response.status_code != 201
+            return
 
         if status == 'NOT AUTHORIZED':
             assert context.latest_pre_authorization_response.status_code == 403
@@ -78,6 +86,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert context.latest_pre_authorization_response.json()['code'] == f'PAYMENT_GENERIC_REJECTED'
             assert context.latest_pre_authorization_response.json()[
                        'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is rejected'
+            return
 
         if status == 'NOT AUTHORIZED FOR BUDGET ERODED':
             assert context.latest_pre_authorization_response.status_code == 403
@@ -89,25 +98,31 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
                 f'Budget exhausted for user [')
             assert context.latest_pre_authorization_response.json()['message'].endswith(
                 f'] and initiative [{context.initiative_id}]')
+            return
 
-        if status == 'ALREADY CONFIRMED':
+        if status == 'ALREADY ASSIGNED':
             assert context.latest_pre_authorization_response.status_code == 403
 
             assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_VALID'
             assert context.latest_pre_authorization_response.json()[
                        'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already assigned to another user'
+            return
 
         if status == 'EXCEEDING RATE LIMIT':
             assert context.latest_authorization_response.status_code == 429
             assert context.latest_authorization_response.json()['code'] == 'PAYMENT_TOO_MANY_REQUESTS'
             assert context.latest_authorization_response.json()[
                        'message'] == f'Too many request on the ms reward'
+            return
 
         if status == 'EXPIRED':
             assert context.latest_pre_authorization_response.status_code == 404
             assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
             assert context.latest_pre_authorization_response.json()[
                        'message'] == f'Cannot find transaction with trxCode [{context.transactions[trx_name]["trxCode"]}]'
+            return
+
+    assert False, 'Status not implemented'
 
 
 @then('every transaction is {expected_status}')
