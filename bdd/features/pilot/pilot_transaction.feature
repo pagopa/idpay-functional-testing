@@ -76,6 +76,18 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
+  Scenario: The transaction cannot be authorized again if an ever registered citizen tried to authorize it
+    Given the merchant 1 is qualified
+    And the citizen A is not onboard
+    And the citizen B is 20 years old at most
+    And the citizen B is onboard
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the citizen A pre-authorizes the transaction X
+    When the citizen B tries to confirm the transaction X
+    Then the transaction X is already assigned
+
+  @transaction
+  @Scontoditipo1
   @wip
   Scenario: The transaction is not generated for an amount equal to 0 cents
     Given the merchant 1 is qualified
