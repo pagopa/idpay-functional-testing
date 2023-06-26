@@ -190,7 +190,7 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized, A receives an error upon authorizing the transaction Y
+  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
     Given the merchant 1 is qualified
     And the merchant 1 is qualified
     And the citizen A is 25 years old at most
@@ -207,7 +207,7 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized, Y remains identified
+  Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, Y remains identified
     Given the merchant 1 is qualified
     And the merchant 1 is qualified
     And the citizen A is 25 years old at most
