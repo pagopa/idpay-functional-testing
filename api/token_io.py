@@ -9,7 +9,7 @@ def login(tax_code):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.post(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}',
+    return requests.post(f'{settings.base_path.IO}{settings.RTD.domain}{settings.RTD.endpoints.mock-io.login}',
                          headers={
                              'Content-Type': 'application/json', },
                          params={'fiscalCode': tax_code},
@@ -23,7 +23,7 @@ def introspect(token):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.get(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}',
+    return requests.get(f'{settings.base_path.IO}{settings.RTD.domain}{settings.RTD.endpoints.mock-io.user}',
                         headers={
                             'Content-Type': 'application/json'
                         },
