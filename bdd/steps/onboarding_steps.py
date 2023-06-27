@@ -3,6 +3,7 @@ from behave import given
 from behave import then
 from behave import when
 
+from api.idpay import get_initiative_statistics
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import status_onboarding
@@ -11,6 +12,7 @@ from conf.configuration import settings
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.utility import card_enroll
+from util.utility import check_statistics
 from util.utility import get_io_token
 from util.utility import iban_enroll
 from util.utility import retry_io_onboarding
@@ -32,6 +34,12 @@ def step_named_citizen_onboard(context, citizen_name):
 def step_citizen_not_onboard(context, citizen_name):
     step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='not correctly')
+    check_statistics(organization_id=context.organization_id,
+                     initiative_id=context.initiative_id,
+                     old_statistics=context.base_statistics,
+                     onboarded_citizen_count_increment=0,
+                     accrued_rewards_increment=0,
+                     skip_trx_check=True)
 
 
 @when('the citizen {citizen_name} tries to onboard')
@@ -53,14 +61,26 @@ def step_check_onboarding_status(context, citizen_name, status):
     res = status_onboarding(token_io, context.initiative_id)
     assert res.status_code == 200
 
-    if status == 'pending':
-        expected_status = 'ACCEPTED_TC'
-    else:
-        expected_status = f'ONBOARDING_{status}'
+    expected_status = f'ONBOARDING_{status}'
 
     retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                         initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
-                        message=f'Citizen onboard not {status}')
+                        message=f'Citizen onboard not {status}'
+                        )
+
+    if status == 'KO':
+        curr_onboarded_citizen_count_increment = 0
+    else:
+        curr_onboarded_citizen_count_increment = 1
+
+    check_statistics(organization_id=context.organization_id,
+                     initiative_id=context.initiative_id,
+                     old_statistics=context.base_statistics,
+                     onboarded_citizen_count_increment=curr_onboarded_citizen_count_increment,
+                     accrued_rewards_increment=0,
+                     skip_trx_check=True)
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
 
 
 @when('the citizen {citizen_name} insert self-declared criteria {correctness}')
