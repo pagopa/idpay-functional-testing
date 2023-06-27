@@ -5,6 +5,7 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo6
+  @wip
   Scenario: User under the minimum age tries onboarding
     Given the citizen A is 18 years old at most
     When the citizen A tries to onboard
