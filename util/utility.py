@@ -5,8 +5,6 @@ import time
 import uuid
 from hashlib import sha256
 
-import pytest
-
 from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
@@ -52,6 +50,10 @@ def onboard_io(fc, initiative_id):
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
+
+    retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
+                        initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                        message='Citizen not ACCEPTED_TC')
 
     res = check_prerequisites(token, initiative_id)
     assert res.status_code == 200
@@ -155,7 +157,7 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(token, initiative_id)
         success = (expected == res.json()[field])
@@ -167,17 +169,29 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                    message='Test failed', page: int = 0):
     count = 0
     res = request(initiative_id, token, page)
-    success = list(operation[field] for operation in
-                   res.json()['operationList']).count(expected) == num_required
+
+    operations = []
+    for operation in res.json()['operationList']:
+        if field in operation:
+            if operation[field] == expected:
+                operations.append(operation)
+    success = len(operations) == num_required
+
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(initiative_id, token, page)
-        success = list(operation[field] for operation in
-                       res.json()['operationList']).count(expected) == num_required
-    assert list(operation[field] for operation in res.json()['operationList']).count(expected) == num_required
+
+        operations = []
+        for operation in res.json()['operationList']:
+            if field in operation:
+                if operation[field] == expected:
+                    operations.append(operation)
+        success = len(operations) == num_required
+
+    assert success
     return res
 
 
@@ -188,7 +202,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(initiative_id, token)
         success = (expected == res.json()[field])
@@ -205,7 +219,7 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, mes
     while not success:
         count += 1
         if count == tries:
-            pytest.fail(f'{message} after {delay * tries}s')
+            break
         time.sleep(delay)
         res = request(iban, token)
         if res.status_code == 200:

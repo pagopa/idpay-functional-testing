@@ -4,6 +4,7 @@ TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
+iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
@@ -58,6 +59,13 @@ IDPAY:
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
     statistics:
       path: '/idpayinitiativestatistics/idpay'
+    payment:
+      path: '/payment'
+      internal_path: '/idpaypayment/idpay'
+      qr_code:
+        path: '/qr-code'
+        merchant: '/merchant'
+  acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
   endpoints:
@@ -102,3 +110,11 @@ initiatives:
     budget_per_citizen: 100
     fruition_start: '2023-04-17T00:00:00.000+01:00'
     fruition_end: '2099-04-17T22:59:59.000Z'
+  Scontoditipo1:
+    id: 'PILOT'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    min_age: 18
+    max_age: 35
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
