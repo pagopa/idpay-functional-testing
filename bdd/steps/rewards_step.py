@@ -5,10 +5,12 @@ from behave import given
 from behave import then
 from behave import when
 
+from api.idpay import get_transaction_detail
 from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
 from util.dataset_utility import Reward
 from util.utility import check_rewards
+from util.utility import check_statistics
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import retry_timeline
@@ -80,7 +82,16 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
 
 @when('the batch process confirms the transaction {trx_name}')
 def step_merchant_confirms_a_transactions(context, trx_name):
+    context.transactions[trx_name] = get_transaction_detail(context.transactions[trx_name]['id'],
+                                                            merchant_id=context.latest_merchant_id).json()
     assert_merchant_confirmation(trx_id=context.transactions[trx_name]['id'], merchant_id=context.latest_merchant_id)
+    check_statistics(organization_id=context.organization_id,
+                     initiative_id=context.initiative_id,
+                     old_statistics=context.base_statistics,
+                     onboarded_citizen_count_increment=0,
+                     accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100,
+                     rewarded_trxs_increment=1
+                     )
 
 
 @when('the batch process confirms all the transactions')
