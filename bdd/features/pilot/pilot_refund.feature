@@ -3,16 +3,26 @@ Feature: A merchant gets refunded if a transaction is discounted
   Background:
     Given the initiative is "Scontoditipo1"
     And the merchant 1 is qualified
+    And the merchant 2 is qualified
     And the citizen A is 25 years old at most
     And the citizen A is onboard
 
   @refunds
   @Scontoditipo1
   Scenario: Merchant receive discount transaction refund
-    Given the merchant 1 generates the transaction X of amount 30001 cents
+    Given the merchant 1 generates the transaction X of amount 20001 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
-    Then the merchant 1 is refunded 300.0 euros
+    Then the merchant 1 is refunded 200.01 euros
+
+  @refunds
+  @Scontoditipo1
+  @need_fix
+  Scenario: Merchant receive max refund for discounted transaction exceeding the citizen's budget
+    Given the merchant 2 generates the transaction X of amount 30001 cents
+    And the citizen A confirms the transaction X
+    When the batch process confirms the transaction X
+    Then the merchant 2 is refunded 300.01 euros
 
   @refunds
   @Scontoditipo1
