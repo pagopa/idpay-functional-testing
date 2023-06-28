@@ -22,9 +22,14 @@ parameters:
     values:
       - uat
 
+  - name: tag
+    displayName: Target tests tag
+    type: string
+    default: ''
+
 stages:
   - stage: Functional_tests
-    dependsOn: []
+    dependsOn: [ ]
     pool:
       name: $(selfHostedAgentPool)
     jobs:
@@ -49,16 +54,41 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               source .venv/bin/activate
-              pytest --junitxml=tests/reports/junit.xml -vv
+              if [ -z "${{ parameters.tag }}" ]; then
+                pytest --junitxml=tests/reports/pytest/junit.xml -vv
+              else
+                pytest --junitxml=tests/reports/pytest/junit.xml -vv -m "${{ parameters.tag }}"
+              fi
             displayName: 'Run tests with Pytest'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
+            continueOnError: true
           - task: PublishTestResults@2
-            condition: true
+            continueOnError: true
             inputs:
               testResultsFormat: 'JUnit'
-              testResultsFiles: 'tests/reports/junit.xml'
+              testResultsFiles: 'tests/reports/pytest/junit.xml'
               testRunTitle: 'Pytest Results'
               searchFolder: $(Build.SourcesDirectory)
               failTaskOnFailedTests: true
+          - script: |
+              source .venv/bin/activate
+              if [ -z "${{ parameters.tag }}" ]; then
+                behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+              else
+                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
+              fi
+            displayName: 'Run tests with Behave'
+            env:
+              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
+              IDPAY_TARGET_ENV: ${{ parameters.env }}
+            continueOnError: true
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'tests/reports/behave/*.xml'
+              testRunTitle: 'Behave Results'
+              searchFolder: $(Build.SourcesDirectory)
+              failTaskOnFailedTests: true
+            continueOnError: true

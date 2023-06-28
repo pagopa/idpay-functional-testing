@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 import requests
@@ -177,3 +176,99 @@ def get_initiative_statistics(organization_id, initiative_id):
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
         timeout=settings.default_timeout
     )
+
+
+def post_merchant_create_transaction_acquirer(initiative_id,
+                                              amount_cents: int,
+                                              merchant_id: str = 'MERCHANTID',
+                                              acquirer_id: str = settings.idpay.acquirer_id,
+                                              apim_request_id: str = 'APIMREQUESTID',
+                                              mcc: str = '1234',
+                                              merchant_fiscal_code: str = '12345678901',
+                                              vat: str = '12345678901'):
+    response = requests.post(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}',
+        headers={
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': apim_request_id,
+        },
+        json={
+            'amountCents': amount_cents,
+            'idTrxAcquirer': uuid.uuid4().int,
+            'initiativeId': initiative_id,
+            'mcc': mcc,
+            'merchantFiscalCode': merchant_fiscal_code,
+            'vat': vat,
+        },
+    )
+    return response
+
+
+def get_transaction_detail(transaction_id,
+                           merchant_id: str = 'MERCHANTID',
+                           acquirer_id: str = settings.idpay.acquirer_id,
+                           ):
+    response = requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
+        headers={
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': 'TEST',
+        }
+    )
+    return response
+
+
+def put_merchant_confirms_payment(transaction_id,
+                                  merchant_id: str = 'MERCHANTID',
+                                  acquirer_id: str = settings.idpay.acquirer_id,
+                                  apim_request_id: str = 'APIMREQUESTID'
+                                  ):
+    response = requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}/confirm',
+        headers={
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': apim_request_id
+        }
+    )
+    return response
+
+
+def put_pre_authorize_payment(trx_code, token):
+    response = requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}/relate-user',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'accept': 'application/json'
+        }
+    )
+    return response
+
+
+def put_authorize_payment(trx_code, token):
+    response = requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}/authorize',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'accept': 'application/json'
+        }
+    )
+    return response
+
+
+def delete_payment_merchant(transaction_id,
+                            merchant_id: str = 'MERCHANTID',
+                            acquirer_id: str = settings.idpay.acquirer_id,
+                            apim_request_id: str = 'APIMREQUESTID'
+                            ):
+    response = requests.delete(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}',
+        headers={
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': apim_request_id
+        }
+    )
+    return response
