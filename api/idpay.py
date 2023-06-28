@@ -272,3 +272,20 @@ def delete_payment_merchant(transaction_id,
         }
     )
     return response
+
+
+def get_processed_transactions(initiative_id,
+                               merchant_id: str = 'MERCHANTID',
+                               acquirer_id: str = settings.idpay.acquirer_id,
+                               apim_request_id: str = 'APIMREQUESTID',
+                               page: int = 0
+                               ):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}?page={page}&size=10',
+        headers={
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': apim_request_id,
+        },
+        timeout=settings.default_timeout
+    )

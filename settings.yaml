@@ -65,6 +65,11 @@ IDPAY:
       qr_code:
         path: '/qr-code'
         merchant: '/merchant'
+    transactions:
+      path: '/idpaytransactions'
+      merchant: '/merchant'
+      portal: '/portal/initiatives'
+      processed: '/transactions/processed'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
