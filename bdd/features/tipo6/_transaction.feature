@@ -3,8 +3,8 @@ Feature: A transaction is generated, authorized and confirmed
   Background:
     Given the initiative is "Scontoditipo6"
     And the citizen A is 20 years old at most
-    And the citizen B is 20 years old at most
     And the citizen A is onboarded
+    And the citizen B is 20 years old at most
     And the citizen B is onboarded
 
   @transaction
