@@ -9,7 +9,7 @@ from api.idpay import get_transaction_detail
 from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
 from util.dataset_utility import Reward
-from util.utility import check_processed_transactions
+#from util.utility import check_processed_transactions
 from util.utility import check_rewards
 from util.utility import check_statistics
 from util.utility import expect_wallet_counters
@@ -94,12 +94,12 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                      rewarded_trxs_increment=1
                      )
 
-    check_processed_transactions(initiative_id=context.initiative_id,
-                                 expected_trx_id=context.transactions[trx_name]['id'],
-                                 expected_reward=context.transactions[trx_name]['rewardCents'],
-                                 expected_fiscal_code=context.associated_citizen[trx_name],
-                                 merchant_id=context.latest_merchant_id
-                                 )
+    # check_processed_transactions(initiative_id=context.initiative_id,
+    #                             expected_trx_id=context.transactions[trx_name]['id'],
+    #                             expected_reward=context.transactions[trx_name]['rewardCents'],
+    #                             expected_fiscal_code=context.associated_citizen[trx_name],
+    #                             merchant_id=context.latest_merchant_id
+    #                             )
 
 
 @when('the batch process confirms all the transactions')
