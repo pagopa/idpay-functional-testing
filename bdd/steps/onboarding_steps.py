@@ -24,6 +24,7 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 @given('the citizen {citizen_name} onboarded')
 @given('the citizen {citizen_name} is onboard')
+@given('the citizen {citizen_name} is onboarded')
 def step_named_citizen_onboard(context, citizen_name):
     step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')

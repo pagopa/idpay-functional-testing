@@ -12,7 +12,6 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo6
-  @wip
   Scenario: User just 19 tries onboarding
     Given the citizen A is 19 years old exactly
     When the citizen A tries to onboard
@@ -20,7 +19,6 @@ Feature: A citizen A onboards the pilot initiative
 
   @onboarding
   @Scontoditipo6
-  @wip
   Scenario: User over the maximum age tries onboarding
     Given the citizen A is 20 years old at most
     When the citizen A tries to onboard

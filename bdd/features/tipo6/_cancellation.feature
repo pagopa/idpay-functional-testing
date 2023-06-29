@@ -4,7 +4,6 @@ Feature: A transaction can be cancelled by the merchant
     Given the initiative is "Scontoditipo6"
     And the citizen A is onboarded
     And the citizen B is onboarded
-    And the user can only authorize one transaction
 
   @cancellation
   @Scontoditipo6
@@ -93,5 +92,5 @@ Feature: A transaction can be cancelled by the merchant
    And the merchant cancels the transaction X
    And the cancellation is OK
    When the merchant generates a transaction Y of amount 1000 cents
-   And the citizien A confirms the transaction Y
+   And the citizen A confirms the transaction Y
    Then the transaction Y is authorized
