@@ -9,7 +9,6 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo6
-  @wip
   Scenario: the transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
     Given the merchant 1 is qualified
     When the merchant 1 generates a transaction X of amount 10000 cents
@@ -18,7 +17,6 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo6
-  @wip
   Scenario: the transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
     Given the merchant 1 is qualified
     When the merchant 1 generates a transaction X of amount 1 cents
@@ -27,6 +25,7 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo6
+  @wip
   Scenario: with transaction of amount 20000 cents, the citizen confirms within the available budget with
     Given the merchant 1 is qualified
     When the merchant 1 generates a transaction X of amount 20000 cents
@@ -35,6 +34,7 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo6
+  @wip
   Scenario: user cannot confirm the second transaction Y because the initiative is one shot type
     Given the merchant 1 is qualified
     And the merchant 1 generates the transaction X of amount 1000 cents
