@@ -217,7 +217,6 @@ def get_transaction_detail(transaction_id,
             'x-apim-request-id': 'TEST',
         }
     )
-    print(response)
     return response
 
 
