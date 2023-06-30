@@ -79,6 +79,6 @@ Feature: A transaction is generated, authorized and confirmed
    And the merchant 2 is qualified
    And the merchant 1 generates the transaction X of amount 1000 cents
    And the merchant 2 generates the transaction Y of amount 1500 cents
-   And the citizen A confirms the transaction X
-   When the citizen A tries to confirm the transaction Y
-   Then the transaction Y is not authorized
+   And the citizen A confirms the transaction Y
+   When the citizen A tries to confirm the transaction X
+   Then the transaction X is not authorized
