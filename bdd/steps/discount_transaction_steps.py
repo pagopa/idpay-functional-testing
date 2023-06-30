@@ -55,7 +55,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
     elif status == 'CANCELLED':
         res = get_transaction_detail(
             context.transactions[trx_name]['id'],
-            merchant_id=context.latest_merchant_id
+            merchant_id=context.context.transactions[trx_name]['merchantId']
         )
         assert res.status_code == 404
         return
@@ -63,7 +63,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
     else:
         trx_details = get_transaction_detail(
             context.transactions[trx_name]['id'],
-            merchant_id=context.latest_merchant_id
+            merchant_id=context.transactions[trx_name]['merchantId']
         ).json()
 
         if status == 'CREATED':
