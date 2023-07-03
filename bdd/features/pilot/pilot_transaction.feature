@@ -133,7 +133,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A confirms the transaction Y
     When the citizen A tries to confirm the transaction X
     Then the latest pre-authorization fails
-    And the transaction X is cancelled
+    And the transaction X is not authorized for budget eroded
 
   @transaction
   @Scontoditipo1
