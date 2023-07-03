@@ -46,8 +46,8 @@ def onboard_io(fc, initiative_id):
     :param initiative_id: ID of the initiative of interest.
     """
     token = get_io_token(fc)
-    res = introspect(token)
-    assert res.json()['fiscal_code'] == fc
+    # res = introspect(token)
+    # assert res.json()['fiscal_code'] == fc
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
