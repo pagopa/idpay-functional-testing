@@ -15,7 +15,7 @@ Feature: A merchant gets refunded if a transaction is discounted
   @Refunds
   @Scontoditipo6
   Scenario: an unpaid transaction is not present in the rewards file
-    Given the merchan generates a transaction X of amount 2000 cents
+    Given the merchant generates a transaction X of amount 2000 cents
     When the citizen A confirms the transactions X
     And the transaction X is not rewarded
     Then the merchant get not rewarded accordingly
