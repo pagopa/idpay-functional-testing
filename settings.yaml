@@ -11,11 +11,6 @@ base_path:
   RTD: "https://api.uat.cstar.pagopa.it"
   IDPAY:
     internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
-BPD:
-  domain: "/bpd"
-  endpoints:
-    login: "/pagopa/api/v1/login"
-    user: "/pagopa/api/v1/user"
 IDPAY:
   domain: "/idpay"
   endpoints:
@@ -78,6 +73,9 @@ RTD:
       path: '/payment-instrument-manager'
       salt: '/salt'
       version: '/v3'
+    mock_io:
+      login: "/mock-io/login"
+      user: "/mock-io/user"
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'

@@ -1,5 +1,6 @@
 import requests
 
+from conf.configuration import secrets
 from conf.configuration import settings
 
 
@@ -9,9 +10,11 @@ def login(tax_code):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.post(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.login}',
+    return requests.post(f'{settings.base_path.IO}{settings.RTD.domain}{settings.RTD.endpoints.mock_io.login}',
                          headers={
-                             'Content-Type': 'application/json', },
+                             'Content-Type': 'application/json',
+                             settings.API_KEY_HEADER: secrets.api_key.RTD_Mock_API_Product
+                         },
                          params={'fiscalCode': tax_code},
                          timeout=settings.default_timeout
                          )
@@ -23,9 +26,10 @@ def introspect(token):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.get(f'{settings.base_path.IO}{settings.BPD.domain}{settings.BPD.endpoints.user}',
+    return requests.get(f'{settings.base_path.IO}{settings.RTD.domain}{settings.RTD.endpoints.mock_io.user}',
                         headers={
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            settings.API_KEY_HEADER: secrets.api_key.RTD_Mock_API_Product
                         },
                         params={
                             'token': token
