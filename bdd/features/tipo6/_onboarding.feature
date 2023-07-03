@@ -23,4 +23,3 @@ Feature: A citizen A onboards the pilot initiative
     Given the citizen A is 20 years old at most
     When the citizen A tries to onboard
     Then the onboard of A is OK
-
