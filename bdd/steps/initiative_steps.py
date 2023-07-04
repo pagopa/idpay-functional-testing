@@ -33,6 +33,7 @@ def step_given_initiative_id(context, initiative_name):
     context.organization_id = secrets.organization_id
 
     context.accrued_per_citizen = {}
+    context.total_accrued = 0
 
     context.merchants = {}
 

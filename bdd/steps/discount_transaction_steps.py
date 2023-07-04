@@ -5,7 +5,8 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import delete_payment_merchant, delete_payment_citizen
+from api.idpay import delete_payment_citizen
+from api.idpay import delete_payment_merchant
 from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
@@ -197,6 +198,9 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
         context.accrued_per_citizen[citizen_name] = res.json()['reward']
     else:
         context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
+
+    context.total_accrued = context.total_accrued + res.json()['reward']
+    context.num_new_trxs = context.num_new_trxs + 1
 
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
