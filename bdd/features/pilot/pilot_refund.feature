@@ -17,6 +17,97 @@ Feature: A merchant gets refunded if a transaction is discounted
 
   @refunds
   @Scontoditipo1
+  Scenario: Merchant receive discount transaction refund
+    Given the merchant 1 generates the transaction X of amount 1000 cents
+    And the merchant 1 generates the transaction Y of amount 2000 cents
+    And the merchant 1 generates the transaction Z of amount 4000 cents
+    And the merchant 1 generates the transaction K of amount 5000 cents
+    Given the citizen A confirms the transaction X
+    Then the citizen A is rewarded accordingly
+    When the batch process confirms the transaction X
+    Given the citizen A confirms the transaction Y
+    Then the citizen A is rewarded accordingly
+    When the batch process confirms the transaction Y
+    Given the citizen A confirms the transaction K
+    When the batch process confirms the transaction K
+    Then the citizen A is rewarded accordingly
+    And the merchant 1 is refunded 80 euros
+
+  @refunds
+  @Scontoditipo1
+  Scenario: Citizen makes 1 transactions, then the transaction is confirmed
+    Given the merchant 2 generates the transaction X of amount 1000 cents
+    And the merchant 2 generates the transaction Y of amount 2000 cents
+    And the merchant 2 generates the transaction Z of amount 4000 cents
+    And the citizen A confirms the transaction X
+    When the batch process confirms the transaction X
+    Then the citizen A is rewarded accordingly
+    And the merchant 2 is refunded 10 euros
+
+  @refunds
+  @Scontoditipo1
+  Scenario: Citizen makes 2 transactions, then only 1 is confirmed
+    Given the merchant 2 generates the transaction X of amount 1000 cents
+    And the merchant 2 generates the transaction Y of amount 2000 cents
+    And the merchant 2 generates the transaction Z of amount 4000 cents
+    And the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the citizen A confirms the transaction Y
+    When the batch process confirms the transaction X
+    Then the citizen A is rewarded accordingly
+    And the merchant 2 is refunded 10 euros
+
+  @refunds
+  @Scontoditipo1
+  Scenario: Citizen makes 3 transactions, then only 2 are confirmed
+    Given the merchant 2 generates the transaction X of amount 1000 cents
+    And the merchant 2 generates the transaction Y of amount 2000 cents
+    And the merchant 2 generates the transaction Z of amount 4000 cents
+    And the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the citizen A confirms the transaction Y
+    When the batch process confirms the transaction X
+    And the batch process confirms the transaction Y
+    Then the citizen A is rewarded accordingly
+    And the merchant 2 is refunded 30 euros
+
+  @refunds
+  @Scontoditipo1
+  Scenario: Citizen makes 3 transactions, then all 3 are confirmed
+    Given the merchant 2 generates the transaction X of amount 1000 cents
+    And the merchant 2 generates the transaction Y of amount 2000 cents
+    And the merchant 2 generates the transaction Z of amount 4000 cents
+    Given the citizen A confirms the transaction X
+    When 1 second/s pass
+    Given the citizen A confirms the transaction Y
+    When 1 second/s pass
+    Given the citizen A confirms the transaction Z
+    When the batch process confirms the transaction Y
+    And the batch process confirms the transaction X
+    And the batch process confirms the transaction Z
+    Then the citizen A is rewarded accordingly
+
+  @refunds
+  @Scontoditipo1
+  @wip
+  Scenario: Citizen makes 4 transactions, then only 1 is confirmed
+    Given the merchant 2 generates the transaction X of amount 1000 cents
+    And the merchant 2 generates the transaction Y of amount 2000 cents
+    And the merchant 2 generates the transaction Z of amount 4000 cents
+    And the merchant 2 generates the transaction K of amount 5000 cents
+    And the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the citizen A confirms the transaction Y
+    And 1 second/s pass
+    And the citizen A confirms the transaction Z
+    And 1 second/s pass
+    And the citizen A confirms the transaction K
+    When the batch process confirms the transaction X
+    Then the citizen A is rewarded accordingly
+    And the merchant 2 is refunded 10 euros
+
+  @refunds
+  @Scontoditipo1
   @need_fix
   Scenario: Merchant receive max refund for discounted transaction exceeding the citizen's budget
     Given the merchant 2 generates the transaction X of amount 30001 cents
