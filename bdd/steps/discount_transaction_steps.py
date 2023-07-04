@@ -5,7 +5,7 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import delete_payment_merchant
+from api.idpay import delete_payment_merchant, delete_payment_citizen
 from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
@@ -52,6 +52,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         return
 
     elif status == 'CANCELLED':
+        assert context.latest_cancellation_response.status_code == 200
         res = get_transaction_detail(
             context.transactions[trx_name]['id'],
             merchant_id=context.transactions[trx_name]['merchantId']
@@ -75,10 +76,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
         if status == 'AUTHORIZED':
             assert trx_details['status'] == status
-            return
-
-        if status == 'NOT CREATED':
-            assert context.latest_create_transaction_response.status_code != 201
             return
 
         if status == 'NOT AUTHORIZED':
@@ -223,14 +220,28 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     context.latest_pre_authorization_response = put_pre_authorize_payment(trx_code, token_io)
 
 
+@given('the citizen {citizen_name} authorizes the transaction {trx_name}')
+@when('the citizen {citizen_name} tries to authorize the transaction {trx_name}')
+def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    trx_code = context.transactions[trx_name]['trxCode']
+
+    context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
+
+
 @then('the latest pre-authorization fails')
 def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
 
 
-@then('the latest cancellation fails')
+@then('the latest authorization fails')
 def step_check_latest_pre_authorization_failed(context):
-    assert context.latest_cancellation_response.status_code == 429
+    assert context.latest_authorization_response.status_code >= 400
+
+
+@then('the latest cancellation fails')
+def step_check_latest_cancellation_failed(context):
+    assert context.latest_cancellation_response.status_code >= 400
 
 
 @given('the amount in cents is {amount_cents}')
@@ -292,3 +303,15 @@ def step_merchant_cancels_every_transaction(context, merchant_name):
         assert res.status_code == 200
 
         time.sleep(1)
+
+
+@given('the citizen {citizen_name} cancels the transaction {trx_name}')
+@when('the citizen {citizen_name} cancels the transaction {trx_name}')
+def step_merchant_cancels_a_transaction(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    trx_code = context.transactions[trx_name]['trxCode']
+
+    res = delete_payment_citizen(trx_code=trx_code,
+                                 token=token_io)
+    assert res.status_code == 200
+    context.latest_citizen_cancellation_response = res

@@ -274,6 +274,18 @@ def delete_payment_merchant(transaction_id,
     return response
 
 
+def delete_payment_citizen(trx_code, token):
+    response = requests.delete(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'accept': 'application/json'
+        }
+    )
+    return response
+
+
+
 def get_processed_transactions(initiative_id,
                                merchant_id: str = 'MERCHANTID',
                                acquirer_id: str = settings.idpay.acquirer_id,
