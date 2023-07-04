@@ -52,7 +52,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to cancel the transaction X
-    Then the latest pre-authorization fails
+    Then the latest cancellation by citizen fails
 
   @cancellation
   @Scontoditipo6

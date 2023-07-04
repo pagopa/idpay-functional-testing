@@ -248,6 +248,11 @@ def step_check_latest_cancellation_failed(context):
     assert context.latest_cancellation_response.status_code >= 400
 
 
+@then('the latest cancellation by citizen fails')
+def step_check_latest_cancellation_by_citizen_failed(context):
+    assert context.latest_citizen_cancellation_response.status_code >= 400
+
+
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
