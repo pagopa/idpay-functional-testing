@@ -1,7 +1,6 @@
 Feature: A merchant gets refunded if a transaction is discounted
 
   Background:
-    Background:
     Given the initiative is "Scontoditipo6"
     And the merchant 1 is qualified
     And the citizen A is 20 years old at most
