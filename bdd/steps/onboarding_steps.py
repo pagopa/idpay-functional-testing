@@ -1,3 +1,5 @@
+import time
+
 import requests
 from behave import given
 from behave import then
@@ -14,6 +16,7 @@ from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.utility import card_enroll
 from util.utility import check_statistics
+from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import iban_enroll
 from util.utility import retry_io_onboarding
@@ -82,6 +85,10 @@ def step_check_onboarding_status(context, citizen_name, status):
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
                        initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                        message='Not onboard')
+        expect_wallet_counters(expected_amount=context.initiatives_settings['budget_per_citizen'],
+                               expected_accrued=0,
+                               token=token_io,
+                               initiative_id=context.initiative_id)
         curr_onboarded_citizen_count_increment = 1
 
     check_statistics(organization_id=context.organization_id,
