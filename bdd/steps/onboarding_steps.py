@@ -91,6 +91,7 @@ def step_check_onboarding_status(context, citizen_name, status):
                                initiative_id=context.initiative_id)
         curr_onboarded_citizen_count_increment = 1
 
+    time.sleep(1)
     check_statistics(organization_id=context.organization_id,
                      initiative_id=context.initiative_id,
                      old_statistics=context.base_statistics,
