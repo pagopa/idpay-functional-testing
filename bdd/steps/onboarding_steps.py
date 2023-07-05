@@ -71,7 +71,12 @@ def step_check_onboarding_status(context, citizen_name, status):
 
     if status == 'KO':
         curr_onboarded_citizen_count_increment = 0
+        res = wallet(initiative_id=context.initiative_id, token=token_io)
+        assert res.status_code == 404
     else:
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3,
+                     message='Card not enrolled')
         curr_onboarded_citizen_count_increment = 1
 
     check_statistics(organization_id=context.organization_id,
