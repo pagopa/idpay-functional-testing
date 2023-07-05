@@ -49,6 +49,7 @@ IDPAY:
     timeline:
       path: '/timeline'
       operations:
+        onboarding: 'ONBOARDING'
         add_iban: 'ADD_IBAN'
         add_instrument: 'ADD_INSTRUMENT'
         delete_instrument: 'DELETE_INSTRUMENT'
