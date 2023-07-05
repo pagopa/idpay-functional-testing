@@ -4,6 +4,7 @@ from behave import then
 from behave import when
 
 from api.idpay import get_initiative_statistics
+from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import status_onboarding
@@ -16,6 +17,7 @@ from util.utility import check_statistics
 from util.utility import get_io_token
 from util.utility import iban_enroll
 from util.utility import retry_io_onboarding
+from util.utility import retry_timeline
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
@@ -77,6 +79,9 @@ def step_check_onboarding_status(context, citizen_name, status):
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3,
                      message='Card not enrolled')
+        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not onboard')
         curr_onboarded_citizen_count_increment = 1
 
     check_statistics(organization_id=context.organization_id,
