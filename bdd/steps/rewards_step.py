@@ -11,6 +11,7 @@ from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
 from conf.configuration import secrets
 from util.dataset_utility import Reward
+from util.utility import check_merchant_statistics
 from util.utility import check_processed_transactions
 from util.utility import check_rewards
 from util.utility import check_statistics
@@ -85,9 +86,12 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
 
 @when('the batch process confirms the transaction {trx_name}')
 def step_merchant_confirms_a_transactions(context, trx_name):
+    curr_merchant_name = context.associated_merchant[trx_name]
+    curr_merchant_id = context.merchants[curr_merchant_name]['id']
     context.transactions[trx_name] = get_transaction_detail(context.transactions[trx_name]['id'],
-                                                            merchant_id=context.latest_merchant_id).json()
-    assert_merchant_confirmation(trx_id=context.transactions[trx_name]['id'], merchant_id=context.latest_merchant_id)
+                                                            merchant_id=curr_merchant_id).json()
+    assert_merchant_confirmation(trx_id=context.transactions[trx_name]['id'], merchant_id=curr_merchant_id)
+
     check_statistics(organization_id=context.organization_id,
                      initiative_id=context.initiative_id,
                      old_statistics=context.base_statistics,
@@ -95,14 +99,13 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                      accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100,
                      rewarded_trxs_increment=1
                      )
-
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
     check_processed_transactions(initiative_id=context.initiative_id,
                                  expected_trx_id=context.transactions[trx_name]['id'],
                                  expected_reward=context.transactions[trx_name]['rewardCents'],
                                  expected_fiscal_code=context.associated_citizen[trx_name],
-                                 merchant_id=context.latest_merchant_id
+                                 merchant_id=curr_merchant_id
                                  )
 
 
