@@ -9,8 +9,9 @@ from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
+from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_payment_instruments
-from api.idpay import get_processed_transactions
 from api.idpay import get_reward_content
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
@@ -20,7 +21,6 @@ from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
-from api.token_io import introspect
 from api.token_io import login
 from conf.configuration import settings
 from util import dataset_utility
@@ -287,6 +287,16 @@ def check_statistics(organization_id: str,
         old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2)
 
 
+def check_merchant_statistics(merchant_id: str,
+                              initiative_id: str,
+                              old_statistics: dict,
+                              accrued_rewards_increment: float):
+    current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=merchant_id,
+                                                                            initiative_id=initiative_id).json()
+
+    assert current_merchant_statistics['accrued'] == old_statistics['accrued'] + accrued_rewards_increment
+
+
 def check_rewards(initiative_id,
                   expected_rewards: [Reward],
                   check_absence: bool = False):
@@ -329,7 +339,7 @@ def check_processed_transactions(initiative_id,
                                  check_absence: bool = False,
                                  merchant_id: str = 'MERCHANTID',
                                  ):
-    res = get_processed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
+    res = get_merchant_processed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
     processed_trxs = res.json()['content']
     for trx in processed_trxs:
         if trx['trxId'].strip() == expected_trx_id.strip():
