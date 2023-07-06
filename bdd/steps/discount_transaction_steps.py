@@ -11,9 +11,13 @@ from api.idpay import get_transaction_detail
 from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
+from api.idpay import timeline
+from conf.configuration import settings
 from util.utility import get_io_token
+from util.utility import retry_timeline
 
 default_merchant_name = '1'
+timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 
 @when('the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents')
@@ -198,6 +202,16 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
         context.accrued_per_citizen[citizen_name] = res.json()['reward']
     else:
         context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
+
+    if citizen_name not in context.trxs_per_citizen.keys():
+        context.trxs_per_citizen[citizen_name] = 1
+    else:
+        context.trxs_per_citizen[citizen_name] = context.trxs_per_citizen[citizen_name] + 1
+
+    retry_timeline(expected=timeline_operations.transaction, request=timeline,
+                   num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
+                   initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                   message='Transaction not received')
 
     context.total_accrued = context.total_accrued + res.json()['reward']
     context.num_new_trxs = context.num_new_trxs + 1
