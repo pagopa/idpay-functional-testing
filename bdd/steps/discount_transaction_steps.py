@@ -47,6 +47,7 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
     context.transactions[trx_name] = get_transaction_detail(context.latest_create_transaction_response.json()['id'],
                                                             merchant_id=context.latest_merchant_id).json()
     step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
+    context.associated_merchant[trx_name] = merchant_name
 
 
 @then('the transaction {trx_name} is {expected_status}')
