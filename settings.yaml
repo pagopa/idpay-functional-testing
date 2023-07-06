@@ -71,6 +71,7 @@ IDPAY:
       merchant: '/merchant'
       portal: '/portal/initiatives'
       processed: '/transactions/processed'
+      unprocessed: '/transactions'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
