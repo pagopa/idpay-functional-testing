@@ -101,6 +101,13 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                      )
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
+
+    check_merchant_statistics(merchant_id=curr_merchant_id,
+                              initiative_id=context.initiative_id,
+                              old_statistics=context.base_merchants_statistics[curr_merchant_name],
+                              accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100
+                              )
+
     check_processed_transactions(initiative_id=context.initiative_id,
                                  expected_trx_id=context.transactions[trx_name]['id'],
                                  expected_reward=context.transactions[trx_name]['rewardCents'],
