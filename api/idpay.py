@@ -178,6 +178,16 @@ def get_initiative_statistics(organization_id, initiative_id):
     )
 
 
+def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/merchant/portal/initiatives/{initiative_id}/statistics',
+        headers={
+            'x-merchant-id': merchant_id,
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def post_merchant_create_transaction_acquirer(initiative_id,
                                               amount_cents: int,
                                               merchant_id: str = 'MERCHANTID',
@@ -283,7 +293,6 @@ def delete_payment_citizen(trx_code, token):
         }
     )
     return response
-
 
 
 def get_processed_transactions(initiative_id,
