@@ -17,7 +17,7 @@ Feature: A merchant gets refunded if a transaction is discounted
 
   @refunds
   @Scontoditipo1
-  Scenario: Merchant receive discount transaction refund
+  Scenario: Citizen makes 4 transactions, then only 3 are confirmed
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the merchant 1 generates the transaction Y of amount 2000 cents
     And the merchant 1 generates the transaction Z of amount 4000 cents
