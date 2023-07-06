@@ -7,6 +7,7 @@ import string
 
 import pytest
 
+from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_condition
 from api.token_io import introspect
@@ -117,3 +118,18 @@ def test_onboard_too_long_fc():
     test_fc = ''.join(random.choices(string.ascii_uppercase + string.digits, k=int((math.pow(2, 13)))))
     res = login(test_fc)
     assert res.status_code == 414
+
+
+@pytest.mark.IO
+@pytest.mark.onboard
+@pytest.mark.need_fix
+def test_timeline_without_ever_onboard():
+    """The timeline and wallet of an ever onboarded citizen are not found
+    """
+    test_fc = fake_fc()
+    token_io = get_io_token(test_fc)
+
+    res = wallet(initiative_id=initiative_id, token=token_io)
+    assert res.status_code == 404
+    res = timeline(initiative_id=initiative_id, token=token_io)
+    assert res.status_code == 404
