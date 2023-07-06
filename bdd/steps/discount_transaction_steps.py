@@ -148,20 +148,9 @@ def step_when_merchant_creates_n_transaction_successfully(context, merchant_name
 @given('the citizen {citizen_name} confirms each transaction')
 @when('the citizen {citizen_name} confirms all the transactions')
 def step_when_citizen_authorizes_all_transactions(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    i = 0
-    for curr_trx_code in context.trx_codes:
+    for i in range(len(context.trx_codes)):
         trx_name = str(i)
-        res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=token_io)
-
-        if citizen_name not in context.accrued_per_citizen.keys():
-            context.accrued_per_citizen[citizen_name] = res.json()['reward']
-        else:
-            context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
-
-        step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
-        context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
-        i = i + 1
+        step_when_citizen_confirms_transaction(context=context, citizen_name=citizen_name, trx_name=trx_name)
         time.sleep(1)
 
 
