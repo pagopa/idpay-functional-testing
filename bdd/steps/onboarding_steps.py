@@ -6,6 +6,7 @@ from behave import then
 from behave import when
 
 from api.idpay import get_initiative_statistics
+from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_condition
@@ -139,14 +140,17 @@ def step_insert_self_declared_criteria(context, citizen_name, correctness):
 @given('the merchant {merchant_name} is {is_qualified}')
 def step_merchant_qualified(context, merchant_name, is_qualified):
     if is_qualified == 'qualified':
-        curr_merchant = secrets.merchants[f'merchant_{merchant_name}']
+        curr_merchant_info = secrets.merchants[f'merchant_{merchant_name}']
+        context.base_merchants_statistics[merchant_name] = get_initiative_statistics_merchant_portal(
+            merchant_id=curr_merchant_info['id'],
+            initiative_id=context.initiative_id).json()
     else:
-        curr_merchant = {
+        curr_merchant_info = {
             'id': 'UNQUALIFIED',
             'iban': 'UNQUALIFIED'
         }
 
-    context.merchants[merchant_name] = curr_merchant
+    context.merchants[merchant_name] = curr_merchant_info
 
 
 @given('the citizen {citizen_name} enrolls a random card')
