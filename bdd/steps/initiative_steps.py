@@ -24,6 +24,8 @@ def step_given_initiative_id(context, initiative_name):
 
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
+    context.base_merchants_statistics = {}
+
     context.transactions = {}
 
     context.num_new_onboards = 0
@@ -39,6 +41,8 @@ def step_given_initiative_id(context, initiative_name):
     context.merchants = {}
 
     context.associated_citizen = {}
+    context.associated_merchant = {}
+
 
 @then('the initiative counters are updated')
 def step_check_initiative_statistics_updated(context):
