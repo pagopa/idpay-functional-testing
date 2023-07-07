@@ -254,3 +254,14 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen B tries to pre-authorize the transaction X
     Then the latest pre-authorization fails
     And the transaction X is identified
+
+  @transaction
+  @Scontoditipo1
+  Scenario: Citizen pre-authorizes successfully a transaction already pre-authorized by himself
+    Given the merchant 1 is qualified
+    And the merchant 1 is qualified
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the citizen A pre-authorizes the transaction X
+    When the citizen A pre-authorizes the transaction X
+    Then the transaction X is identified
