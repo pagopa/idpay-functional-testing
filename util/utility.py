@@ -11,6 +11,7 @@ from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import get_merchant_processed_transactions
+from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
 from api.idpay import remove_payment_instrument
@@ -362,6 +363,32 @@ def check_rewards(initiative_id,
                 assert not is_rewarded
             else:
                 assert is_rewarded
+
+
+def check_unprocessed_transactions(initiative_id,
+                                   expected_trx_id: str,
+                                   expected_effective_amount: int,
+                                   expected_reward_amount: int,
+                                   expected_fiscal_code: str = 'UNDEFINED',
+                                   merchant_id: str = 'MERCHANTID',
+                                   expected_status: str = 'UNDEFINED',
+                                   check_absence: bool = False
+                                   ):
+    res = get_merchant_unprocessed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
+    processed_trxs = res.json()['content']
+    for trx in processed_trxs:
+        if trx['trxId'].strip() == expected_trx_id.strip():
+            if trx['effectiveAmount'] == expected_effective_amount:
+                if trx['rewardAmount'] == expected_reward_amount:
+                    if trx['status'] == expected_status:
+                        if expected_status == 'CREATED':
+                            return
+                        elif trx['fiscalCode'] == expected_fiscal_code:
+                            return
+    if check_absence:
+        assert True
+    else:
+        assert False
 
 
 def check_processed_transactions(initiative_id,
