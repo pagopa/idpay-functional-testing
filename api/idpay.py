@@ -300,7 +300,7 @@ def get_merchant_unprocessed_transactions(initiative_id,
                                           page: int = 0
                                           ):
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/initiatives/{initiative_id}{settings.IDPAY.endpoints.transactions.unprocessed}?page={page}&size=10',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.unprocessed}?page={page}&size=10',
         headers={
             'x-merchant-id': merchant_id
         },
