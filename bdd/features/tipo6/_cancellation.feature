@@ -2,6 +2,7 @@ Feature: A transaction can be cancelled by the merchant 1
 
   Background:
     Given the initiative is "Scontoditipo6"
+    And the merchant 1 is qualified
     And the citizen A is 20 years old at most
     And the citizen A is onboarded
 

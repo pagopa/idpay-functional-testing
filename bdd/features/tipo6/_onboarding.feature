@@ -2,6 +2,7 @@ Feature: A citizen A onboards the pilot initiative
 
   Background:
     Given the initiative is "Scontoditipo6"
+    And the merchant 1 is qualified
 
   @onboarding
   @Scontoditipo6
