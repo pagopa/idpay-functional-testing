@@ -68,6 +68,17 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         assert context.latest_create_transaction_response.status_code != 201
         return
 
+    if status == 'NOT CREATED BECAUSE THE MERCHANT IS NOT QUALIFIED':
+        assert context.latest_create_transaction_response.status_code == 403
+        return
+
+    if status == 'NOT CREATED FOR 0 IMPORT':
+        assert context.latest_create_transaction_response.status_code == 400
+        assert context.latest_create_transaction_response.json()['code'] == 'INVALID AMOUNT'
+        assert context.latest_create_transaction_response.json()[
+            'message'].startswith('Cannot create transaction with invalid amount: ')
+        return
+
     elif status == 'CANCELLED':
         assert context.latest_cancellation_response.status_code == 200
         res = get_transaction_detail(
@@ -241,13 +252,26 @@ def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
-@given('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
-@when('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
+@given('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
 def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     trx_code = context.transactions[trx_name]['trxCode']
 
-    context.latest_pre_authorization_response = put_pre_authorize_payment(trx_code, token_io)
+    res = put_pre_authorize_payment(trx_code, token_io)
+
+    context.latest_pre_authorization_response = res
+
+
+@when('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
+@given('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
+def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    trx_code = context.transactions[trx_name]['trxCode']
+
+    res = put_pre_authorize_payment(trx_code, token_io)
+    assert res.status_code == 200
+
+    context.latest_pre_authorization_response = res
 
 
 @given('the citizen {citizen_name} authorizes the transaction {trx_name}')
