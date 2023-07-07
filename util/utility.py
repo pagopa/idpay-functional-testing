@@ -275,26 +275,58 @@ def check_statistics(organization_id: str,
                      onboarded_citizen_count_increment: int,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
-                     skip_trx_check: bool = False):
-    current_statistics = get_initiative_statistics(organization_id=organization_id,
-                                                   initiative_id=initiative_id).json()
+                     skip_trx_check: bool = False,
+                     tries=10,
+                     delay=0.1):
+    success = False
+    count = 0
 
-    assert current_statistics['onboardedCitizenCount'] == old_statistics[
-        'onboardedCitizenCount'] + onboarded_citizen_count_increment
-    if not skip_trx_check:
-        assert current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment
-    assert float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
-        old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2)
+    while not success:
+
+        current_statistics = get_initiative_statistics(organization_id=organization_id,
+                                                       initiative_id=initiative_id).json()
+        are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
+            'onboardedCitizenCount'] + onboarded_citizen_count_increment)
+
+        are_accrued_rewards_incremented = (float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
+            old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2))
+
+        if not skip_trx_check:
+            are_trxs_incremented = (
+                    current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment)
+        else:
+            are_trxs_incremented = True
+
+        success = are_onboards_incremented and are_accrued_rewards_incremented and are_trxs_incremented
+        time.sleep(delay)
+        count += 1
+        if count == tries:
+            break
+
+    assert success
 
 
 def check_merchant_statistics(merchant_id: str,
                               initiative_id: str,
                               old_statistics: dict,
-                              accrued_rewards_increment: float):
-    current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=merchant_id,
-                                                                            initiative_id=initiative_id).json()
+                              accrued_rewards_increment: float,
+                              tries=10,
+                              delay=0.1):
+    success = False
+    count = 0
 
-    assert current_merchant_statistics['accrued'] == old_statistics['accrued'] + accrued_rewards_increment
+    while not success:
+        current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=merchant_id,
+                                                                                initiative_id=initiative_id).json()
+        are_accrued_rewards_incremented = (current_merchant_statistics['accrued'] == old_statistics[
+            'accrued'] + accrued_rewards_increment)
+        success = are_accrued_rewards_incremented
+        time.sleep(delay)
+        count += 1
+        if count == tries:
+            break
+
+    assert success
 
 
 def check_rewards(initiative_id,
