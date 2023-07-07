@@ -6,6 +6,7 @@ from behave import then
 from behave import when
 
 from api.idpay import get_initiative_statistics
+from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import get_transaction_detail
 from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
@@ -15,6 +16,7 @@ from util.utility import check_merchant_statistics
 from util.utility import check_processed_transactions
 from util.utility import check_rewards
 from util.utility import check_statistics
+from util.utility import check_unprocessed_transactions
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import retry_timeline
@@ -107,6 +109,8 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                               old_statistics=context.base_merchants_statistics[curr_merchant_name],
                               accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100
                               )
+    context.current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=curr_merchant_id,
+                                                                                    initiative_id=context.initiative_id).json()
 
     check_processed_transactions(initiative_id=context.initiative_id,
                                  expected_trx_id=context.transactions[trx_name]['id'],
@@ -114,6 +118,15 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                                  expected_fiscal_code=context.associated_citizen[trx_name],
                                  merchant_id=curr_merchant_id
                                  )
+
+    check_unprocessed_transactions(initiative_id=context.initiative_id,
+                                   expected_trx_id=context.transactions[trx_name]['id'],
+                                   expected_effective_amount=context.transactions[trx_name]['rewardCents'],
+                                   expected_reward_amount=context.transactions[trx_name]['rewardCents'],
+                                   expected_fiscal_code=context.associated_citizen[trx_name],
+                                   merchant_id=curr_merchant_id,
+                                   check_absence=True
+                                   )
 
 
 @when('the batch process confirms all the transactions')
