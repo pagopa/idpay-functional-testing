@@ -13,6 +13,7 @@ from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
 from conf.configuration import settings
+from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
 from util.utility import retry_timeline
 
@@ -38,6 +39,8 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
 @given('the merchant {merchant_name} generates a transaction {trx_name} of amount {amount_cents} cents')
 @when('the merchant {merchant_name} generates a transaction {trx_name} of amount {amount_cents} cents')
 def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+
     step_when_merchant_tries_to_create_a_transaction(context=context, trx_name=trx_name, amount_cents=amount_cents,
                                                      merchant_name=merchant_name)
     assert context.latest_create_transaction_response.status_code == 201
@@ -45,9 +48,17 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
     step_given_amount_cents(context=context, amount_cents=amount_cents)
 
     context.transactions[trx_name] = get_transaction_detail(context.latest_create_transaction_response.json()['id'],
-                                                            merchant_id=context.latest_merchant_id).json()
+                                                            merchant_id=curr_merchant_id).json()
     step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
     context.associated_merchant[trx_name] = merchant_name
+
+    check_unprocessed_transactions(initiative_id=context.initiative_id,
+                                   expected_trx_id=context.transactions[trx_name]['id'],
+                                   expected_effective_amount=context.transactions[trx_name]['amountCents'],
+                                   expected_reward_amount=0,
+                                   merchant_id=curr_merchant_id,
+                                   expected_status='CREATED'
+                                   )
 
 
 @then('the transaction {trx_name} is {expected_status}')
@@ -182,6 +193,8 @@ def complete_transaction_confirmation(context, trx_code, token_io):
 def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
     curr_trx_code = context.transactions[trx_name]['trxCode']
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
+    associated_merchant_id = context.merchants[context.associated_merchant[trx_name]]['id']
+
     res = complete_transaction_confirmation(context=context, trx_code=curr_trx_code, token_io=curr_token_io)
 
     context.authorize_payment_response = res
@@ -202,6 +215,15 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
                    num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
                    initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                    message='Transaction not received')
+
+    check_unprocessed_transactions(initiative_id=context.initiative_id,
+                                   expected_trx_id=context.transactions[trx_name]['id'],
+                                   expected_effective_amount=context.transactions[trx_name]['amountCents'],
+                                   expected_reward_amount=context.latest_trx_details.json()['reward'],
+                                   expected_fiscal_code=context.citizens_fc[citizen_name],
+                                   merchant_id=associated_merchant_id,
+                                   expected_status='AUTHORIZED'
+                                   )
 
     context.total_accrued = context.total_accrued + res.json()['reward']
     context.num_new_trxs = context.num_new_trxs + 1
