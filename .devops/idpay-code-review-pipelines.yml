@@ -1,5 +1,10 @@
 trigger:
-  - main
+  schedules:
+    - cron: "0 6 * * 4" # Runs every Thursday at 06:00
+    - cron: "0 6 * * 1" # Runs every Monday at 06:00
+  branches:
+    include:
+      - main
 
 variables:
   # Python version: 3.x
