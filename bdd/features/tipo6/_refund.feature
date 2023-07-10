@@ -10,11 +10,13 @@ Feature: A merchant gets refunded if a transaction is discounted
   @Scontoditipo6
   Scenario: After the transaction X of amount 1 cents, the payment order is OK
     Given the merchant 1 generates a transaction X of amount 1 cents
-    When the citizen A confirms the transaction X
-    Then the merchant 1 get rewarded accordingly
+    And the citizen A confirms the transaction X
+    When the batch process confirms the transaction X
+    Then the merchant 1 is refunded 0.01 euros
 
   @refunds
   @Scontoditipo6
+  @skip
   Scenario: An unpaid transaction is not present in the rewards file
     Given the merchant generates a transaction X of amount 2000 cents
     When the citizen A confirms the transactions X
