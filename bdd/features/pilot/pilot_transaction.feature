@@ -107,8 +107,8 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo1
   Scenario: A transaction of amount 0 cents is generated but cannot be confirmed by the citizen
     Given the merchant 1 is qualified
-    When the merchant 1 tries to generate the transaction X of amount -1 cents
-    Then the transaction X is not created for 0 import
+    When the merchant 1 tries to generate the transaction X of amount 0 cents
+    Then the transaction X is not created for 0 amount
 
   @transaction
   @Scontoditipo1
