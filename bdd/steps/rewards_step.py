@@ -109,8 +109,9 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                               old_statistics=context.base_merchants_statistics[curr_merchant_name],
                               accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100
                               )
-    context.current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=curr_merchant_id,
-                                                                                    initiative_id=context.initiative_id).json()
+    context.base_merchants_statistics[curr_merchant_name] = get_initiative_statistics_merchant_portal(
+        merchant_id=curr_merchant_id,
+        initiative_id=context.initiative_id).json()
 
     check_processed_transactions(initiative_id=context.initiative_id,
                                  expected_trx_id=context.transactions[trx_name]['id'],
