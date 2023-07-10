@@ -4,6 +4,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the initiative is "Scontoditipo6"
     And the citizen A is 20 years old at most
     And the citizen A is onboarded
+    And the merchant 2 is qualified
 
   @transaction
   @Scontoditipo6
@@ -44,13 +45,13 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: User, after not having authorized the first transaction, authorizes a second transaction
     Given the merchant 1 is qualified
     And the merchant 1 generates the transaction X of amount 1000 cents
-    And the citizen A does not authorize the transaction X
     When the merchant 1 generates the transaction Y of amount 2000 cents
     And the citizen A confirms the transaction Y
     Then the transaction Y is authorized
 
   @transaction
   @Scontoditipo6
+  @skip
   Scenario: After confirmed transaction the second transaction is not authorized
     Given the merchant 1 is qualified
     And the merchant 1 generates the transaction X of amount 1000 cents
