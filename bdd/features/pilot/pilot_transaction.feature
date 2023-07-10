@@ -258,7 +258,6 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo1
   Scenario: Citizen pre-authorizes successfully a transaction already pre-authorized by himself
     Given the merchant 1 is qualified
-    And the merchant 1 is qualified
     And the citizen A is onboard
     And the merchant 1 generates the transaction X of amount 300000 cents
     And the citizen A pre-authorizes the transaction X
