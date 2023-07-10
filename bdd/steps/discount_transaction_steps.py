@@ -61,6 +61,7 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
                                    )
 
 
+@given('the transaction {trx_name} is {expected_status}')
 @then('the transaction {trx_name} is {expected_status}')
 def step_check_named_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
@@ -252,7 +253,7 @@ def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
-@given('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
+@when('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
 def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     trx_code = context.transactions[trx_name]['trxCode']
@@ -289,7 +290,7 @@ def step_check_latest_pre_authorization_failed(context):
 
 
 @then('the latest authorization fails')
-def step_check_latest_pre_authorization_failed(context):
+def step_check_latest_authorization_failed(context):
     assert context.latest_authorization_response.status_code >= 400
 
 
