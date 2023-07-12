@@ -289,6 +289,11 @@ def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
 
 
+@then('the latest pre-authorization fails because the transaction no longer exists')
+def step_check_latest_pre_authorization_failed_not_found(context):
+    assert context.latest_pre_authorization_response.status_code == 404
+
+
 @then('the latest authorization fails')
 def step_check_latest_authorization_failed(context):
     assert context.latest_authorization_response.status_code >= 400
@@ -307,11 +312,6 @@ def step_check_latest_cancellation_by_citizen_failed(context):
 @given('the amount in cents is {amount_cents}')
 def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
-
-
-@then('the transaction {trx_name} expires')
-def step_transaction_expires(context, trx_name):
-    pass
 
 
 @given('the merchant {merchant_name} cancels the transaction {trx_name}')
