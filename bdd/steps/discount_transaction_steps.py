@@ -386,6 +386,8 @@ def step_merchant_cancels_every_transaction(context, merchant_name):
 
         assert res.status_code == 200
 
+        context.latest_cancellation_response.status_code = res
+
         time.sleep(1)
 
 
