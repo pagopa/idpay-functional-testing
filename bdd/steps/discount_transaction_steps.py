@@ -278,6 +278,7 @@ def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
+@given('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
 @when('the citizen {citizen_name} tries to pre-authorize the transaction {trx_name}')
 def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
