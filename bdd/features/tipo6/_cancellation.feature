@@ -38,7 +38,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails
+    Then the latest pre-authorization fails because the transaction no longer exists
 
   @cancellation
   @Scontoditipo6
@@ -48,7 +48,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to cancel the transaction X
-    Then the latest cancellation by citizen fails
+    Then the latest cancellation by citizen fails because the transaction no longer exists
 
   @cancellation
   @Scontoditipo6
@@ -67,7 +67,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails
+    Then the latest pre-authorization fails because the transaction no longer exists
 
   @transaction
   @Scontoditipo6
