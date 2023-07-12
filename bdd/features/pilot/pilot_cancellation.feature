@@ -65,7 +65,7 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  Scenario: the merchant requests cancellation for 10 transactions of amount 1500 cents each
+  Scenario: The merchant requests cancellation for 10 transactions of amount 1500 cents each
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
     And the citizen A confirms each transaction
     And 1 second/s pass
