@@ -30,7 +30,7 @@ Feature: A transaction can be cancelled by the merchant
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
     When the merchant 1 tries to cancel the transaction X
-    Then the latest cancellation fails
+    Then the latest cancellation fails exceeding rate limit
 
   @cancellation
   @Scontoditipo1
@@ -44,7 +44,7 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  Scenario: An authorized and cancelled transaction X cannot be pre-authorised
+  Scenario: An authorized and cancelled transaction X cannot be pre-authorized
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
     And 1 second/s pass
@@ -65,9 +65,27 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  Scenario: the merchant requests cancellation for 10 transactions of amount 1500 cents each
+  Scenario: The merchant requests cancellation for 10 transactions of amount 1500 cents each
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
     And the citizen A confirms each transaction
     And 1 second/s pass
     When the merchant 1 cancels every transaction
     Then every transaction is cancelled
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: Before pre-authorization, after a cancellation request the transaction is cancelled and cannot be pre-authorized
+    Given the merchant 1 generates the transaction X of amount 15000 cents
+    And the merchant 1 cancels the transaction X
+    And the transaction X is cancelled
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the transaction no longer exists
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: Transaction cancelled before the citizen’s authorization
+    Given the merchant 1 generates the transaction X of amount 15000 cents
+    And the citizen A pre-authorizes the transaction X
+    And the merchant 1 cancels the transaction X
+    When the citizen A tries to authorize the transaction X
+    Then the transaction X is cancelled

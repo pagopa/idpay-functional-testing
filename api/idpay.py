@@ -178,6 +178,16 @@ def get_initiative_statistics(organization_id, initiative_id):
     )
 
 
+def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/merchant/portal/initiatives/{initiative_id}/statistics',
+        headers={
+            'x-merchant-id': merchant_id,
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def post_merchant_create_transaction_acquirer(initiative_id,
                                               amount_cents: int,
                                               merchant_id: str = 'MERCHANTID',
@@ -272,3 +282,40 @@ def delete_payment_merchant(transaction_id,
         }
     )
     return response
+
+
+def delete_payment_citizen(trx_code, token):
+    response = requests.delete(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'accept': 'application/json'
+        }
+    )
+    return response
+
+
+def get_merchant_unprocessed_transactions(initiative_id,
+                                          merchant_id: str = 'MERCHANTID',
+                                          page: int = 0
+                                          ):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.unprocessed}?page={page}&size=10',
+        headers={
+            'x-merchant-id': merchant_id
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def get_merchant_processed_transactions(initiative_id,
+                                        merchant_id: str = 'MERCHANTID',
+                                        page: int = 0
+                                        ):
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}?page={page}&size=10',
+        headers={
+            'x-merchant-id': merchant_id
+        },
+        timeout=settings.default_timeout
+    )

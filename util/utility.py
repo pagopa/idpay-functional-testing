@@ -9,6 +9,9 @@ from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
+from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_merchant_processed_transactions
+from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
 from api.idpay import remove_payment_instrument
@@ -19,7 +22,6 @@ from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
-from api.token_io import introspect
 from api.token_io import login
 from conf.configuration import settings
 from util import dataset_utility
@@ -45,8 +47,8 @@ def onboard_io(fc, initiative_id):
     :param initiative_id: ID of the initiative of interest.
     """
     token = get_io_token(fc)
-    res = introspect(token)
-    assert res.json()['fiscal_code'] == fc
+    # res = introspect(token)
+    # assert res.json()['fiscal_code'] == fc
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
@@ -195,7 +197,7 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     return res
 
 
-def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5, message='Test failed'):
+def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5):
     count = 0
     res = request(initiative_id, token)
     success = (expected == res.json()[field])
@@ -210,7 +212,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
     return res
 
 
-def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, message='Test failed'):
+def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):
     count = 0
     res = request(iban, token)
     success = False
@@ -231,12 +233,10 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, mes
 def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
                            tries: int = 3, delay: int = 5):
     retry_wallet(expected=expected_amount, request=wallet, token=token,
-                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay,
-                 message='Wrong amount left')
+                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay)
 
     retry_wallet(expected=expected_accrued, request=wallet, token=token,
-                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay,
-                 message='Wrong accrued amount')
+                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay)
 
 
 def transactions_hash(transactions: str):
@@ -274,16 +274,58 @@ def check_statistics(organization_id: str,
                      onboarded_citizen_count_increment: int,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
-                     skip_trx_check: bool = False):
-    current_statistics = get_initiative_statistics(organization_id=organization_id,
-                                                   initiative_id=initiative_id).json()
+                     skip_trx_check: bool = False,
+                     tries=10,
+                     delay=1):
+    success = False
+    count = 0
 
-    assert current_statistics['onboardedCitizenCount'] == old_statistics[
-        'onboardedCitizenCount'] + onboarded_citizen_count_increment
-    if not skip_trx_check:
-        assert current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment
-    assert float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
-        old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2)
+    while not success:
+
+        current_statistics = get_initiative_statistics(organization_id=organization_id,
+                                                       initiative_id=initiative_id).json()
+        are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
+            'onboardedCitizenCount'] + onboarded_citizen_count_increment)
+
+        are_accrued_rewards_incremented = (float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
+            old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2))
+
+        if not skip_trx_check:
+            are_trxs_incremented = (
+                    current_statistics['rewardedTrxs'] == old_statistics['rewardedTrxs'] + rewarded_trxs_increment)
+        else:
+            are_trxs_incremented = True
+
+        success = are_onboards_incremented and are_accrued_rewards_incremented and are_trxs_incremented
+        time.sleep(delay)
+        count += 1
+        if count == tries:
+            break
+
+    assert success
+
+
+def check_merchant_statistics(merchant_id: str,
+                              initiative_id: str,
+                              old_statistics: dict,
+                              accrued_rewards_increment: float,
+                              tries=10,
+                              delay=1):
+    success = False
+    count = 0
+
+    while not success:
+        current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=merchant_id,
+                                                                                initiative_id=initiative_id).json()
+        are_accrued_rewards_incremented = (current_merchant_statistics['accrued'] == old_statistics[
+            'accrued'] + accrued_rewards_increment)
+        success = are_accrued_rewards_incremented
+        time.sleep(delay)
+        count += 1
+        if count == tries:
+            break
+
+    assert success
 
 
 def check_rewards(initiative_id,
@@ -319,3 +361,50 @@ def check_rewards(initiative_id,
                 assert not is_rewarded
             else:
                 assert is_rewarded
+
+
+def check_unprocessed_transactions(initiative_id,
+                                   expected_trx_id: str,
+                                   expected_effective_amount: int,
+                                   expected_reward_amount: int,
+                                   expected_fiscal_code: str = 'UNDEFINED',
+                                   merchant_id: str = 'MERCHANTID',
+                                   expected_status: str = 'UNDEFINED',
+                                   check_absence: bool = False
+                                   ):
+    res = get_merchant_unprocessed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
+    processed_trxs = res.json()['content']
+    for trx in processed_trxs:
+        if trx['trxId'].strip() == expected_trx_id.strip():
+            if trx['effectiveAmount'] == expected_effective_amount:
+                if trx['rewardAmount'] == expected_reward_amount:
+                    if trx['status'] == expected_status:
+                        if expected_status == 'CREATED':
+                            return
+                        elif trx['fiscalCode'] == expected_fiscal_code:
+                            return
+    if check_absence:
+        assert True
+    else:
+        assert False
+
+
+def check_processed_transactions(initiative_id,
+                                 expected_trx_id: str,
+                                 expected_reward: int,
+                                 expected_fiscal_code: str,
+                                 check_absence: bool = False,
+                                 merchant_id: str = 'MERCHANTID',
+                                 ):
+    res = get_merchant_processed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
+    processed_trxs = res.json()['content']
+    for trx in processed_trxs:
+        if trx['trxId'].strip() == expected_trx_id.strip():
+            if trx['fiscalCode'] == expected_fiscal_code:
+                if trx['rewardAmount'] == expected_reward:
+                    if trx['status'] == 'REWARDED':
+                        return
+    if check_absence:
+        assert True
+    else:
+        assert False

@@ -188,7 +188,6 @@ def test_enroll_incorrect_length_pan_too_long():
     onboard_io(test_fc, secrets.initiatives.cashback_like.id).json()
     for i in range(21, 30):
         curr_pan = str(math.floor(random.random() * math.pow(10, 30)))[:i].zfill(i)
-        print(len(curr_pan))
         res = enroll(secrets.initiatives.cashback_like.id,
                      test_fc,
                      {

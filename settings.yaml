@@ -44,6 +44,7 @@ IDPAY:
     timeline:
       path: '/timeline'
       operations:
+        onboarding: 'ONBOARDING'
         add_iban: 'ADD_IBAN'
         add_instrument: 'ADD_INSTRUMENT'
         delete_instrument: 'DELETE_INSTRUMENT'
@@ -60,6 +61,12 @@ IDPAY:
       qr_code:
         path: '/qr-code'
         merchant: '/merchant'
+    transactions:
+      path: '/idpaytransactions'
+      merchant: '/merchant'
+      portal: '/portal/initiatives'
+      processed: '/transactions/processed'
+      unprocessed: '/transactions'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
@@ -116,3 +123,11 @@ initiatives:
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
+  Scontoditipo6:
+    id: 'SCONTOTIPO6'
+    cashback_percentage: 87.12
+    budget_per_citizen: 99.9
+    min_age: 19
+    max_trx_number: 1
+    fruition_start: '2023-06-30T00:00:00.000+02:00'
+    fruition_end: '2026-05-29T23:59:59.000+02:00'

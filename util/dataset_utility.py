@@ -90,7 +90,8 @@ def fake_iban(abi):
     :returns:  A fake IBAN.
     :rtype: str
     """
-    return IBAN.generate('IT', bank_code=abi, account_code=str(round(random.random() * math.pow(10, 12)))).compact
+    curr_iban = IBAN.generate('IT', bank_code=abi, account_code=str(round(random.random() * math.pow(10, 12)))).compact
+    return curr_iban[:len(curr_iban) - 2] + '99'
 
 
 def fake_vat():
