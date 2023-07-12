@@ -1,0 +1,19 @@
+name: Build Doc pages
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: python:latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: python --version
+      - run: pip install -r requirements.txt
+      - run: python scenario_parser.py
+      - run: pip install mkdocs-material
+      - run: mkdocs gh-deploy --force
