@@ -89,7 +89,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         assert context.latest_create_transaction_response.status_code == 403
         return
 
-    if status == 'NOT CREATED FOR 0 AMOUNT':
+    if status == 'NOT CREATED FOR INVALID AMOUNT':
         assert context.latest_create_transaction_response.status_code == 400
         assert context.latest_create_transaction_response.json()['code'] == 'INVALID AMOUNT'
         assert context.latest_create_transaction_response.json()[

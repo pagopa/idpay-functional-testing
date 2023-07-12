@@ -118,18 +118,18 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is already assigned
 
   @transaction
-  @Scontoditipo1
+  @Scontoditipo1 @t1
   Scenario: The transaction is not generated for an amount equal to 0 cents
     Given the merchant 1 is qualified
     When the merchant 1 tries to generate the transaction X of amount 0 cents
-    Then the transaction X is not created
+    Then the transaction X is not created for invalid amount
 
   @transaction
-  @Scontoditipo1
-  Scenario: A transaction of amount 0 cents is generated but cannot be confirmed by the citizen
+  @Scontoditipo1 @t1
+  Scenario: The transaction is not generated for an amount equal to -1 cents
     Given the merchant 1 is qualified
-    When the merchant 1 tries to generate the transaction X of amount 0 cents
-    Then the transaction X is not created for 0 amount
+    When the merchant 1 tries to generate the transaction X of amount -1 cents
+    Then the transaction X is not created for invalid amount
 
   @transaction
   @Scontoditipo1
