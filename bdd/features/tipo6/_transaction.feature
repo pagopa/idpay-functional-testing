@@ -32,7 +32,7 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo6
-  Scenario: User cannot confirm the second transaction Y because the initiative is one shot type
+  Scenario: User cannot confirm a second transaction because the initiative is one shot type
     Given the merchant 1 is qualified
     And the merchant 1 generates the transaction X of amount 1000 cents
     And the citizen A confirms the transaction X

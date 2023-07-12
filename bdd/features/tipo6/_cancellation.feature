@@ -33,7 +33,7 @@ Feature: A transaction can be cancelled by the merchant 1
 
   @cancellation
   @Scontoditipo6
-  Scenario: After a cancellation by merchant of transaction X before pre-authorisation, if the citizen tries to confirm receives error
+  Scenario: After a cancellation by merchant a transaction before pre-authorization, if the citizen tries to confirm receives error
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
@@ -42,7 +42,7 @@ Feature: A transaction can be cancelled by the merchant 1
 
   @cancellation
   @Scontoditipo6
-  Scenario: After a cancellation by merchant of transaction X before authorisation, if the citizen tries to cancel receives error
+  Scenario: After a cancellation by merchant of a transaction before authorization, if the citizen tries to cancel receives error
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the citizen A pre-authorizes the transaction X
     And the merchant 1 cancels the transaction X
@@ -53,7 +53,7 @@ Feature: A transaction can be cancelled by the merchant 1
   @cancellation
   @Scontoditipo6
   @skip
-  Scenario: After 7 days of authorization, the merchant 1 cannot cancel the transaction
+  Scenario: After 7 days of authorization, the merchant cannot cancel the transaction
     Given the merchant 1 generates the transaction X of amount 1250 cents
     And the citizen A confirms the transaction X
     When the merchant 1 tries to cancel the transaction X after 7 days
@@ -71,7 +71,7 @@ Feature: A transaction can be cancelled by the merchant 1
 
   @transaction
   @Scontoditipo6
-  Scenario: If citizen A pre-authorizes and then cancels the transaction, B if he tries to pre-authorize receives OK
+  Scenario: If a citizen pre-authorizes and then cancels the transaction, another citizen receives an error if he tries to pre-authorize
     Given the citizen B is 20 years old at most
     And the citizen B is onboarded
     And the merchant 1 generates the transaction X of amount 1000 cents
@@ -82,7 +82,7 @@ Feature: A transaction can be cancelled by the merchant 1
 
   @transaction
   @Scontoditipo6
-  Scenario: If a citizen cancels the pre-authorisation, can after authorizing the trx
+  Scenario: If a citizen cancels a pre-authorized transaction, can after authorizing the trx
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the citizen A pre-authorizes the transaction X
     And the citizen A cancels the transaction X

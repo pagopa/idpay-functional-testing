@@ -8,7 +8,7 @@ Feature: A merchant gets refunded if a transaction is discounted
 
   @refunds
   @Scontoditipo6
-  Scenario: After the transaction X of amount 1 cents, the payment order is OK
+  Scenario: A transaction of amount 1 cents is included in the payment order
     Given the merchant 1 generates the transaction X of amount 1 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
