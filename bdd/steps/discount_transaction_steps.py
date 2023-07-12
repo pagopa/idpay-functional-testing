@@ -304,9 +304,9 @@ def step_check_latest_cancellation_failed(context):
     assert context.latest_cancellation_response.status_code >= 400
 
 
-@then('the latest cancellation by citizen fails')
+@then('the latest cancellation by citizen fails because the transaction no longer exists')
 def step_check_latest_cancellation_by_citizen_failed(context):
-    assert context.latest_citizen_cancellation_response.status_code >= 400
+    assert context.latest_citizen_cancellation_response.status_code == 404
 
 
 @given('the amount in cents is {amount_cents}')
@@ -367,11 +367,21 @@ def step_merchant_cancels_every_transaction(context, merchant_name):
 
 @given('the citizen {citizen_name} cancels the transaction {trx_name}')
 @when('the citizen {citizen_name} cancels the transaction {trx_name}')
-def step_merchant_cancels_a_transaction(context, citizen_name, trx_name):
+def step_citizen_cancels_a_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     trx_code = context.transactions[trx_name]['trxCode']
 
     res = delete_payment_citizen(trx_code=trx_code,
                                  token=token_io)
     assert res.status_code == 200
+    context.latest_citizen_cancellation_response = res
+
+
+@when('the citizen {citizen_name} tries to cancel the transaction {trx_name}')
+def step_citizen_tries_to_cancel_a_transaction(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    trx_code = context.transactions[trx_name]['trxCode']
+
+    res = delete_payment_citizen(trx_code=trx_code,
+                                 token=token_io)
     context.latest_citizen_cancellation_response = res
