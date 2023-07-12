@@ -37,6 +37,19 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is rewarded accordingly
 
   @transaction
+  @Scontoditipo1 @t3
+  Scenario: The second time a transaction is pre-authorized by the same citizen an error is returned
+    Given the merchant 1 is qualified
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    When the citizen A confirms the transaction X
+    And 1 second/s pass
+    And the citizen A tries to pre-authorize the transaction X
+    Then the transaction X is already authorized
+    And the citizen A is rewarded accordingly
+
+
+  @transaction
   @Scontoditipo1
   Scenario: A transaction of 1 cent is authorized
     Given the merchant 2 is qualified
