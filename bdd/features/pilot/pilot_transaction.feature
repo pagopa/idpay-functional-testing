@@ -37,7 +37,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is rewarded accordingly
 
   @transaction
-  @Scontoditipo1 @t3
+  @Scontoditipo1
   Scenario: The second time a transaction is pre-authorized by the same citizen an error is returned
     Given the merchant 1 is qualified
     And the citizen A is onboard
