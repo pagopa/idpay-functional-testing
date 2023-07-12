@@ -113,7 +113,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen B is 20 years old at most
     And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 30000 cents
-    And the citizen A pre-authorizes the transaction X
+    And the citizen A tries to pre-authorize the transaction X
     When the citizen B tries to confirm the transaction X
     Then the transaction X is already assigned
 
