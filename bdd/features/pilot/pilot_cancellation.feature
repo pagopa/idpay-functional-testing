@@ -80,3 +80,12 @@ Feature: A transaction can be cancelled by the merchant
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the transaction no longer exists
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: Transaction cancelled before the citizen’s authorization
+    Given the merchant 1 generates the transaction X of amount 15000 cents
+    And the citizen A pre-authorizes the transaction X
+    And the merchant 1 cancels the transaction X
+    When the citizen A tries to authorize the transaction X
+    Then the transaction X is cancelled
