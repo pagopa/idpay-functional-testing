@@ -34,6 +34,21 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
     )
 
 
+@when(
+    'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents with wrong acquirer ID')
+def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    context.latest_merchant_id = curr_merchant_id
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer(
+        initiative_id=context.initiative_id,
+        amount_cents=amount_cents,
+        merchant_id=curr_merchant_id,
+        acquirer_id='WRONG_ACQUIRER_ID'
+    )
+
+
 @given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents')
 @when('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents')
 @given('the merchant {merchant_name} generates a transaction {trx_name} of amount {amount_cents} cents')
