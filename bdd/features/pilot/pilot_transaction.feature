@@ -16,6 +16,14 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: the merchant not qualified tries to generate the trx
     Given the merchant 1 is not qualified
     When the merchant 1 tries to generate the transaction X of amount 30000 cents
+    Then the transaction X is not created because the merchant is not qualified
+
+  @transaction
+  @Scontoditipo1
+  @need_fix
+  Scenario: the merchant tries to generate the transaction with wrong acquirer ID
+    Given the merchant 1 is qualified
+    When the merchant 1 tries to generate the transaction X of amount 30000 cents with wrong acquirer ID
     Then the transaction X is not created
 
   @transaction
