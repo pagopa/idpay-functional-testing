@@ -197,7 +197,7 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     return res
 
 
-def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5, message='Test failed'):
+def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5):
     count = 0
     res = request(initiative_id, token)
     success = (expected == res.json()[field])
@@ -212,7 +212,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
     return res
 
 
-def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, message='Test failed'):
+def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):
     count = 0
     res = request(iban, token)
     success = False
@@ -233,12 +233,10 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5, mes
 def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
                            tries: int = 3, delay: int = 5):
     retry_wallet(expected=expected_amount, request=wallet, token=token,
-                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay,
-                 message='Wrong amount left')
+                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay)
 
     retry_wallet(expected=expected_accrued, request=wallet, token=token,
-                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay,
-                 message='Wrong accrued amount')
+                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay)
 
 
 def transactions_hash(transactions: str):
@@ -312,7 +310,7 @@ def check_merchant_statistics(merchant_id: str,
                               old_statistics: dict,
                               accrued_rewards_increment: float,
                               tries=10,
-                              delay=0.1):
+                              delay=1):
     success = False
     count = 0
 
