@@ -10,7 +10,7 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo6
   Scenario: The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
     Given the merchant 1 is qualified
-    When the merchant 1 generates a transaction X of amount 10000 cents
+    When the merchant 1 generates the transaction X of amount 10000 cents
     And the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
 
@@ -18,7 +18,7 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo6
   Scenario: The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
     Given the merchant 1 is qualified
-    When the merchant 1 generates a transaction X of amount 1 cents
+    When the merchant 1 generates the transaction X of amount 1 cents
     And the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
 
@@ -26,7 +26,7 @@ Feature: A transaction is generated, authorized and confirmed
   @Scontoditipo6
   Scenario: With transaction of amount 20000 cents, the citizen confirms within the available budget with
     Given the merchant 1 is qualified
-    When the merchant 1 generates a transaction X of amount 20000 cents
+    When the merchant 1 generates the transaction X of amount 20000 cents
     And the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
 

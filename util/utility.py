@@ -276,7 +276,7 @@ def check_statistics(organization_id: str,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
                      tries=10,
-                     delay=0.1):
+                     delay=1):
     success = False
     count = 0
 
