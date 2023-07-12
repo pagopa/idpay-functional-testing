@@ -71,3 +71,12 @@ Feature: A transaction can be cancelled by the merchant
     And 1 second/s pass
     When the merchant 1 cancels every transaction
     Then every transaction is cancelled
+
+  @cancellation
+  @Scontoditipo1
+  Scenario: Before pre-authorization, after a cancellation request the transaction is cancelled and cannot be pre-authorized
+    Given the merchant 1 generates the transaction X of amount 15000 cents
+    And the merchant 1 cancels the transaction X
+    And the transaction X is cancelled
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the transaction no longer exists
