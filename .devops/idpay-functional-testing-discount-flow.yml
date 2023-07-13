@@ -39,7 +39,7 @@ parameters:
       - uat
 
   - name: tag
-    displayName: Target tests tag
+    displayName: Target tests tag (use unquoted "all_skip" to run every un-skipped test or "all" to run every test)
     type: string
     default: ''
 
@@ -49,7 +49,7 @@ stages:
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      - job: "run_functional_tests"
+      - job: "Run functional tests"
         steps:
           - checkout: self
           - script: |
