@@ -49,7 +49,7 @@ stages:
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      - job: "Run functional tests"
+      - job: "Run_functional_tests"
         steps:
           - checkout: self
           - script: |
