@@ -70,8 +70,10 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               source .venv/bin/activate
-              if [ -z "${{ parameters.tag }}" ]; then
+              if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
                 behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+              elif [ "${{ parameters.tag }}" = "all" ]; then
+                behave --junit --junit-directory "tests/reports/behave"
               else
                 behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
               fi
