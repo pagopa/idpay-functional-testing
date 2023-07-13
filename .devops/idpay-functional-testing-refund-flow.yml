@@ -1,7 +1,4 @@
-trigger:
-  branches:
-    include:
-      - main
+trigger: none
 
 schedules:
   - cron: "0 6 * * 4" # Runs every Thursday at 06:00:00 UTC
