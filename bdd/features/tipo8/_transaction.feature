@@ -8,19 +8,19 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo8
-  Scenario: Transaction X of amount 1115 cents authorized by the citizen
+  Scenario: Transaction  of amount 1115 cents authorized by the citizen
 
   @transaction
   @Scontoditipo8
-  Scenario: Transaction X amount 1114 cents is not authorized by the citizen
+  Scenario: Transaction  amount 1114 cents is not authorized by the citizen
 
   @transaction
   @Scontoditipo8
-  Scenario: Transaction X amount 10001 cents is not authorized by the citizen
+  Scenario: Transaction amount 10001 cents is not authorized by the citizen
 
   @transaction
   @Scontoditipo8
-  Scenario: After two X and Y transactions that partially erode the citizen’s budget, the third Z operation is rewarded with the remaining budget
+  Scenario: After two transactions that partially erode the citizen’s budget, the third operation is rewarded with the remaining budget
 
   @transaction
   @Scontoditipo8
@@ -28,4 +28,4 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo8
-  Scenario: Transaction X of amount 10000 cents authorized by the citizen
+  Scenario: Transaction of amount 10000 cents authorized by the citizen
