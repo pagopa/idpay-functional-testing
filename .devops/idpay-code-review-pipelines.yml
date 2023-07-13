@@ -1,21 +1,4 @@
-trigger:
-  branches:
-    include:
-      - main
-
-schedules:
-  - cron: "0 6 * * 4" # Runs every Thursday at 06:00:00 UTC
-    displayName: Scheduled Thursday run
-    branches:
-      include:
-        - main
-    always: true
-  - cron: "0 9 * * 1" # Runs every Monday at 09:00:00 UTC
-    displayName: Scheduled Monday run
-    branches:
-      include:
-        - main
-    always: true
+trigger: none
 
 variables:
   # Python version: 3.x
@@ -38,18 +21,13 @@ parameters:
     values:
       - uat
 
-  - name: tag
-    displayName: Target tests tag
-    type: string
-    default: ''
-
 stages:
   - stage: Functional_tests
     dependsOn: [ ]
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      - job: "run_functional_tests"
+      - job: "Run_functional_tests"
         steps:
           - checkout: self
           - script: |
@@ -70,11 +48,23 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               source .venv/bin/activate
-              if [ -z "${{ parameters.tag }}" ]; then
-                pytest --junitxml=tests/reports/pytest/junit.xml -vv
-              else
-                pytest --junitxml=tests/reports/pytest/junit.xml -vv -m "${{ parameters.tag }}"
-              fi
+              behave --junit --junit-directory "tests/reports/behave"
+            displayName: 'Run tests with Behave'
+            env:
+              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
+              IDPAY_TARGET_ENV: ${{ parameters.env }}
+            continueOnError: true
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'tests/reports/behave/*.xml'
+              testRunTitle: 'Behave Results'
+              searchFolder: $(Build.SourcesDirectory)
+              failTaskOnFailedTests: true
+            continueOnError: true
+          - script: |
+              source .venv/bin/activate
+              pytest --junitxml=tests/reports/pytest/junit.xml -vv
             displayName: 'Run tests with Pytest'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
