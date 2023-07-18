@@ -319,3 +319,11 @@ def get_merchant_processed_transactions(initiative_id,
         },
         timeout=settings.default_timeout
     )
+
+
+def obtain_selfcare_test_token(institution_info: str):
+    return requests.post(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
+        json=institution_info,
+        timeout=settings.default_timeout
+    )

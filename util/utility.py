@@ -14,6 +14,7 @@ from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
+from api.idpay import obtain_selfcare_test_token
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import wallet
@@ -39,6 +40,13 @@ def get_io_token(fc):
     :param fc: fiscal code to log in.
     """
     return login(fc).content.decode('utf-8')
+
+
+def get_selfcare_token(institution_info: str):
+    """Login through Self Care mock
+    :param institution_info: Information of the institute to log in.
+    """
+    return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
 
 
 def onboard_io(fc, initiative_id):
