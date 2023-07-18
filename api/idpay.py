@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 import requests
 
@@ -325,5 +326,30 @@ def obtain_selfcare_test_token(institution_info: str):
     return requests.post(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
         json=institution_info,
+        timeout=settings.default_timeout
+    )
+
+
+def post_initiative_info(selfcare_token: str,
+                         initiative_name_prefix: str = 'Functional test'):
+    return requests.post(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/info',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'serviceIO': True,
+            'serviceName': f"{initiative_name_prefix} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            'serviceScope': 'LOCAL',
+            'description': f'Test initiative for {initiative_name_prefix}',
+            'privacyLink': 'https://www.google.it',
+            'tcLink': 'https://www.google.com',
+            'channels': [
+                {
+                    'type': 'web',
+                    'contact': 'https://www.google.com'
+                }
+            ]
+        },
         timeout=settings.default_timeout
     )
