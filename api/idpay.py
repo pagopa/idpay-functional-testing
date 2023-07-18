@@ -1,5 +1,5 @@
+import datetime
 import uuid
-from datetime import datetime
 
 import requests
 
@@ -339,7 +339,7 @@ def post_initiative_info(selfcare_token: str,
         },
         json={
             'serviceIO': True,
-            'serviceName': f"{initiative_name_prefix} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            'serviceName': f"{initiative_name_prefix} {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
             'serviceScope': 'LOCAL',
             'description': f'Test initiative for {initiative_name_prefix}',
             'privacyLink': 'https://www.google.it',
@@ -348,6 +348,66 @@ def post_initiative_info(selfcare_token: str,
                 {
                     'type': 'web',
                     'contact': 'https://www.google.com'
+                }
+            ]
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_general_info(selfcare_token: str,
+                                initiative_id: str,
+                                budget: float,
+                                beneficiary_budget: float,
+                                beneficiary_type: str = 'PF',
+                                beneficiary_known: bool = False,
+                                ranking_enabled: bool = False,
+                                ranking_start_date: str = None,
+                                ranking_end_date: str = None,
+                                start_date: str = datetime.datetime.now().strftime('%Y-%m-%d'),
+                                end_date: str = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
+                                    '%Y-%m-%d'),
+                                description_it: str = 'it'
+                                ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/general',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'budget': budget,
+            'beneficiaryType': beneficiary_type,
+            'beneficiaryKnown': beneficiary_known,
+            'rankingEnabled': ranking_enabled,
+            'beneficiaryBudget': beneficiary_budget,
+            'rankingStartDate': ranking_start_date,
+            'rankingEndDate': ranking_end_date,
+            'startDate': start_date,
+            'endDate': end_date,
+            'descriptionMap': {
+                'it': description_it
+            }
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_beneficiary_info(selfcare_token: str,
+                                    initiative_id: str
+                                    ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/beneficiary',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'automatedCriteria': [],
+            'selfDeclarationCriteria': [
+                {
+                    '_type': 'boolean',
+                    'description': '1',
+                    'value': True,
+                    'code': '1'
                 }
             ]
         },
