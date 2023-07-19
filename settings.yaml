@@ -13,6 +13,8 @@ base_path:
     internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
 IDPAY:
   domain: "/idpay"
+  MIL:
+    domain: "/mil"
   endpoints:
     onboarding:
       path: "/onboarding"
