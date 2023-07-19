@@ -12,6 +12,8 @@ from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
+from api.mil import get_transaction_detail_mil
+from api.mil import post_merchant_create_transaction_acquirer_mil
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
@@ -31,6 +33,21 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
         merchant_id=curr_merchant_id
+    )
+
+
+@when(
+    'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents through MIL')
+def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    context.latest_merchant_id = curr_merchant_id
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer_mil(
+        initiative_id=context.initiative_id,
+        amount_cents=amount_cents,
+        merchant_fiscal_code=curr_merchant_fiscal_code
     )
 
 
@@ -63,6 +80,33 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
 
     context.transactions[trx_name] = get_transaction_detail(context.latest_create_transaction_response.json()['id'],
                                                             merchant_id=curr_merchant_id).json()
+    step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
+    context.associated_merchant[trx_name] = merchant_name
+
+    check_unprocessed_transactions(initiative_id=context.initiative_id,
+                                   expected_trx_id=context.transactions[trx_name]['id'],
+                                   expected_effective_amount=context.transactions[trx_name]['amountCents'],
+                                   expected_reward_amount=0,
+                                   merchant_id=curr_merchant_id,
+                                   expected_status='CREATED'
+                                   )
+
+
+@given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents through MIL')
+@when('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents through MIL')
+def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+
+    step_when_merchant_tries_to_create_a_transaction_mil(context=context, trx_name=trx_name, amount_cents=amount_cents,
+                                                         merchant_name=merchant_name)
+    assert context.latest_create_transaction_response.status_code == 201
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.transactions[trx_name] = get_transaction_detail_mil(
+        transaction_id=context.latest_create_transaction_response.json()['id'],
+        merchant_fiscal_code=curr_merchant_fiscal_code
+    ).json()
     step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
     context.associated_merchant[trx_name] = merchant_name
 

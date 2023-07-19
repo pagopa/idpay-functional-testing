@@ -13,6 +13,14 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
+  @MIL
+  Scenario: The merchant tries to generate a transaction through MIL
+    Given the merchant 1 is qualified
+    When the merchant 1 generates the transaction X of amount 30000 cents through MIL
+    Then the transaction X is created
+
+  @transaction
+  @Scontoditipo1
   Scenario: The merchant not qualified tries to generate the trx
     Given the merchant 1 is not qualified
     When the merchant 1 tries to generate the transaction X of amount 30000 cents
