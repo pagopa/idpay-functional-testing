@@ -469,3 +469,26 @@ def put_initiative_approval(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def publish_approved_initiative(selfcare_token: str,
+                                initiative_id: str
+                                ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/published',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def get_initiatives_summary(selfcare_token: str
+                            ):
+    return requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/summary',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
