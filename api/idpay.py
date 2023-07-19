@@ -413,3 +413,47 @@ def put_initiative_beneficiary_info(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def put_initiative_reward_info(selfcare_token: str,
+                               initiative_id: str,
+                               initiative_reward_type: str = 'DISCOUNT',
+                               reward_rule_value: float = 100,
+                               reward_rule_type: str = 'rewardValue',
+                               reward_value_type: str = 'PERCENTAGE'
+                               ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'initiativeRewardType': initiative_reward_type,
+            'rewardRule': {
+                '_type': reward_rule_type,
+                'rewardValue': reward_rule_value,
+                'rewardValueType': reward_value_type
+            },
+            'trxRule': {
+            }
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_refund_info(selfcare_token: str,
+                               initiative_id: str,
+                               time_type: str = 'DAILY'
+                               ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/refund',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'timeParameter': {
+                'timeType': time_type
+            }
+        },
+        timeout=settings.default_timeout
+    )
