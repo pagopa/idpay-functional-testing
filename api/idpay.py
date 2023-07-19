@@ -457,3 +457,15 @@ def put_initiative_refund_info(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def put_initiative_approval(selfcare_token: str,
+                            initiative_id: str
+                            ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/approved',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
