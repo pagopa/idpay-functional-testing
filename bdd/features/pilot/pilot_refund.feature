@@ -23,14 +23,14 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the merchant 1 generates the transaction Z of amount 4000 cents
     And the merchant 1 generates the transaction K of amount 5000 cents
     Given the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 10 euros
     When the batch process confirms the transaction X
     Given the citizen A confirms the transaction Y
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 20 euros
     When the batch process confirms the transaction Y
     Given the citizen A confirms the transaction K
     When the batch process confirms the transaction K
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 40 euros
     And the merchant 1 is refunded 80 euros
 
   @refunds
@@ -41,7 +41,7 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the merchant 2 generates the transaction Z of amount 4000 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 10 euros
     And the merchant 2 is refunded 10 euros
 
   @refunds
@@ -54,7 +54,7 @@ Feature: A merchant gets refunded if a transaction is discounted
     And 1 second/s pass
     And the citizen A confirms the transaction Y
     When the batch process confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 10 euros
     And the merchant 2 is refunded 10 euros
 
   @refunds
@@ -68,7 +68,7 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the citizen A confirms the transaction Y
     When the batch process confirms the transaction X
     And the batch process confirms the transaction Y
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 30 euros
     And the merchant 2 is refunded 30 euros
 
   @refunds
@@ -85,7 +85,7 @@ Feature: A merchant gets refunded if a transaction is discounted
     When the batch process confirms the transaction Y
     And the batch process confirms the transaction X
     And the batch process confirms the transaction Z
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 80 euros
 
   @refunds
   @Scontoditipo1
@@ -103,7 +103,7 @@ Feature: A merchant gets refunded if a transaction is discounted
     And 1 second/s pass
     And the citizen A confirms the transaction K
     When the batch process confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 10 euros
     And the merchant 2 is refunded 10 euros
 
   @refunds
