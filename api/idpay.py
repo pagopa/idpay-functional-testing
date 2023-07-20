@@ -57,21 +57,6 @@ def unsubscribe(initiative_id, token):
         timeout=settings.default_timeout)
 
 
-def internal_initiative_statistics(organization_id: str, initiative_id: str):
-    """API to get initiative statistics.
-        :param organization_id: ID of the organization of interest.
-        :param initiative_id: ID of the initiative of interest.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.get(
-        f'{settings.base_path.INTERNAL}{settings.IDPAY.endpoints.initiative.microservice_path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.initiative.start_path}/{organization_id}{settings.IDPAY.endpoints.initiative.path}/{initiative_id}{settings.IDPAY.endpoints.initiative.end_path}',
-        headers={
-            'Content-Type': 'application/json',
-        },
-        timeout=5000)
-
-
 def enroll_iban(initiative_id, token, body):
     """API to enroll an IBAN
         :param initiative_id: ID of the initiative of interest.
