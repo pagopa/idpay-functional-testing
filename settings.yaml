@@ -131,3 +131,13 @@ initiatives:
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
     fruition_end: '2026-05-29T23:59:59.000+02:00'
+  Scontoditipo8:
+    id: 'SCONTOTIPO8'
+    cashback_percentage: 100
+    budget_per_citizen: 100
+    min_trx_amount: 11.15
+    max_trx_amount: 100
+    daily_budget: 50
+    max_age: 30
+    fruition_start: '2023-07-20T00:00:00.000+02:00'
+    fruition_end: '2024-05-30T23:59:59.000+02:00'
