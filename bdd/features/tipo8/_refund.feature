@@ -17,9 +17,9 @@ Background:
   @refunds
   @Scontoditipo8
   Scenario: An unpaid transaction is not present in the refunds file
-    Given the merchant 1 generates a transaction X of amount 7000 cents
+    Given the merchant 1 generates the transaction X of amount 7000 cents
     And the citizen A confirms the transaction X
-    And the merchant 1 generates a transaction Y of amount 3000 cents
+    And the merchant 1 generates the transaction Y of amount 3000 cents
     And the citizen A tries to pre-authorize the transaction Y
     And the latest pre-authorization fails
     When the batch process confirms the transaction X
