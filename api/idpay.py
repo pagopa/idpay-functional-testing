@@ -492,3 +492,31 @@ def get_initiatives_summary(selfcare_token: str
         },
         timeout=settings.default_timeout
     )
+
+
+def upload_merchant_csv(selfcare_token: str,
+                        initiative_id: str,
+                        vat: str,
+                        fc: str,
+                        iban: str
+                        ):
+    merchant_csv = f'Acquirer ID;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN' \
+                   f'\nEnte di test con codice {settings.idpay.acquirer_id};{uuid.uuid4()};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{fc};{vat};a;v;c;s;w;d;f;e;{iban}'
+
+    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
+
+    with open(csv_file_path, 'w') as f:
+        f.write(merchant_csv)
+
+    headers = {
+        'Authorization': f'Bearer {selfcare_token}'
+    }
+
+    files = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
+
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/merchant/initiative/{initiative_id}/upload',
+        files=files,
+        headers=headers,
+        timeout=settings.default_timeout
+    )
