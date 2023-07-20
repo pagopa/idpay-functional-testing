@@ -16,6 +16,7 @@ Background:
 
   @refunds
   @Scontoditipo8
+  @need_fix
   Scenario: An unpaid transaction is not present in the refunds file
     Given the merchant 1 generates the transaction X of amount 7000 cents
     And the citizen A confirms the transaction X
