@@ -520,3 +520,19 @@ def upload_merchant_csv(selfcare_token: str,
         headers=headers,
         timeout=settings.default_timeout
     )
+
+
+def get_merchant_list(organization_id: str,
+                      initiative_id: str):
+    """API to get initiative statistics.
+        :param organization_id: ID of the organization of interest.
+        :param initiative_id: ID of the initiative of interest.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.path}{settings.IDPAY.domain}/merchant/organization/{organization_id}/initiative/{initiative_id}/merchants',
+        headers={
+            'Content-Type': 'application/json',
+        },
+        timeout=5000)
