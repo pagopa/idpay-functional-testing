@@ -10,6 +10,7 @@ from api.idpay import force_reward
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_merchant_list
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
@@ -24,6 +25,7 @@ from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
 from api.token_io import login
+from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
@@ -416,3 +418,12 @@ def check_processed_transactions(initiative_id,
         assert True
     else:
         assert False
+
+
+def merchid_from_fc(initiative_id: str,
+                    desider_fc: str):
+    res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+    for merchant in res.json()['content']:
+        if merchant['fiscalCode'] == desider_fc:
+            return merchant['merchantId']
+    return None
