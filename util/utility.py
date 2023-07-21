@@ -16,6 +16,13 @@ from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
+from api.idpay import post_initiative_info
+from api.idpay import publish_approved_initiative
+from api.idpay import put_initiative_approval
+from api.idpay import put_initiative_beneficiary_info
+from api.idpay import put_initiative_general_info
+from api.idpay import put_initiative_refund_info
+from api.idpay import put_initiative_reward_info
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import wallet
@@ -438,3 +445,47 @@ def natural_language_to_date_converter(natural_language_date: str):
     elif natural_language_date == 'future':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
     return actual_date
+
+
+def create_initiative(initiative_name_in_settings: str):
+    creation_payloads = settings.initiatives[initiative_name_in_settings].creation_payloads
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    initiative_id = post_initiative_info(selfcare_token=institution_selfcare_token).json()['initiativeId']
+
+    creation_payloads.general['startDate'] = natural_language_to_date_converter(creation_payloads.general['startDate'])
+    creation_payloads.general['endDate'] = natural_language_to_date_converter(creation_payloads.general['endDate'])
+
+    res = put_initiative_general_info(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id,
+                                      general_payload=creation_payloads.general)
+    assert res.status_code == 204
+
+    res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
+                                          initiative_id=initiative_id,
+                                          beneficiary_payload=creation_payloads.beneficiary)
+    assert res.status_code == 204
+
+    res = put_initiative_reward_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     reward_payload=creation_payloads.reward
+                                     )
+    assert res.status_code == 204
+
+    res = put_initiative_refund_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     refund_payload=creation_payloads.refund
+                                     )
+    assert res.status_code == 204
+
+    pagopa_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.PagoPA)
+    res = put_initiative_approval(selfcare_token=pagopa_selfcare_token,
+                                  initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = publish_approved_initiative(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    return initiative_id
