@@ -427,3 +427,14 @@ def merchant_id_from_fc(initiative_id: str,
         if merchant['fiscalCode'] == desired_fc:
             return merchant['merchantId']
     return None
+
+
+def natural_language_to_date_converter(natural_language_date: str):
+    actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    if natural_language_date == 'today':
+        actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    elif natural_language_date == 'tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
+    return actual_date
