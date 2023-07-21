@@ -342,104 +342,55 @@ def post_initiative_info(selfcare_token: str,
 
 def put_initiative_general_info(selfcare_token: str,
                                 initiative_id: str,
-                                budget: float,
-                                beneficiary_budget: float,
-                                beneficiary_type: str = 'PF',
-                                beneficiary_known: bool = False,
-                                ranking_enabled: bool = False,
-                                ranking_start_date: str = None,
-                                ranking_end_date: str = None,
-                                start_date: str = datetime.datetime.now().strftime('%Y-%m-%d'),
-                                end_date: str = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
-                                    '%Y-%m-%d'),
-                                description_it: str = 'it'
-                                ):
+                                general_payload: str):
     return requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/general',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
         },
-        json={
-            'budget': budget,
-            'beneficiaryType': beneficiary_type,
-            'beneficiaryKnown': beneficiary_known,
-            'rankingEnabled': ranking_enabled,
-            'beneficiaryBudget': beneficiary_budget,
-            'rankingStartDate': ranking_start_date,
-            'rankingEndDate': ranking_end_date,
-            'startDate': start_date,
-            'endDate': end_date,
-            'descriptionMap': {
-                'it': description_it
-            }
-        },
+        json=general_payload,
         timeout=settings.default_timeout
     )
 
 
 def put_initiative_beneficiary_info(selfcare_token: str,
-                                    initiative_id: str
+                                    initiative_id: str,
+                                    beneficiary_payload: str
                                     ):
     return requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/beneficiary',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
         },
-        json={
-            'automatedCriteria': [],
-            'selfDeclarationCriteria': [
-                {
-                    '_type': 'boolean',
-                    'description': '1',
-                    'value': True,
-                    'code': '1'
-                }
-            ]
-        },
+        json=beneficiary_payload,
         timeout=settings.default_timeout
     )
 
 
 def put_initiative_reward_info(selfcare_token: str,
                                initiative_id: str,
-                               initiative_reward_type: str = 'DISCOUNT',
-                               reward_rule_value: float = 100,
-                               reward_rule_type: str = 'rewardValue',
-                               reward_value_type: str = 'PERCENTAGE'
+                               reward_payload: str
                                ):
     return requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
         },
-        json={
-            'initiativeRewardType': initiative_reward_type,
-            'rewardRule': {
-                '_type': reward_rule_type,
-                'rewardValue': reward_rule_value,
-                'rewardValueType': reward_value_type
-            },
-            'trxRule': {
-            }
-        },
+        json=reward_payload,
         timeout=settings.default_timeout
     )
 
 
 def put_initiative_refund_info(selfcare_token: str,
                                initiative_id: str,
-                               time_type: str = 'DAILY'
+                               refund_payload: str
                                ):
     return requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/refund',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
         },
-        json={
-            'timeParameter': {
-                'timeType': time_type
-            }
-        },
+        json=refund_payload,
         timeout=settings.default_timeout
     )
 
