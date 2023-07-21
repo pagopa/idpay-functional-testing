@@ -10,12 +10,22 @@ from api.idpay import force_reward
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_merchant_list
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
+from api.idpay import obtain_selfcare_test_token
+from api.idpay import post_initiative_info
+from api.idpay import publish_approved_initiative
+from api.idpay import put_initiative_approval
+from api.idpay import put_initiative_beneficiary_info
+from api.idpay import put_initiative_general_info
+from api.idpay import put_initiative_refund_info
+from api.idpay import put_initiative_reward_info
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
+from api.idpay import upload_merchant_csv
 from api.idpay import wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition
@@ -23,9 +33,11 @@ from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
 from api.token_io import login
+from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
 from util.dataset_utility import Reward
@@ -39,6 +51,13 @@ def get_io_token(fc):
     :param fc: fiscal code to log in.
     """
     return login(fc).content.decode('utf-8')
+
+
+def get_selfcare_token(institution_info: str):
+    """Login through Self Care mock
+    :param institution_info: Information of the institute to log in.
+    """
+    return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
 
 
 def onboard_io(fc, initiative_id):
@@ -408,3 +427,97 @@ def check_processed_transactions(initiative_id,
         assert True
     else:
         assert False
+
+
+def merchant_id_from_fc(initiative_id: str,
+                        desired_fc: str,
+                        tries=10,
+                        delay=1):
+    success = False
+    count = 0
+
+    while not success:
+        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+        for merchant in res.json()['content']:
+            if merchant['fiscalCode'] == desired_fc:
+                return merchant['merchantId']
+        count += 1
+        time.sleep(delay)
+        if count == tries:
+            break
+    return None
+
+
+def natural_language_to_date_converter(natural_language_date: str):
+    actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    if natural_language_date == 'today':
+        actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    elif natural_language_date == 'tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
+    return actual_date
+
+
+def create_initiative(initiative_name_in_settings: str):
+    creation_payloads = settings.initiatives[initiative_name_in_settings].creation_payloads
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    initiative_id = post_initiative_info(selfcare_token=institution_selfcare_token).json()['initiativeId']
+
+    creation_payloads.general['startDate'] = natural_language_to_date_converter(creation_payloads.general['startDate'])
+    creation_payloads.general['endDate'] = natural_language_to_date_converter(creation_payloads.general['endDate'])
+
+    res = put_initiative_general_info(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id,
+                                      general_payload=creation_payloads.general)
+    assert res.status_code == 204
+
+    res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
+                                          initiative_id=initiative_id,
+                                          beneficiary_payload=creation_payloads.beneficiary)
+    assert res.status_code == 204
+
+    res = put_initiative_reward_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     reward_payload=creation_payloads.reward
+                                     )
+    assert res.status_code == 204
+
+    res = put_initiative_refund_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     refund_payload=creation_payloads.refund
+                                     )
+    assert res.status_code == 204
+
+    pagopa_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.PagoPA)
+    res = put_initiative_approval(selfcare_token=pagopa_selfcare_token,
+                                  initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = publish_approved_initiative(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    return initiative_id
+
+
+def onboard_random_merchant(initiative_id: str,
+                            institution_selfcare_token: str):
+    fc = fake_vat()
+    vat = fc
+    iban = fake_iban('00000')
+
+    res = upload_merchant_csv(selfcare_token=institution_selfcare_token,
+                              initiative_id=initiative_id,
+                              vat=vat,
+                              fc=fc,
+                              iban=iban)
+    assert res.status_code == 200
+
+    curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
+                                           desired_fc=fc)
+    assert curr_merchant_id is not None
+
+    return {'merchant_fiscal_code': fc, 'merchant_id': curr_merchant_id}
