@@ -25,6 +25,7 @@ from api.idpay import put_initiative_refund_info
 from api.idpay import put_initiative_reward_info
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
+from api.idpay import upload_merchant_csv
 from api.idpay import wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_condition
@@ -36,6 +37,7 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
 from util.dataset_utility import Reward
@@ -489,3 +491,23 @@ def create_initiative(initiative_name_in_settings: str):
     assert res.status_code == 204
 
     return initiative_id
+
+
+def onboard_random_merchant(initiative_id: str,
+                            institution_selfcare_token: str):
+    fc = fake_vat()
+    vat = fc
+    iban = fake_iban('00000')
+
+    res = upload_merchant_csv(selfcare_token=institution_selfcare_token,
+                              initiative_id=initiative_id,
+                              vat=vat,
+                              fc=fc,
+                              iban=iban)
+    assert res.status_code == 200
+
+    curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
+                                           desired_fc=fc)
+    assert curr_merchant_id is not None
+
+    return {'merchant_fiscal_code': fc, 'merchant_id': curr_merchant_id}
