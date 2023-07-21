@@ -437,7 +437,7 @@ def upload_merchant_csv(selfcare_token: str,
                         iban: str
                         ):
     merchant_csv = f'Acquirer ID;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN' \
-                   f'\n{settings.idpay.acquirer_id};Ente di test con codice {uuid.uuid4()};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{fc};{vat};a;v;c;s;w;d;f;e;{iban}'
+                   f'\n{settings.idpay.acquirer_id};Esercente di test {str(uuid.uuid4())[:8]};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{fc};{vat};a;v;c;s;w;d;f;e;{iban}'
 
     csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
 
