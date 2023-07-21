@@ -430,11 +430,21 @@ def check_processed_transactions(initiative_id,
 
 
 def merchant_id_from_fc(initiative_id: str,
-                        desired_fc: str):
-    res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
-    for merchant in res.json()['content']:
-        if merchant['fiscalCode'] == desired_fc:
-            return merchant['merchantId']
+                        desired_fc: str,
+                        tries=10,
+                        delay=1):
+    success = False
+    count = 0
+
+    while not success:
+        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+        for merchant in res.json()['content']:
+            if merchant['fiscalCode'] == desired_fc:
+                return merchant['merchantId']
+        count += 1
+        time.sleep(delay)
+        if count == tries:
+            break
     return None
 
 
