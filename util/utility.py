@@ -420,10 +420,10 @@ def check_processed_transactions(initiative_id,
         assert False
 
 
-def merchid_from_fc(initiative_id: str,
-                    desider_fc: str):
+def merchant_id_from_fc(initiative_id: str,
+                        desired_fc: str):
     res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
     for merchant in res.json()['content']:
-        if merchant['fiscalCode'] == desider_fc:
+        if merchant['fiscalCode'] == desired_fc:
             return merchant['merchantId']
     return None
