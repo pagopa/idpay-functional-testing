@@ -132,8 +132,8 @@ initiatives:
         beneficiaryKnown: false
         rankingEnabled: false
         beneficiaryBudget: 300
-        start_date: 'today'
-        end_date: 'future'
+        startDate: 'today'
+        endDate: 'future'
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1'
       beneficiary:
@@ -148,7 +148,7 @@ initiatives:
         rewardRule:
           _type: 'rewardValue'
           rewardValue: 100
-          rewardValueType: 'rewardValue'
+          rewardValueType: 'PERCENTAGE'
         trxRule: { }
       refund:
         timeParameter:
