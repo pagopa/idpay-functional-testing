@@ -24,7 +24,7 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 
 @when('the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents')
-def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, amount_cents):
+def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     context.latest_merchant_id = curr_merchant_id
 
@@ -38,7 +38,7 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, amo
 
 @when(
     'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents through MIL')
-def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name, amount_cents):
+def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     context.latest_merchant_id = curr_merchant_id
