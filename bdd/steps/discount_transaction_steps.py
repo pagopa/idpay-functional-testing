@@ -398,19 +398,6 @@ def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
 
 
-@given('the merchant {merchant_name} cancels the transaction {trx_name}')
-@when('the merchant {merchant_name} cancels the transaction {trx_name}')
-def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
-    curr_merchant_id = context.merchants[merchant_name]['id']
-    curr_trx_id = context.transactions[trx_name]['id']
-
-    res = delete_payment_merchant(transaction_id=curr_trx_id,
-                                  merchant_id=curr_merchant_id
-                                  )
-    assert res.status_code == 200
-    context.latest_cancellation_response = res
-
-
 @given('the merchant {merchant_name} cancels the transaction {trx_name} through MIL')
 @when('the merchant {merchant_name} cancels the transaction {trx_name} through MIL')
 def step_merchant_cancels_a_transaction_mil(context, merchant_name, trx_name):
@@ -424,14 +411,16 @@ def step_merchant_cancels_a_transaction_mil(context, merchant_name, trx_name):
     context.latest_cancellation_response = res
 
 
-@when('the merchant {merchant_name} tries to cancel the transaction {trx_name}')
-def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_name):
+@given('the merchant {merchant_name} cancels the transaction {trx_name}')
+@when('the merchant {merchant_name} cancels the transaction {trx_name}')
+def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_trx_id = context.transactions[trx_name]['id']
 
     res = delete_payment_merchant(transaction_id=curr_trx_id,
                                   merchant_id=curr_merchant_id
                                   )
+    assert res.status_code == 200
     context.latest_cancellation_response = res
 
 
@@ -446,15 +435,14 @@ def step_merchant_tries_to_cancels_a_transaction_mil(context, merchant_name, trx
     context.latest_cancellation_response = res
 
 
-@given('the merchant {merchant_name} fails cancelling the transaction {trx_name}')
-def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_name, trx_name):
+@when('the merchant {merchant_name} tries to cancel the transaction {trx_name}')
+def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_name):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_trx_id = context.transactions[trx_name]['id']
 
     res = delete_payment_merchant(transaction_id=curr_trx_id,
                                   merchant_id=curr_merchant_id
                                   )
-    assert res.status_code == 429
     context.latest_cancellation_response = res
 
 
@@ -470,21 +458,16 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails_mil(context, merchant
     context.latest_cancellation_response = res
 
 
-@when('the merchant {merchant_name} cancels every transaction')
-def step_merchant_cancels_every_transaction(context, merchant_name):
-    for curr_trx_id in context.trx_ids:
-        curr_merchant_id = context.merchants[merchant_name]['id']
-        curr_trx_id = curr_trx_id
+@given('the merchant {merchant_name} fails cancelling the transaction {trx_name}')
+def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_name, trx_name):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_trx_id = context.transactions[trx_name]['id']
 
-        res = delete_payment_merchant(transaction_id=curr_trx_id,
-                                      merchant_id=curr_merchant_id
-                                      )
-
-        assert res.status_code == 200
-
-        context.latest_cancellation_response = res
-
-        time.sleep(1)
+    res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                  merchant_id=curr_merchant_id
+                                  )
+    assert res.status_code == 429
+    context.latest_cancellation_response = res
 
 
 @when('the merchant {merchant_name} cancels every transaction through MIL')
@@ -496,6 +479,23 @@ def step_merchant_cancels_every_transaction_mil(context, merchant_name):
         res = delete_transaction_mil(transaction_id=curr_trx_id,
                                      merchant_fiscal_code=curr_merchant_fiscal_code
                                      )
+
+        assert res.status_code == 200
+
+        context.latest_cancellation_response = res
+
+        time.sleep(1)
+
+
+@when('the merchant {merchant_name} cancels every transaction')
+def step_merchant_cancels_every_transaction(context, merchant_name):
+    for curr_trx_id in context.trx_ids:
+        curr_merchant_id = context.merchants[merchant_name]['id']
+        curr_trx_id = curr_trx_id
+
+        res = delete_payment_merchant(transaction_id=curr_trx_id,
+                                      merchant_id=curr_merchant_id
+                                      )
 
         assert res.status_code == 200
 
