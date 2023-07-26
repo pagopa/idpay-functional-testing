@@ -89,7 +89,6 @@ Feature: A merchant gets refunded if a transaction is discounted
 
   @refunds
   @Scontoditipo1
-  @wip
   Scenario: Citizen makes 4 transactions, then only 1 is confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents

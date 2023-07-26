@@ -131,3 +131,12 @@ initiatives:
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
     fruition_end: '2026-05-29T23:59:59.000+02:00'
+  Scontoditipo3:
+    id: 'SCONTOTIPO3'
+    flat_cashback_amount: 10.13
+    total_budget: 1000000
+    budget_per_citizen: 200000
+    min_trx_amount: 10.13
+    max_trx_amount: 100000000
+    fruition_start: '2023-07-25T00:00:00.000+02:00'
+    fruition_end: '2033-05-29T23:59:59.000+02:00'
