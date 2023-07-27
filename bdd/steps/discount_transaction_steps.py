@@ -53,7 +53,7 @@ def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name,
 
 @when(
     'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents with wrong acquirer ID')
-def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, amount_cents):
+def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     context.latest_merchant_id = curr_merchant_id
 
@@ -385,6 +385,7 @@ def step_check_latest_authorization_failed(context):
 
 @then('the latest cancellation fails exceeding rate limit')
 def step_check_latest_cancellation_failed(context):
+    print(context.latest_cancellation_response.status_code)
     assert context.latest_cancellation_response.status_code == 429
 
 
@@ -454,6 +455,7 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails_mil(context, merchant
     res = delete_transaction_mil(transaction_id=curr_trx_id,
                                  merchant_fiscal_code=curr_merchant_fiscal_code
                                  )
+    print(res.status_code)
     assert res.status_code == 429
     context.latest_cancellation_response = res
 
@@ -466,6 +468,7 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_nam
     res = delete_payment_merchant(transaction_id=curr_trx_id,
                                   merchant_id=curr_merchant_id
                                   )
+    print(res.status_code)
     assert res.status_code == 429
     context.latest_cancellation_response = res
 
