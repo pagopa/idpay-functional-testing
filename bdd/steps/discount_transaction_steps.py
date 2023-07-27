@@ -138,7 +138,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         return
 
     if status == 'ALREADY AUTHORIZED':
-        print(context.latest_pre_authorization_response.status_code)
         assert context.latest_pre_authorization_response.status_code == 400
 
         assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
@@ -385,7 +384,6 @@ def step_check_latest_authorization_failed(context):
 
 @then('the latest cancellation fails exceeding rate limit')
 def step_check_latest_cancellation_failed(context):
-    print(context.latest_cancellation_response.status_code)
     assert context.latest_cancellation_response.status_code == 429
 
 
@@ -455,7 +453,6 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails_mil(context, merchant
     res = delete_transaction_mil(transaction_id=curr_trx_id,
                                  merchant_fiscal_code=curr_merchant_fiscal_code
                                  )
-    print(res.status_code)
     assert res.status_code == 429
     context.latest_cancellation_response = res
 
@@ -468,7 +465,6 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_nam
     res = delete_payment_merchant(transaction_id=curr_trx_id,
                                   merchant_id=curr_merchant_id
                                   )
-    print(res.status_code)
     assert res.status_code == 429
     context.latest_cancellation_response = res
 
