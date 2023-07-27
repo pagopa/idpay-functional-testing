@@ -23,7 +23,7 @@ Feature: A transaction can be cancelled by the merchant
 
   @cancellation
   @Scontoditipo1
-  Scenario: After a cancellation request the trasaction X is cancelled
+  Scenario: After a cancellation request the transaction X is cancelled after being confirmed by the citizen
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
@@ -35,7 +35,7 @@ Feature: A transaction can be cancelled by the merchant
   @cancellation
   @Scontoditipo1
   @MIL
-  Scenario: After a cancellation request the transaction X is cancelled through MIL
+  Scenario: After a cancellation request the transaction X is cancelled through MIL after being confirmed by the citizen
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL
     And the citizen A confirms the transaction X
     Then the citizen A is rewarded accordingly
