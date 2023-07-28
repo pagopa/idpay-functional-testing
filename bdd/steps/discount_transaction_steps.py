@@ -140,7 +140,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
     if status == 'ALREADY AUTHORIZED':
         assert context.latest_pre_authorization_response.status_code == 400
 
-        assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+        assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
         assert context.latest_pre_authorization_response.json()[
                    'message'] == f'Cannot relate transaction [{context.transactions[trx_name]["trxCode"]}] in status AUTHORIZED'
         return
