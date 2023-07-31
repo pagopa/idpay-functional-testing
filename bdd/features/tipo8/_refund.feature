@@ -16,7 +16,6 @@ Background:
 
   @refunds
   @Scontoditipo8
-  @need_fix
   Scenario: An unpaid transaction is not present in the refunds file
     Given the merchant 1 generates the transaction X of amount 7000 cents
     And the citizen A confirms the transaction X
@@ -24,7 +23,8 @@ Background:
     And the citizen A tries to pre-authorize the transaction Y
     And the latest pre-authorization fails
     When the batch process confirms the transaction X
-    Then the merchant 1 is refunded 50.0 euros
+    Then the citizen A is rewarded with 50 euros
+    And the merchant 1 is refunded 50 euros
 
   @refunds
   @Scontoditipo8
