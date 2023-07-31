@@ -12,7 +12,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 1 is qualified
     When the merchant 1 generates the transaction X of amount 10000 cents
     And the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 87.12 euros
 
   @transaction
   @Scontoditipo6
@@ -20,7 +20,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 1 is qualified
     When the merchant 1 generates the transaction X of amount 1 cents
     And the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 0.01 euros
 
   @transaction
   @Scontoditipo6
@@ -28,7 +28,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 1 is qualified
     When the merchant 1 generates the transaction X of amount 20000 cents
     And the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 99.9 euros
 
   @transaction
   @Scontoditipo6

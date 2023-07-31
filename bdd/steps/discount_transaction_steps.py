@@ -366,6 +366,7 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
+@given('the latest pre-authorization fails')
 @then('the latest pre-authorization fails')
 def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
