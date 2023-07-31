@@ -65,14 +65,6 @@ def base_context_initialization(context):
     context.associated_citizen = {}
     context.associated_merchant = {}
 
-@then('the initiative counters are updated')
-def step_check_initiative_statistics_updated(context):
-    check_statistics(organization_id=context.organization_id, initiative_id=context.initiative_id,
-                     old_statistics=context.base_statistics,
-                     onboarded_citizen_count_increment=context.num_onboards,
-                     accrued_rewards_increment=context.expected_accrued,
-                     rewarded_trxs_increment=context.num_trx)
-
 
 @given("the initiative's budget is totally allocated")
 def step_check_initiative_budget_allocated(context):
