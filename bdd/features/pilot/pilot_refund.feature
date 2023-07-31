@@ -113,7 +113,8 @@ Feature: A merchant gets refunded if a transaction is discounted
     Given the merchant 2 generates the transaction X of amount 30001 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
-    Then the merchant 2 is refunded 300 euros
+    Then the citizen A is rewarded with 300 euros
+    And the merchant 2 is refunded 300 euros
 
   @refunds
   @Scontoditipo1
