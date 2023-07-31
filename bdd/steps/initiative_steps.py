@@ -36,7 +36,7 @@ def step_check_initiative_statistics_updated(context):
 
 
 def base_context_initialization(context):
-    context.cashback_percentage = context.initiatives_settings['cashback_percentage']
+    context.cashback_percentage = context.initiatives_settings.get('cashback_percentage')
     context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
     context.fruition_start = context.initiatives_settings['fruition_start']
     context.total_budget = context.initiatives_settings.get('total_budget')
