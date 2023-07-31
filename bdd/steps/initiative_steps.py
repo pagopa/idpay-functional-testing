@@ -9,13 +9,33 @@ from api.idpay import get_initiative_statistics
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
+from util.utility import create_initiative
 
 
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_id(context, initiative_name):
-    context.initiatives_settings = settings.initiatives[initiative_name]
-
     context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.initiatives_settings = settings.initiatives[initiative_name]
+    base_context_initialization(context)
+
+
+@given('a new initiative with "{initiative_name}" characteristics')
+def step_given_new_initiative_id(context, initiative_name):
+    context.initiative_id = create_initiative(initiative_name_in_settings=initiative_name)
+    context.initiatives_settings = settings.initiatives[initiative_name]
+    base_context_initialization(context)
+
+
+@then('the initiative counters are updated')
+def step_check_initiative_statistics_updated(context):
+    check_statistics(organization_id=context.organization_id, initiative_id=context.initiative_id,
+                     old_statistics=context.base_statistics,
+                     onboarded_citizen_count_increment=context.num_onboards,
+                     accrued_rewards_increment=context.expected_accrued,
+                     rewarded_trxs_increment=context.num_trx)
+
+
+def base_context_initialization(context):
     context.cashback_percentage = context.initiatives_settings['cashback_percentage']
     context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
     context.fruition_start = context.initiatives_settings['fruition_start']
@@ -44,7 +64,6 @@ def step_given_initiative_id(context, initiative_name):
 
     context.associated_citizen = {}
     context.associated_merchant = {}
-
 
 @then('the initiative counters are updated')
 def step_check_initiative_statistics_updated(context):
