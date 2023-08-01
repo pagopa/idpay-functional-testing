@@ -53,6 +53,12 @@ def step_citizen_tries_to_onboard(context, citizen_name):
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
 
 
+@when('the citizen {citizen_name} tries to accept terms and condition')
+def step_citizen_tries_to_accept_terms_and_condition(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    context.accept_tc_response = accept_terms_and_condition(token=token_io, initiative_id=context.initiative_id)
+
+
 @given('the citizen {citizen_name} accepts terms and condition')
 def step_citizen_accept_terms_and_condition(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
