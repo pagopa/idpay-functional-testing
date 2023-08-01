@@ -12,6 +12,8 @@ from api.idpay import post_merchant_create_transaction_acquirer
 from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
+from api.mil import get_transaction_detail_mil, delete_transaction_mil
+from api.mil import post_merchant_create_transaction_acquirer_mil
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
@@ -35,9 +37,23 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
 
 
 @when(
+    'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents through MIL')
+def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    context.latest_merchant_id = curr_merchant_id
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer_mil(
+        initiative_id=context.initiative_id,
+        amount_cents=amount_cents,
+        merchant_fiscal_code=curr_merchant_fiscal_code
+    )
+
+
+@when(
     'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents with wrong acquirer ID')
-def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, trx_name,
-                                                                            amount_cents):
+def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     context.latest_merchant_id = curr_merchant_id
 
@@ -75,6 +91,33 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
                                    )
 
 
+@given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents through MIL')
+@when('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents through MIL')
+def step_when_merchant_generated_a_named_transaction_mil(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+
+    step_when_merchant_tries_to_create_a_transaction_mil(context=context, trx_name=trx_name, amount_cents=amount_cents,
+                                                         merchant_name=merchant_name)
+    assert context.latest_create_transaction_response.status_code == 201
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.transactions[trx_name] = get_transaction_detail_mil(
+        transaction_id=context.latest_create_transaction_response.json()['id'],
+        merchant_fiscal_code=curr_merchant_fiscal_code
+    ).json()
+    step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
+    context.associated_merchant[trx_name] = merchant_name
+
+    check_unprocessed_transactions(initiative_id=context.initiative_id,
+                                   expected_trx_id=context.transactions[trx_name]['id'],
+                                   expected_effective_amount=context.transactions[trx_name]['amountCents'],
+                                   expected_reward_amount=0,
+                                   merchant_id=curr_merchant_id,
+                                   expected_status='CREATED'
+                                   )
+
+
 @given('the transaction {trx_name} is {expected_status}')
 @then('the transaction {trx_name} is {expected_status}')
 def step_check_named_transaction_status(context, trx_name, expected_status):
@@ -95,12 +138,10 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         return
 
     if status == 'ALREADY AUTHORIZED':
-        print(context.latest_pre_authorization_response.status_code)
-        assert context.latest_pre_authorization_response.status_code == 400
-
-        assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+        assert context.latest_pre_authorization_response.status_code == 403
+        assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
         assert context.latest_pre_authorization_response.json()[
-                   'message'] == f'Cannot relate transaction [{context.transactions[trx_name]["trxCode"]}] in status AUTHORIZED'
+                   'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already authorized'
         return
 
     elif status == 'CANCELLED':
@@ -186,6 +227,23 @@ def step_when_merchant_creates_n_transaction_successfully(context, merchant_name
                                                          merchant_name=merchant_name,
                                                          trx_name=str(i),
                                                          amount_cents=amount_cents)
+        res = context.latest_create_transaction_response
+        step_check_named_transaction_status(context=context, trx_name=str(i), expected_status='CREATED')
+        context.trx_ids.append(res.json()['id'])
+        context.trx_codes.append(res.json()['trxCode'])
+
+
+@given('the merchant {merchant_name} generated {trx_num} transactions of amount {amount_cents} cents each through MIL')
+def step_when_merchant_creates_n_transaction_successfully_mil(context, merchant_name, trx_num, amount_cents):
+    context.trx_ids = []
+    context.trx_codes = []
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+
+    for i in range(int(trx_num)):
+        step_when_merchant_generated_a_named_transaction_mil(context=context,
+                                                             merchant_name=merchant_name,
+                                                             trx_name=str(i),
+                                                             amount_cents=amount_cents)
         res = context.latest_create_transaction_response
         step_check_named_transaction_status(context=context, trx_name=str(i), expected_status='CREATED')
         context.trx_ids.append(res.json()['id'])
@@ -308,6 +366,7 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
 
 
+@given('the latest pre-authorization fails')
 @then('the latest pre-authorization fails')
 def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
@@ -338,6 +397,19 @@ def step_given_amount_cents(context, amount_cents):
     context.amount_cents = int(amount_cents)
 
 
+@given('the merchant {merchant_name} cancels the transaction {trx_name} through MIL')
+@when('the merchant {merchant_name} cancels the transaction {trx_name} through MIL')
+def step_merchant_cancels_a_transaction_mil(context, merchant_name, trx_name):
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_transaction_mil(transaction_id=curr_trx_id,
+                                 merchant_fiscal_code=curr_merchant_fiscal_code
+                                 )
+    assert res.status_code == 200
+    context.latest_cancellation_response = res
+
+
 @given('the merchant {merchant_name} cancels the transaction {trx_name}')
 @when('the merchant {merchant_name} cancels the transaction {trx_name}')
 def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
@@ -348,6 +420,17 @@ def step_merchant_cancels_a_transaction(context, merchant_name, trx_name):
                                   merchant_id=curr_merchant_id
                                   )
     assert res.status_code == 200
+    context.latest_cancellation_response = res
+
+
+@when('the merchant {merchant_name} tries to cancel the transaction {trx_name} through MIL')
+def step_merchant_tries_to_cancels_a_transaction_mil(context, merchant_name, trx_name):
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_transaction_mil(transaction_id=curr_trx_id,
+                                 merchant_fiscal_code=curr_merchant_fiscal_code
+                                 )
     context.latest_cancellation_response = res
 
 
@@ -362,6 +445,18 @@ def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_nam
     context.latest_cancellation_response = res
 
 
+@given('the merchant {merchant_name} fails cancelling the transaction {trx_name} through MIL')
+def step_merchant_tries_to_cancels_a_transaction_and_fails_mil(context, merchant_name, trx_name):
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    curr_trx_id = context.transactions[trx_name]['id']
+
+    res = delete_transaction_mil(transaction_id=curr_trx_id,
+                                 merchant_fiscal_code=curr_merchant_fiscal_code
+                                 )
+    assert res.status_code == 429
+    context.latest_cancellation_response = res
+
+
 @given('the merchant {merchant_name} fails cancelling the transaction {trx_name}')
 def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_name, trx_name):
     curr_merchant_id = context.merchants[merchant_name]['id']
@@ -372,6 +467,23 @@ def step_merchant_tries_to_cancels_a_transaction_and_fails(context, merchant_nam
                                   )
     assert res.status_code == 429
     context.latest_cancellation_response = res
+
+
+@when('the merchant {merchant_name} cancels every transaction through MIL')
+def step_merchant_cancels_every_transaction_mil(context, merchant_name):
+    for curr_trx_id in context.trx_ids:
+        curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+        curr_trx_id = curr_trx_id
+
+        res = delete_transaction_mil(transaction_id=curr_trx_id,
+                                     merchant_fiscal_code=curr_merchant_fiscal_code
+                                     )
+
+        assert res.status_code == 200
+
+        context.latest_cancellation_response = res
+
+        time.sleep(1)
 
 
 @when('the merchant {merchant_name} cancels every transaction')

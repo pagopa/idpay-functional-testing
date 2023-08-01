@@ -143,7 +143,8 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
     else:
         curr_merchant_info = {
             'id': 'UNQUALIFIED',
-            'iban': 'UNQUALIFIED'
+            'iban': 'UNQUALIFIED',
+            'fiscal_code': 'UNQUALIFIED'
         }
 
     context.merchants[merchant_name] = curr_merchant_info

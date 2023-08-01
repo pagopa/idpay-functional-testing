@@ -1,6 +1,6 @@
-Feature: For a refund, there is a return flow 
+Feature: For a refund, there is a return flow
 
-Background:
+  Background:
     Given the initiative is "Scontoditipo8"
     And the citizen A is 25 years old at most
     And the citizen A is onboard
