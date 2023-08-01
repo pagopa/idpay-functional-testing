@@ -10,4 +10,3 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 2 is qualified
     When the merchant 2 generates the transaction X of amount 150000 cents
     Then the transaction X is created
- 

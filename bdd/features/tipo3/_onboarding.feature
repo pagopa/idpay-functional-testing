@@ -10,4 +10,3 @@ Feature: A citizen A onboards the pilot initiative
     And the citizen A is 35 years old at most
     When the citizen A tries to accept terms and condition
     Then the onboard of A is KO
-  
