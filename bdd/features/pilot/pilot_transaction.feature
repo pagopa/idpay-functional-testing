@@ -70,7 +70,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 30000 cents through MIL
     When the citizen A confirms the transaction X
     Then the transaction X is authorized
-    And the citizen A is rewarded accordingly
+    And the citizen A is rewarded with 300 euros
 
   @transaction
   @Scontoditipo1
@@ -95,7 +95,7 @@ Feature: A transaction is generated, authorized and confirmed
     And 1 second/s pass
     And the citizen A tries to pre-authorize the transaction X
     Then the transaction X is already authorized
-    And the citizen A is rewarded accordingly
+    And the citizen A is rewarded with 300 euros
 
   @transaction
   @Scontoditipo1
@@ -116,7 +116,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 2 generates the transaction X of amount 1 cents through MIL
     When the citizen A confirms the transaction X
     Then the transaction X is authorized
-    And the citizen A is rewarded accordingly
+    And the citizen A is rewarded with 0.01 euros
 
   @transaction
   @Scontoditipo1
@@ -135,7 +135,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is onboard
     And the merchant 1 generated 10 transactions of amount 3000 cents each through MIL
     When the citizen A confirms all the transactions
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 300 euros
 
   @transaction
   @Scontoditipo1
@@ -177,7 +177,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 30001 cents through MIL
     When the citizen A confirms the transaction X
     Then the transaction X is authorized
-    And the citizen A is rewarded accordingly
+    And the citizen A is rewarded with 300 euros
 
   @transaction
   @Scontoditipo1
@@ -465,7 +465,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A confirms the transaction X
     When the citizen A tries to confirm the transaction Y
     Then the transaction X is authorized
-    And the citizen A is rewarded accordingly
+    And the citizen A is rewarded with 300 euros
     And the transaction Y is not authorized for budget eroded
 
   @transaction

@@ -38,7 +38,7 @@ Feature: A transaction can be cancelled by the merchant
   Scenario: After a cancellation request the transaction X is cancelled through MIL after being confirmed by the citizen
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL
     And the citizen A confirms the transaction X
-    Then the citizen A is rewarded accordingly
+    Then the citizen A is rewarded with 150 euros
     When 1 second/s pass
     And the merchant 1 cancels the transaction X through MIL
     Then the transaction X is cancelled
