@@ -9,4 +9,5 @@ Feature: A citizen A onboards the pilot initiative
     Given the initiative's budget is totally allocated
     And the citizen A is 35 years old at most
     When the citizen A tries to accept terms and condition
-    Then the onboard of A is KO
+    Then the latest accept terms and condition failed for budget terminated
+    And the onboard of A is KO
