@@ -64,7 +64,7 @@ def step_check_latest_accept_tc_failed(context, reason_ko):
     reason = reason_ko.upper()
     assert context.accept_tc_response.status_code == 403
     if reason == "BUDGET TERMINATED":
-        assert context.accept_tc_response.details == "BUDGET_TERMINATED"
+        assert context.accept_tc_response.json()['details'] == "BUDGET_TERMINATED"
 
 
 @given('the citizen {citizen_name} accepts terms and condition')
