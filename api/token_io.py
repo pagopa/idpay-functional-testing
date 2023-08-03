@@ -21,7 +21,7 @@ def login(tax_code):
 
 
 def introspect(token):
-    """API to introspect an IOtoken and get user data
+    """API to introspect an IO token and get user data
         :param token: IO token to introspect
         :returns: the response of the call.
         :rtype: requests.Response
