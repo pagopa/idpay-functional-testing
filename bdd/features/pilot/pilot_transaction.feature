@@ -346,50 +346,98 @@ Feature: A transaction is generated, authorized and confirmed
 
   @transaction
   @Scontoditipo1
-  Scenario: 2 transactions cannot be authorized by the same citizen if at least one seconds has not passed between authorizations.
+  Scenario: 2 transactions cannot be authorized by the same citizen if at least one second has not passed between authorizations.
+    Given the merchant 1 is qualified
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 3000 cents
+    And the merchant 1 generates the transaction Y of amount 3000 cents
+    And the citizen A confirms, immediately before the next step, the transaction X
+    When the citizen A tries to confirm the transaction Y
+    Then the transaction Y is exceeding rate limit
+
+  @transaction
+  @Scontoditipo1
+  @MIL
+  Scenario: 2 transactions, created through MIL, cannot be authorized by the same citizen if at least one second has not passed between authorizations.
+    Given the merchant 1 is qualified
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 3000 cents through MIL
+    And the merchant 1 generates the transaction Y of amount 3000 cents through MIL
+    And the citizen A confirms, immediately before the next step, the transaction X
+    When the citizen A tries to confirm the transaction Y
+    Then the transaction Y is exceeding rate limit
+
+  @transaction
+  @Scontoditipo1
+  Scenario: 2 transactions can be authorized by different citizens even if one second has not passed between authorizations.
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the citizen B is 20 years old at most
     And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 3000 cents
     And the merchant 1 generates the transaction Y of amount 3000 cents
-    And the merchant 1 generates the transaction Z of amount 3000 cents
     And the citizen A confirms, immediately before the next step, the transaction X
-    And the citizen B confirms, immediately before the next step, the transaction Y
-    When the citizen B tries to confirm the transaction Z
-    Then the transaction Z is exceeding rate limit
+    When the citizen B tries to confirm the transaction Y
+    Then the transaction X is authorized
+    And the transaction Y is authorized
 
   @transaction
   @Scontoditipo1
   @MIL
-  Scenario: 2 transactions, created through MIL, cannot be authorized by the same citizen if at least one seconds has not passed between authorizations.
+  Scenario: 2 transactions, created though MIL, can be authorized by different citizens even if one second has not passed between authorizations.
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the citizen B is 20 years old at most
     And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 3000 cents through MIL
     And the merchant 1 generates the transaction Y of amount 3000 cents through MIL
-    And the merchant 1 generates the transaction Z of amount 3000 cents through MIL
     And the citizen A confirms, immediately before the next step, the transaction X
-    And the citizen B confirms, immediately before the next step, the transaction Y
-    When the citizen B tries to confirm the transaction Z
-    Then the transaction Z is exceeding rate limit
+    When the citizen B tries to confirm the transaction Y
+    Then the transaction X is authorized
+    And the transaction Y is authorized
+
+  @transaction
+  @Scontoditipo1
+  Scenario: One second after a rate limit failure the transaction can be authorized.
+    Given the merchant 1 is qualified
+    And the citizen A is 20 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 3000 cents
+    And the merchant 1 generates the transaction Y of amount 3000 cents
+    And the citizen A confirms, immediately before the next step, the transaction X
+    And the citizen A tries to confirm the transaction Y
+    And the transaction Y is exceeding rate limit
+    When 1 second/s pass
+    And the citizen A confirms the transaction Y
+    Then the transaction Y is authorized
+
+  @transaction
+  @Scontoditipo1
+  @MIL
+  Scenario: One second after a rate limit failure the transaction, created through MIL, can be authorized.
+    Given the merchant 1 is qualified
+    And the citizen A is 20 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 3000 cents through MIL
+    And the merchant 1 generates the transaction Y of amount 3000 cents through MIL
+    And the citizen A confirms, immediately before the next step, the transaction X
+    And the citizen A tries to confirm the transaction Y
+    And the transaction Y is exceeding rate limit
+    When 1 second/s pass
+    And the citizen A confirms the transaction Y
+    Then the transaction Y is authorized
 
   @transaction
   @Scontoditipo1
   Scenario: 2 transactions are authorized correctly by the same citizen if authorizations are 1 second apart one from the other.
     Given the merchant 1 is qualified
     And the citizen A is onboard
-    And the citizen B is 20 years old at most
-    And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 3000 cents
     And the merchant 1 generates the transaction Y of amount 3000 cents
-    And the merchant 1 generates the transaction Z of amount 3000 cents
     And the citizen A confirms the transaction X
-    And the citizen B confirms the transaction Y
     When 1 second/s pass
-    And the citizen B tries to confirm the transaction Z
-    Then the transaction Z is authorized
+    And the citizen A tries to confirm the transaction Y
+    Then the transaction Y is authorized
 
   @transaction
   @Scontoditipo1
@@ -397,16 +445,12 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: 2 transactions, created through MIL, are authorized correctly by the same citizen if authorizations are 1 second apart one from the other.
     Given the merchant 1 is qualified
     And the citizen A is onboard
-    And the citizen B is 20 years old at most
-    And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 3000 cents through MIL
     And the merchant 1 generates the transaction Y of amount 3000 cents through MIL
-    And the merchant 1 generates the transaction Z of amount 3000 cents through MIL
     And the citizen A confirms the transaction X
-    And the citizen B confirms the transaction Y
     When 1 second/s pass
-    And the citizen B tries to confirm the transaction Z
-    Then the transaction Z is authorized
+    And the citizen A tries to confirm the transaction Y
+    Then the transaction Y is authorized
 
   @transaction
   @Scontoditipo1
