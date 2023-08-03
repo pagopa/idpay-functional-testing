@@ -1,4 +1,5 @@
 import datetime
+import math
 
 import pytz
 from behave import given
@@ -35,9 +36,10 @@ def step_check_initiative_statistics_updated(context):
 
 
 def base_context_initialization(context):
-    context.cashback_percentage = context.initiatives_settings['cashback_percentage']
+    context.cashback_percentage = context.initiatives_settings.get('cashback_percentage')
     context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
     context.fruition_start = context.initiatives_settings['fruition_start']
+    context.total_budget = context.initiatives_settings.get('total_budget')
 
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
@@ -62,3 +64,9 @@ def base_context_initialization(context):
 
     context.associated_citizen = {}
     context.associated_merchant = {}
+
+
+@given("the initiative's budget is totally allocated")
+def step_check_initiative_budget_allocated(context):
+    allowable_citizens = math.floor(context.total_budget/context.budget_per_citizen)
+    assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens

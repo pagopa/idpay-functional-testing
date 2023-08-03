@@ -8,7 +8,7 @@ from util.certs_loader import load_certificates
 from util.dataset_utility import tomorrow_date
 
 
-def timeline(initiative_id, token, page: int = 1):
+def timeline(initiative_id, token, page: int = 0):
     """API to get timeline of a user
         :param initiative_id: ID of the initiative of interest.
         :param token: token IO.
