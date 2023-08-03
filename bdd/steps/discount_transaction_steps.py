@@ -332,6 +332,7 @@ def step_when_citizen_rapidly_confirms_the_transactions(context, citizen_name, t
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
+@given('the citizen {citizen_name} tries to confirm the transaction {trx_name}')
 @when('the citizen {citizen_name} tries to confirm the transaction {trx_name}')
 def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
