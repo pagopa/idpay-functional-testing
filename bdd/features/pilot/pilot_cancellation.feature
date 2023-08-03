@@ -65,7 +65,7 @@ Feature: A transaction can be cancelled by the merchant
   @Scontoditipo1
   Scenario: The transaction cancellation fails if done shortly after the confirmation but can be cancelled later
     Given the merchant 1 generates the transaction X of amount 15000 cents
-    And the citizen A confirms the transaction X
+    And the citizen A confirms, immediately before the next step, the transaction X
     And the merchant 1 fails cancelling the transaction X
     When 1 second/s pass
     And the merchant 1 cancels the transaction X
@@ -76,7 +76,7 @@ Feature: A transaction can be cancelled by the merchant
   @MIL
   Scenario: The transaction cancellation through MIL fails if done shortly after the confirmation but can be cancelled later
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL
-    And the citizen A confirms the transaction X
+    And the citizen A confirms, immediately before the next step, the transaction X
     And the merchant 1 fails cancelling the transaction X through MIL
     When 1 second/s pass
     And the merchant 1 cancels the transaction X through MIL
