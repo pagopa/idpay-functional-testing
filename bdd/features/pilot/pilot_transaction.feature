@@ -384,7 +384,7 @@ Feature: A transaction is generated, authorized and confirmed
   @transaction
   @Scontoditipo1
   @MIL
-  Scenario: 2 transactions, created though MIL, can be authorized by different citizens even if one second has not passed between authorizations.
+  Scenario: 2 transactions, created through MIL, can be authorized by different citizens even if one second has not passed between authorizations.
     Given the merchant 1 is qualified
     And the citizen A is onboard
     And the citizen B is 20 years old at most
