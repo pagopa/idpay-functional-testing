@@ -36,6 +36,8 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
         merchant_id=curr_merchant_id
     )
 
+    context.transactions[trx_name] = context.latest_create_transaction_response
+
 
 @when(
     'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents through MIL')
@@ -51,10 +53,13 @@ def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name,
         merchant_fiscal_code=curr_merchant_fiscal_code
     )
 
+    context.transactions[trx_name] = context.latest_create_transaction_response
+
 
 @when(
     'the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents with wrong acquirer ID')
-def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, trx_name, amount_cents):
+def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(context, merchant_name, trx_name,
+                                                                            amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     context.latest_merchant_id = curr_merchant_id
 
@@ -65,6 +70,8 @@ def step_when_merchant_tries_to_create_a_transaction_with_wrong_acquirer_id(cont
         merchant_id=curr_merchant_id,
         acquirer_id='WRONG_ACQUIRER_ID'
     )
+
+    context.transactions[trx_name] = context.latest_create_transaction_response
 
 
 @given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents')
@@ -295,15 +302,7 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
 
     step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
 
-    if citizen_name not in context.accrued_per_citizen.keys():
-        context.accrued_per_citizen[citizen_name] = res.json()['reward']
-    else:
-        context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + res.json()['reward']
-
-    if citizen_name not in context.trxs_per_citizen.keys():
-        context.trxs_per_citizen[citizen_name] = 1
-    else:
-        context.trxs_per_citizen[citizen_name] = context.trxs_per_citizen[citizen_name] + 1
+    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['reward'])
 
     retry_timeline(expected=timeline_operations.transaction, request=timeline,
                    num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
@@ -319,12 +318,21 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
                                    expected_status='AUTHORIZED'
                                    )
 
-    context.total_accrued = context.total_accrued + res.json()['reward']
-    context.num_new_trxs = context.num_new_trxs + 1
-
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
+@given('the citizen {citizen_name} confirms, immediately before the next step, the transaction {trx_name}')
+def step_when_citizen_rapidly_confirms_the_transactions(context, citizen_name, trx_name):
+    curr_token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    trx_name = context.transactions[trx_name]['trxCode']
+
+    res = complete_transaction_confirmation(context=context, trx_code=trx_name, token_io=curr_token_io)
+    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['reward'])
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
+
+
+@given('the citizen {citizen_name} tries to confirm the transaction {trx_name}')
 @when('the citizen {citizen_name} tries to confirm the transaction {trx_name}')
 def step_citizen_tries_pre_authorize_transaction(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
@@ -524,3 +532,15 @@ def step_citizen_tries_to_cancel_a_transaction(context, citizen_name, trx_name):
     res = delete_payment_citizen(trx_code=trx_code,
                                  token=token_io)
     context.latest_citizen_cancellation_response = res
+
+
+def update_user_counters(context, citizen_name, reward):
+    if citizen_name not in context.accrued_per_citizen.keys():
+        context.accrued_per_citizen[citizen_name] = reward
+        context.trxs_per_citizen[citizen_name] = 1
+    else:
+        context.accrued_per_citizen[citizen_name] = context.accrued_per_citizen[citizen_name] + reward
+        context.trxs_per_citizen[citizen_name] = context.trxs_per_citizen[citizen_name] + 1
+
+    context.total_accrued = context.total_accrued + reward
+    context.num_new_trxs = context.num_new_trxs + 1

@@ -41,9 +41,10 @@
 
 ### Did you update secrets accordingly?
 
-- [ ] `.secrets_template.yaml`
-- [ ] Pipelines' secure file
-- [ ] Confluence
+- [ ] Yes
+  - [ ] `.secrets_template.yaml`
+  - [ ] Pipelines' secure file
+  - [ ] Confluence
 - [ ] Not needed
 - [ ] No (_please provide further information_)
 

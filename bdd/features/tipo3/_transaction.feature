@@ -4,7 +4,7 @@ Feature: A transaction is generated, authorized and confirmed
     Given the initiative is "Scontoditipo3"
     And the initiative's budget is totally allocated
 
-  @Transaction
+  @transaction
   @Scontoditipo3
   Scenario: The merchant tries to generate a transaction when the budget of the initiative is totally allocated
     Given the merchant 2 is qualified
