@@ -67,13 +67,12 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              python3 -m pipenv shell
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
-                behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
               elif [ "${{ parameters.tag }}" = "all" ]; then
-                behave --junit --junit-directory "tests/reports/behave"
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
               else
-                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
               fi
             displayName: 'Run tests with Behave'
             env:
