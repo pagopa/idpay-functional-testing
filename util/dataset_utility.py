@@ -1,15 +1,19 @@
 import datetime
 import math
+import os
 import random
 from dataclasses import dataclass
 from hashlib import sha256
 
+import pandas as pd
 import pytz
 from faker import Faker
 from schwifty import IBAN
 from six import unichr
 
 from api.rtd import pm_salt
+
+CSV_SEPARATOR = ';'
 
 fake = Faker('it_IT')
 
@@ -167,3 +171,12 @@ def moth_number_to_fc_letter(month_num):
         return months[int(month_num) - 1]
     else:
         return 'A'
+
+
+def serialize(dataset, columns, destination_path, have_header=False):
+    dataset_dataframe = pd.DataFrame(dataset, columns=columns)
+    trx_file_path = os.path.join(destination_path, )
+    os.makedirs(os.path.dirname(trx_file_path), exist_ok=True)
+
+    with open(trx_file_path, 'a', newline='') as f:
+        f.write(dataset_dataframe.to_csv(index=False, header=have_header, sep=CSV_SEPARATOR, lineterminator='\n'))
