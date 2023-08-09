@@ -29,6 +29,7 @@ from api.idpay import put_initiative_beneficiary_info
 from api.idpay import put_initiative_general_info
 from api.idpay import put_initiative_refund_info
 from api.idpay import put_initiative_reward_info
+from api.idpay import put_payment_results
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import upload_merchant_csv
@@ -595,3 +596,17 @@ def generate_payment_results(
         zf.write(ourput_file_path + '.csv', arcname=output_file_name + '.csv')
 
     return ourput_file_path + '.zip'
+
+
+def upload_payment_results(
+        initiative_id: str,
+        payment_result_name: str):
+    selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    with open(payment_result_name, 'rb') as f:
+        res = put_payment_results(selfcare_token=selfcare_token,
+                                  initiative_id=initiative_id,
+                                  results_file_name=payment_result_name,
+                                  results_file=f)
+        assert res.status_code == 201
+
+    return res
