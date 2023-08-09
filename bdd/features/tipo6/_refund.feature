@@ -19,6 +19,6 @@ Feature: A merchant gets refunded if a transaction is discounted
   @skip
   Scenario: An unpaid transaction is not present in the refunds file
     Given the merchant 1 generates the transaction X of amount 2000 cents
-    When the citizen A confirms the transactions X
+    When the citizen A confirms the transaction X
     And the transaction X is not rewarded
     Then the merchant get not rewarded accordingly
