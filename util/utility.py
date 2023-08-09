@@ -1,12 +1,17 @@
 import datetime
 import os
 import random
+import tempfile
 import time
 import uuid
+import zipfile
 from hashlib import sha256
+
+import requests
 
 from api.idpay import enroll_iban
 from api.idpay import force_reward
+from api.idpay import get_export_sas_token
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
@@ -521,3 +526,26 @@ def onboard_random_merchant(initiative_id: str,
     assert curr_merchant_id is not None
 
     return {'merchant_fiscal_code': fc, 'merchant_id': curr_merchant_id}
+
+
+def get_refund_exported_content(initiative_id: str,
+                                exported_file_name: str):
+    selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+
+    res = get_export_sas_token(selfcare_token=selfcare_token,
+                               initiative_id=initiative_id,
+                               exported_file_name=exported_file_name)
+    assert res.status_code == 201
+
+    sas = res.json().get('sas')
+    res = requests.get(sas)
+    assert res.status_code == 200
+
+    with tempfile.TemporaryFile() as tmp:
+        tmp.write(res.content)
+        with zipfile.ZipFile(tmp) as zipped_input_file:
+            extracted_file = zipped_input_file.infolist()[0].filename
+            extraction_path = os.path.join(initiative_id, extracted_file)
+            zipped_input_file.extractall(path=initiative_id)
+
+    return extraction_path
