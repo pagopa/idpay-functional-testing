@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 import random
@@ -46,7 +47,19 @@ from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
 from util.dataset_utility import Reward
+from util.dataset_utility import serialize
 from util.encrypt_utilities import pgp_string_routine
+
+PAYMENT_OK = 'OK - ORDINE ESEGUITO'
+PAYMENT_KO = 'KO'
+REJECT_REASON = 'IBAN NOT VALID'
+reward_columns = [
+    'uniqueID',
+    'result',
+    'rejectionReason',
+    'cro',
+    'executionDate'
+]
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
@@ -549,3 +562,36 @@ def get_refund_exported_content(initiative_id: str,
             zipped_input_file.extractall(path=initiative_id)
 
     return extraction_path
+
+
+def generate_payment_results(
+        export_file: str,
+        payment_result: str = PAYMENT_OK, ):
+    refunds = []
+    reject_reason = ''
+
+    if payment_result == PAYMENT_KO:
+        reject_reason = REJECT_REASON
+
+    with open(export_file) as f:
+        reader = csv.reader(f, delimiter=';')
+        next(reader)
+        for r in reader:
+            unique_id = r[1]
+            refunds.append([
+                unique_id,
+                payment_result,
+                reject_reason,
+                sha256(f'{r[1]}'.encode()).hexdigest(),
+                datetime.datetime.now().strftime('%Y-%m-%d')
+            ])
+
+    output_file_name = 'payment-results-' + datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
+    ourput_file_path = os.path.join('.', output_file_name)
+
+    serialize(refunds, reward_columns, ourput_file_path + '.csv', True)
+
+    with zipfile.ZipFile(ourput_file_path + '.zip', 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+        zf.write(ourput_file_path + '.csv', arcname=output_file_name + '.csv')
+
+    return ourput_file_path + '.zip'
