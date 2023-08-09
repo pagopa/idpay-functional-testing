@@ -471,4 +471,25 @@ def get_merchant_list(organization_id: str,
         headers={
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=settings.default_timeout
+    )
+
+
+def get_export_sas_token(selfcare_token: str,
+                         initiative_id: str,
+                         exported_file_name: str):
+    """API to get SAS token for getting access to desired export file.
+        :param selfcare_token: Self-Care token of the test organization that should download the exports.
+        :param initiative_id: ID of the initiative of interest.
+        :param exported_file_name: Name of the export file to get SAS token of.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/exports/{exported_file_name}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'accept': 'application/json'
+        },
+        timeout=settings.default_timeout
+    )
