@@ -493,3 +493,17 @@ def get_export_sas_token(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def put_payment_results(selfcare_token: str,
+                        initiative_id: str,
+                        results_file_name: str,
+                        results_file):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/import/{results_file_name}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'accept': 'application/json'
+        },
+        data=results_file
+    )
