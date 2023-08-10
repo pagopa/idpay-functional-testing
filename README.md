@@ -14,29 +14,43 @@ Enter the cloned repository:
 cd idpay-functional-testing
 ```
 
-Create a virtual environment:
+Install [pipenv](https://pipenv.pypa.io/en/latest/):
 
-```commandline
-python3 -m venv venv
+```
+pip install pipenv
 ```
 
-Enter the virtual environment:
+Create and enter the virtual environment:
 
 ```commandline
-source venv/bin/activate
+pipenv shell
 ```
 
-Install dependencies:pip
+Install dependencies:
 
 ```commandline
-pip install -r requirements.txt
+pipenv sync
 ```
 
 ### Create `.secret.yaml` based on `.secrets_semplate.yaml` and customize it.
 
 ## Usage
 
-Run tests:
+Run tests with Behave:
+
+```commandline
+[IDPAY_TARGET_ENV=<myenv>] behave --junit --junit-directory "tests/reports/behave"
+```
+
+> Default target environment is **dev**.
+
+For example this command runs verbose all API test and save the junitxml report to a file:
+
+```commandline
+pytest --junitxml=tests/reports/junit.xml -vv -m "API"
+```
+
+Run tests with PyTest:
 
 ```commandline
 [IDPAY_TARGET_ENV=<myenv>] pytest [--junitxml=path/to/report.xml] [-vv] [-m "[not] <TEST_MARKER>"]
@@ -49,8 +63,3 @@ For example this command runs verbose all API test and save the junitxml report 
 ```commandline
 pytest --junitxml=tests/reports/junit.xml -vv -m "API"
 ```
-
-## Available initiatives:
-
-- `not_started` : initiative that is not started yet.
-- `cashback_like` : initiative like cashback.
