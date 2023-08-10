@@ -58,8 +58,11 @@ stages:
             displayName: "Display Python version"
           - script: |
               python3 --version
+              python3 -m pip install --user virtualenv
+              virtualenv .venv
               python3 -m pip install --user pipenv
-              python3 -m pipenv sync
+              pipenv shell
+              pipenv sync
             displayName: "Install requirements"
           - task: DownloadSecureFile@1
             name: idpay_secrets
@@ -67,6 +70,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
+              pipenv shell
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
                 python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
               elif [ "${{ parameters.tag }}" = "all" ]; then
