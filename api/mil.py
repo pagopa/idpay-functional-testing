@@ -32,6 +32,21 @@ def post_merchant_create_transaction_acquirer_mil(initiative_id,
     return response
 
 
+def get_initiative_list_mil(merchant_fiscal_code: str,
+                            merchant_id: str):
+    cert = load_certificates()
+    response = requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/initiatives',
+        cert=cert,
+        headers={
+            settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
+            'x-merchant-fiscalcode': merchant_fiscal_code,
+            'x-merchant-id': merchant_id
+        }
+    )
+    return response
+
+
 def get_transaction_detail_mil(transaction_id,
                                acquirer_id: str = settings.idpay.acquirer_id,
                                merchant_fiscal_code: str = '12345678901'
