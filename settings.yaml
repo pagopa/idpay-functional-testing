@@ -71,6 +71,8 @@ IDPAY:
       unprocessed: '/transactions'
     merchant:
       path: '/idpaymerchant'
+    mock:
+      isee: '/mock/citizen/isee'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"

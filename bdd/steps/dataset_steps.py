@@ -4,6 +4,7 @@ import random
 import pytz
 from behave import given
 
+from api.mock import control_mocked_isee
 from api.token_io import introspect
 from conf.configuration import settings
 from util.dataset_utility import fake_fc
@@ -48,6 +49,12 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
     context.citizens_fc[citizen_name] = citizen_fc
+
+
+@given('the citizen {citizen_name} has ISEE {isee}')
+def step_set_citizen_isee(context, citizen_name: str, isee: int):
+    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=int(isee))
+    assert res.status_code == 201
 
 
 @given('the transaction is created before fruition period')
