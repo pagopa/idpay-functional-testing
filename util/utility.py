@@ -520,4 +520,8 @@ def onboard_random_merchant(initiative_id: str,
                                            desired_fc=fc)
     assert curr_merchant_id is not None
 
-    return {'merchant_fiscal_code': fc, 'merchant_id': curr_merchant_id}
+    return {
+        'id': curr_merchant_id,
+        'iban': iban,
+        'fiscal_code': fc
+    }
