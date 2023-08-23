@@ -516,8 +516,18 @@ def onboard_random_merchant(initiative_id: str,
                               iban=iban)
     assert res.status_code == 200
 
+    tries = 3
+    delay = 1
+    count = 0
     curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
                                            desired_fc=fc)
+    while not curr_merchant_id:
+        count += 1
+        if count == tries:
+            break
+        time.sleep(delay)
+        curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
+                                               desired_fc=fc)
     assert curr_merchant_id is not None
 
     return {
