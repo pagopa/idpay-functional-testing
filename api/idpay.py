@@ -471,4 +471,15 @@ def get_merchant_list(organization_id: str,
         headers={
             'Content-Type': 'application/json',
         },
-        timeout=5000)
+        timeout=settings.default_timeout)
+
+
+def delete_initiative(initiative_id: str):
+    """API to delete everything related to an initiative.
+            :param initiative_id: ID of the initiative of interest.
+            :returns: the response of the call.
+            :rtype: requests.Response
+        """
+    return requests.delete(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        timeout=settings.default_timeout)
