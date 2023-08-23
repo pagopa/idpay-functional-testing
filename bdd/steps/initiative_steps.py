@@ -68,5 +68,5 @@ def base_context_initialization(context):
 
 @given("the initiative's budget is totally allocated")
 def step_check_initiative_budget_allocated(context):
-    allowable_citizens = math.floor(context.total_budget/context.budget_per_citizen)
+    allowable_citizens = math.floor(context.total_budget / context.budget_per_citizen)
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens

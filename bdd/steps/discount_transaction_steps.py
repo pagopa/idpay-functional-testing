@@ -279,7 +279,7 @@ def step_erode_budget(context, citizen_name):
 
 
 def complete_transaction_confirmation(context, trx_code, token_io):
-    res = put_pre_authorize_payment(trx_code, token_io)
+    res = put_pre_authorize_payment(trx_code=trx_code, token=token_io)
     assert res.status_code == 200
 
     res = put_authorize_payment(trx_code, token_io)
