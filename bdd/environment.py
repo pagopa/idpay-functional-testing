@@ -8,6 +8,7 @@ def before_feature(context, feature):
     context.shared_data = {}
     # Create the initiative given a proper first tag on feature file
     context.curr_initiative_name = feature.tags[0]
+    secrets.initiatives[context.curr_initiative_name] = {}
     secrets.initiatives[context.curr_initiative_name]['id'] = create_initiative(
         initiative_name_in_settings=context.curr_initiative_name)
     print(
