@@ -5,7 +5,6 @@ API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
-KEEP_INITIATIVES_ON_FAIL: false
 KEEP_INITIATIVES_AFTER_TEST: false
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
