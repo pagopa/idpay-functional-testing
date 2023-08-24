@@ -1,3 +1,5 @@
+import time
+
 from api.idpay import delete_initiative
 from conf.configuration import secrets
 from conf.configuration import settings
@@ -23,6 +25,7 @@ def before_feature(context, feature):
             initiative_name_in_settings=context.curr_initiative_name)
         print(
             f'Created initiative {secrets.initiatives[context.curr_initiative_name]["id"]} ({context.curr_initiative_name})')
+        time.sleep(settings.INITIATIVE_STARTUP_TIME_SECONDS)
 
 
 def after_all(context):
