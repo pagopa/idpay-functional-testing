@@ -41,7 +41,6 @@ Feature: A transaction is generated, authorized and confirmed
     When the merchant 1 tries to generate the transaction X of amount 30000 cents with wrong acquirer ID
     Then the transaction X is not created
 
-  @t1
   Scenario: The budget is completely eroded with one trx
     Given the random merchant 1 is onboard
     And the citizen A is onboard
