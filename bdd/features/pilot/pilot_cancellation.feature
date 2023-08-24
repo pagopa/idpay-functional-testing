@@ -77,7 +77,7 @@ Feature: A transaction can be cancelled by the merchant
     Then the transaction X is cancelled
 
   @cancellation
-  @MIL @t1
+  @MIL
   Scenario: An authorized and cancelled transaction X cannot be pre-authorized through MIL
     Given the random merchant 1 is onboard
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL
