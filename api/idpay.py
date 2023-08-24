@@ -459,15 +459,17 @@ def upload_merchant_csv(selfcare_token: str,
 
 
 def get_merchant_list(organization_id: str,
-                      initiative_id: str):
+                      initiative_id: str,
+                      page: int = 0):
     """API to get initiative statistics.
         :param organization_id: ID of the organization of interest.
         :param initiative_id: ID of the initiative of interest.
+        :param page: Page of merchants to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.path}{settings.IDPAY.domain}/merchant/organization/{organization_id}/initiative/{initiative_id}/merchants',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.path}{settings.IDPAY.domain}/merchant/organization/{organization_id}/initiative/{initiative_id}/merchants?page={page}',
         headers={
             'Content-Type': 'application/json',
         },
