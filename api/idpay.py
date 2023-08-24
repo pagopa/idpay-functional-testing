@@ -1,4 +1,5 @@
 import datetime
+import os
 import uuid
 
 import requests
@@ -450,12 +451,15 @@ def upload_merchant_csv(selfcare_token: str,
 
     files = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
 
-    return requests.put(
+    res = requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/merchant/initiative/{initiative_id}/upload',
         files=files,
         headers=headers,
         timeout=settings.default_timeout
     )
+    os.remove(csv_file_path)
+
+    return res
 
 
 def get_merchant_list(organization_id: str,
