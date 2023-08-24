@@ -438,9 +438,15 @@ def merchant_id_from_fc(initiative_id: str,
 
     while not success:
         res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
-        for merchant in res.json()['content']:
-            if merchant['fiscalCode'] == desired_fc:
-                return merchant['merchantId']
+        content = res.json()['content']
+        i = 1
+        while content:
+            for merchant in content:
+                if merchant['fiscalCode'] == desired_fc:
+                    return merchant['merchantId']
+            res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+            content = res.json()['content']
+            i += 1
         count += 1
         time.sleep(delay)
         if count == tries:
@@ -516,18 +522,8 @@ def onboard_random_merchant(initiative_id: str,
                               iban=iban)
     assert res.status_code == 200
 
-    tries = 3
-    delay = 1
-    count = 0
     curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
                                            desired_fc=fc)
-    while not curr_merchant_id:
-        count += 1
-        if count == tries:
-            break
-        time.sleep(delay)
-        curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
-                                               desired_fc=fc)
     assert curr_merchant_id is not None
 
     return {
