@@ -145,7 +145,13 @@ initiatives:
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1'
       beneficiary:
-        automatedCriteria: [ ]
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'BTW_CLOSED'
+            value: '18'
+            value2: '35'
         selfDeclarationCriteria:
           - _type: 'boolean'
             description: '1'
