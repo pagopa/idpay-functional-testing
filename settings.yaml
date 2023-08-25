@@ -218,6 +218,41 @@ initiatives:
     max_age: 30
     fruition_start: '2023-07-20T00:00:00.000+02:00'
     fruition_end: '2024-05-30T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 8'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'LE'
+            value: '30'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          threshold:
+            from: 11.15
+            fromIncluded: true
+            to: 100
+            toIncluded: true
+          rewardLimits: [ ]
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+          rewardLimit: 50
   Scontoditipo3:
     id: 'SCONTOTIPO3'
     flat_cashback_amount: 10.13
