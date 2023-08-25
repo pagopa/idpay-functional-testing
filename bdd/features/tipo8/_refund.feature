@@ -1,21 +1,19 @@
+@Scontoditipo8
+@refunds
 Feature: A merchant gets refunded if a transaction is discounted
 
-Background:
+  Background:
     Given the initiative is "Scontoditipo8"
-    And the merchant 1 is qualified
+    And the random merchant 1 is onboard
     And the citizen A is 25 years old at most
     And the citizen A is onboard
 
-  @refunds
-  @Scontoditipo8
   Scenario: Merchant receives discount transaction refund
     Given the merchant 1 generates the transaction X of amount 1115 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
     Then the merchant 1 is refunded 11.15 euros
 
-  @refunds
-  @Scontoditipo8
   Scenario: An unpaid transaction is not present in the refunds file
     Given the merchant 1 generates the transaction X of amount 7000 cents
     And the citizen A confirms the transaction X
@@ -26,8 +24,6 @@ Background:
     Then the citizen A is rewarded with 50 euros
     And the merchant 1 is refunded 50 euros
 
-  @refunds
-  @Scontoditipo8
   Scenario: After 5 transactions of amount 2000 cents each, the amount of rewards is equal to payment order
     Given the citizen B is 26 years old at most
     And the citizen B is onboard
