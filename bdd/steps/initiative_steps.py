@@ -6,6 +6,7 @@ import pytz
 from behave import given
 from behave import then
 
+from api.idpay import get_initiative_statistics
 from bdd.steps.onboarding_steps import step_citizen_tries_to_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
