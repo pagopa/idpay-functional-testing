@@ -1,27 +1,21 @@
 import datetime
 import math
+import time
 
 import pytz
 from behave import given
 from behave import then
 
-from api.idpay import get_initiative_statistics
+from bdd.steps.onboarding_steps import step_citizen_tries_to_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.dataset_utility import fake_fc
 from util.utility import check_statistics
-from util.utility import create_initiative
 
 
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_id(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.initiatives_settings = settings.initiatives[initiative_name]
-    base_context_initialization(context)
-
-
-@given('a new initiative with "{initiative_name}" characteristics')
-def step_given_new_initiative_id(context, initiative_name):
-    context.initiative_id = create_initiative(initiative_name_in_settings=initiative_name)
     context.initiatives_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
