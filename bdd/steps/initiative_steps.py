@@ -7,7 +7,9 @@ from behave import given
 from behave import then
 
 from api.idpay import get_initiative_statistics
+from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
 from bdd.steps.onboarding_steps import step_citizen_tries_to_onboard
+from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.dataset_utility import fake_fc
@@ -64,4 +66,10 @@ def base_context_initialization(context):
 @given("the initiative's budget is totally allocated")
 def step_check_initiative_budget_allocated(context):
     allowable_citizens = math.floor(context.total_budget / context.budget_per_citizen)
+    for i in range(allowable_citizens):
+        context.citizens_fc[str(i)] = step_citizen_fc_exact_or_random(context=context, citizen_fc='random')
+        step_named_citizen_onboard(context=context, citizen_name=str(i))
+
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens
