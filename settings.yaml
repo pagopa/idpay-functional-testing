@@ -175,6 +175,39 @@ initiatives:
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
     fruition_end: '2026-05-29T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 99.9
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 6'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'GT'
+            value: '19'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 87.12
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          trxCount:
+            fromIncluded: true
+            to: 1
+            toIncluded: true
+          rewardLimits: [ ]
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   Scontoditipo8:
     id: 'SCONTOTIPO8'
     cashback_percentage: 100
