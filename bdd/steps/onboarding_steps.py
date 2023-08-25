@@ -170,8 +170,7 @@ def step_card_enroll(context, citizen_name):
     context.card = fake_pan()
     card_enroll(fc=context.citizens_fc[citizen_name], pan=context.card, initiative_id=context.initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3,
-                 message='Card not enrolled')
+                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)
 
 
 @given('the citizen {citizen_name} enrolls a random iban')
@@ -180,5 +179,4 @@ def step_iban_enroll(context, citizen_name):
     context.iban = fake_iban('00000')
     iban_enroll(fc=context.citizens_fc[citizen_name], iban=context.iban, initiative_id=context.initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3,
-                 message='IBAN not enrolled')
+                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)
