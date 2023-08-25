@@ -17,7 +17,9 @@ from util.utility import card_enroll
 from util.utility import check_statistics
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
+from util.utility import get_selfcare_token
 from util.utility import iban_enroll
+from util.utility import onboard_random_merchant
 from util.utility import retry_io_onboarding
 from util.utility import retry_timeline
 from util.utility import retry_wallet
@@ -161,6 +163,14 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
             'fiscal_code': 'UNQUALIFIED'
         }
 
+    context.merchants[merchant_name] = curr_merchant_info
+
+
+@given('the random merchant {merchant_name} is onboard')
+def step_merchant_qualified(context, merchant_name):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
+                                                 institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
 
 
