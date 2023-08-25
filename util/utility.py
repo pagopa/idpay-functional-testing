@@ -113,7 +113,7 @@ def iban_enroll(fc, iban, initiative_id):
 
     retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
                     token=token, field='checkIbanStatus', tries=50,
-                    delay=0.1, message='Wrong checkIbanStatus')
+                    delay=1)
 
     return res
 
