@@ -172,6 +172,9 @@ def step_merchant_qualified(context, merchant_name):
     curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
                                                  institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
+    context.base_merchants_statistics[merchant_name] = get_initiative_statistics_merchant_portal(
+        merchant_id=curr_merchant_info['id'],
+        initiative_id=context.initiative_id).json()
 
 
 @given('the citizen {citizen_name} enrolls a random card')
