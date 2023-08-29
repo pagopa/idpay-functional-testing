@@ -23,6 +23,7 @@ from api.idpay import put_initiative_beneficiary_info
 from api.idpay import put_initiative_general_info
 from api.idpay import put_initiative_refund_info
 from api.idpay import put_initiative_reward_info
+from api.idpay import put_user_id_suspension
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import upload_merchant_csv
@@ -32,6 +33,8 @@ from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
+from api.pdv import detokenize_pdv_token
+from api.pdv import get_pdv_token
 from api.token_io import login
 from conf.configuration import secrets
 from conf.configuration import settings
@@ -529,3 +532,20 @@ def onboard_random_merchant(initiative_id: str,
         'iban': iban,
         'fiscal_code': fc
     }
+
+
+def tokenize_fc(fiscal_code: str):
+    res = get_pdv_token(fiscal_code=fiscal_code)
+    assert res.status_code == 200
+    token = res.json()['token']
+    res = detokenize_pdv_token(token=token)
+    assert res.json()['pii'] == fiscal_code
+    return token
+
+
+def suspend_citizen_from_initiative(initiative_id: str,
+                                    fiscal_code: str):
+    token = tokenize_fc(fiscal_code=fiscal_code)
+    res = put_user_id_suspension(initiative_id=initiative_id, user_id=token)
+    assert res.status_code == 204
+    return res
