@@ -489,3 +489,10 @@ def delete_initiative(initiative_id: str):
     return requests.delete(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{settings.IDPAY.domain}/initiative/{initiative_id}',
         timeout=settings.default_timeout)
+
+
+def put_user_id_suspension(initiative_id: str,
+                           user_id: str):
+    return requests.put(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.wallet.internal}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}/{user_id}/suspend',
+        timeout=settings.default_timeout)
