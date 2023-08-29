@@ -13,6 +13,7 @@ base_path:
   RTD: "https://api.uat.cstar.pagopa.it"
   IDPAY:
     internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
+  PDV: "https://api.uat.tokenizer.pdv.pagopa.it"
 IDPAY:
   domain: "/idpay"
   MIL:
@@ -36,6 +37,7 @@ IDPAY:
       unsubscribed_message: 'Unsubscribed to initiative'
       unsubscribed_error_details: 'GENERIC_ERROR'
     wallet:
+      internal: '/idpaywallet'
       path: '/wallet'
       end_path: '/instruments'
       unsubscribe: '/unsubscribe'
@@ -93,6 +95,9 @@ RTD:
     mock_io:
       login: "/mock-io/login"
       user: "/mock-io/user"
+PDV:
+  endpoints:
+    tokenizer: '/tokenizer/v1/tokens'
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
