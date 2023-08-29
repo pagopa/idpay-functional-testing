@@ -17,7 +17,9 @@ from util.utility import card_enroll
 from util.utility import check_statistics
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
+from util.utility import get_selfcare_token
 from util.utility import iban_enroll
+from util.utility import onboard_random_merchant
 from util.utility import retry_io_onboarding
 from util.utility import retry_timeline
 from util.utility import retry_wallet
@@ -164,14 +166,24 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
     context.merchants[merchant_name] = curr_merchant_info
 
 
+@given('the random merchant {merchant_name} is onboard')
+def step_merchant_qualified(context, merchant_name):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
+                                                 institution_selfcare_token=institution_token)
+    context.merchants[merchant_name] = curr_merchant_info
+    context.base_merchants_statistics[merchant_name] = get_initiative_statistics_merchant_portal(
+        merchant_id=curr_merchant_info['id'],
+        initiative_id=context.initiative_id).json()
+
+
 @given('the citizen {citizen_name} enrolls a random card')
 def step_card_enroll(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     context.card = fake_pan()
     card_enroll(fc=context.citizens_fc[citizen_name], pan=context.card, initiative_id=context.initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3,
-                 message='Card not enrolled')
+                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)
 
 
 @given('the citizen {citizen_name} enrolls a random iban')
@@ -180,5 +192,4 @@ def step_iban_enroll(context, citizen_name):
     context.iban = fake_iban('00000')
     iban_enroll(fc=context.citizens_fc[citizen_name], iban=context.iban, initiative_id=context.initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3,
-                 message='IBAN not enrolled')
+                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)

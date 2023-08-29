@@ -1,22 +1,20 @@
+@Scontoditipo1
+@refunds
 Feature: A merchant gets refunded if a transaction is discounted
 
   Background:
     Given the initiative is "Scontoditipo1"
-    And the merchant 1 is qualified
-    And the merchant 2 is qualified
+    And the random merchant 1 is onboard
+    And the random merchant 2 is onboard
     And the citizen A is 25 years old at most
     And the citizen A is onboard
 
-  @refunds
-  @Scontoditipo1
   Scenario: Merchant receive discount transaction refund
     Given the merchant 1 generates the transaction X of amount 20001 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
     Then the merchant 1 is refunded 200.01 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 4 transactions, then only 3 are confirmed
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the merchant 1 generates the transaction Y of amount 2000 cents
@@ -33,8 +31,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 40 euros
     And the merchant 1 is refunded 80 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 1 transactions, then the transaction is confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents
@@ -44,8 +40,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 10 euros
     And the merchant 2 is refunded 10 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 2 transactions, then only 1 is confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents
@@ -57,8 +51,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 30 euros
     And the merchant 2 is refunded 10 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 3 transactions, then only 2 are confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents
@@ -71,8 +63,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 30 euros
     And the merchant 2 is refunded 30 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 3 transactions, then all 3 are confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents
@@ -87,8 +77,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the batch process confirms the transaction Z
     Then the citizen A is rewarded with 70 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Citizen makes 4 transactions, then only 1 is confirmed
     Given the merchant 2 generates the transaction X of amount 1000 cents
     And the merchant 2 generates the transaction Y of amount 2000 cents
@@ -105,8 +93,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 120 euros
     And the merchant 2 is refunded 10 euros
 
-  @refunds
-  @Scontoditipo1
   @need_fix
   Scenario: Merchant receive max refund for discounted transaction exceeding the citizen's budget
     Given the merchant 2 generates the transaction X of amount 30001 cents
@@ -115,16 +101,12 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 300 euros
     And the merchant 2 is refunded 300 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
     And the citizen A confirms each transaction
     When the batch process confirms all the transactions
     Then the merchant 1 is refunded 150.0 euros
 
-  @refunds
-  @Scontoditipo1
   Scenario: Merchant receive discount transaction refund for 1 cents transaction
     Given the merchant 1 generates the transaction X of amount 1 cents
     And the citizen A confirms the transaction X

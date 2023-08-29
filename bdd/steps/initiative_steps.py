@@ -1,27 +1,24 @@
 import datetime
 import math
+import time
 
 import pytz
 from behave import given
 from behave import then
 
 from api.idpay import get_initiative_statistics
+from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
+from bdd.steps.onboarding_steps import step_citizen_tries_to_onboard
+from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.dataset_utility import fake_fc
 from util.utility import check_statistics
-from util.utility import create_initiative
 
 
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_id(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.initiatives_settings = settings.initiatives[initiative_name]
-    base_context_initialization(context)
-
-
-@given('a new initiative with "{initiative_name}" characteristics')
-def step_given_new_initiative_id(context, initiative_name):
-    context.initiative_id = create_initiative(initiative_name_in_settings=initiative_name)
     context.initiatives_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
@@ -68,5 +65,18 @@ def base_context_initialization(context):
 
 @given("the initiative's budget is totally allocated")
 def step_check_initiative_budget_allocated(context):
-    allowable_citizens = math.floor(context.total_budget/context.budget_per_citizen)
+    i = 0
+
+    allowable_citizens = math.floor(context.total_budget / context.budget_per_citizen)
+
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
+
+    while context.base_statistics['onboardedCitizenCount'] < allowable_citizens:
+        context.citizens_fc[str(i)] = step_citizen_fc_exact_or_random(context=context, citizen_fc='random')
+        step_named_citizen_onboard(context=context, citizen_name=str(i))
+        context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                            initiative_id=context.initiative_id).json()
+        i += 1
+
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens

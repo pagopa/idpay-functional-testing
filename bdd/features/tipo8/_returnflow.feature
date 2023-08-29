@@ -1,3 +1,5 @@
+@Scontoditipo8
+@Returnflow
 Feature: For a refund, there is a return flow
 
   Background:
@@ -6,12 +8,8 @@ Feature: For a refund, there is a return flow
     And the citizen A is onboard
     Then the transaction is OK
 
-  @Returnflow
-  @Scontoditipo8
   @skip
   Scenario: Against a payment order, the return flow is ok
 
-  @Returnflow
-  @Scontoditipo8
   @skip
   Scenario: Against a payment order, the return flow is ko

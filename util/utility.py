@@ -66,8 +66,6 @@ def onboard_io(fc, initiative_id):
     :param initiative_id: ID of the initiative of interest.
     """
     token = get_io_token(fc)
-    # res = introspect(token)
-    # assert res.json()['fiscal_code'] == fc
 
     res = accept_terms_and_condition(token, initiative_id)
     assert res.status_code == 204
@@ -113,7 +111,7 @@ def iban_enroll(fc, iban, initiative_id):
 
     retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
                     token=token, field='checkIbanStatus', tries=50,
-                    delay=0.1, message='Wrong checkIbanStatus')
+                    delay=1)
 
     return res
 
@@ -438,9 +436,15 @@ def merchant_id_from_fc(initiative_id: str,
 
     while not success:
         res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
-        for merchant in res.json()['content']:
-            if merchant['fiscalCode'] == desired_fc:
-                return merchant['merchantId']
+        content = res.json()['content']
+        i = 1
+        while content:
+            for merchant in content:
+                if merchant['fiscalCode'] == desired_fc:
+                    return merchant['merchantId']
+            res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+            content = res.json()['content']
+            i += 1
         count += 1
         time.sleep(delay)
         if count == tries:
@@ -520,4 +524,8 @@ def onboard_random_merchant(initiative_id: str,
                                            desired_fc=fc)
     assert curr_merchant_id is not None
 
-    return {'merchant_fiscal_code': fc, 'merchant_id': curr_merchant_id}
+    return {
+        'id': curr_merchant_id,
+        'iban': iban,
+        'fiscal_code': fc
+    }

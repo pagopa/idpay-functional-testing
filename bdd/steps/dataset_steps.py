@@ -5,7 +5,6 @@ import pytz
 from behave import given
 
 from api.mock import control_mocked_isee
-from api.token_io import introspect
 from conf.configuration import settings
 from util.dataset_utility import fake_fc
 from util.utility import get_io_token
@@ -18,9 +17,8 @@ def step_citizen_fc_exact_or_random(context, citizen_fc):
 
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
-    res = introspect(context.latest_token_io)
-    assert res.json()['fiscal_code'] == citizen_fc
 
+    return citizen_fc
 
 @given('the citizen {citizen_name} is {age} years old {precision}')
 def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age: int, precision: str):

@@ -5,6 +5,8 @@ API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
+KEEP_INITIATIVES_AFTER_TEST: false
+INITIATIVE_STARTUP_TIME_SECONDS: 30
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
@@ -73,6 +75,8 @@ IDPAY:
       path: '/idpaymerchant'
     mock:
       isee: '/mock/citizen/isee'
+    initiatives:
+      portal: '/idpayportalwelfarebackendinitiative'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
@@ -141,7 +145,13 @@ initiatives:
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1'
       beneficiary:
-        automatedCriteria: [ ]
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'BTW_CLOSED'
+            value: '18'
+            value2: '35'
         selfDeclarationCriteria:
           - _type: 'boolean'
             description: '1'
@@ -165,6 +175,39 @@ initiatives:
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
     fruition_end: '2026-05-29T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 99.9
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 6'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'GT'
+            value: '19'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 87.12
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          trxCount:
+            fromIncluded: true
+            to: 1
+            toIncluded: true
+          rewardLimits: [ ]
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   Scontoditipo8:
     id: 'SCONTOTIPO8'
     cashback_percentage: 100
@@ -175,6 +218,41 @@ initiatives:
     max_age: 30
     fruition_start: '2023-07-20T00:00:00.000+02:00'
     fruition_end: '2024-05-30T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 8'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'LE'
+            value: '30'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          threshold:
+            from: 11.15
+            fromIncluded: true
+            to: 100
+            toIncluded: true
+          rewardLimits: [ ]
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+          rewardLimit: 50
   Scontoditipo3:
     id: 'SCONTOTIPO3'
     flat_cashback_amount: 10.13
@@ -184,3 +262,31 @@ initiatives:
     max_trx_amount: 100000000
     fruition_start: '2023-07-25T00:00:00.000+02:00'
     fruition_end: '2033-05-29T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 1000000
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 200000
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 3'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
