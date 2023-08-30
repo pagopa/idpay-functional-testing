@@ -461,8 +461,12 @@ def natural_language_to_date_converter(natural_language_date: str):
         actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
     elif natural_language_date == 'tomorrow':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'day_after_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     elif natural_language_date == 'future':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5 + 1)).strftime('%Y-%m-%d')
     return actual_date
 
 
