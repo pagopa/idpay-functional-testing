@@ -1,6 +1,5 @@
 import datetime
 import math
-import time
 
 import pytz
 from behave import given
@@ -8,11 +7,9 @@ from behave import then
 
 from api.idpay import get_initiative_statistics
 from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
-from bdd.steps.onboarding_steps import step_citizen_tries_to_onboard
 from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
-from util.dataset_utility import fake_fc
 from util.utility import check_statistics
 
 
@@ -63,11 +60,13 @@ def base_context_initialization(context):
     context.associated_merchant = {}
 
 
-@given("the initiative's budget is totally allocated")
-def step_check_initiative_budget_allocated(context):
+@given("the initiative's budget is {precision} allocated")
+def step_allocate_initiative_budget(context, precision):
     i = 0
-
     allowable_citizens = math.floor(context.total_budget / context.budget_per_citizen)
+
+    if precision == 'almost':
+        allowable_citizens -= 1
 
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
