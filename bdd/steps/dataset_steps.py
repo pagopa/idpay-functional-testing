@@ -20,6 +20,7 @@ def step_citizen_fc_exact_or_random(context, citizen_fc):
 
     return citizen_fc
 
+
 @given('the citizen {citizen_name} is {age} years old {precision}')
 def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age: int, precision: str):
     citizen_fc = fake_fc(age=age)
