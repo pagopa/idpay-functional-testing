@@ -19,6 +19,7 @@ from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
 from util.utility import retry_timeline
+from util.utility import tokenize_fc
 
 default_merchant_name = '1'
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -387,6 +388,15 @@ def step_check_latest_pre_authorization_failed(context):
 @then('the latest pre-authorization fails because the transaction no longer exists')
 def step_check_latest_pre_authorization_failed_not_found(context):
     assert context.latest_pre_authorization_response.status_code == 404
+
+
+@then('the latest pre-authorization fails because the user is suspended')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_pre_authorization_response.json()[
+               'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 
 
 @then('the latest authorization fails because the transaction no longer exists')
