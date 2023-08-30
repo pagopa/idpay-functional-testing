@@ -352,6 +352,9 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     res = put_pre_authorize_payment(trx_code, token_io)
 
     context.latest_pre_authorization_response = res
+    context.latest_transaction_name = trx_name
+
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
 @when('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
