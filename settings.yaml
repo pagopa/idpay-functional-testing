@@ -47,6 +47,7 @@ IDPAY:
         not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
         refundable: 'REFUNDABLE'
         unsubscribed: 'UNSUBSCRIBED'
+        suspended: 'SUSPENDED'
     timeline:
       path: '/timeline'
       operations:
@@ -56,6 +57,7 @@ IDPAY:
         delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
+        suspended: 'SUSPENDED'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
