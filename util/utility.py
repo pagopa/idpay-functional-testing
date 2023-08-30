@@ -476,6 +476,13 @@ def create_initiative(initiative_name_in_settings: str):
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
     initiative_id = post_initiative_info(selfcare_token=institution_selfcare_token).json()['initiativeId']
 
+    if 'rankingStartDate' in creation_payloads.general:
+        creation_payloads.general['rankingStartDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingStartDate'])
+    if 'rankingEndDate' in creation_payloads.general:
+        creation_payloads.general['rankingEndDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingEndDate'])
+
     creation_payloads.general['startDate'] = natural_language_to_date_converter(creation_payloads.general['startDate'])
     creation_payloads.general['endDate'] = natural_language_to_date_converter(creation_payloads.general['endDate'])
 
