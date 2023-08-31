@@ -556,7 +556,7 @@ def tokenize_fc(fiscal_code: str):
 
 def suspend_citizen_from_initiative(initiative_id: str,
                                     fiscal_code: str):
-    token = tokenize_fc(fiscal_code=fiscal_code)
-    res = put_user_id_suspension(initiative_id=initiative_id, user_id=token)
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_user_id_suspension(initiative_id=initiative_id, fiscal_code=fiscal_code, selfcare_token=institution_token)
     assert res.status_code == 204
     return res
