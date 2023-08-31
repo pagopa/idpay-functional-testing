@@ -1,5 +1,6 @@
 import datetime
 import random
+import uuid
 
 import pytz
 from behave import given
@@ -54,6 +55,11 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
 def step_set_citizen_isee(context, citizen_name: str, isee: int):
     res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=int(isee))
     assert res.status_code == 201
+
+
+@given('the transaction {trx_name} does not exists')
+def step_trx_before_fruition_period(context, trx_name):
+    context.transactions[trx_name] = {'trxCode': str(uuid.uuid4())[:8]}
 
 
 @given('the transaction is created before fruition period')

@@ -499,3 +499,10 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A pre-authorizes the transaction X
     When the citizen A pre-authorizes the transaction X
     Then the transaction X is identified
+
+  Scenario: Citizen fails pre-authorizing a non-existing transaction code (chosen at random)
+    Given the random merchant 1 is onboard
+    And the citizen A is onboard
+    And the transaction X does not exists
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the transaction cannot be found
