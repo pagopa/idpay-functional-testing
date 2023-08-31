@@ -32,7 +32,7 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     When the citizen A tries to onboard
     Then the citizen A is suspended
 
-  Scenario: A suspended citizen who tries to pre-authorise a trx receives a KO result
+  Scenario: A suspended citizen who tries to pre-authorize a transaction receives a KO result
     Given the initiative is "Scontoditipo1"
     And the random merchant 1 is onboard
     And the citizen A is 25 years old at most
@@ -41,6 +41,17 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     And the merchant 1 generates the transaction X of amount 20001 cents
     When the citizen A tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the user is suspended
+
+  Scenario: A citizen who tries to authorize a transaction, being suspended after pre-authorization, receives a KO result
+    Given the initiative is "Scontoditipo1"
+    And the random merchant 1 is onboard
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 20001 cents
+    And the citizen A pre-authorizes the transaction X
+    And the institution suspends correctly the citizen A
+    When the citizen A tries to authorize the transaction X
+    Then the latest authorization fails because the user is suspended
 
   Scenario: If a transaction is correctly authorized by the citizen, if the latter is suspended, the payment mandate is correctly generated
     Given the initiative is "Scontoditipo1"

@@ -377,6 +377,8 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     trx_code = context.transactions[trx_name]['trxCode']
 
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
+    context.latest_transaction_name = trx_name
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
 @given('the latest pre-authorization fails')
@@ -396,6 +398,15 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'USER_SUSPENDED'
     assert context.latest_pre_authorization_response.json()[
+               'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+
+
+@then('the latest authorization fails because the user is suspended')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_authorization_response.status_code == 403
+    assert context.latest_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_authorization_response.json()[
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 
 
