@@ -491,8 +491,14 @@ def delete_initiative(initiative_id: str):
         timeout=settings.default_timeout)
 
 
-def put_user_id_suspension(initiative_id: str,
-                           user_id: str):
+def put_user_id_suspension(selfcare_token: str,
+                           initiative_id: str,
+                           fiscal_code: str):
     return requests.put(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.wallet.internal}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}/{user_id}/suspend',
-        timeout=settings.default_timeout)
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.suspend}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )

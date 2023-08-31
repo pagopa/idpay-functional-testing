@@ -81,6 +81,10 @@ IDPAY:
       isee: '/mock/citizen/isee'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
+      beneficiary:
+        path: '/beneficiary'
+        suspend: '/suspend'
+        readmit: '/readmit'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
