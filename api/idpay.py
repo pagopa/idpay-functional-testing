@@ -502,3 +502,16 @@ def put_citizen_suspension(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def put_citizen_readmission(selfcare_token: str,
+                            initiative_id: str,
+                            fiscal_code: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.readmit}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )
