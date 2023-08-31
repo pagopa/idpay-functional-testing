@@ -18,12 +18,13 @@ from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
 from api.idpay import post_initiative_info
 from api.idpay import publish_approved_initiative
+from api.idpay import put_citizen_readmission
+from api.idpay import put_citizen_suspension
 from api.idpay import put_initiative_approval
 from api.idpay import put_initiative_beneficiary_info
 from api.idpay import put_initiative_general_info
 from api.idpay import put_initiative_refund_info
 from api.idpay import put_initiative_reward_info
-from api.idpay import put_user_id_suspension
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import upload_merchant_csv
@@ -557,6 +558,15 @@ def tokenize_fc(fiscal_code: str):
 def suspend_citizen_from_initiative(initiative_id: str,
                                     fiscal_code: str):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    res = put_user_id_suspension(initiative_id=initiative_id, fiscal_code=fiscal_code, selfcare_token=institution_token)
+    res = put_citizen_suspension(selfcare_token=institution_token, initiative_id=initiative_id, fiscal_code=fiscal_code)
+    assert res.status_code == 204
+    return res
+
+
+def readmit_citizen_to_initiative(initiative_id: str,
+                                  fiscal_code: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_citizen_readmission(selfcare_token=institution_token, initiative_id=initiative_id,
+                                  fiscal_code=fiscal_code)
     assert res.status_code == 204
     return res
