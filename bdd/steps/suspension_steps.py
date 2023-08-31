@@ -2,7 +2,7 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import put_user_id_suspension
+from api.idpay import put_citizen_suspension
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from conf.configuration import secrets
 from util.utility import get_selfcare_token
@@ -17,8 +17,8 @@ def step_institution_suspends_citizen(context, citizen_name):
 @when('the institution tries to suspend the citizen {citizen_name}')
 def step_institution_tries_citizen_suspension(context, citizen_name):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    res = put_user_id_suspension(initiative_id=context.initiative_id, fiscal_code=context.citizens_fc[citizen_name],
-                                 selfcare_token=institution_token)
+    res = put_citizen_suspension(selfcare_token=institution_token, initiative_id=context.initiative_id,
+                                 fiscal_code=context.citizens_fc[citizen_name])
     context.latest_suspension_response = res
 
 

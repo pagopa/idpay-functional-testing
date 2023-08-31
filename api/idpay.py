@@ -491,7 +491,7 @@ def delete_initiative(initiative_id: str):
         timeout=settings.default_timeout)
 
 
-def put_user_id_suspension(selfcare_token: str,
+def put_citizen_suspension(selfcare_token: str,
                            initiative_id: str,
                            fiscal_code: str):
     return requests.put(
