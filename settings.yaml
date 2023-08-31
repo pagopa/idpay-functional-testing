@@ -48,6 +48,7 @@ IDPAY:
         refundable: 'REFUNDABLE'
         unsubscribed: 'UNSUBSCRIBED'
         suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     timeline:
       path: '/timeline'
       operations:
@@ -58,6 +59,7 @@ IDPAY:
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
         suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
