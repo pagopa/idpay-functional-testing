@@ -42,6 +42,11 @@ def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='SUSPENDED')
 
 
+@then('the citizen {citizen_name} is readmitted')
+def step_named_citizen_suspension(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='READMITTED')
+
+
 @given('the citizen {citizen_name} is not onboard')
 def step_citizen_not_onboard(context, citizen_name):
     step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
@@ -112,6 +117,19 @@ def step_check_onboarding_status(context, citizen_name, status):
         retry_timeline(expected=timeline_operations.suspended, request=timeline, num_required=1, token=token_io,
                        initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                        message='Not suspended')
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'READMITTED':
+        expected_status = 'ONBOARDING_OK'
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.readmitted, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not readmitted')
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'OK':
