@@ -145,43 +145,43 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is authorized
     And the citizen A is rewarded with 300 euros
 
-  Scenario: The transaction is not authorized for onboarding citizen KO
+  Scenario: The transaction is not authorized for a citizen which got KO during onboarding
     Given the random merchant 1 is onboard
     And the citizen A is not onboard
     And the merchant 1 generates the transaction X of amount 30000 cents
-    When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the citizen is not onboard
 
   @MIL
   Scenario: The transaction, created through MIL, is not authorized for onboarding citizen KO
     Given the random merchant 1 is onboard
     And the citizen A is not onboard
     And the merchant 1 generates the transaction X of amount 30000 cents through MIL
-    When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the citizen is not onboard
 
   Scenario: The transaction is not authorized for ever registered citizen
     Given the random merchant 1 is onboard
     And the merchant 1 generates the transaction X of amount 30000 cents
-    When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the citizen is not onboard
 
   @MIL
   Scenario: The transaction, created through MIL, is not authorized for ever registered citizen
     Given the random merchant 1 is onboard
     And the merchant 1 generates the transaction X of amount 30000 cents through MIL
-    When the citizen A tries to confirm the transaction X
-    Then the transaction X is not authorized
+    When the citizen A tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the citizen is not onboard
 
-  Scenario: The transaction cannot be authorized again if an ever registered citizen tried to authorize it
+  Scenario: The transaction can still be authorized if an ever registered citizen tried to authorize it
     Given the random merchant 1 is onboard
     And the citizen A is not onboard
     And the citizen B is 20 years old at most
     And the citizen B is onboard
     And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A tries to pre-authorize the transaction X
-    When the citizen B tries to confirm the transaction X
-    Then the transaction X is already assigned
+    When the citizen B confirms the transaction X
+    Then the transaction X is authorized
 
   @MIL
   Scenario: The transaction, created through MIL, cannot be authorized again if an ever registered citizen tried to authorize it

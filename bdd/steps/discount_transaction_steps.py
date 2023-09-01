@@ -404,6 +404,15 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 
 
+@then('the latest pre-authorization fails because the citizen is not onboard')
+def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_pre_authorization_response.status_code == 404
+    assert context.latest_pre_authorization_response.json()['code'] == 'WALLET'
+    assert context.latest_pre_authorization_response.json()[
+               'message'] == f'A wallet related to the user {curr_tokenized_fc} with initiativeId {context.initiative_id} was not found.'
+
+
 @then('the latest authorization fails because the user is suspended')
 def step_check_latest_pre_authorization_failed_user_suspended(context):
     curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
