@@ -66,7 +66,7 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     And the merchant 1 is refunded 10.01 euros
 
   @skip
-  Scenario: In the face of a trx made by a citizen who is subsequently suspended, the Institution will receive a refund
+  Scenario: If a transaction is confirmed by the citizen is subsequently suspended, the Institution will receive a refund
     Given the initiative is "Scontoditipo1"
     And the random merchant 1 is onboard
     And the citizen A is 25 years old at most
