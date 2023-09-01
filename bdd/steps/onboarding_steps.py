@@ -21,6 +21,7 @@ from util.utility import get_selfcare_token
 from util.utility import iban_enroll
 from util.utility import onboard_random_merchant
 from util.utility import retry_io_onboarding
+from util.utility import retry_merchant_statistics
 from util.utility import retry_timeline
 from util.utility import retry_wallet
 
@@ -216,9 +217,10 @@ def step_merchant_qualified(context, merchant_name):
     curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
                                                  institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
-    context.base_merchants_statistics[merchant_name] = get_initiative_statistics_merchant_portal(
+
+    context.base_merchants_statistics[merchant_name] = retry_merchant_statistics(
         merchant_id=curr_merchant_info['id'],
-        initiative_id=context.initiative_id).json()
+        initiative_id=context.initiative_id)
 
 
 @given('the citizen {citizen_name} enrolls a random card')
