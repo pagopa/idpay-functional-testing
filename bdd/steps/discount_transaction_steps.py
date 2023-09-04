@@ -19,6 +19,7 @@ from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
 from util.utility import retry_timeline
+from util.utility import tokenize_fc
 
 default_merchant_name = '1'
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -352,6 +353,9 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     res = put_pre_authorize_payment(trx_code, token_io)
 
     context.latest_pre_authorization_response = res
+    context.latest_transaction_name = trx_name
+
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
 @when('the citizen {citizen_name} pre-authorizes the transaction {trx_name}')
@@ -373,6 +377,8 @@ def step_citizen_only_pre_authorize_transaction(context, citizen_name, trx_name)
     trx_code = context.transactions[trx_name]['trxCode']
 
     context.latest_authorization_response = put_authorize_payment(trx_code, token_io)
+    context.latest_transaction_name = trx_name
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
 @given('the latest pre-authorization fails')
@@ -381,12 +387,42 @@ def step_check_latest_pre_authorization_failed(context):
     assert context.latest_pre_authorization_response.status_code == 403
 
 
-@then('the latest pre-authorization fails because the transaction no longer exists')
+@then('the latest pre-authorization fails because the transaction cannot be found')
 def step_check_latest_pre_authorization_failed_not_found(context):
     assert context.latest_pre_authorization_response.status_code == 404
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
+    assert context.latest_pre_authorization_response.json()['message'].startswith(
+        'Cannot find transaction with trxCode ')
 
 
-@then('the latest authorization fails because the transaction no longer exists')
+@then('the latest pre-authorization fails because the user is suspended')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_pre_authorization_response.json()[
+               'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+
+
+@then('the latest pre-authorization fails because the citizen is not onboard')
+def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_pre_authorization_response.status_code == 404
+    assert context.latest_pre_authorization_response.json()['code'] == 'WALLET'
+    assert context.latest_pre_authorization_response.json()[
+               'message'] == f'A wallet related to the user {curr_tokenized_fc} with initiativeId {context.initiative_id} was not found.'
+
+
+@then('the latest authorization fails because the user is suspended')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
+    assert context.latest_authorization_response.status_code == 403
+    assert context.latest_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_authorization_response.json()[
+               'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+
+
+@then('the latest authorization fails because the transaction cannot be found')
 def step_check_latest_authorization_failed(context):
     assert context.latest_authorization_response.status_code == 404
 
@@ -396,7 +432,7 @@ def step_check_latest_cancellation_failed(context):
     assert context.latest_cancellation_response.status_code == 429
 
 
-@then('the latest cancellation by citizen fails because the transaction no longer exists')
+@then('the latest cancellation by citizen fails because the transaction cannot be found')
 def step_check_latest_cancellation_by_citizen_failed(context):
     assert context.latest_citizen_cancellation_response.status_code == 404
 

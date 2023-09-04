@@ -21,6 +21,7 @@ from util.utility import get_selfcare_token
 from util.utility import iban_enroll
 from util.utility import onboard_random_merchant
 from util.utility import retry_io_onboarding
+from util.utility import retry_merchant_statistics
 from util.utility import retry_timeline
 from util.utility import retry_wallet
 
@@ -35,6 +36,16 @@ def step_named_citizen_onboard(context, citizen_name):
     step_citizen_accept_terms_and_condition(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
+
+
+@then('the citizen {citizen_name} is suspended')
+def step_named_citizen_suspension(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='SUSPENDED')
+
+
+@then('the citizen {citizen_name} is readmitted')
+def step_named_citizen_suspension(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='READMITTED')
 
 
 @given('the citizen {citizen_name} is not onboard')
@@ -78,18 +89,17 @@ def step_citizen_accept_terms_and_condition(context, citizen_name):
 
 @then('the onboard of {citizen_name} is {status}')
 def step_check_onboarding_status(context, citizen_name, status):
+    status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = status_onboarding(token_io, context.initiative_id)
     assert res.status_code == 200
 
-    expected_status = f'ONBOARDING_{status}'
-
-    retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                        initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
-                        message=f'Citizen onboard not {status}'
-                        )
-
     if status == 'KO':
+        expected_status = f'ONBOARDING_{status}'
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
         curr_onboarded_citizen_count_increment = 0
         res = wallet(initiative_id=context.initiative_id, token=token_io)
         assert res.status_code == 404
@@ -97,7 +107,39 @@ def step_check_onboarding_status(context, citizen_name, status):
         assert res.status_code == 200
         assert not res.json()['operationList']
 
-    else:
+    elif status == 'SUSPENDED':
+        expected_status = status
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        retry_wallet(expected=wallet_statuses.suspended, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.suspended, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not suspended')
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'READMITTED':
+        expected_status = 'ONBOARDING_OK'
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.readmitted, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not readmitted')
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'OK':
+        expected_status = f'ONBOARDING_{status}'
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
@@ -108,6 +150,9 @@ def step_check_onboarding_status(context, citizen_name, status):
                                token=token_io,
                                initiative_id=context.initiative_id)
         curr_onboarded_citizen_count_increment = 1
+
+    else:
+        assert False, 'Unexpected status'
 
     check_statistics(organization_id=context.organization_id,
                      initiative_id=context.initiative_id,
@@ -172,9 +217,10 @@ def step_merchant_qualified(context, merchant_name):
     curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
                                                  institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
-    context.base_merchants_statistics[merchant_name] = get_initiative_statistics_merchant_portal(
+
+    context.base_merchants_statistics[merchant_name] = retry_merchant_statistics(
         merchant_id=curr_merchant_info['id'],
-        initiative_id=context.initiative_id).json()
+        initiative_id=context.initiative_id)
 
 
 @given('the citizen {citizen_name} enrolls a random card')

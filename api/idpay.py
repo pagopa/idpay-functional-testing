@@ -489,3 +489,29 @@ def delete_initiative(initiative_id: str):
     return requests.delete(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{settings.IDPAY.domain}/initiative/{initiative_id}',
         timeout=settings.default_timeout)
+
+
+def put_citizen_suspension(selfcare_token: str,
+                           initiative_id: str,
+                           fiscal_code: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.suspend}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_citizen_readmission(selfcare_token: str,
+                            initiative_id: str,
+                            fiscal_code: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.readmit}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )

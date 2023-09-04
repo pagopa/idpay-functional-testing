@@ -126,7 +126,7 @@ Feature: A transaction can be cancelled by the merchant
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails because the transaction no longer exists
+    Then the latest pre-authorization fails because the transaction cannot be found
 
   @MIL
   Scenario: Before pre-authorization, after a cancellation request the transaction, created through MIL, is cancelled and cannot be pre-authorized
@@ -134,7 +134,7 @@ Feature: A transaction can be cancelled by the merchant
     And the merchant 1 cancels the transaction X through MIL
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails because the transaction no longer exists
+    Then the latest pre-authorization fails because the transaction cannot be found
 
   Scenario: Transaction cancelled before the citizen’s authorization
     Given the merchant 1 generates the transaction X of amount 15000 cents

@@ -25,14 +25,14 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to authorize the transaction X
-    Then the latest authorization fails because the transaction no longer exists
+    Then the latest authorization fails because the transaction cannot be found
 
   Scenario: After a cancellation by merchant a transaction before pre-authorization, if the citizen tries to confirm receives error
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails because the transaction no longer exists
+    Then the latest pre-authorization fails because the transaction cannot be found
 
   Scenario: After a cancellation by merchant of a transaction before authorization, if the citizen tries to cancel receives error
     Given the merchant 1 generates the transaction X of amount 1000 cents
@@ -40,7 +40,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to cancel the transaction X
-    Then the latest cancellation by citizen fails because the transaction no longer exists
+    Then the latest cancellation by citizen fails because the transaction cannot be found
 
   @skip
   Scenario: After 7 days of authorization, the merchant cannot cancel the transaction
@@ -55,7 +55,7 @@ Feature: A transaction can be cancelled by the merchant 1
     And the merchant 1 cancels the transaction X
     And the transaction X is cancelled
     When the citizen A tries to pre-authorize the transaction X
-    Then the latest pre-authorization fails because the transaction no longer exists
+    Then the latest pre-authorization fails because the transaction cannot be found
 
   Scenario: If a citizen pre-authorizes and then cancels the transaction, another citizen receives an error if he tries to pre-authorize
     Given the citizen B is 20 years old at most

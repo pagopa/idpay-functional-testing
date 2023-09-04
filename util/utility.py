@@ -18,6 +18,8 @@ from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
 from api.idpay import post_initiative_info
 from api.idpay import publish_approved_initiative
+from api.idpay import put_citizen_readmission
+from api.idpay import put_citizen_suspension
 from api.idpay import put_initiative_approval
 from api.idpay import put_initiative_beneficiary_info
 from api.idpay import put_initiative_general_info
@@ -32,6 +34,8 @@ from api.onboarding_io import accept_terms_and_condition
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
+from api.pdv import detokenize_pdv_token
+from api.pdv import get_pdv_token
 from api.token_io import login
 from conf.configuration import secrets
 from conf.configuration import settings
@@ -285,6 +289,29 @@ def clean_trx_files(source_filename: str):
         print(f'The file {source_filename} and its encrypted version does not exist')
 
 
+def retry_merchant_statistics(initiative_id: str,
+                              merchant_id: str,
+                              tries=10,
+                              delay=1):
+    count = 0
+
+    res = get_initiative_statistics_merchant_portal(
+        merchant_id=merchant_id,
+        initiative_id=initiative_id)
+
+    while res.status_code != 200:
+        count += 1
+        time.sleep(delay)
+        res = get_initiative_statistics_merchant_portal(
+            merchant_id=merchant_id,
+            initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 200
+    return res.json()
+
+
 def check_statistics(organization_id: str,
                      initiative_id: str,
                      old_statistics: dict,
@@ -458,8 +485,12 @@ def natural_language_to_date_converter(natural_language_date: str):
         actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
     elif natural_language_date == 'tomorrow':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'day_after_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     elif natural_language_date == 'future':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5 + 1)).strftime('%Y-%m-%d')
     return actual_date
 
 
@@ -468,6 +499,13 @@ def create_initiative(initiative_name_in_settings: str):
 
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
     initiative_id = post_initiative_info(selfcare_token=institution_selfcare_token).json()['initiativeId']
+
+    if 'rankingStartDate' in creation_payloads.general:
+        creation_payloads.general['rankingStartDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingStartDate'])
+    if 'rankingEndDate' in creation_payloads.general:
+        creation_payloads.general['rankingEndDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingEndDate'])
 
     creation_payloads.general['startDate'] = natural_language_to_date_converter(creation_payloads.general['startDate'])
     creation_payloads.general['endDate'] = natural_language_to_date_converter(creation_payloads.general['endDate'])
@@ -529,3 +567,29 @@ def onboard_random_merchant(initiative_id: str,
         'iban': iban,
         'fiscal_code': fc
     }
+
+
+def tokenize_fc(fiscal_code: str):
+    res = get_pdv_token(fiscal_code=fiscal_code)
+    assert res.status_code == 200
+    token = res.json()['token']
+    res = detokenize_pdv_token(token=token)
+    assert res.json()['pii'] == fiscal_code
+    return token
+
+
+def suspend_citizen_from_initiative(initiative_id: str,
+                                    fiscal_code: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_citizen_suspension(selfcare_token=institution_token, initiative_id=initiative_id, fiscal_code=fiscal_code)
+    assert res.status_code == 204
+    return res
+
+
+def readmit_citizen_to_initiative(initiative_id: str,
+                                  fiscal_code: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_citizen_readmission(selfcare_token=institution_token, initiative_id=initiative_id,
+                                  fiscal_code=fiscal_code)
+    assert res.status_code == 204
+    return res

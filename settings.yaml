@@ -13,6 +13,7 @@ base_path:
   RTD: "https://api.uat.cstar.pagopa.it"
   IDPAY:
     internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
+  PDV: "https://api.uat.tokenizer.pdv.pagopa.it"
 IDPAY:
   domain: "/idpay"
   MIL:
@@ -36,6 +37,7 @@ IDPAY:
       unsubscribed_message: 'Unsubscribed to initiative'
       unsubscribed_error_details: 'GENERIC_ERROR'
     wallet:
+      internal: '/idpaywallet'
       path: '/wallet'
       end_path: '/instruments'
       unsubscribe: '/unsubscribe'
@@ -45,6 +47,8 @@ IDPAY:
         not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
         refundable: 'REFUNDABLE'
         unsubscribed: 'UNSUBSCRIBED'
+        suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     timeline:
       path: '/timeline'
       operations:
@@ -54,6 +58,8 @@ IDPAY:
         delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
+        suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
@@ -77,6 +83,10 @@ IDPAY:
       isee: '/mock/citizen/isee'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
+      beneficiary:
+        path: '/beneficiary'
+        suspend: '/suspend'
+        readmit: '/readmit'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
@@ -93,6 +103,9 @@ RTD:
     mock_io:
       login: "/mock-io/login"
       user: "/mock-io/user"
+PDV:
+  endpoints:
+    tokenizer: '/tokenizer/v1/tokens'
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
@@ -152,6 +165,87 @@ initiatives:
             operator: 'BTW_CLOSED'
             value: '18'
             value2: '35'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Scontoditipo1_not_started:
+    id: 'PILOT_NOT_STARTED'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    min_age: 18
+    max_age: 35
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryBudget: 300
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 1 - not started'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'BTW_CLOSED'
+            value: '18'
+            value2: '35'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Scontoditipo1_allocated:
+    id: 'PILOT_ALLOCATED'
+    cashback_percentage: 100
+    budget_per_citizen: 200000
+    total_budget: 1000000
+    min_age: 18
+    max_age: 35
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 1000000
+        beneficiaryBudget: 200000
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 1 - allocated'
+      beneficiary:
+        automatedCriteria: [ ]
         selfDeclarationCriteria:
           - _type: 'boolean'
             description: '1'
