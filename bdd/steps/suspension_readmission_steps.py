@@ -11,6 +11,7 @@ from util.utility import readmit_citizen_to_initiative
 from util.utility import suspend_citizen_from_initiative
 
 
+@given('the institution suspends the citizen {citizen_name}')
 @when('the institution suspends the citizen {citizen_name}')
 def step_institution_suspends_citizen(context, citizen_name):
     suspend_citizen_from_initiative(initiative_id=context.initiative_id, fiscal_code=context.citizens_fc[citizen_name])

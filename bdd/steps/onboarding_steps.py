@@ -38,6 +38,7 @@ def step_named_citizen_onboard(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 
+@given('the citizen {citizen_name} is suspended')
 @then('the citizen {citizen_name} is suspended')
 def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='SUSPENDED')

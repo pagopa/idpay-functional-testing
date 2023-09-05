@@ -44,3 +44,10 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is unsubscribed
     When the batch process confirms the transaction X
     Then the merchant 1 is refunded 200.01 euros
+
+  Scenario: A suspended citizen can unsubscribe
+    Given the institution suspends the citizen A
+    And the citizen A is suspended
+    When the citizen A tries to unsubscribe
+    Then the latest unsubscribe is OK
+    And the onboard of A is unsubscribed
