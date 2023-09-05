@@ -86,6 +86,6 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     And the citizen A is onboard
     And the citizen B is 25 years old at most
     And the institution suspends correctly the citizen A
-    When the citizen B tries to accept terms and condition
-    Then the latest accept terms and condition failed for budget terminated
+    When the citizen B tries to accept terms and conditions
+    Then the latest accept terms and conditions failed for budget terminated
     And the onboard of B is KO
