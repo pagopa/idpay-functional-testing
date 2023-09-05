@@ -72,7 +72,7 @@ def step_allocate_initiative_budget(context, precision):
                                                         initiative_id=context.initiative_id).json()
 
     while context.base_statistics['onboardedCitizenCount'] < allowable_citizens:
-        context.citizens_fc[str(i)] = step_citizen_fc_exact_or_random(context=context, citizen_fc='random')
+        step_citizen_fc_exact_or_random(context=context, citizen_name=str(i), citizen_fc='random')
         step_named_citizen_onboard(context=context, citizen_name=str(i))
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
