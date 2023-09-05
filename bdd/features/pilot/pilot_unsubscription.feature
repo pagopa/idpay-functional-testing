@@ -21,7 +21,6 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen A tries to pre-authorize the transaction X
     Then the transaction X is not authorized
 
-    @test
   Scenario: An unsubscribed citizen tries to authorize a transaction X
     Given the citizen A is unsubscribed
     When the citizen A tries to onboard the initiative Scontoditipo1_not_started

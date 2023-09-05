@@ -75,9 +75,15 @@ def step_citizen_tries_to_accept_terms_and_condition(context, citizen_name):
 @then('the latest accept terms and conditions failed for {reason_ko}')
 def step_check_latest_accept_tc_failed(context, reason_ko):
     reason = reason_ko.upper()
-    assert context.accept_tc_response.status_code == 403
     if reason == 'BUDGET TERMINATED':
+        assert context.accept_tc_response.status_code == 403
         assert context.accept_tc_response.json()['details'] == 'BUDGET_TERMINATED'
+    elif reason == 'USER UNSUBSCRIBED':
+        assert context.accept_tc_response.status_code == 400
+        assert context.accept_tc_response.json()['message'] == 'Unsubscribed to initiative'
+        assert context.accept_tc_response.json()['details'] == 'GENERIC_ERROR'
+    else:
+        assert False, 'Uncovered fail reason'
 
 
 @given('the citizen {citizen_name} accepts terms and conditions')
@@ -150,6 +156,17 @@ def step_check_onboarding_status(context, citizen_name, status):
                                token=token_io,
                                initiative_id=context.initiative_id)
         curr_onboarded_citizen_count_increment = 1
+
+    elif status == 'UNSUBSCRIBED':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen not {status}'
+                            )
+        retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        curr_onboarded_citizen_count_increment = 0
 
     else:
         assert False, 'Unexpected status'
