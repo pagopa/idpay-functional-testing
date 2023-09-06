@@ -16,7 +16,7 @@ from util.utility import check_statistics
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_id(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.initiatives_settings = settings.initiatives[initiative_name]
+    context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
 
@@ -30,10 +30,10 @@ def step_check_initiative_statistics_updated(context):
 
 
 def base_context_initialization(context):
-    context.cashback_percentage = context.initiatives_settings.get('cashback_percentage')
-    context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
-    context.fruition_start = context.initiatives_settings['fruition_start']
-    context.total_budget = context.initiatives_settings.get('total_budget')
+    context.cashback_percentage = context.initiative_settings.get('cashback_percentage')
+    context.budget_per_citizen = context.initiative_settings['budget_per_citizen']
+    context.fruition_start = context.initiative_settings['fruition_start']
+    context.total_budget = context.initiative_settings.get('total_budget')
 
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
