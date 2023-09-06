@@ -506,3 +506,10 @@ Feature: A transaction is generated, authorized and confirmed
     And the transaction X does not exists
     When the citizen A tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the transaction cannot be found
+
+  Scenario: Citizen authorizes a transaction before pre-authorization
+    Given the random merchant 1 is onboard
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 300000 cents
+    When the citizen A tries to authorize the transaction X
+    Then the latest authorization fails because the user did not pre-authorize the transaction

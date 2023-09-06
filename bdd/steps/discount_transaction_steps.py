@@ -429,6 +429,14 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 
 
+@then('the latest authorization fails because the user did not pre-authorize the transaction')
+def step_check_latest_pre_authorization_failed_missing_pre_auth(context):
+    assert context.latest_authorization_response.status_code == 400
+    assert context.latest_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+    assert context.latest_authorization_response.json()[
+               'message'] == f'Cannot relate transaction in status CREATED'
+
+
 @then('the latest authorization fails because the transaction cannot be found')
 def step_check_latest_authorization_failed(context):
     assert context.latest_authorization_response.status_code == 404
