@@ -93,6 +93,11 @@ def step_check_latest_accept_tc_failed(context, reason_ko):
         assert context.accept_tc_response.status_code == 400
         assert context.accept_tc_response.json()['message'] == 'Unsubscribed to initiative'
         assert context.accept_tc_response.json()['details'] == 'GENERIC_ERROR'
+    elif reason == 'INITIATIVE ENDED':
+        assert context.accept_tc_response.status_code == 403
+        assert context.accept_tc_response.json()[
+                   'message'] == 'The opportunity to join the initiative has already ended'
+        assert context.accept_tc_response.json()['details'] == 'INITIATIVE_END'
     else:
         assert False, 'Uncovered fail reason'
 
