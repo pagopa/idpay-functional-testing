@@ -13,11 +13,11 @@ Feature: A transaction is generated, authorized and confirmed
     Then the latest unsubscribe is OK
     And the onboard of A is unsubscribed
 
-  @need_fix
-  Scenario: An unsubscribed citizen tries to unsubscribe again and receives a KO
+  @need_fix @IDP-1710
+  Scenario: An unsubscribed citizen tries to unsubscribe again and receives OK
     Given the citizen A is unsubscribed
     When the citizen A tries to unsubscribe
-    Then the latest unsubscribe is KO
+    Then the latest unsubscribe is OK
 
   Scenario: An unsubscribed citizen tries to onboard and fails
     Given the citizen A is unsubscribed
