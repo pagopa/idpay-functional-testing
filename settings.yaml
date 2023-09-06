@@ -384,3 +384,9 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  Scontoditipo4:
+    id: 'SCONTOTIPO4'
+    cashback_percentage: 100
+    budget_per_citizen: 1
+    fruition_start: '2023-09-04T00:00:00.000+02:00'
+    fruition_end: '2023-09-05:59:59.000+02:00'
