@@ -50,9 +50,9 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
     context.citizens_fc[citizen_name] = citizen_fc
 
 
-@given('the citizen {citizen_name} has ISEE {isee}')
-def step_set_citizen_isee(context, citizen_name: str, isee: int):
-    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=int(isee))
+@given('the citizen {citizen_name} has ISEE {isee} di tipo {isee_type}')
+def step_set_citizen_isee(context, citizen_name: str, isee: int, isee_type: str):
+    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=float(isee), isee_type=isee_type)
     assert res.status_code == 201
 
 
