@@ -37,7 +37,7 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
         merchant_id=curr_merchant_id
     )
 
-    context.transactions[trx_name] = context.latest_create_transaction_response
+    context.transactions[trx_name] = context.latest_create_transaction_response.json()
 
 
 @when(

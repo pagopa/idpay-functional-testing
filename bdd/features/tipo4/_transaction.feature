@@ -1,6 +1,6 @@
 @Scontoditipo4
 @onboarding
-Feature: A citizen A onboards the pilot initiative
+Feature: Transaction in a closed initiative
 
   Background:
     Given the initiative is "Scontoditipo4"
