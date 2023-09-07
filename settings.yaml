@@ -390,3 +390,38 @@ initiatives:
     budget_per_citizen: 1
     fruition_start: '2023-09-04T00:00:00.000+02:00'
     fruition_end: '2023-09-05:59:59.000+02:00'
+  ScontoditipoB:
+    id: 'SCONTOTIPOB'
+    cashback_percentage: 1000
+    budget_per_citizen: 10
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 10
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test sconto tipo B'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'GT'
+            iseeTypes:
+              - "ORDINARIO"
+            value: '20000'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
