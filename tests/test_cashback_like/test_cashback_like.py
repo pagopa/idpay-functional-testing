@@ -12,14 +12,14 @@ from api.idpay import timeline
 from api.idpay import unsubscribe
 from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_condition
+from api.onboarding_io import accept_terms_and_conditions
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import Reward
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
-from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
@@ -1061,7 +1061,7 @@ def test_onboarding_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     # 1.24.1
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 400
     assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
@@ -1221,7 +1221,7 @@ def test_onboarding_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token_a).json()['instrumentList']
 
     # 1.28.9
-    res = accept_terms_and_condition(token_a, initiative_id)
+    res = accept_terms_and_conditions(token_a, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 400
     assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
@@ -1308,7 +1308,7 @@ def test_homocode_onboarding():
     clean_trx_files(curr_file_name)
 
     token1 = get_io_token(test_fc)
-    res = accept_terms_and_condition(token1, initiative_id)
+    res = accept_terms_and_conditions(token1, initiative_id)
     # 1.27.7
     assert res.status_code != 204
 

@@ -5,7 +5,7 @@ import requests
 from conf.configuration import settings
 
 
-def accept_terms_and_condition(token, initiative_id):
+def accept_terms_and_conditions(token, initiative_id):
     """API to accept terms and conditions
         :param token: token IO
         :param initiative_id: initiative on which onboard the user
