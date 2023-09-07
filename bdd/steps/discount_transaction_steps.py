@@ -37,7 +37,7 @@ def step_when_merchant_tries_to_create_a_transaction(context, merchant_name, trx
         merchant_id=curr_merchant_id
     )
 
-    context.transactions[trx_name] = context.latest_create_transaction_response
+    context.transactions[trx_name] = context.latest_create_transaction_response.json()
 
 
 @when(
@@ -144,6 +144,13 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
         assert context.latest_create_transaction_response.json()['code'] == 'INVALID AMOUNT'
         assert context.latest_create_transaction_response.json()[
             'message'].startswith('Cannot create transaction with invalid amount: ')
+        return
+
+    if status == 'NOT CREATED BECAUSE THE INITIATIVE IS TERMINATED':
+        assert context.latest_create_transaction_response.status_code == 400
+        assert context.latest_create_transaction_response.json()['code'] == 'INVALID DATE'
+        assert context.latest_create_transaction_response.json()[
+                   'message'] == f'Cannot create transaction out of valid period. Initiative startDate: {context.initiative_settings["fruition_start"][:10]} endDate: {context.initiative_settings["fruition_end"][:10]}'
         return
 
     if status == 'ALREADY AUTHORIZED':
@@ -420,6 +427,14 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_authorization_response.json()['code'] == 'USER_SUSPENDED'
     assert context.latest_authorization_response.json()[
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+
+
+@then('the latest authorization fails because the user did not pre-authorize the transaction')
+def step_check_latest_pre_authorization_failed_missing_pre_auth(context):
+    assert context.latest_authorization_response.status_code == 400
+    assert context.latest_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+    assert context.latest_authorization_response.json()[
+               'message'] == f'Cannot relate transaction in status CREATED'
 
 
 @then('the latest authorization fails because the transaction cannot be found')

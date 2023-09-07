@@ -10,7 +10,7 @@ import pytest
 from api.idpay import get_initiative_statistics
 from api.idpay import timeline
 from api.idpay import wallet
-from api.onboarding_io import accept_terms_and_condition
+from api.onboarding_io import accept_terms_and_conditions
 from api.onboarding_io import pdnd_autocertification
 from api.token_io import introspect
 from api.token_io import login
@@ -79,7 +79,7 @@ def test_onboard_unicode():
     res = introspect(token)
     assert res.json()['fiscal_code'] == test_fc
 
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
@@ -102,7 +102,7 @@ def test_onboard_long_fc():
     res = introspect(token)
     assert res.json()['fiscal_code'] == test_fc
 
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 400
     assert res.json()['code'] == 'FISCAL_CODE_NOT_VALID'
     assert res.json()['message'] == settings.IDPAY.endpoints.onboarding.enrollment.invalid_fc_message
@@ -155,7 +155,7 @@ def test_onboard_two_times():
     old_statistics = get_initiative_statistics(organization_id=organization_id, initiative_id=initiative_id).json()
 
     token = get_io_token(test_fc)
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 204
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
                      onboarded_citizen_count_increment=0, accrued_rewards_increment=0,

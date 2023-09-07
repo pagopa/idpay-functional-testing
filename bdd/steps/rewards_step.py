@@ -33,7 +33,7 @@ def step_check_rewards_on_wallet(context, token_io):
 def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
     expected_accrued = float(expected_accrued)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
-    expected_amount_left = round(context.initiatives_settings['budget_per_citizen'] - expected_accrued, 2)
+    expected_amount_left = round(context.initiative_settings['budget_per_citizen'] - expected_accrued, 2)
 
     expect_wallet_counters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=curr_token_io,
                            initiative_id=context.initiative_id)
@@ -43,7 +43,7 @@ def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
 def step_check_transaction_cancellation_on_citizen(context, citizen_name):
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    expect_wallet_counters(expected_amount=context.initiatives_settings['budget_per_citizen'], expected_accrued=0,
+    expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'], expected_accrued=0,
                            token=curr_token_io,
                            initiative_id=context.initiative_id)
 
@@ -60,8 +60,8 @@ def step_check_transaction_cancellation_on_citizen(context, citizen_name):
 
 @given('an expected accrued')
 def step_set_expected_accrued(context):
-    context.cashback_percentage = context.initiatives_settings['cashback_percentage']
-    context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
+    context.cashback_percentage = context.initiative_settings['cashback_percentage']
+    context.budget_per_citizen = context.initiative_settings['budget_per_citizen']
     if round(floor(context.amount_cents * context.cashback_percentage) / 10000, 2) > context.budget_per_citizen:
         expected_accrued = context.budget_per_citizen
         expected_accrued_cents = floor(context.budget_per_citizen * 100)

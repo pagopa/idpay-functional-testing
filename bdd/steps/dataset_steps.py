@@ -11,15 +11,14 @@ from util.dataset_utility import fake_fc
 from util.utility import get_io_token
 
 
-@given('the citizen has fiscal code {citizen_fc}')
-def step_citizen_fc_exact_or_random(context, citizen_fc):
+@given('the citizen {citizen_name} has fiscal code {citizen_fc}')
+def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
     if citizen_fc == 'random':
         citizen_fc = fake_fc()
 
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
-
-    return citizen_fc
+    context.citizens_fc[citizen_name] = citizen_fc
 
 
 @given('the citizen {citizen_name} is {age} years old {precision}')

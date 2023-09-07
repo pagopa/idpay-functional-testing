@@ -27,10 +27,11 @@ from api.idpay import put_initiative_refund_info
 from api.idpay import put_initiative_reward_info
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
+from api.idpay import unsubscribe
 from api.idpay import upload_merchant_csv
 from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_condition
+from api.onboarding_io import accept_terms_and_conditions
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
@@ -41,13 +42,14 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import Reward
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
-from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
+wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 
 
 def get_io_token(fc):
@@ -71,7 +73,7 @@ def onboard_io(fc, initiative_id):
     """
     token = get_io_token(fc)
 
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 204
 
     retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
@@ -593,3 +595,14 @@ def readmit_citizen_to_initiative(initiative_id: str,
                                   fiscal_code=fiscal_code)
     assert res.status_code == 204
     return res
+
+
+def citizen_unsubscribe_from_initiative(initiative_id: str,
+                                        fiscal_code: str):
+    token = get_io_token(fiscal_code)
+    res = unsubscribe(initiative_id, token)
+    assert res.status_code == 204
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)

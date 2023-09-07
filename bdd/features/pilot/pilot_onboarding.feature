@@ -33,30 +33,30 @@ Feature: A citizen A onboards the pilot initiative
 
   Scenario: User with self-declared incorrect criteria tries onboarding unsuccessfully
     Given the citizen A is 23 years old at most
-    And the citizen A accepts terms and condition
+    And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
 
   Scenario: User under minimum age and with incorrect self-declared criteria tries onboarding unsuccessfully
     Given the citizen A is 17 years old at most
-    And the citizen A accepts terms and condition
+    And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
 
   Scenario: User over the maximum age and with incorrect self-declared criteria tries onboarding unsuccessfully
     Given the citizen A is 36 years old at most
-    And the citizen A accepts terms and condition
+    And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
 
   Scenario: User in age range with self-declared correct criteria tries onboarding unsuccessfully
     Given the citizen A is 25 years old tomorrow
-    And the citizen A accepts terms and condition
+    And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria correctly
     Then the onboard of A is OK
 
   Scenario: User in age range with self-declared incorrect criteria tries onboarding unsuccessfully
     Given the citizen A is 25 years old at most
-    And the citizen A accepts terms and condition
+    And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
