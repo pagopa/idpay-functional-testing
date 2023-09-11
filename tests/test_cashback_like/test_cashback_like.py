@@ -16,10 +16,10 @@ from api.onboarding_io import accept_terms_and_conditions
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.certs_loader import load_pm_public_key
-from util.dataset_utility import Reward
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
+from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
