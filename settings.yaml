@@ -390,6 +390,12 @@ initiatives:
     budget_per_citizen: 1
     fruition_start: '2023-09-06T00:00:00.000+02:00'
     fruition_end: '2023-09-07:59:59.000+02:00'
+  Scontoditipo5:
+    id: 'SCONTOTIPO5'
+    cashback_percentage: 100
+    budget_per_citizen: 1
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
   ScontoditipoB:
     id: 'SCONTOTIPOB'
     cashback_percentage: 1000
