@@ -93,7 +93,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 120 euros
     And the merchant 2 is refunded 10 euros
 
-  @need_fix
   Scenario: Merchant receive max refund for discounted transaction exceeding the citizen's budget
     Given the merchant 2 generates the transaction X of amount 30001 cents
     And the citizen A confirms the transaction X
