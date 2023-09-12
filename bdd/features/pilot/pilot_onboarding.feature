@@ -60,3 +60,8 @@ Feature: A citizen A onboards the pilot initiative
     And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
+
+  Scenario: The user who has not accepted the Terms and conditions cannot onboard
+    Given the citizen A is 23 years old at most
+    When the citizen A tries to insert only self-declared criteria correctly
+    Then the latest PDND autorcertification call failed

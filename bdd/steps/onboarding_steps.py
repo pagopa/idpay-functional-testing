@@ -227,6 +227,41 @@ def step_insert_self_declared_criteria(context, citizen_name, correctness):
     assert context.pdnd_autocertification_response.status_code == expected_status_code
 
 
+@when('the citizen {citizen_name} tries to insert only self-declared criteria {correctness}')
+def step_insert_self_declared_criteria(context, citizen_name, correctness):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    if correctness == 'not correctly':
+        pdnd_accept = 'false'
+    else:
+        pdnd_accept = 'true'
+
+    context.latest_pdnd_autocertification_response = requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}',
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token_io}',
+        },
+        json={'initiativeId': context.initiative_id,
+              'pdndAccept': pdnd_accept,
+              'selfDeclarationList': [
+                  {
+                      '_type': 'boolean',
+                      'code': '1',
+                      'accepted': 'true'
+                  }]
+              },
+        timeout=settings.default_timeout
+    )
+
+
+@then('the latest PDND autorcertification call failed')
+def step_check_self_declared_criteria_call(context):
+    assert context.latest_pdnd_autocertification_response.status_code == 404
+    assert context.latest_pdnd_autocertification_response.json()['code'] == 404
+    assert context.latest_pdnd_autocertification_response.json()[
+               'message'] == f'Onboarding with initiativeId {context.initiative_id} and current userId not found.'
+
+
 @given('the merchant {merchant_name} is {is_qualified}')
 def step_merchant_qualified(context, merchant_name, is_qualified):
     if is_qualified == 'qualified':
