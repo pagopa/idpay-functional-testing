@@ -513,3 +513,10 @@ Feature: A transaction is generated, authorized and confirmed
     And the merchant 1 generates the transaction X of amount 300000 cents
     When the citizen A tries to authorize the transaction X
     Then the latest authorization fails because the user did not pre-authorize the transaction
+
+  Scenario: Budget not completely eroded with one transaction X of amount 300 cents
+    Given the citizen A is onboard
+    And the random merchant 1 is onboard
+    And the merchant 1 generates the transaction X of amount 300 cents
+    When the citizen A confirms the transaction X
+    Then the citizen A is rewarded with 3 euros
