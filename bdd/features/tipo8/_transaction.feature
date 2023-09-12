@@ -29,7 +29,7 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is authorized
 
   @need_fix
-  Scenario: After a transaction, the citizen is rewarded correctly
+  Scenario: After a transaction, the citizen is rewarded for the maximum allowed for a day
     Given the merchant 1 generates the transaction X of amount 7000 cents
     When the citizen A confirms the transaction X
     Then the citizen A is rewarded with 50 euros
