@@ -342,7 +342,9 @@ initiatives:
             fromIncluded: true
             to: 100
             toIncluded: true
-          rewardLimits: [ ]
+          rewardLimits:
+            - frequency: 'DAILY'
+              rewardLimit: 50
       refund:
         timeParameter:
           timeType: 'DAILY'
