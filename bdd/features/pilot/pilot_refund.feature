@@ -24,11 +24,11 @@ Feature: A merchant gets refunded if a transaction is discounted
     Then the citizen A is rewarded with 10 euros
     When the batch process confirms the transaction X
     Given the citizen A confirms the transaction Y
-    Then the citizen A is rewarded with 20 euros
+    Then the citizen A is rewarded with 30 euros
     When the batch process confirms the transaction Y
     Given the citizen A confirms the transaction K
     When the batch process confirms the transaction K
-    Then the citizen A is rewarded with 40 euros
+    Then the citizen A is rewarded with 80 euros
     And the merchant 1 is refunded 80 euros
 
   Scenario: Citizen makes 1 transactions, then the transaction is confirmed
