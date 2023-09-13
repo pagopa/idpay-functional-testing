@@ -43,7 +43,11 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the citizen D confirms the transaction W
     And the merchant 1 generates the transaction U of amount 2000 cents
     And the citizen E confirms the transaction U
-    When the batch process confirms all the transactions
+    When the batch process confirms the transaction X
+    When the batch process confirms the transaction Y
+    When the batch process confirms the transaction Z
+    When the batch process confirms the transaction W
+    When the batch process confirms the transaction U
     Then the merchant 1 is refunded 100.0 euros
 
   Scenario: After a transaction, the citizen is rewarded for the maximum allowed for a day
