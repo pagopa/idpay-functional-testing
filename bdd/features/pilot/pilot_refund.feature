@@ -94,11 +94,11 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the merchant 2 is refunded 10 euros
 
   Scenario: Merchant receive max refund for discounted transaction exceeding the citizen's budget
-    Given the merchant 2 generates the transaction X of amount 30001 cents
+    Given the merchant 1 generates the transaction X of amount 30001 cents
     And the citizen A confirms the transaction X
     When the batch process confirms the transaction X
     Then the citizen A is rewarded with 300 euros
-    And the merchant 2 is refunded 300 euros
+    And the merchant 1 is refunded 300 euros
 
   Scenario: After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
