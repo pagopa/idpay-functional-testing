@@ -394,17 +394,23 @@ def check_rewards(initiative_id,
     else:
         assert len(export_ids) != 0
 
+    total_merchant_rewards = 0
+    is_present = False
+
     for export_id in export_ids:
         res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
         actual_rewards = res.json()
         for expected_reward in expected_rewards:
             is_rewarded = False
             for r in actual_rewards:
-                if r['iban'] == expected_reward.iban:
-                    if r['amount'] == expected_reward.amount and r['status'] == 'EXPORTED':
-                        is_rewarded = True
+                if r['iban'] == expected_reward.iban and r['status'] == 'EXPORTED':
+                    total_merchant_rewards += r['amount']
+                    is_present = True
+
+            if total_merchant_rewards == expected_reward.amount:
+                is_rewarded = True
             if check_absence:
-                assert not is_rewarded
+                assert not is_present
             else:
                 assert is_rewarded
 
