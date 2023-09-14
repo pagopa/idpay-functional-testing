@@ -1,3 +1,5 @@
+import json
+
 import requests
 from behave import given
 from behave import then
@@ -36,6 +38,22 @@ def step_named_citizen_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
+
+
+@when('the citizen {citizen_name} onboards and waits for ranking')
+def step_named_citizen_joins_ranking(context, citizen_name):
+    step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
+
+
+@when('the {citizens} onboards and wait for ranking')
+def step_citizens_join_ranking(context, citizens):
+    citizens = json.loads(citizens)
+    for c in citizens:
+        step_citizen_accept_terms_and_conditions(context=context, citizen_name=c)
+        step_insert_self_declared_criteria(context=context, citizen_name=c, correctness='correctly')
+        step_check_onboarding_status(context=context, citizen_name=c, status='ON_EVALUATION')
 
 
 @given('the citizen {citizen_name} is suspended')
@@ -182,6 +200,15 @@ def step_check_onboarding_status(context, citizen_name, status):
                             )
         retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'ON_EVALUATION':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen not {status}'
+                            )
         curr_onboarded_citizen_count_increment = 0
 
     else:
