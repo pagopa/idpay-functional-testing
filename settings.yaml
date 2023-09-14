@@ -148,10 +148,10 @@ initiatives:
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 300
         startDate: 'today'
         endDate: 'future'
@@ -190,11 +190,11 @@ initiatives:
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
-        beneficiaryBudget: 300
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
+        beneficiaryBudget: 300
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -235,11 +235,11 @@ initiatives:
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 1000000
-        beneficiaryBudget: 200000
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 1000000
+        beneficiaryBudget: 200000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -271,10 +271,10 @@ initiatives:
     fruition_end: '2026-05-29T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 99.9
         startDate: 'today'
         endDate: 'future'
@@ -314,10 +314,10 @@ initiatives:
     fruition_end: '2024-05-30T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 300
         startDate: 'today'
         endDate: 'future'
@@ -337,7 +337,7 @@ initiatives:
           rewardValue: 100
           rewardValueType: 'PERCENTAGE'
         trxRule:
-          threshold:
+          threshold: #VALUTA SE RIMUOVERE QUESTI LIMITI ANCHE SE NON SONO TESTATI IN ALTRE INIZIATIVE
             from: 11.15
             fromIncluded: true
             to: 100
@@ -360,10 +360,10 @@ initiatives:
     fruition_end: '2033-05-29T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 1000000
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 1000000
         beneficiaryBudget: 200000
         startDate: 'today'
         endDate: 'future'
@@ -400,16 +400,16 @@ initiatives:
     fruition_end: '2099-09-05:59:59.000+02:00'
   ScontoditipoB:
     id: 'SCONTOTIPOB'
-    cashback_percentage: 1000
+    cashback_percentage: 100
     budget_per_citizen: 10
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 10
         startDate: 'today'
         endDate: 'future'
