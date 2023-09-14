@@ -1,6 +1,6 @@
 @ScontoditipoB
 @onboarding
-Feature: A citizen A onboards the pilot initiative with ISEE criteria
+Feature: A citizen onboards the pilot initiative with ISEE criteria
 
   Background:
     Given the initiative is "ScontoditipoB"
