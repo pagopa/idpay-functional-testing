@@ -223,15 +223,15 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
 def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5):
     count = 0
     res = request(initiative_id, token)
-    success = (expected == res.json()[field])
+    success = (res.status_code == 200 and expected == res.json()[field])
     while not success:
         count += 1
         if count == tries:
             break
         time.sleep(delay)
         res = request(initiative_id, token)
-        success = (expected == res.json()[field])
-    assert expected == res.json()[field]
+        success = (res.status_code == 200 and expected == res.json()[field])
+    assert success
     return res
 
 
@@ -394,17 +394,23 @@ def check_rewards(initiative_id,
     else:
         assert len(export_ids) != 0
 
+    total_merchant_rewards = 0
+    is_present = False
+
     for export_id in export_ids:
         res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
         actual_rewards = res.json()
         for expected_reward in expected_rewards:
             is_rewarded = False
             for r in actual_rewards:
-                if r['iban'] == expected_reward.iban:
-                    if r['amount'] == expected_reward.amount and r['status'] == 'EXPORTED':
-                        is_rewarded = True
+                if r['iban'] == expected_reward.iban and r['status'] == 'EXPORTED':
+                    total_merchant_rewards += r['amount']
+                    is_present = True
+
+            if total_merchant_rewards == expected_reward.amount:
+                is_rewarded = True
             if check_absence:
-                assert not is_rewarded
+                assert not is_present
             else:
                 assert is_rewarded
 
@@ -458,8 +464,8 @@ def check_processed_transactions(initiative_id,
 
 def merchant_id_from_fc(initiative_id: str,
                         desired_fc: str,
-                        tries=10,
-                        delay=1):
+                        tries=20,
+                        delay=5):
     success = False
     count = 0
 

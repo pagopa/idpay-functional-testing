@@ -398,8 +398,8 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
-    And the merchant 1 generates the transaction Y of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the merchant 1 generates the transaction Y of amount 30000 cents
     And the citizen A pre-authorizes the transaction X
     And the citizen A pre-authorizes the transaction Y
     And the citizen A confirms the transaction X
@@ -412,8 +412,8 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: If citizen A pre-authorizes the transactions X and Y through MIL, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents through MIL
-    And the merchant 1 generates the transaction Y of amount 300000 cents through MIL
+    And the merchant 1 generates the transaction X of amount 30000 cents through MIL
+    And the merchant 1 generates the transaction Y of amount 30000 cents through MIL
     And the citizen A pre-authorizes the transaction X
     And the citizen A pre-authorizes the transaction Y
     And the citizen A confirms the transaction X
@@ -425,8 +425,8 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, Y remains identified
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
-    And the merchant 1 generates the transaction Y of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the merchant 1 generates the transaction Y of amount 30000 cents
     And the citizen A pre-authorizes the transaction X
     And the citizen A pre-authorizes the transaction Y
     When the citizen A confirms the transaction X
@@ -436,8 +436,8 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: If citizen A pre-authorizes the transactions X and Y through MIL, and the transaction X is authorized eroding A's budget, Y remains identified
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents through MIL
-    And the merchant 1 generates the transaction Y of amount 300000 cents through MIL
+    And the merchant 1 generates the transaction X of amount 30000 cents through MIL
+    And the merchant 1 generates the transaction Y of amount 30000 cents through MIL
     And the citizen A pre-authorizes the transaction X
     And the citizen A pre-authorizes the transaction Y
     When the citizen A confirms the transaction X
@@ -446,7 +446,7 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: Citizen pre-authorize 2 times a transaction and it is still identified
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A pre-authorizes the transaction X
     When the citizen A tries to pre-authorize the transaction X
     Then the transaction X is identified
@@ -455,7 +455,7 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: Citizen pre-authorize 2 times a transaction through MIL and it is still identified
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents through MIL
+    And the merchant 1 generates the transaction X of amount 30000 cents through MIL
     And the citizen A pre-authorizes the transaction X
     When the citizen A tries to pre-authorize the transaction X
     Then the transaction X is identified
@@ -465,7 +465,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is onboard
     And the citizen B is 25 years old at most
     And the citizen B is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A pre-authorizes the transaction X
     When the citizen B tries to pre-authorize the transaction X
     Then the latest pre-authorization fails
@@ -477,7 +477,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A is onboard
     And the citizen B is 25 years old at most
     And the citizen B is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents through MIL
+    And the merchant 1 generates the transaction X of amount 30000 cents through MIL
     And the citizen A pre-authorizes the transaction X
     When the citizen B tries to pre-authorize the transaction X
     Then the latest pre-authorization fails
@@ -486,16 +486,24 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: Citizen pre-authorizes successfully a transaction already pre-authorized by himself
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
     And the citizen A pre-authorizes the transaction X
     When the citizen A pre-authorizes the transaction X
     Then the transaction X is identified
+
+  Scenario: Citizen authorizes successfully a transaction already pre-authorized by himself
+    Given the random merchant 1 is onboard
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the citizen A pre-authorizes the transaction X
+    When the citizen A confirms the transaction X
+    Then the transaction X is authorized
 
   @MIL
   Scenario: Citizen pre-authorizes successfully a transaction, created through MIL, already pre-authorized by himself
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents through MIL
+    And the merchant 1 generates the transaction X of amount 30000 cents through MIL
     And the citizen A pre-authorizes the transaction X
     When the citizen A pre-authorizes the transaction X
     Then the transaction X is identified
@@ -510,6 +518,13 @@ Feature: A transaction is generated, authorized and confirmed
   Scenario: Citizen authorizes a transaction before pre-authorization
     Given the random merchant 1 is onboard
     And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 300000 cents
+    And the merchant 1 generates the transaction X of amount 30000 cents
     When the citizen A tries to authorize the transaction X
     Then the latest authorization fails because the user did not pre-authorize the transaction
+
+  Scenario: Budget not completely eroded with one transaction X of amount 300 cents
+    Given the citizen A is onboard
+    And the random merchant 1 is onboard
+    And the merchant 1 generates the transaction X of amount 300 cents
+    When the citizen A confirms the transaction X
+    Then the citizen A is rewarded with 3 euros

@@ -57,7 +57,7 @@ Feature: A transaction can be cancelled by the merchant 1
     When the citizen A tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the transaction cannot be found
 
-  Scenario: If a citizen pre-authorizes and then cancels the transaction, another citizen receives an error if he tries to pre-authorize
+  Scenario: If a citizen pre-authorizes and then cancels the transaction, another citizen pre-authorize the transaction correctly
     Given the citizen B is 20 years old at most
     And the citizen B is onboarded
     And the merchant 1 generates the transaction X of amount 1000 cents

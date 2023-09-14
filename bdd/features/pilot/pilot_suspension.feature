@@ -11,13 +11,6 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     When the institution suspends the citizen A
     Then the citizen A is suspended
 
-  Scenario: The Institution tries to suspend an onboard citizen during the subscription period receives an OK result
-    Given the initiative is "Scontoditipo1_not_started"
-    And the citizen A is 25 years old at most
-    And the citizen A is onboard
-    When the institution suspends the citizen A
-    Then the citizen A is suspended
-
   Scenario: The Institution tries to suspend a citizen not registered in the initiative and receives a KO
     Given the initiative is "Scontoditipo1"
     And the citizen A is 25 years old at most

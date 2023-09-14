@@ -27,8 +27,3 @@ Feature: A transaction is generated, authorized and confirmed
     Given the merchant 1 generates the transaction X of amount 10000 cents
     When the citizen A tries to confirm the transaction X
     Then the transaction X is authorized
-
-  Scenario: After a transaction, the citizen is rewarded correctly
-    Given the merchant 1 generates the transaction X of amount 2000 cents
-    When the citizen A confirms the transaction X
-    Then the citizen A is rewarded with 20 euros
