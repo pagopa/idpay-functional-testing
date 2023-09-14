@@ -1,3 +1,4 @@
+import subprocess
 import tempfile
 
 import gnupg
@@ -33,3 +34,26 @@ def pgp_string_routine(data_to_encrypt: str, pgp_key_data: str):
         if status.ok:
             return status.data
     return None
+
+
+def verify_and_clear_p7m_file(input_file_name: str,
+                              output_file_name: str
+                              ):
+    command = [
+        'openssl',
+        'smime',
+        '-verify',
+        '-in',
+        input_file_name,
+        '-inform',
+        'der',
+        '-noverify',
+        '-out',
+        output_file_name
+    ]
+
+    try:
+        subprocess.run(command, check=True)
+        print(f"Verification successful. Output saved to '{output_file_name}'")
+    except subprocess.CalledProcessError as e:
+        print(f'Error: {e}')
