@@ -1,3 +1,8 @@
+import json
+from math import floor
+
+import pandas as pd
+from behave import then
 from behave import when
 
 from api.idpay import force_ranking
@@ -41,4 +46,19 @@ def step_end_ranking(context):
 
     verify_and_clear_p7m_file(input_file_name=response_content_filename, output_file_name=clear_ranking_filename)
 
-    context.ranking_file_name = response_content_filename
+    with open(clear_ranking_filename, 'r') as input_file:
+        ranking = pd.read_csv(input_file, quotechar='"', sep=';')
+        context.ranking = list(ranking.values)
+
+
+@then('{rank_order} are ranked in the correct order')
+def step_check_ranking_order(context, rank_order):
+    rank_order = json.loads(rank_order)
+    rank_order_fc = (context.citizens_fc[name] for name in rank_order)
+    print('---')
+    for count, citizen in enumerate(rank_order_fc):
+        curr_rank = context.ranking[count]
+        assert curr_rank[4] == 'ELIGIBLE_OK'
+        assert curr_rank[3] == count + 1
+        assert citizen == curr_rank[0]
+        assert context.citizen_isee[citizen] == floor(curr_rank[2]) / 100
