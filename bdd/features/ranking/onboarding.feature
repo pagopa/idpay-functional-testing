@@ -13,9 +13,10 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen A has ISEE 39999 of type "ordinario"
     And the citizen B has ISEE 29999 of type "ordinario"
     And the citizen C has ISEE 19999 of type "ordinario"
-    When the <citizens> onboards and wait for ranking
+    When <citizens> onboard and wait for ranking
     And the ranking period ends and the institution publishes the ranking
+    Then <ordered citizens> are ranked in the correct order
 
-    Examples: Citizens to be onboarded
-      | citizens        |
-      | ["A", "B", "C"] |
+    Examples: Those citizens onboard and are ranked in the correct order based on the ISEE
+      | citizens        | ordered citizens |
+      | ["A", "B", "C"] | ["C", "B", "A"]  |
