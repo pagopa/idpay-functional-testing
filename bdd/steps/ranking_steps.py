@@ -16,8 +16,6 @@ def step_end_ranking(context):
     assert res.status_code == 200
 
     res = force_ranking()
-    print(res.status_code)
-    print(res.json())
     assert res.status_code == 200
 
     ranking_file_path = None
