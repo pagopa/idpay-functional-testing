@@ -52,8 +52,11 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
 
 @given('the citizen {citizen_name} has ISEE {isee} of type "{isee_type}"')
 def step_set_citizen_isee(context, citizen_name: str, isee: int, isee_type: str):
-    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=float(isee), isee_type=isee_type)
+    isee = float(isee)
+    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=isee, isee_type=isee_type)
     assert res.status_code == 201
+
+    context.citizen_isee[context.citizens_fc[citizen_name]] = isee
 
 
 @given('the transaction {trx_name} does not exists')

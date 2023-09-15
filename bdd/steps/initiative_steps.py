@@ -59,6 +59,8 @@ def base_context_initialization(context):
     context.associated_citizen = {}
     context.associated_merchant = {}
 
+    context.citizen_isee = {}
+
 
 @given("the initiative's budget is {precision} allocated")
 def step_allocate_initiative_budget(context, precision):
