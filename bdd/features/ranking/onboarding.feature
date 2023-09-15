@@ -15,7 +15,8 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen C has ISEE 19999 of type "ordinario"
     When <citizens> onboard and wait for ranking
     And the ranking period ends and the institution publishes the ranking
-    Then <ordered citizens> are ranked in the correct order
+    Then <citizens> are elected
+    And <ordered citizens> are ranked in the correct order
 
     Examples: Those citizens onboard and are ranked in the correct order based on the ISEE
       | citizens        | ordered citizens |
