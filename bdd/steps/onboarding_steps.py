@@ -40,6 +40,7 @@ def step_named_citizen_onboard(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 
+@given('the citizen {citizen_name} onboards and waits for ranking')
 @when('the citizen {citizen_name} onboards and waits for ranking')
 def step_named_citizen_joins_ranking(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
@@ -47,7 +48,7 @@ def step_named_citizen_joins_ranking(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
-@when('{citizens} onboard and wait for ranking')
+@when('{citizens} onboard in order and wait for ranking')
 def step_citizens_join_ranking(context, citizens):
     citizens = json.loads(citizens)
     for c in citizens:
