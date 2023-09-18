@@ -6,7 +6,7 @@ default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 KEEP_INITIATIVES_AFTER_TEST: false
-INITIATIVE_STARTUP_TIME_SECONDS: 30
+INITIATIVE_STARTUP_TIME_SECONDS: 120
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
@@ -392,18 +392,21 @@ initiatives:
     budget_per_citizen: 1
     fruition_start: '2023-09-06T00:00:00.000+02:00'
     fruition_end: '2023-09-07:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
   Scontoditipo5:
     id: 'SCONTOTIPO5'
     cashback_percentage: 100
     budget_per_citizen: 1
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
   ScontoditipoB:
     id: 'SCONTOTIPOB'
     cashback_percentage: 100
     budget_per_citizen: 10
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         beneficiaryType: 'PF'
@@ -439,6 +442,7 @@ initiatives:
     budget_per_citizen: 10
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         beneficiaryType: 'PF'
