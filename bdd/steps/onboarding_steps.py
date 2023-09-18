@@ -230,7 +230,7 @@ def step_check_onboarding_status(context, citizen_name, status):
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'ELECTED':
-        expected_status = f'ONBOARDING_{status}'
+        expected_status = f'ONBOARDING_OK'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                             initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
