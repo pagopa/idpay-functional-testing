@@ -160,10 +160,11 @@ def get_reward_content(organization_id, initiative_id, export_id):
 
 
 def get_initiative_statistics(organization_id, initiative_id):
-    return requests.get(
+    res = requests.get(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
         timeout=settings.default_timeout
     )
+    return res
 
 
 def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):

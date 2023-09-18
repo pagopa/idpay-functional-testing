@@ -291,6 +291,28 @@ def clean_trx_files(source_filename: str):
         print(f'The file {source_filename} and its encrypted version does not exist')
 
 
+def retry_institution_statistics(initiative_id: str,
+                                 tries=10,
+                                 delay=1):
+    count = 0
+
+    res = get_initiative_statistics(
+        organization_id=secrets.organization_id,
+        initiative_id=initiative_id)
+
+    while res.status_code != 200:
+        count += 1
+        time.sleep(delay)
+        res = get_initiative_statistics(
+            organization_id=secrets.organization_id,
+            initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 200
+    return res.json()
+
+
 def retry_merchant_statistics(initiative_id: str,
                               merchant_id: str,
                               tries=10,

@@ -12,6 +12,7 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
 from util.utility import create_initiative_and_update_conf
+from util.utility import retry_institution_statistics
 
 
 @given('the initiative is "{initiative_name}"')
@@ -39,8 +40,7 @@ def base_context_initialization(context):
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
 
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
-                                                        initiative_id=context.initiative_id).json()
+    context.base_statistics = retry_institution_statistics(initiative_id=context.initiative_id)
     context.base_merchants_statistics = {}
 
     context.transactions = {}
