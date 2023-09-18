@@ -54,6 +54,5 @@ def verify_and_clear_p7m_file(input_file_name: str,
 
     try:
         subprocess.run(command, check=True)
-        print(f"Verification successful. Output saved to '{output_file_name}'")
     except subprocess.CalledProcessError as e:
         print(f'Error: {e}')
