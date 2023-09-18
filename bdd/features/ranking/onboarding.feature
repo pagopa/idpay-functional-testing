@@ -3,7 +3,7 @@
 Feature: A citizen onboards an initiative with ranking
 
   Background:
-    Given the initiative is "ranking_initiative"
+    Given a new initiative "ranking_initiative"
 
   @test
   Scenario Outline: Citizens onboard to ranking initiative

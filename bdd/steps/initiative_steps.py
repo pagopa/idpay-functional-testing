@@ -11,6 +11,7 @@ from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
+from util.utility import create_initiative_and_update_conf
 
 
 @given('the initiative is "{initiative_name}"')
@@ -81,3 +82,9 @@ def step_allocate_initiative_budget(context, precision):
         i += 1
 
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens
+
+
+@given('a new initiative "{initiative_name}"')
+def step_create_new_initiative(context, initiative_name):
+    create_initiative_and_update_conf(initiative_name=initiative_name)
+    step_given_initiative_id(context=context, initiative_name=initiative_name)
