@@ -20,8 +20,7 @@ Feature: A citizen onboards an initiative with ranking
       | ["A", "B", "C"] | ["C", "B", "A"]  |
 
   Scenario Outline: Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time.
-    Given the citizen A has fiscal code random
-    And citizens <citizens> have fiscal code random
+    Given citizens <citizens> have fiscal code random
     And citizens <citizens> have ISEE 39999 of type "ordinario"
     When <citizens> onboard in order and wait for ranking
     When the ranking period ends and the institution publishes the ranking

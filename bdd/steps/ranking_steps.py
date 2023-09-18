@@ -52,10 +52,9 @@ def step_end_ranking(context):
 
 
 @then('{rank_order} are ranked in the correct order')
-def step_check_ranking_order(context, rank_order):
+def step_check_ranking_order(context, rank_order: str):
     rank_order = json.loads(rank_order)
     rank_order_fc = (context.citizens_fc[name] for name in rank_order)
-    print('---')
     for count, citizen in enumerate(rank_order_fc):
         curr_rank = context.ranking[count]
         assert curr_rank[4] == 'ELIGIBLE_OK'
