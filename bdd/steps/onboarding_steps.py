@@ -146,6 +146,7 @@ def step_citizen_accept_terms_and_conditions(context, citizen_name):
 @then('the onboard of {citizen_name} is {status}')
 def step_check_onboarding_status(context, citizen_name, status):
     skip_statistics_check = False
+    curr_onboarded_citizen_count_increment = 0
 
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
