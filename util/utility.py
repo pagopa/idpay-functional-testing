@@ -554,6 +554,17 @@ def create_initiative(initiative_name_in_settings: str):
     return initiative_id
 
 
+def create_initiative_and_update_conf(initiative_name: str):
+    secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
+    print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
+    secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
+
+    startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
+    if 'initiative_startup_time_seconds' in settings.initiatives[initiative_name]:
+        startup_time = settings.initiatives[initiative_name]['initiative_startup_time_seconds']
+    time.sleep(startup_time)
+
+
 def onboard_random_merchant(initiative_id: str,
                             institution_selfcare_token: str):
     fc = fake_vat()
