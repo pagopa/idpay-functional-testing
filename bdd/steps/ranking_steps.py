@@ -61,3 +61,11 @@ def step_check_ranking_order(context, rank_order: str):
         assert curr_rank[3] == count + 1
         assert citizen == curr_rank[0]
         assert context.citizen_isee[citizen] == floor(curr_rank[2]) / 100
+
+
+@then('the citizen {citizen_name} is not in rank')
+def step_check_absence_in_ranking(context, citizen_name: str):
+    citizen_fc = context.citizens_fc[citizen_name]
+    for rank in context.ranking:
+        if citizen_fc == rank[0]:
+            assert False, 'The citizen should not be present in ranking'
