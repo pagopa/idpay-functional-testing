@@ -30,3 +30,17 @@ Feature: A citizen onboards an initiative with ranking
     Examples: Citizens and ranking order
       | citizens        | ordered citizens |
       | ["C", "B", "A"] | ["C", "B", "A"]  |
+
+  Scenario Outline: User with incorrect self-declared criteria tries onboarding unsuccessfully
+    Given citizens <citizens> have fiscal code random
+    And citizens <citizens> have ISEE 39999 of type "ordinario"
+    And the citizen A onboards and waits for ranking
+    And the citizen B accepts terms and conditions
+    When the citizen B insert self-declared criteria not correctly
+    Then the onboard of B is KO
+    When the ranking period ends and the institution publishes the ranking
+    Then the citizen B is not in rank
+
+    Examples: Citizens
+      | citizens   |
+      | ["A", "B"] |
