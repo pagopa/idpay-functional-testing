@@ -62,7 +62,7 @@ Feature: A citizen onboards an initiative with ranking
       | ["A", "B", "C"] |
 
   @unsubscribe
-  Scenario: Onboarding result depends on citizens' ISEE
+  Scenario: Onboard citizen cannot unsubscribe before ranking
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
     And the citizen A onboards and waits for ranking
@@ -71,7 +71,7 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen A is onboard and waits for ranking
 
   @suspension
-  Scenario: Onboarding result depends on citizens' ISEE
+  Scenario: The Institution cannot suspend an onboard citizen before ranking
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
     And the citizen A onboards and waits for ranking
