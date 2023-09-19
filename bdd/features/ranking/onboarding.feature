@@ -5,7 +5,7 @@ Feature: A citizen onboards an initiative with ranking
   Background:
     Given a new initiative "ranking_initiative"
 
-  Scenario Outline: Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value.
+  Scenario Outline: Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
     Given citizens <citizens> have fiscal code random
     And the citizen A has ISEE 39999 of type "ordinario"
     And the citizen C has ISEE 19999 of type "ordinario"
@@ -19,7 +19,7 @@ Feature: A citizen onboards an initiative with ranking
       | citizens        | ordered citizens |
       | ["A", "B", "C"] | ["C", "B", "A"]  |
 
-  Scenario Outline: Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time.
+  Scenario Outline: Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
     Given citizens <citizens> have fiscal code random
     And citizens <citizens> have ISEE 39999 of type "ordinario"
     When <citizens> onboard in order and wait for ranking
@@ -44,3 +44,19 @@ Feature: A citizen onboards an initiative with ranking
     Examples: Citizens
       | citizens   |
       | ["A", "B"] |
+
+  Scenario Outline: Onboarding result depends on citizens' ISEE
+    Given citizens <citizens> have fiscal code random
+    And the citizen A has ISEE 50001 of type "ordinario"
+    And the citizen C has ISEE 50000 of type "ordinario"
+    And the citizen B has ISEE 4050.54 of type "ordinario"
+    When the citizen A tries to onboard
+    And the citizen B tries to onboard
+    And the citizen C tries to onboard
+    Then the onboard of A is KO
+    And the citizen B is onboard and waits for ranking
+    And the citizen C is onboard and waits for ranking
+
+    Examples: Citizens with different
+      | citizens        |
+      | ["A", "B", "C"] |
