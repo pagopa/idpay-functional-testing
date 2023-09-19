@@ -96,6 +96,11 @@ def step_citizen_not_onboard(context, citizen_name):
                      skip_trx_check=True)
 
 
+@then('the citizen {citizen_name} is onboard and waits for ranking')
+def step_named_citizen_suspension(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
+
+
 @when('the citizen {citizen_name} tries to onboard')
 def step_citizen_tries_to_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
