@@ -10,8 +10,9 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen A has ISEE 39999 of type "ordinario"
     And the citizen C has ISEE 19999 of type "ordinario"
     And the citizen B has ISEE 29999 of type "ordinario"
-    When <citizens> onboard in order and wait for ranking
-    And the ranking period ends and the institution publishes the ranking
+    And <citizens> onboard in order and wait for ranking
+    When the ranking period ends
+    And the institution publishes the ranking
     Then <citizens> are elected
     And <ordered citizens> are ranked in the correct order
 
@@ -22,8 +23,9 @@ Feature: A citizen onboards an initiative with ranking
   Scenario Outline: Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
     Given citizens <citizens> have fiscal code random
     And citizens <citizens> have ISEE 39999 of type "ordinario"
-    When <citizens> onboard in order and wait for ranking
-    When the ranking period ends and the institution publishes the ranking
+    And <citizens> onboard in order and wait for ranking
+    When the ranking period ends
+    And the institution publishes the ranking
     Then <citizens> are elected
     And <ordered citizens> are ranked in the correct order
 
@@ -38,7 +40,8 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen B accepts terms and conditions
     When the citizen B insert self-declared criteria not correctly
     Then the onboard of B is KO
-    When the ranking period ends and the institution publishes the ranking
+    When the ranking period ends
+    And the institution publishes the ranking
     Then the citizen B is not in rank
 
     Examples: Citizens

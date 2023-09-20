@@ -14,11 +14,15 @@ from util.encrypt_utilities import verify_and_clear_p7m_file
 from util.utility import get_selfcare_token
 
 
-@when('the ranking period ends and the institution publishes the ranking')
+@when('the ranking period ends')
 def step_end_ranking(context):
-    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
     res = put_ranking_end_date(initiative_id=context.initiative_id)
     assert res.status_code == 200
+
+
+@when('the institution publishes the ranking')
+def step_publish_ranking_(context):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 
     res = force_ranking()
     assert res.status_code == 200
