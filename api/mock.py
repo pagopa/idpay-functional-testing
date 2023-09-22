@@ -47,9 +47,7 @@ def put_mocked_family(family: list):
         headers={
             'Content-Type': 'application/json'
         },
-        json={
-            family
-        },
+        json=family,
         timeout=settings.default_timeout
     )
 
