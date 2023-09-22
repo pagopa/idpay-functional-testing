@@ -81,6 +81,7 @@ IDPAY:
       path: '/idpaymerchant'
     mock:
       isee: '/mock/citizen/isee'
+      family: '/mock/family'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
       beneficiary:
