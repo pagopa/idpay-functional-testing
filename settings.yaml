@@ -433,3 +433,43 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  family_no_ranking:
+    id: 'FAMILY_NO_RANKING'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'NF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        familyUnitComposition: 'INPS'
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Family no ranking'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'GT'
+            iseeTypes:
+              - "ORDINARIO"
+            value: '1'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
