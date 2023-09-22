@@ -34,3 +34,33 @@ def control_mocked_isee(fc: str,
                          },
                          timeout=settings.default_timeout
                          )
+
+
+def put_mocked_family(family: list):
+    """API to mock a family grouping citizens in one family
+        :param family: Fiscal code of the family members
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.put(
+        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}',
+        headers={
+            'Content-Type': 'application/json'
+        },
+        json={
+            family
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def get_family_from_id(family_id: str):
+    """API to get user ID of members given family ID
+        :param family_id: Family ID of interest
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}/user/{family_id}',
+        timeout=settings.default_timeout
+    )
