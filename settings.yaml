@@ -116,6 +116,34 @@ initiatives:
     budget_per_citizen: 51.5
     fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 51.5
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Cashback-like'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30.22
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   complex:
     id: 'COMPLEX'
     cashback_percentage: 100
