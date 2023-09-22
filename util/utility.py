@@ -115,7 +115,7 @@ def iban_enroll(fc, iban, initiative_id):
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='IBAN not enrolled')
 
-    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
+    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.mocked_ok, iban=iban, request=get_iban_info,
                     token=token, field='checkIbanStatus', tries=50,
                     delay=1)
 
