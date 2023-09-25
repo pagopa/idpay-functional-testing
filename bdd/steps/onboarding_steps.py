@@ -102,6 +102,11 @@ def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
+@then('the citizen {citizen_name} is not eligible')
+def step_citizen_not_onboard(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ELIGIBLE_KO')
+
+
 @when('the citizen {citizen_name} tries to onboard')
 def step_citizen_tries_to_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
@@ -254,6 +259,14 @@ def step_check_onboarding_status(context, citizen_name, status):
                                token=token_io,
                                initiative_id=context.initiative_id)
         skip_statistics_check = True
+    elif status == 'ELIGIBLE_KO':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        skip_statistics_check = False
     else:
         assert False, 'Unexpected status'
 
