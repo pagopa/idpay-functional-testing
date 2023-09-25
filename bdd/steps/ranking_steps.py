@@ -2,6 +2,7 @@ import json
 from math import floor
 
 import pandas as pd
+from behave import given
 from behave import then
 from behave import when
 
@@ -14,6 +15,7 @@ from util.encrypt_utilities import verify_and_clear_p7m_file
 from util.utility import get_selfcare_token
 
 
+@given('the ranking period ends')
 @when('the ranking period ends')
 def step_end_ranking(context):
     res = put_ranking_end_date(initiative_id=context.initiative_id)
@@ -73,3 +75,13 @@ def step_check_absence_in_ranking(context, citizen_name: str):
     for rank in context.ranking:
         if citizen_fc == rank[0]:
             assert False, 'The citizen should not be present in ranking'
+
+
+@then('the citizen {citizen_name} is not eligible')
+def step_check_not_eligibility_in_ranking(context, citizen_name: str):
+    citizen_fc = context.citizens_fc[citizen_name]
+    for rank in context.ranking:
+        if citizen_fc == rank[0]:
+            assert rank[4] == 'ELIGIBLE_KO'
+            return
+    assert False, 'The citizen be present in ranking but not eligible'
