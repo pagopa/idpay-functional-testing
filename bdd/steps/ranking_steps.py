@@ -10,6 +10,7 @@ from api.idpay import force_ranking
 from api.idpay import get_ranking_file
 from api.idpay import put_publish_ranking
 from api.idpay import put_ranking_end_date
+from bdd.steps.onboarding_steps import step_check_onboarding_status
 from conf.configuration import secrets
 from util.encrypt_utilities import verify_and_clear_p7m_file
 from util.utility import get_selfcare_token
@@ -22,6 +23,7 @@ def step_end_ranking(context):
     assert res.status_code == 200
 
 
+@given('the institution publishes the ranking')
 @when('the institution publishes the ranking')
 def step_publish_ranking_(context):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
@@ -52,9 +54,12 @@ def step_publish_ranking_(context):
 
     verify_and_clear_p7m_file(input_file_name=response_content_filename, output_file_name=clear_ranking_filename)
 
-    with open(clear_ranking_filename, 'r') as input_file:
-        ranking = pd.read_csv(input_file, quotechar='"', sep=';')
-        context.ranking = list(ranking.values)
+    try:
+        with open(clear_ranking_filename, 'r') as input_file:
+            ranking = pd.read_csv(input_file, quotechar='"', sep=';')
+            context.ranking = list(ranking.values)
+    except pd.errors.EmptyDataError:
+        context.ranking = list()
 
 
 @then('{rank_order} are ranked in the correct order')
@@ -79,6 +84,7 @@ def step_check_absence_in_ranking(context, citizen_name: str):
 
 @then('the citizen {citizen_name} is not eligible')
 def step_check_not_eligibility_in_ranking(context, citizen_name: str):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ELIGIBLE_KO')
     citizen_fc = context.citizens_fc[citizen_name]
     for rank in context.ranking:
         if citizen_fc == rank[0]:
