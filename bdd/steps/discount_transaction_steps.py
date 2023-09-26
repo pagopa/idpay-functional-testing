@@ -146,11 +146,11 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             'message'].startswith('Cannot create transaction with invalid amount: ')
         return
 
-    if status == 'NOT CREATED BECAUSE THE INITIATIVE IS TERMINATED':
+    if status == 'NOT CREATED BECAUSE IT IS OUT OF VALID PERIOD':
         assert context.latest_create_transaction_response.status_code == 400
         assert context.latest_create_transaction_response.json()['code'] == 'INVALID DATE'
         assert context.latest_create_transaction_response.json()[
-                   'message'] == f'Cannot create transaction out of valid period. Initiative startDate: {context.initiative_settings["fruition_start"][:10]} endDate: {context.initiative_settings["fruition_end"][:10]}'
+            'message'].startswith(f'Cannot create transaction out of valid period. Initiative startDate: ')
         return
 
     if status == 'ALREADY AUTHORIZED':

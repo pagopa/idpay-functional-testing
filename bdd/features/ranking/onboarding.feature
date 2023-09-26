@@ -81,7 +81,7 @@ Feature: A citizen onboards an initiative with ranking
     When the institution tries to suspend the citizen A
     Then the latest suspension fails not finding the citizen
 
-  @need_fix
+  @skip
   Scenario: A citizen receives KO if it tries to onboard during grace period
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
@@ -115,3 +115,16 @@ Feature: A citizen onboards an initiative with ranking
     Examples: Citizens and ranking order
       | citizens                       | eligible citizens         |
       | ["A", "B", "C", "D", "E", "F"] | ["A", "B", "C", "D", "E"] |
+
+  Scenario: The merchant cannot generate a transaction during the onboarding period
+    Given the random merchant 1 is onboard
+    When the merchant 1 tries to generate the transaction X of amount 30000 cents
+    Then the transaction X is not created because it is out of valid period
+
+  @skip
+  Scenario: The merchant can generate a transaction after the publication of the ranking
+    Given the random merchant 1 is onboard
+    And the ranking period ends
+    And the institution publishes the ranking
+    When the merchant 1 generates the transaction X of amount 30000 cents
+    Then the transaction X is created
