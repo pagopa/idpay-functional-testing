@@ -6,23 +6,17 @@ from behave import given
 from behave import then
 
 from api.idpay import get_initiative_statistics
+from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
+from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
-from util.utility import create_initiative
 
 
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_id(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.initiatives_settings = settings.initiatives[initiative_name]
-    base_context_initialization(context)
-
-
-@given('a new initiative with "{initiative_name}" characteristics')
-def step_given_new_initiative_id(context, initiative_name):
-    context.initiative_id = create_initiative(initiative_name_in_settings=initiative_name)
-    context.initiatives_settings = settings.initiatives[initiative_name]
+    context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
 
@@ -36,10 +30,10 @@ def step_check_initiative_statistics_updated(context):
 
 
 def base_context_initialization(context):
-    context.cashback_percentage = context.initiatives_settings.get('cashback_percentage')
-    context.budget_per_citizen = context.initiatives_settings['budget_per_citizen']
-    context.fruition_start = context.initiatives_settings['fruition_start']
-    context.total_budget = context.initiatives_settings.get('total_budget')
+    context.cashback_percentage = context.initiative_settings.get('cashback_percentage')
+    context.budget_per_citizen = context.initiative_settings['budget_per_citizen']
+    context.fruition_start = context.initiative_settings['fruition_start']
+    context.total_budget = context.initiative_settings.get('total_budget')
 
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
@@ -66,7 +60,22 @@ def base_context_initialization(context):
     context.associated_merchant = {}
 
 
-@given("the initiative's budget is totally allocated")
-def step_check_initiative_budget_allocated(context):
-    allowable_citizens = math.floor(context.total_budget/context.budget_per_citizen)
+@given("the initiative's budget is {precision} allocated")
+def step_allocate_initiative_budget(context, precision):
+    i = 0
+    allowable_citizens = math.floor(context.total_budget / context.budget_per_citizen)
+
+    if precision == 'almost':
+        allowable_citizens -= 1
+
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
+
+    while context.base_statistics['onboardedCitizenCount'] < allowable_citizens:
+        step_citizen_fc_exact_or_random(context=context, citizen_name=str(i), citizen_fc='random')
+        step_named_citizen_onboard(context=context, citizen_name=str(i))
+        context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                            initiative_id=context.initiative_id).json()
+        i += 1
+
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens
