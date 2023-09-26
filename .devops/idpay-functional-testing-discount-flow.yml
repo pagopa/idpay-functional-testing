@@ -53,6 +53,8 @@ stages:
           - script: |
               python3 --version
               python3 -m pip install --user pipenv
+              pipenv shell
+              pipenv sync
             displayName: "Install requirements"
           - task: DownloadSecureFile@1
             name: idpay_secrets
