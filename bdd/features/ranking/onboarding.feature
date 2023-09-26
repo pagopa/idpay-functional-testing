@@ -81,11 +81,12 @@ Feature: A citizen onboards an initiative with ranking
     When the institution tries to suspend the citizen A
     Then the latest suspension fails not finding the citizen
 
-  @skip
+  @need_fix
   Scenario: A citizen receives KO if it tries to onboard during grace period
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
     And the ranking period ends
+    And the institution publishes the ranking
     When the citizen A tries to onboard
     Then the onboard of A is KO
 
