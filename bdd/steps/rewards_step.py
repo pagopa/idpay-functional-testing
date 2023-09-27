@@ -18,6 +18,7 @@ from util.utility import check_rewards
 from util.utility import check_statistics
 from util.utility import check_unprocessed_transactions
 from util.utility import expect_wallet_counters
+from util.utility import force_rewards
 from util.utility import generate_payment_results
 from util.utility import get_io_token
 from util.utility import get_payment_disposition_unique_ids
@@ -86,9 +87,12 @@ def step_set_expected_amount_left(context):
 def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     curr_iban = context.merchants[merchant_name]['iban']
     curr_fiscal_code = context.merchants[merchant_name]['fiscal_code']
-    export_path = check_rewards(initiative_id=context.initiative_id,
-                                expected_rewards=[reward(curr_iban, float(expected_refund))])
-
+    export_ids, export_path = force_rewards(initiative_id=context.initiative_id)
+    check_rewards(initiative_id=context.initiative_id,
+                  organization_id=secrets.organization_id,
+                  expected_rewards=[reward(curr_iban, float(expected_refund))],
+                  export_ids=export_ids
+                  )
     export_name = export_path.split('/')[3]
     context.payment_exports_list = get_refund_exported_content(initiative_id=context.initiative_id,
                                                                exported_file_name=export_name)

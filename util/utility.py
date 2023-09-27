@@ -393,11 +393,9 @@ def check_merchant_statistics(merchant_id: str,
     assert success
 
 
-def check_rewards(initiative_id,
-                  expected_rewards: [reward],
+def force_rewards(initiative_id,
                   check_absence: bool = False):
     export_ids = []
-    organization_id = None
     export_path = None
 
     res = force_reward()
@@ -407,16 +405,23 @@ def check_rewards(initiative_id,
             curr_export = i[0]
             if curr_export['initiativeId'] == initiative_id and curr_export['status'] == 'EXPORTED':
                 export_ids.append(curr_export['id'])
-                organization_id = curr_export['organizationId']
                 export_path = curr_export['filePath']
                 assert export_path.split('/')[1] == initiative_id
 
     if check_absence:
-        if len(export_ids) == 0:
-            return
+        assert len(export_ids) == 0
     else:
         assert len(export_ids) != 0
 
+    return [export_ids, export_path]
+
+
+def check_rewards(initiative_id: str,
+                  organization_id: str,
+                  export_ids: [str],
+                  expected_rewards: [reward],
+                  check_absence: bool = False,
+                  exptected_status: str = 'EXPORTED'):
     total_merchant_rewards = 0
     is_present = False
 
@@ -426,7 +431,7 @@ def check_rewards(initiative_id,
         for expected_reward in expected_rewards:
             is_rewarded = False
             for r in actual_rewards:
-                if r['iban'] == expected_reward.iban and r['status'] == 'EXPORTED':
+                if r['iban'] == expected_reward.iban and r['status'] == exptected_status:
                     total_merchant_rewards += r['amount']
                     is_present = True
 
@@ -436,7 +441,6 @@ def check_rewards(initiative_id,
                 assert not is_present
             else:
                 assert is_rewarded
-    return export_path
 
 
 def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [reward]):
