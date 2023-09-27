@@ -8,17 +8,15 @@ import uuid
 import zipfile
 from hashlib import sha256
 
-import requests
-
 from api.idpay import enroll_iban
 from api.idpay import force_reward
-from api.idpay import get_export_sas_token
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import get_merchant_list
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
+from api.idpay import get_payment_dispositions_export_content
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
@@ -642,13 +640,9 @@ def get_refund_exported_content(initiative_id: str,
                                 exported_file_name: str):
     selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 
-    res = get_export_sas_token(selfcare_token=selfcare_token,
-                               initiative_id=initiative_id,
-                               exported_file_name=exported_file_name)
-    assert res.status_code == 201
-
-    sas = res.json().get('sas')
-    res = requests.get(sas)
+    res = get_payment_dispositions_export_content(selfcare_token=selfcare_token,
+                                                  initiative_id=initiative_id,
+                                                  exported_file_name=exported_file_name)
     assert res.status_code == 200
 
     with tempfile.TemporaryFile() as tmp:
