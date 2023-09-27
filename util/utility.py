@@ -437,6 +437,17 @@ def check_rewards(initiative_id,
     return export_path
 
 
+def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [Reward]):
+    unique_ids = []
+    for disposition in payment_dispositions:
+        if str(disposition[2]) == str(fiscal_code):
+            for reward in expected_rewards:
+                if str(disposition[4]) == reward.iban and floor(
+                        float(disposition[5])) == reward.amount * 100:
+                    unique_ids.append(disposition[1])
+    return unique_ids
+
+
 def check_unprocessed_transactions(initiative_id,
                                    expected_trx_id: str,
                                    expected_effective_amount: int,
