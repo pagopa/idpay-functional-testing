@@ -505,9 +505,9 @@ def put_citizen_suspension(selfcare_token: str,
     )
 
 
-def get_export_sas_token(selfcare_token: str,
-                         initiative_id: str,
-                         exported_file_name: str):
+def get_payment_dispositions_export_content(selfcare_token: str,
+                                            initiative_id: str,
+                                            exported_file_name: str):
     """API to get SAS token for getting access to desired export file.
         :param selfcare_token: Self-Care token of the test organization that should download the exports.
         :param initiative_id: ID of the initiative of interest.
@@ -515,7 +515,7 @@ def get_export_sas_token(selfcare_token: str,
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.get(
+    res = requests.get(
         f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/exports/{exported_file_name}',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
@@ -523,6 +523,7 @@ def get_export_sas_token(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+    return res
 
 
 def put_citizen_readmission(selfcare_token: str,
