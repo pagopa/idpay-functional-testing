@@ -34,22 +34,22 @@ Enter the cloned repository:
 cd idpay-functional-testing
 ```
 
-Create a virtual environment:
+Install [pipenv](https://pipenv.pypa.io/en/latest/):
 
-```commandline
-python3 -m venv venv
+```
+pip install pipenv
 ```
 
-Enter the virtual environment:
+Create and enter the virtual environment:
 
 ```commandline
-source venv/bin/activate
+pipenv shell
 ```
 
-Install dependencies:pip
+Install dependencies:
 
 ```commandline
-pip install -r requirements.txt
+pipenv sync
 ```
 
 > **_NOTE_**: Create `.secret.yaml` based on `.secrets_semplate.yaml` and customize it.
