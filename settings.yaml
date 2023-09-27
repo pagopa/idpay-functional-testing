@@ -5,12 +5,15 @@ API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
+KEEP_INITIATIVES_AFTER_TEST: false
+INITIATIVE_STARTUP_TIME_SECONDS: 30
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
   RTD: "https://api.uat.cstar.pagopa.it"
   IDPAY:
     internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
+  PDV: "https://api.uat.tokenizer.pdv.pagopa.it"
 IDPAY:
   domain: "/idpay"
   MIL:
@@ -34,6 +37,7 @@ IDPAY:
       unsubscribed_message: 'Unsubscribed to initiative'
       unsubscribed_error_details: 'GENERIC_ERROR'
     wallet:
+      internal: '/idpaywallet'
       path: '/wallet'
       end_path: '/instruments'
       unsubscribe: '/unsubscribe'
@@ -43,6 +47,8 @@ IDPAY:
         not_refundable_only_iban: 'NOT_REFUNDABLE_ONLY_IBAN'
         refundable: 'REFUNDABLE'
         unsubscribed: 'UNSUBSCRIBED'
+        suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     timeline:
       path: '/timeline'
       operations:
@@ -52,6 +58,8 @@ IDPAY:
         delete_instrument: 'DELETE_INSTRUMENT'
         transaction: 'TRANSACTION'
         reversal: 'REVERSAL'
+        suspended: 'SUSPENDED'
+        readmitted: 'READMITTED'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
@@ -71,6 +79,14 @@ IDPAY:
       unprocessed: '/transactions'
     merchant:
       path: '/idpaymerchant'
+    mock:
+      isee: '/mock/citizen/isee'
+    initiatives:
+      portal: '/idpayportalwelfarebackendinitiative'
+      beneficiary:
+        path: '/beneficiary'
+        suspend: '/suspend'
+        readmit: '/readmit'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
@@ -87,6 +103,9 @@ RTD:
     mock_io:
       login: "/mock-io/login"
       user: "/mock-io/user"
+PDV:
+  endpoints:
+    tokenizer: '/tokenizer/v1/tokens'
 initiatives:
   not_started:
     message: 'The initiative has not yet begun'
@@ -139,6 +158,93 @@ initiatives:
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1'
       beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'BTW_CLOSED'
+            value: '18'
+            value2: '35'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Scontoditipo1_not_started:
+    id: 'PILOT_NOT_STARTED'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    min_age: 18
+    max_age: 35
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryBudget: 300
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 1 - not started'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'BTW_CLOSED'
+            value: '18'
+            value2: '35'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Scontoditipo1_allocated:
+    id: 'PILOT_ALLOCATED'
+    cashback_percentage: 100
+    budget_per_citizen: 200000
+    total_budget: 1000000
+    min_age: 18
+    max_age: 35
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 1000000
+        beneficiaryBudget: 200000
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 1 - allocated'
+      beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
           - _type: 'boolean'
@@ -163,6 +269,39 @@ initiatives:
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
     fruition_end: '2026-05-29T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 99.9
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 6'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'GT'
+            value: '19'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 87.12
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          trxCount:
+            fromIncluded: true
+            to: 1
+            toIncluded: true
+          rewardLimits: [ ]
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   Scontoditipo8:
     id: 'SCONTOTIPO8'
     cashback_percentage: 100
@@ -173,6 +312,43 @@ initiatives:
     max_age: 30
     fruition_start: '2023-07-20T00:00:00.000+02:00'
     fruition_end: '2024-05-30T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 8'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'AGID'
+            code: 'BIRTHDATE'
+            field: 'age'
+            operator: 'LE'
+            value: '30'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          threshold:
+            from: 11.15
+            fromIncluded: true
+            to: 100
+            toIncluded: true
+          rewardLimits:
+            - frequency: 'DAILY'
+              rewardLimit: 50
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+          rewardLimit: 50
   Scontoditipo3:
     id: 'SCONTOTIPO3'
     flat_cashback_amount: 10.13
@@ -182,3 +358,78 @@ initiatives:
     max_trx_amount: 100000000
     fruition_start: '2023-07-25T00:00:00.000+02:00'
     fruition_end: '2033-05-29T23:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 1000000
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 200000
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test Sconto tipo 3'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Scontoditipo4:
+    id: 'SCONTOTIPO4'
+    cashback_percentage: 100
+    budget_per_citizen: 1
+    fruition_start: '2023-09-06T00:00:00.000+02:00'
+    fruition_end: '2023-09-07:59:59.000+02:00'
+  Scontoditipo5:
+    id: 'SCONTOTIPO5'
+    cashback_percentage: 100
+    budget_per_citizen: 1
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
+  ScontoditipoB:
+    id: 'SCONTOTIPOB'
+    cashback_percentage: 1000
+    budget_per_citizen: 10
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 10
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test sconto tipo B'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'GT'
+            iseeTypes:
+              - "ORDINARIO"
+            value: '20000'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
