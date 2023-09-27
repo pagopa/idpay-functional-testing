@@ -398,6 +398,8 @@ def check_rewards(initiative_id,
                   check_absence: bool = False):
     export_ids = []
     organization_id = None
+    export_path = None
+
     res = force_reward()
     exported_initiatives = res.json()
     for i in exported_initiatives:
@@ -406,6 +408,8 @@ def check_rewards(initiative_id,
             if curr_export['initiativeId'] == initiative_id and curr_export['status'] == 'EXPORTED':
                 export_ids.append(curr_export['id'])
                 organization_id = curr_export['organizationId']
+                export_path = curr_export['filePath']
+                assert export_path.split('/')[1] == initiative_id
 
     if check_absence:
         if len(export_ids) == 0:
@@ -432,6 +436,7 @@ def check_rewards(initiative_id,
                 assert not is_present
             else:
                 assert is_rewarded
+    return export_path
 
 
 def check_unprocessed_transactions(initiative_id,
