@@ -23,6 +23,7 @@ from util.utility import get_io_token
 from util.utility import get_payment_disposition_unique_ids
 from util.utility import get_refund_exported_content
 from util.utility import retry_timeline
+from util.utility import upload_payment_results
 
 
 def step_check_rewards_on_wallet(context, token_io):
@@ -84,8 +85,20 @@ def step_set_expected_amount_left(context):
 @then('the merchant {merchant_name} is refunded {expected_refund} euros')
 def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     curr_iban = context.merchants[merchant_name]['iban']
-    check_rewards(initiative_id=context.initiative_id,
-                  expected_rewards=[Reward(curr_iban, float(expected_refund))])
+    curr_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    export_path = check_rewards(initiative_id=context.initiative_id,
+                                expected_rewards=[reward(curr_iban, float(expected_refund))])
+
+    export_name = export_path.split('/')[3]
+    context.payment_exports_list = get_refund_exported_content(initiative_id=context.initiative_id,
+                                                               exported_file_name=export_name)
+    context.payment_disposition_unique_ids = get_payment_disposition_unique_ids(
+        payment_dispositions=context.payment_exports_list, fiscal_code=curr_fiscal_code,
+        expected_rewards=[reward(curr_iban, float(expected_refund))])
+    assert len(context.payment_disposition_unique_ids) > 0
+    result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids)
+    upload_payment_results(initiative_id=context.initiative_id, payment_result_name=result_file_name)
+    assert False
 
 
 @when('the batch process confirms the transaction {trx_name}')
