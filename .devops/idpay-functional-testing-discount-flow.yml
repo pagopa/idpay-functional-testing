@@ -4,14 +4,8 @@ trigger:
       - main
 
 schedules:
-  - cron: "0 6 * * 4" # Runs every Thursday at 06:00:00 UTC
-    displayName: Scheduled Thursday run
-    branches:
-      include:
-        - main
-    always: true
-  - cron: "0 9 * * 1" # Runs every Monday at 09:00:00 UTC
-    displayName: Scheduled Monday run
+  - cron: "0 5 * * *" # Runs every day at 05:00:00 UTC
+    displayName: Scheduled every day run
     branches:
       include:
         - main
@@ -58,10 +52,8 @@ stages:
             displayName: "Display Python version"
           - script: |
               python3 --version
-              python3 -m pip install --user virtualenv
-              python3 -m virtualenv .venv
-              source .venv/bin/activate
-              pip install -r requirements.txt
+              python3 -m pip install --user pipenv
+              python3 -m pipenv sync
             displayName: "Install requirements"
           - task: DownloadSecureFile@1
             name: idpay_secrets
@@ -69,13 +61,12 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              source .venv/bin/activate
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
-                behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
               elif [ "${{ parameters.tag }}" = "all" ]; then
-                behave --junit --junit-directory "tests/reports/behave"
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
               else
-                behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
               fi
             displayName: 'Run tests with Behave'
             env:

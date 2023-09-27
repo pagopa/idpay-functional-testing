@@ -48,6 +48,22 @@
 - [ ] Not needed
 - [ ] No (_please provide further information_)
 
+### Did you update dependencies accordingly?
+
+Run:
+
+- `pipenv run pip freeze > requirements.txt`
+- `pipenv install -r requirements.txt`
+
+and check for changes.
+
+- [ ] Yes
+  - [ ] `requirements.txt`
+  - [ ] `Pipfile`
+  - [ ] `Pipfile.lock`
+- [ ] Not needed
+- [ ] No (_please provide further information_)
+
 ### Other information
 
 <!-- Any other information that is important to this PR such as screenshots of how the component looks before and after the change. -->
