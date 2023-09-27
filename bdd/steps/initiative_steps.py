@@ -14,8 +14,15 @@ from util.utility import check_statistics
 
 
 @given('the initiative is "{initiative_name}"')
-def step_given_initiative_id(context, initiative_name):
+def step_given_initiative_name(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.initiative_settings = settings.initiatives[initiative_name]
+    base_context_initialization(context)
+
+
+@given('the initiative id is "{initiative_id}" ("{initiative_name}")')
+def step_given_initiative_id(context, initiative_id, initiative_name):
+    context.initiative_id = initiative_id
     context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
