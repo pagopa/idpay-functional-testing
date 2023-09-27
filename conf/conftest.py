@@ -23,6 +23,7 @@ def pytest_configure():
           f"{TextFormat.BOLD}{TextFormat.HEADER}{settings['TARGET_ENV'].upper()}{TextFormat.ENDC}")
 
     create_test_initiatives('cashback_like')
+    create_test_initiatives('not_started')
     time.sleep(settings.INITIATIVE_STARTUP_TIME_SECONDS)
 
 
@@ -37,8 +38,9 @@ def pytest_collection_modifyitems(items):
 
 def pytest_sessionfinish(session, exitstatus):
     # This code will run once at the end of the pytest session
-    delete_initiative(initiative_id=secrets.initiatives['cashback_like']['id'])
-    print(f'Deleted initiative {secrets.initiatives["cashback_like"]["id"]}')
+    for initiative_id in secrets['newly_created']:
+        delete_initiative(initiative_id=initiative_id)
+        print(f'Deleted initiative {initiative_id}')
 
 
 def create_test_initiatives(initiative_name: str):

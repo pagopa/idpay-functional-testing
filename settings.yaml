@@ -110,6 +110,39 @@ initiatives:
   not_started:
     message: 'The initiative has not yet begun'
     details: 'INITIATIVE_NOT_STARTED'
+    id: 'NOT_STARTED'
+    cashback_percentage: 30.22
+    budget_per_citizen: 51.5
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
+    fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 51.5
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Test initiative - Not started'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30.22
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   cashback_like:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
