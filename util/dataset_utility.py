@@ -21,7 +21,7 @@ circuits = ['visa', 'mastercard', 'maestro', 'amex']
 
 
 @dataclass()
-class Reward:
+class reward:
     iban: str
     amount: float
 
