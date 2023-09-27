@@ -1,4 +1,3 @@
-import csv
 import datetime
 import os
 import random
@@ -7,6 +6,9 @@ import time
 import uuid
 import zipfile
 from hashlib import sha256
+from math import floor
+
+import pandas as pd
 
 from api.idpay import enroll_iban
 from api.idpay import force_reward
@@ -50,7 +52,7 @@ from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
-from util.dataset_utility import Reward
+from util.dataset_utility import reward
 from util.dataset_utility import serialize
 from util.encrypt_utilities import pgp_string_routine
 
@@ -392,7 +394,7 @@ def check_merchant_statistics(merchant_id: str,
 
 
 def check_rewards(initiative_id,
-                  expected_rewards: [Reward],
+                  expected_rewards: [reward],
                   check_absence: bool = False):
     export_ids = []
     organization_id = None
@@ -437,7 +439,7 @@ def check_rewards(initiative_id,
     return export_path
 
 
-def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [Reward]):
+def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [reward]):
     unique_ids = []
     for disposition in payment_dispositions:
         if str(disposition[2]) == str(fiscal_code):
@@ -663,11 +665,15 @@ def get_refund_exported_content(initiative_id: str,
             extraction_path = os.path.join(initiative_id, extracted_file)
             zipped_input_file.extractall(path=initiative_id)
 
-    return extraction_path
+    with open(extraction_path, 'r') as input_file:
+        payment_exports = pd.read_csv(input_file, quotechar='"', sep=';')
+        payment_exports_list = list(payment_exports.values)
+
+    return payment_exports_list
 
 
 def generate_payment_results(
-        export_file: str,
+        payment_disposition_unique_ids: [str],
         payment_result: str = PAYMENT_OK, ):
     refunds = []
     reject_reason = ''
@@ -675,18 +681,14 @@ def generate_payment_results(
     if payment_result == PAYMENT_KO:
         reject_reason = REJECT_REASON
 
-    with open(export_file) as f:
-        reader = csv.reader(f, delimiter=';')
-        next(reader)
-        for r in reader:
-            unique_id = r[1]
-            refunds.append([
-                unique_id,
-                payment_result,
-                reject_reason,
-                sha256(f'{r[1]}'.encode()).hexdigest(),
-                datetime.datetime.now().strftime('%Y-%m-%d')
-            ])
+    for unique_id in payment_disposition_unique_ids:
+        refunds.append([
+            unique_id,
+            payment_result,
+            reject_reason,
+            sha256(f'{unique_id}'.encode()).hexdigest(),
+            datetime.datetime.now().strftime('%Y-%m-%d')
+        ])
 
     output_file_name = 'payment-results-' + datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
     ourput_file_path = os.path.join('.', output_file_name)
