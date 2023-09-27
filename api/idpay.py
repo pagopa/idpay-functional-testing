@@ -551,4 +551,3 @@ def put_payment_results(selfcare_token: str,
         data=results_file,
         timeout=settings.default_timeout
     )
-  
