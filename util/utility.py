@@ -617,7 +617,7 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
 def retry_payment_instrument(expected_type, expected_status, request, token, initiative_id, field_type, field_status,
                              num_required=1, tries=3, delay=5):
     count = 0
-    res = request(token, initiative_id)
+    res = request(initiative_id, token)
     assert res.status_code == 200
 
     instruments = []
