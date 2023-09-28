@@ -539,7 +539,7 @@ def get_idpay_code_status(token: str):
 
 
 def put_code_instrument(token: str, initiative_id: str):
-    return requests.post(
+    return requests.put(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.code_instruments}',
         headers={
             'Authorization': f'Bearer {token}',

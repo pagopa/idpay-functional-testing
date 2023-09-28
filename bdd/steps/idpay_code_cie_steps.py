@@ -73,7 +73,7 @@ def step_check_latest_cie_enabling_failed(context, cause_ko):
 @when('the citizen {citizen_name} tries to enroll the CIE')
 def step_citizen_try_enroll_cie(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
-    res = put_code_instrument(token=token_io, initiative_id=context.initiative_id)
+    res = post_idpay_code_generate(token=token_io, body={'initiativeId': context.initiative_id})
 
     context.latest_enrollment_response = res
 
@@ -107,6 +107,7 @@ def step_citizen_try_disable_cie(context, citizen_name):
     assert res.status_code == 200
 
 
+@given('the instrument CIE is in {status} status for citizen {citizen_name} on initiative')
 @then('the instrument CIE is in {status} status for citizen {citizen_name} on initiative')
 def step_check_status_instrument_cie(context, status, citizen_name):
     initiative_id = context.initiative_id
