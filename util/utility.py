@@ -310,6 +310,28 @@ def clean_trx_files(source_filename: str):
         print(f'The file {source_filename} and its encrypted version does not exist')
 
 
+def retry_institution_statistics(initiative_id: str,
+                                 tries=10,
+                                 delay=1):
+    count = 0
+
+    res = get_initiative_statistics(
+        organization_id=secrets.organization_id,
+        initiative_id=initiative_id)
+
+    while res.status_code != 200:
+        count += 1
+        time.sleep(delay)
+        res = get_initiative_statistics(
+            organization_id=secrets.organization_id,
+            initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 200
+    return res.json()
+
+
 def retry_merchant_statistics(initiative_id: str,
                               merchant_id: str,
                               tries=10,
@@ -538,7 +560,6 @@ def merchant_id_from_fc(initiative_id: str,
 
 
 def natural_language_to_date_converter(natural_language_date: str):
-    actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
     if natural_language_date == 'today':
         actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
     elif natural_language_date == 'tomorrow':
@@ -549,6 +570,8 @@ def natural_language_to_date_converter(natural_language_date: str):
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
     elif natural_language_date == 'future_tomorrow':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5 + 1)).strftime('%Y-%m-%d')
+    else:
+        actual_date = datetime.datetime.strptime(natural_language_date, '%Y-%m-%d').strftime('%Y-%m-%d')
     return actual_date
 
 
@@ -601,6 +624,17 @@ def create_initiative(initiative_name_in_settings: str):
     assert res.status_code == 204
 
     return initiative_id
+
+
+def create_initiative_and_update_conf(initiative_name: str):
+    secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
+    print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
+    secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
+
+    startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
+    if 'initiative_startup_time_seconds' in settings.initiatives[initiative_name]:
+        startup_time = settings.initiatives[initiative_name]['initiative_startup_time_seconds']
+    time.sleep(startup_time)
 
 
 def onboard_random_merchant(initiative_id: str,

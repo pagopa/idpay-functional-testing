@@ -7,6 +7,7 @@ import requests
 from conf.configuration import settings
 from util.certs_loader import load_certificates
 from util.dataset_utility import tomorrow_date
+from util.dataset_utility import yesterday_date
 
 
 def timeline(initiative_id, token, page: int = 0):
@@ -159,10 +160,11 @@ def get_reward_content(organization_id, initiative_id, export_id):
 
 
 def get_initiative_statistics(organization_id, initiative_id):
-    return requests.get(
+    res = requests.get(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
         timeout=settings.default_timeout
     )
+    return res
 
 
 def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
@@ -538,6 +540,44 @@ def put_citizen_readmission(selfcare_token: str,
         timeout=settings.default_timeout
     )
 
+
+def put_ranking_end_date(initiative_id: str):
+    res = requests.put(
+        url=f'{settings.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/initiative/{initiative_id}/reset-status-set-ranking-end-date?rankingEndDate={yesterday_date()}',
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def force_ranking():
+    res = requests.get(
+        url=f'{settings.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/ranking/build/file/start',
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def get_ranking_file(selfcare_token: str, initiative_id: str, ranking_file_path: str):
+    res = requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports/{ranking_file_path}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def put_publish_ranking(selfcare_token: str, initiative_id: str):
+    res = requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/notified',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res
+ 
 
 def put_payment_results(selfcare_token: str,
                         initiative_id: str,
