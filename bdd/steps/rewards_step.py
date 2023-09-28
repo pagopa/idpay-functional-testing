@@ -91,7 +91,8 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     check_rewards(initiative_id=context.initiative_id,
                   organization_id=secrets.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
-                  export_ids=export_ids
+                  export_ids=export_ids,
+                  exptected_status='EXPORTED'
                   )
     export_name = export_path.split('/')[3]
     context.payment_exports_list = get_refund_exported_content(initiative_id=context.initiative_id,
@@ -102,7 +103,12 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     assert len(context.payment_disposition_unique_ids) > 0
     result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids)
     upload_payment_results(initiative_id=context.initiative_id, payment_result_name=result_file_name)
-    assert False
+    check_rewards(initiative_id=context.initiative_id,
+                  organization_id=secrets.organization_id,
+                  expected_rewards=[reward(curr_iban, float(expected_refund))],
+                  export_ids=export_ids,
+                  exptected_status='COMPLETED_OK'
+                  )
 
 
 @when('the batch process confirms the transaction {trx_name}')
