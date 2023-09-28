@@ -16,6 +16,7 @@ from util.utility import retry_timeline
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
+
 @given('the citizen {citizen_name} generates the idpay code')
 @when('the citizen {citizen_name} generates the idpay code')
 @when('the citizen {citizen_name} regenerates the idpay code')
@@ -124,32 +125,32 @@ def step_check_status_instrument_cie(context, status, citizen_name):
     if status == 'ACTIVE':
         retry_payment_instrument(expected_type=instrument_types.idpaycode, expected_status='ACTIVE',
                                  request=get_payment_instruments, token=token_io, initiative_id=initiative_id,
-                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=1)
+                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=2)
 
         retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
-                       delay=1, message='Card not enrolled')
+                       delay=2, message='Card not enrolled')
 
     elif status == 'ACTIVE AGAIN':
         retry_payment_instrument(expected_type=instrument_types.idpaycode, expected_status='ACTIVE',
                                  request=get_payment_instruments, token=token_io, initiative_id=initiative_id,
-                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=1)
+                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=2)
 
         retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=2, tries=50,
-                       delay=1, message='Card not enrolled')
+                       delay=2, message='Card not enrolled')
 
     elif status == 'DELETED':
         retry_timeline(expected=timeline_operations.delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
-                       delay=1, message='Delete card rejected')
+                       delay=2, message='Delete card rejected')
 
     elif status == 'REJECTED ADD':
         retry_timeline(expected=timeline_operations.rejected_add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
-                       delay=1, message='Add card not rejected')
+                       delay=2, message='Add card not rejected')
 
     elif status == 'REJECTED DELETE':
         retry_timeline(expected=timeline_operations.rejected_delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
-                       delay=1, message='Delete card not rejected')
+                       delay=2, message='Delete card not rejected')
