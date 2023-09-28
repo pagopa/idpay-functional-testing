@@ -26,7 +26,7 @@ def step_check_idpay_code_status(context, status, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = get_idpay_code_status(token=token_io)
     assert res.status_code == 200
-
+    print(res)
     if status == "ENABLED":
         assert res.json()['isIdPayCodeEnabled'] == 'true'
     elif status == "NOT ENABLED":
