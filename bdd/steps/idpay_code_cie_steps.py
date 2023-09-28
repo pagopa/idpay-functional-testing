@@ -118,9 +118,14 @@ def step_check_status_instrument_cie(context, status, citizen_name):
     res = get_payment_instruments(token=token_io,
                                   initiative_id=initiative_id)
     assert res.status_code == 200
+    assert res.json()['instrumentList'] != []
+
+    cie_instrument = None
+    for instrument in res.json()['instrumentList']:
+        if instrument['instrumentType'] == 'IDPAYCODE':
+            cie_instrument = instrument
 
     if status == 'ACTIVE':
-        cie_instrument = res.json()['instrumentList'][0]
         assert cie_instrument['instrumentType'] == 'IDPAYCODE'
         assert cie_instrument['status'] == 'ACTIVE'
 
@@ -129,7 +134,6 @@ def step_check_status_instrument_cie(context, status, citizen_name):
                        delay=1, message='Card not enrolled')
 
     elif status == 'ACTIVE AGAIN':
-        cie_instrument = res.json()['instrumentList'][0]
         assert cie_instrument['instrumentType'] == 'IDPAYCODE'
         assert cie_instrument['status'] == 'ACTIVE'
 
@@ -138,22 +142,19 @@ def step_check_status_instrument_cie(context, status, citizen_name):
                        delay=1, message='Card not enrolled')
 
     elif status == 'DELETED':
-        assert len(res.json()['instrumentList']) == 0
-
+        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Delete card rejected')
 
     elif status == 'REJECTED ADD':
-        assert len(res.json()['instrumentList']) == 0
-
+        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.rejected_add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Add card not rejected')
 
     elif status == 'REJECTED DELETE':
-        assert len(res.json()['instrumentList']) == 0
-
+        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.rejected_delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Delete card not rejected')
