@@ -21,6 +21,11 @@ def step_check_latest_cancellation_failed(context, status):
         assert context.latest_unsubscribe_response.status_code == 204
     elif status == 'KO':
         assert context.latest_unsubscribe_response.status_code == 400
+    elif status == 'KO because the initiative has not started yet'.upper():
+        assert context.latest_unsubscribe_response.status_code == 404
+        assert context.latest_unsubscribe_response.json()['code'] == 404
+        assert context.latest_unsubscribe_response.json()[
+                   'message'] == 'The requested initiative is not active for the current user!'
     else:
         assert False, f'Uncovered case {status}'
 

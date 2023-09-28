@@ -9,6 +9,7 @@ filelock==3.12.4
 idna==3.4
 iniconfig==2.0.0
 iso3166==2.1.1
+numpy==1.26.0
 packaging==23.1
 pandas==2.1.1
 parse==1.19.1
