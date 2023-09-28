@@ -421,26 +421,37 @@ def check_rewards(initiative_id: str,
                   export_ids: [str],
                   expected_rewards: [reward],
                   check_absence: bool = False,
-                  exptected_status: str = 'EXPORTED'):
+                  exptected_status: str = 'EXPORTED',
+                  delay=3,
+                  tries=10):
+    success = False
+    count = 0
     total_merchant_rewards = 0
     is_present = False
 
-    for export_id in export_ids:
-        res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
-        actual_rewards = res.json()
-        for expected_reward in expected_rewards:
-            is_rewarded = False
-            for r in actual_rewards:
-                if r['iban'] == expected_reward.iban and r['status'] == exptected_status:
-                    total_merchant_rewards += r['amount']
-                    is_present = True
+    while not success:
+        for export_id in export_ids:
+            res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
+            actual_rewards = res.json()
+            for expected_reward in expected_rewards:
+                is_rewarded = False
+                for r in actual_rewards:
+                    if r['iban'] == expected_reward.iban and r['status'] == exptected_status:
+                        total_merchant_rewards += r['amount']
+                        is_present = True
 
-            if total_merchant_rewards == expected_reward.amount:
-                is_rewarded = True
-            if check_absence:
-                assert not is_present
-            else:
-                assert is_rewarded
+                if total_merchant_rewards == expected_reward.amount:
+                    is_rewarded = True
+                if check_absence:
+                    success = not is_present
+                else:
+                    success = is_rewarded
+        if not success:
+            time.sleep(delay)
+            count += 1
+        if count == tries:
+            break
+    assert success
 
 
 def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [reward]):
