@@ -196,7 +196,6 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     res = request(initiative_id, token, page)
 
     operations = []
-    print(res.json()['operationList'])
     for operation in res.json()['operationList']:
         if field in operation:
             if operation[field] == expected:
@@ -656,7 +655,6 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
     assert res.status_code == 200
 
     instruments = []
-    print(res.json()['instrumentList'])
     for instrument in res.json()['instrumentList']:
         if field_type in instrument:
             if instrument[field_type] == expected_type and instrument[field_status] == expected_status:

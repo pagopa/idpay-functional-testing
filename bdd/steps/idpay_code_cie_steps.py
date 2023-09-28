@@ -108,8 +108,15 @@ def step_citizen_try_disable_cie(context, citizen_name):
 
     res = get_payment_instruments(initiative_id=initiative_id, token=token_io)
     assert res.status_code == 200
+    assert res.json()['instrumentList'] != []
 
-    instrument_id = res.json()['instrumentList'][0]['instrumentId']
+    instrument_cie = None
+    for instrument in res.json()['instrumentList']:
+        if instrument['instrumentType'] == 'IDPAYCODE':
+            instrument_cie = instrument
+
+    assert instrument_cie is not None
+    instrument_id = instrument_cie['instrumentId']
 
     res = remove_payment_instrument(initiative_id=initiative_id, token=token_io, instrument_id=instrument_id)
     assert res.status_code == 200
