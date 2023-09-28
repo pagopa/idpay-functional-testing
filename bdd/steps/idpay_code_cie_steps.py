@@ -4,10 +4,10 @@ from behave import when
 from api.idpay import get_idpay_code_status, post_idpay_code_generate, get_payment_instruments, timeline, \
     put_code_instrument, remove_payment_instrument
 from conf.configuration import settings
-from util.utility import get_io_token, retry_timeline
+from util.utility import get_io_token, retry_timeline, retry_payment_instrument
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
-
+instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 @given('the citizen {citizen_name} generates the idpay code')
 @when('the citizen {citizen_name} generates the idpay code')
@@ -85,8 +85,7 @@ def step_check_latest_cie_enrollment_failed(context, cause_ko):
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
         assert context.latest_enrollment_response.status_code == 404
         assert context.latest_enrollment_response.json()['code'] == 404
-        assert context.latest_enrollment_response.json()[
-                   'message'] == 'The requested initiative is not active for the current user!'
+        assert context.latest_enrollment_response.json()['message'] == 'The requested initiative is not active for the current user!'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_enrollment_response.status_code == 400
         assert context.latest_enrollment_response.json()['code'] == 400
@@ -115,46 +114,35 @@ def step_check_status_instrument_cie(context, status, citizen_name):
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    res = get_payment_instruments(token=token_io,
-                                  initiative_id=initiative_id)
-    assert res.status_code == 200
-    assert res.json()['instrumentList'] != []
-
-    cie_instrument = None
-    for instrument in res.json()['instrumentList']:
-        if instrument['instrumentType'] == 'IDPAYCODE':
-            cie_instrument = instrument
-
     if status == 'ACTIVE':
-        assert cie_instrument['instrumentType'] == 'IDPAYCODE'
-        assert cie_instrument['status'] == 'ACTIVE'
+        retry_payment_instrument(expected_type=instrument_types.idpaycode, expected_status='ACTIVE',
+                                 request=get_payment_instruments, token=token_io, initiative_id=initiative_id,
+                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=1)
 
         retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Card not enrolled')
 
     elif status == 'ACTIVE AGAIN':
-        assert cie_instrument['instrumentType'] == 'IDPAYCODE'
-        assert cie_instrument['status'] == 'ACTIVE'
+        retry_payment_instrument(expected_type=instrument_types.idpaycode, expected_status='ACTIVE',
+                                 request=get_payment_instruments, token=token_io, initiative_id=initiative_id,
+                                 field_type='instrumentType', field_status='status', num_required=1, tries=50, delay=1)
 
         retry_timeline(expected=timeline_operations.add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=2, tries=50,
                        delay=1, message='Card not enrolled')
 
     elif status == 'DELETED':
-        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Delete card rejected')
 
     elif status == 'REJECTED ADD':
-        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.rejected_add_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Add card not rejected')
 
     elif status == 'REJECTED DELETE':
-        assert cie_instrument is None
         retry_timeline(expected=timeline_operations.rejected_delete_instrument, request=timeline, token=token_io,
                        initiative_id=initiative_id, field='operationType', num_required=1, tries=50,
                        delay=1, message='Delete card not rejected')

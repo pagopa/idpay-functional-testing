@@ -612,3 +612,34 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
+
+
+def retry_payment_instrument(expected_type, expected_status, request, token, initiative_id, field_type, field_status,
+                             num_required=1, tries=3, delay=5):
+    count = 0
+    res = request(token, initiative_id)
+    assert res.status_code == 200
+
+    instruments = []
+    for instrument in res.json()['instrumentList']:
+        if field_type in instrument:
+            if instrument[field_type] == expected_type and instrument[field_status] == expected_status:
+                instruments.append(instrument)
+    success = len(instruments) == num_required
+
+    while not success:
+        count += 1
+        if count == tries:
+            break
+        time.sleep(delay)
+        res = request(token, initiative_id)
+
+        instruments = []
+        for instrument in res.json()['instrumentList']:
+            if field_type in instrument:
+                if instrument[field_type] == expected_type and instrument[field_status] == expected_status:
+                    instruments.append(instrument)
+        success = len(instruments) == num_required
+    assert success
+    return res
+

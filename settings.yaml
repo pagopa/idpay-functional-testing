@@ -52,6 +52,10 @@ IDPAY:
       code_generate: '/code/generate'
       code_status: '/code/status'
       code_instruments: '/code/instruments'
+      instrument_type:
+        card: 'CARD'
+        idpaycode: 'IDPAYCODE'
+        qrcode: 'QRCODE'
     timeline:
       path: '/timeline'
       operations:
