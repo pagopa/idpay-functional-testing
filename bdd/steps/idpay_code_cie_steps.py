@@ -1,10 +1,17 @@
 from behave import given
 from behave import then
 from behave import when
-from api.idpay import get_idpay_code_status, post_idpay_code_generate, get_payment_instruments, timeline, \
-    put_code_instrument, remove_payment_instrument
+
+from api.idpay import get_idpay_code_status
+from api.idpay import get_payment_instruments
+from api.idpay import post_idpay_code_generate
+from api.idpay import put_code_instrument
+from api.idpay import remove_payment_instrument
+from api.idpay import timeline
 from conf.configuration import settings
-from util.utility import get_io_token, retry_timeline, retry_payment_instrument
+from util.utility import get_io_token
+from util.utility import retry_payment_instrument
+from util.utility import retry_timeline
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
@@ -27,9 +34,9 @@ def step_check_idpay_code_status(context, status, citizen_name):
     res = get_idpay_code_status(token=token_io)
     assert res.status_code == 200
 
-    if status == "ENABLED":
+    if status == 'ENABLED':
         assert res.json()['isIdPayCodeEnabled'] is True
-    elif status == "NOT ENABLED":
+    elif status == 'NOT ENABLED':
         assert res.json()['isIdPayCodeEnabled'] is False
 
 

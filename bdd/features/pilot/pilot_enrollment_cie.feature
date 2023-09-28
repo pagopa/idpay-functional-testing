@@ -52,4 +52,3 @@ Feature: A citizen can enroll a electronic identity card (CIE) to an initiative
     #    When the citizen A tries to disable the CIE
     #    Then the latest CIE deactivation fails because the instrument is not active
     #    And the instrument CIE is in rejected delete status for citizen A on initiative
-

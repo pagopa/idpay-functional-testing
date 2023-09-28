@@ -546,4 +546,3 @@ def put_code_instrument(token: str, initiative_id: str):
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout)
-

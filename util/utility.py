@@ -642,4 +642,3 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
         success = len(instruments) == num_required
     assert success
     return res
-
