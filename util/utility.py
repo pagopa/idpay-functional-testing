@@ -666,7 +666,7 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
         if count == tries:
             break
         time.sleep(delay)
-        res = request(token, initiative_id)
+        res = request(initiative_id, token)
 
         instruments = []
         for instrument in res.json()['instrumentList']:
