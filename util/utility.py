@@ -656,6 +656,7 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
     assert res.status_code == 200
 
     instruments = []
+    print(res.json()['instrumentList'])
     for instrument in res.json()['instrumentList']:
         if field_type in instrument:
             if instrument[field_type] == expected_type and instrument[field_status] == expected_status:

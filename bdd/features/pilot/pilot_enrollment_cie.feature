@@ -1,4 +1,3 @@
-@Scontoditipo1
 @Scontoditipo1_enrollment_cie
 Feature: A citizen can enroll a electronic identity card (CIE) to an initiative
 
