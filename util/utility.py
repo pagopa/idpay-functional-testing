@@ -196,6 +196,7 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     res = request(initiative_id, token, page)
 
     operations = []
+    print(res.json()['operationList'])
     for operation in res.json()['operationList']:
         if field in operation:
             if operation[field] == expected:
