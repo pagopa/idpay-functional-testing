@@ -1,3 +1,5 @@
+import datetime
+import os
 import uuid
 
 import requests
@@ -5,9 +7,10 @@ import requests
 from conf.configuration import settings
 from util.certs_loader import load_certificates
 from util.dataset_utility import tomorrow_date
+from util.dataset_utility import yesterday_date
 
 
-def timeline(initiative_id, token, page: int = 1):
+def timeline(initiative_id, token, page: int = 0):
     """API to get timeline of a user
         :param initiative_id: ID of the initiative of interest.
         :param token: token IO.
@@ -54,21 +57,6 @@ def unsubscribe(initiative_id, token):
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout)
-
-
-def internal_initiative_statistics(organization_id: str, initiative_id: str):
-    """API to get initiative statistics.
-        :param organization_id: ID of the organization of interest.
-        :param initiative_id: ID of the initiative of interest.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.get(
-        f'{settings.base_path.INTERNAL}{settings.IDPAY.endpoints.initiative.microservice_path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.initiative.start_path}/{organization_id}{settings.IDPAY.endpoints.initiative.path}/{initiative_id}{settings.IDPAY.endpoints.initiative.end_path}',
-        headers={
-            'Content-Type': 'application/json',
-        },
-        timeout=5000)
 
 
 def enroll_iban(initiative_id, token, body):
@@ -172,10 +160,11 @@ def get_reward_content(organization_id, initiative_id, export_id):
 
 
 def get_initiative_statistics(organization_id, initiative_id):
-    return requests.get(
+    res = requests.get(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
         timeout=settings.default_timeout
     )
+    return res
 
 
 def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
@@ -319,3 +308,250 @@ def get_merchant_processed_transactions(initiative_id,
         },
         timeout=settings.default_timeout
     )
+
+
+def obtain_selfcare_test_token(institution_info: str):
+    return requests.post(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
+        json=institution_info,
+        timeout=settings.default_timeout
+    )
+
+
+def post_initiative_info(selfcare_token: str,
+                         initiative_name_prefix: str = 'Functional test'):
+    return requests.post(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/info',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json={
+            'serviceIO': True,
+            'serviceName': f"{initiative_name_prefix} {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            'serviceScope': 'LOCAL',
+            'description': f'Test initiative for {initiative_name_prefix}',
+            'privacyLink': 'https://www.google.it',
+            'tcLink': 'https://www.google.com',
+            'channels': [
+                {
+                    'type': 'web',
+                    'contact': 'https://www.google.com'
+                }
+            ]
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_general_info(selfcare_token: str,
+                                initiative_id: str,
+                                general_payload: str):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/general',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json=general_payload,
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_beneficiary_info(selfcare_token: str,
+                                    initiative_id: str,
+                                    beneficiary_payload: str
+                                    ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/beneficiary',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json=beneficiary_payload,
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_reward_info(selfcare_token: str,
+                               initiative_id: str,
+                               reward_payload: str
+                               ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json=reward_payload,
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_refund_info(selfcare_token: str,
+                               initiative_id: str,
+                               refund_payload: str
+                               ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/refund',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        json=refund_payload,
+        timeout=settings.default_timeout
+    )
+
+
+def put_initiative_approval(selfcare_token: str,
+                            initiative_id: str
+                            ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/approved',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def publish_approved_initiative(selfcare_token: str,
+                                initiative_id: str
+                                ):
+    return requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/published',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def get_initiatives_summary(selfcare_token: str
+                            ):
+    return requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/summary',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def upload_merchant_csv(selfcare_token: str,
+                        initiative_id: str,
+                        vat: str,
+                        fc: str,
+                        iban: str
+                        ):
+    merchant_csv = f'Acquirer ID;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN' \
+                   f'\n{settings.idpay.acquirer_id};Esercente di test {str(uuid.uuid4())[:8]};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{fc};{vat};a;v;c;s;w;d;f;e;{iban}'
+
+    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
+
+    with open(csv_file_path, 'w') as f:
+        f.write(merchant_csv)
+
+    headers = {
+        'Authorization': f'Bearer {selfcare_token}'
+    }
+
+    files = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
+
+    res = requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/merchant/initiative/{initiative_id}/upload',
+        files=files,
+        headers=headers,
+        timeout=settings.default_timeout
+    )
+    os.remove(csv_file_path)
+
+    return res
+
+
+def get_merchant_list(organization_id: str,
+                      initiative_id: str,
+                      page: int = 0):
+    """API to get initiative statistics.
+        :param organization_id: ID of the organization of interest.
+        :param initiative_id: ID of the initiative of interest.
+        :param page: Page of merchants to query.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.path}{settings.IDPAY.domain}/merchant/organization/{organization_id}/initiative/{initiative_id}/merchants?page={page}',
+        headers={
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)
+
+
+def delete_initiative(initiative_id: str):
+    """API to delete everything related to an initiative.
+            :param initiative_id: ID of the initiative of interest.
+            :returns: the response of the call.
+            :rtype: requests.Response
+        """
+    return requests.delete(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        timeout=settings.default_timeout)
+
+
+def put_citizen_suspension(selfcare_token: str,
+                           initiative_id: str,
+                           fiscal_code: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.suspend}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_citizen_readmission(selfcare_token: str,
+                            initiative_id: str,
+                            fiscal_code: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.readmit}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Fiscal-Code': f'{fiscal_code}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_ranking_end_date(initiative_id: str):
+    res = requests.put(
+        url=f'{settings.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/initiative/{initiative_id}/reset-status-set-ranking-end-date?rankingEndDate={yesterday_date()}',
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def force_ranking():
+    res = requests.get(
+        url=f'{settings.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/ranking/build/file/start',
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def get_ranking_file(selfcare_token: str, initiative_id: str, ranking_file_path: str):
+    res = requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports/{ranking_file_path}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res
+
+
+def put_publish_ranking(selfcare_token: str, initiative_id: str):
+    res = requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/notified',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res

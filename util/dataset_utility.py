@@ -90,7 +90,8 @@ def fake_iban(abi):
     :returns:  A fake IBAN.
     :rtype: str
     """
-    curr_iban = IBAN.generate('IT', bank_code=abi, account_code=str(round(random.random() * math.pow(10, 12)))).compact
+    curr_iban = IBAN.generate('IT', bank_code=abi,
+                              account_code=str(round(random.random() * math.pow(10, 10))) + '99').compact
     return curr_iban[:len(curr_iban) - 2] + '99'
 
 
@@ -157,6 +158,14 @@ def tomorrow_date(is_iso: bool = False):
     if is_iso:
         tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000%z'
     return (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
+        tomorrow_date_format)
+
+
+def yesterday_date(is_iso: bool = False):
+    tomorrow_date_format = '%Y-%m-%d'
+    if is_iso:
+        tomorrow_date_format = tomorrow_date_format + 'T%H:%M:%S.000%z'
+    return (datetime.datetime.now(pytz.timezone('Europe/Rome')) - datetime.timedelta(days=1)).strftime(
         tomorrow_date_format)
 
 

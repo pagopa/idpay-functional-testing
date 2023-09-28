@@ -10,28 +10,46 @@ from api.idpay import force_reward
 from api.idpay import get_iban_info
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_merchant_list
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_instruments
 from api.idpay import get_reward_content
+from api.idpay import obtain_selfcare_test_token
+from api.idpay import post_initiative_info
+from api.idpay import publish_approved_initiative
+from api.idpay import put_citizen_readmission
+from api.idpay import put_citizen_suspension
+from api.idpay import put_initiative_approval
+from api.idpay import put_initiative_beneficiary_info
+from api.idpay import put_initiative_general_info
+from api.idpay import put_initiative_refund_info
+from api.idpay import put_initiative_reward_info
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
+from api.idpay import unsubscribe
+from api.idpay import upload_merchant_csv
 from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_condition
+from api.onboarding_io import accept_terms_and_conditions
 from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
+from api.pdv import detokenize_pdv_token
+from api.pdv import get_pdv_token
 from api.token_io import login
+from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
+from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
 from util.dataset_utility import Reward
 from util.encrypt_utilities import pgp_string_routine
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
+wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 
 
 def get_io_token(fc):
@@ -41,16 +59,21 @@ def get_io_token(fc):
     return login(fc).content.decode('utf-8')
 
 
+def get_selfcare_token(institution_info: str):
+    """Login through Self Care mock
+    :param institution_info: Information of the institute to log in.
+    """
+    return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
+
+
 def onboard_io(fc, initiative_id):
     """Onboarding process through IO
     :param fc: fiscal code to onboard
     :param initiative_id: ID of the initiative of interest.
     """
     token = get_io_token(fc)
-    # res = introspect(token)
-    # assert res.json()['fiscal_code'] == fc
 
-    res = accept_terms_and_condition(token, initiative_id)
+    res = accept_terms_and_conditions(token, initiative_id)
     assert res.status_code == 204
 
     retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
@@ -94,7 +117,7 @@ def iban_enroll(fc, iban, initiative_id):
 
     retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
                     token=token, field='checkIbanStatus', tries=50,
-                    delay=0.1, message='Wrong checkIbanStatus')
+                    delay=1)
 
     return res
 
@@ -200,15 +223,15 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
 def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=5):
     count = 0
     res = request(initiative_id, token)
-    success = (expected == res.json()[field])
+    success = (res.status_code == 200 and expected == res.json()[field])
     while not success:
         count += 1
         if count == tries:
             break
         time.sleep(delay)
         res = request(initiative_id, token)
-        success = (expected == res.json()[field])
-    assert expected == res.json()[field]
+        success = (res.status_code == 200 and expected == res.json()[field])
+    assert success
     return res
 
 
@@ -266,6 +289,51 @@ def clean_trx_files(source_filename: str):
         os.remove(f'{source_filename}.pgp')
     else:
         print(f'The file {source_filename} and its encrypted version does not exist')
+
+
+def retry_institution_statistics(initiative_id: str,
+                                 tries=10,
+                                 delay=1):
+    count = 0
+
+    res = get_initiative_statistics(
+        organization_id=secrets.organization_id,
+        initiative_id=initiative_id)
+
+    while res.status_code != 200:
+        count += 1
+        time.sleep(delay)
+        res = get_initiative_statistics(
+            organization_id=secrets.organization_id,
+            initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 200
+    return res.json()
+
+
+def retry_merchant_statistics(initiative_id: str,
+                              merchant_id: str,
+                              tries=10,
+                              delay=1):
+    count = 0
+
+    res = get_initiative_statistics_merchant_portal(
+        merchant_id=merchant_id,
+        initiative_id=initiative_id)
+
+    while res.status_code != 200:
+        count += 1
+        time.sleep(delay)
+        res = get_initiative_statistics_merchant_portal(
+            merchant_id=merchant_id,
+            initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 200
+    return res.json()
 
 
 def check_statistics(organization_id: str,
@@ -348,17 +416,23 @@ def check_rewards(initiative_id,
     else:
         assert len(export_ids) != 0
 
+    total_merchant_rewards = 0
+    is_present = False
+
     for export_id in export_ids:
         res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
         actual_rewards = res.json()
         for expected_reward in expected_rewards:
             is_rewarded = False
             for r in actual_rewards:
-                if r['iban'] == expected_reward.iban:
-                    if r['amount'] == expected_reward.amount and r['status'] == 'EXPORTED':
-                        is_rewarded = True
+                if r['iban'] == expected_reward.iban and r['status'] == 'EXPORTED':
+                    total_merchant_rewards += r['amount']
+                    is_present = True
+
+            if total_merchant_rewards == expected_reward.amount:
+                is_rewarded = True
             if check_absence:
-                assert not is_rewarded
+                assert not is_present
             else:
                 assert is_rewarded
 
@@ -408,3 +482,167 @@ def check_processed_transactions(initiative_id,
         assert True
     else:
         assert False
+
+
+def merchant_id_from_fc(initiative_id: str,
+                        desired_fc: str,
+                        tries=20,
+                        delay=5):
+    success = False
+    count = 0
+
+    while not success:
+        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+        content = res.json()['content']
+        i = 1
+        while content:
+            for merchant in content:
+                if merchant['fiscalCode'] == desired_fc:
+                    return merchant['merchantId']
+            res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+            content = res.json()['content']
+            i += 1
+        count += 1
+        time.sleep(delay)
+        if count == tries:
+            break
+    return None
+
+
+def natural_language_to_date_converter(natural_language_date: str):
+    if natural_language_date == 'today':
+        actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
+    elif natural_language_date == 'tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'day_after_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'future_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=365 * 5 + 1)).strftime('%Y-%m-%d')
+    else:
+        actual_date = datetime.datetime.strptime(natural_language_date, '%Y-%m-%d').strftime('%Y-%m-%d')
+    return actual_date
+
+
+def create_initiative(initiative_name_in_settings: str):
+    creation_payloads = settings.initiatives[initiative_name_in_settings].creation_payloads
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    initiative_id = post_initiative_info(selfcare_token=institution_selfcare_token).json()['initiativeId']
+
+    if 'rankingStartDate' in creation_payloads.general:
+        creation_payloads.general['rankingStartDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingStartDate'])
+    if 'rankingEndDate' in creation_payloads.general:
+        creation_payloads.general['rankingEndDate'] = natural_language_to_date_converter(
+            creation_payloads.general['rankingEndDate'])
+
+    creation_payloads.general['startDate'] = natural_language_to_date_converter(creation_payloads.general['startDate'])
+    creation_payloads.general['endDate'] = natural_language_to_date_converter(creation_payloads.general['endDate'])
+
+    res = put_initiative_general_info(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id,
+                                      general_payload=creation_payloads.general)
+    assert res.status_code == 204
+
+    res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
+                                          initiative_id=initiative_id,
+                                          beneficiary_payload=creation_payloads.beneficiary)
+    assert res.status_code == 204
+
+    res = put_initiative_reward_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     reward_payload=creation_payloads.reward
+                                     )
+    assert res.status_code == 204
+
+    res = put_initiative_refund_info(selfcare_token=institution_selfcare_token,
+                                     initiative_id=initiative_id,
+                                     refund_payload=creation_payloads.refund
+                                     )
+    assert res.status_code == 204
+
+    pagopa_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.PagoPA)
+    res = put_initiative_approval(selfcare_token=pagopa_selfcare_token,
+                                  initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = publish_approved_initiative(selfcare_token=institution_selfcare_token,
+                                      initiative_id=initiative_id)
+    assert res.status_code == 204
+
+    return initiative_id
+
+
+def create_initiative_and_update_conf(initiative_name: str):
+    secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
+    print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
+    secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
+
+    startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
+    if 'initiative_startup_time_seconds' in settings.initiatives[initiative_name]:
+        startup_time = settings.initiatives[initiative_name]['initiative_startup_time_seconds']
+    time.sleep(startup_time)
+
+
+def onboard_random_merchant(initiative_id: str,
+                            institution_selfcare_token: str):
+    fc = fake_vat()
+    vat = fc
+    iban = fake_iban('00000')
+
+    res = upload_merchant_csv(selfcare_token=institution_selfcare_token,
+                              initiative_id=initiative_id,
+                              vat=vat,
+                              fc=fc,
+                              iban=iban)
+    assert res.status_code == 200
+
+    curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
+                                           desired_fc=fc)
+    assert curr_merchant_id is not None
+
+    return {
+        'id': curr_merchant_id,
+        'iban': iban,
+        'fiscal_code': fc
+    }
+
+
+def tokenize_fc(fiscal_code: str):
+    res = get_pdv_token(fiscal_code=fiscal_code)
+    assert res.status_code == 200
+    token = res.json()['token']
+    res = detokenize_pdv_token(token=token)
+    assert res.json()['pii'] == fiscal_code
+    return token
+
+
+def suspend_citizen_from_initiative(initiative_id: str,
+                                    fiscal_code: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_citizen_suspension(selfcare_token=institution_token, initiative_id=initiative_id, fiscal_code=fiscal_code)
+    assert res.status_code == 204
+    return res
+
+
+def readmit_citizen_to_initiative(initiative_id: str,
+                                  fiscal_code: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = put_citizen_readmission(selfcare_token=institution_token, initiative_id=initiative_id,
+                                  fiscal_code=fiscal_code)
+    assert res.status_code == 204
+    return res
+
+
+def citizen_unsubscribe_from_initiative(initiative_id: str,
+                                        fiscal_code: str):
+    token = get_io_token(fiscal_code)
+    res = unsubscribe(initiative_id, token)
+    assert res.status_code == 204
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)
+    retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)
