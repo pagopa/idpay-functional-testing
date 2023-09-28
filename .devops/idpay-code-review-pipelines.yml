@@ -36,10 +36,8 @@ stages:
             displayName: "Display Python version"
           - script: |
               python3 --version
-              python3 -m pip install --user virtualenv
-              python3 -m virtualenv .venv
-              source .venv/bin/activate
-              pip install -r requirements.txt
+              python3 -m pip install --user pipenv
+              python3 -m pipenv sync
             displayName: "Install requirements"
           - task: DownloadSecureFile@1
             name: idpay_secrets
@@ -47,8 +45,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              source .venv/bin/activate
-              behave --junit --junit-directory "tests/reports/behave"
+              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
