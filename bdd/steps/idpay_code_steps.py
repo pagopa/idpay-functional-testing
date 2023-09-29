@@ -19,12 +19,23 @@ instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 @given('the citizen {citizen_name} generates the IDPay Code')
 @when('the citizen {citizen_name} generates the IDPay Code')
-@when('the citizen {citizen_name} regenerates the IDPay Code')
 def step_idpay_code_generate(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io, body={})
 
     assert res.status_code == 200
+
+    context.idpay_code = res.json()['idpayCode']
+
+
+@when('the citizen {citizen_name} regenerates the IDPay Code')
+def step_idpay_code_regenerate(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    res = post_idpay_code_generate(token=token_io)
+    assert res.status_code == 200
+    assert res.json()['idpayCode'] != context.idpay_code
+
+    context.idpay_code = res.json()['idpayCode']
 
 
 @given('the IDPay Code is {status} for citizen {citizen_name}')
