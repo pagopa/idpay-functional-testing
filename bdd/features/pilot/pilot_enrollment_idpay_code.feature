@@ -47,8 +47,7 @@ Feature: A citizen can enroll an IDPay Code to an initiative
         When the citizen A tries to use its IDPay Code on the initiative
         Then the instrument IDPay Code is in active again status for citizen A on initiative
 
-    #@skip @not_testable
-    #Scenario: An onboarded citizen tries to disable the IDPay Code, without enabling it
-    #    When the citizen A tries to disable the IDPay Code
-    #    Then the latest IDPay Code deactivation fails because the instrument is not active
-    #    And the instrument IDPay Code is in rejected delete status for citizen A on initiative
+    Scenario: An onboarded citizen tries to disable the IDPay Code, without enabling it
+        When the citizen A tries to disable the IDPay Code on the initiative
+        Then the latest IDPay Code deactivation fails because the instrument is not active
+        And the instrument IDPay Code is in rejected delete status for citizen A on initiative
