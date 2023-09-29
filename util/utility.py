@@ -698,6 +698,35 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 
 
+def retry_payment_instrument(expected_type, expected_status, request, token, initiative_id, field_type, field_status,
+                             num_required=1, tries=3, delay=5):
+    count = 0
+    res = request(initiative_id, token)
+    assert res.status_code == 200
+
+    instruments = []
+    for instrument in res.json()['instrumentList']:
+        if field_type in instrument:
+            if instrument[field_type] == expected_type and instrument[field_status] == expected_status:
+                instruments.append(instrument)
+    success = len(instruments) == num_required
+
+    while not success:
+        count += 1
+        if count == tries:
+            break
+        time.sleep(delay)
+        res = request(initiative_id, token)
+
+        instruments = []
+        for instrument in res.json()['instrumentList']:
+            if field_type in instrument:
+                if instrument[field_type] == expected_type and instrument[field_status] == expected_status:
+                    instruments.append(instrument)
+        success = len(instruments) == num_required
+    assert success
+    return res
+
 def get_refund_exported_content(initiative_id: str,
                                 exported_file_name: str):
     selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
@@ -760,5 +789,4 @@ def upload_payment_results(
                                   results_file_name=payment_result_name,
                                   results_file=f)
         assert res.status_code == 201
-
-    return res
+        return res

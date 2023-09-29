@@ -49,6 +49,13 @@ IDPAY:
         unsubscribed: 'UNSUBSCRIBED'
         suspended: 'SUSPENDED'
         readmitted: 'READMITTED'
+      code_generate: '/code/generate'
+      code_status: '/code/status'
+      code_instruments: '/code/instruments'
+      instrument_type:
+        card: 'CARD'
+        idpaycode: 'IDPAYCODE'
+        qrcode: 'QRCODE'
     timeline:
       path: '/timeline'
       operations:
@@ -60,6 +67,8 @@ IDPAY:
         reversal: 'REVERSAL'
         suspended: 'SUSPENDED'
         readmitted: 'READMITTED'
+        rejected_add_instrument: 'REJECTED_ADD_INSTRUMENT'
+        rejected_delete_instrument: 'REJECTED_DELETE_INSTRUMENT'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
@@ -272,6 +281,41 @@ initiatives:
         endDate: 'future'
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1 - allocated'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  enrollment_idpay_code:
+    id: 'PILOT_ENROLLMENT_IDPAY_CODE'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Enrollment IDPay Code'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
