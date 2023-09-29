@@ -1,3 +1,5 @@
+from hashlib import sha256
+
 from behave import given
 from behave import then
 from behave import when
@@ -115,7 +117,7 @@ def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
 
 @given('the citizen {citizen_name} disables the IDPay Code from the initiative')
 @when('the citizen {citizen_name} disables the IDPay Code from the initiative')
-def step_citizen_try_disable_idpay_code(context, citizen_name):
+def step_citizen_disable_idpay_code(context, citizen_name):
     initiative_id = context.initiative_id
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -133,6 +135,40 @@ def step_citizen_try_disable_idpay_code(context, citizen_name):
 
     res = remove_payment_instrument(initiative_id=initiative_id, token=token_io, instrument_id=instrument_id)
     assert res.status_code == 200
+
+
+@when('the citizen {citizen_name} tries to disable the IDPay Code on the initiative')
+def step_citizen_try_disable_idpay_code(context, citizen_name):
+    initiative_id = context.initiative_id
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    res = get_payment_instruments(initiative_id=initiative_id, token=token_io)
+    assert res.status_code == 200
+    assert res.json()['instrumentList'] != []
+
+    instrument_idpay_code = None
+    for instrument in res.json()['instrumentList']:
+        if instrument['instrumentType'] == 'IDPAYCODE':
+            instrument_idpay_code = instrument
+
+    if instrument_idpay_code is not None:
+        instrument_id = instrument_idpay_code['instrumentId']
+    else:
+        instrument_id = sha256(f'{citizen_name}'.encode()).hexdigest().lower()[:24]
+
+    res = remove_payment_instrument(initiative_id=initiative_id, token=token_io, instrument_id=instrument_id)
+    context.latest_response_idpay_code_deactivation = res
+
+
+@then('the latest IDPay Code deactivation fails because {cause_ko}')
+def step_check_latest_response_idpay_code_deactivation(context, cause_ko):
+    cause_ko = cause_ko.upper()
+
+    if cause_ko == 'THE INSTRUMENT IS NOT ACTIVE':
+        assert context.latest_response_idpay_code_deactivation.status_code == 404
+        assert context.latest_response_idpay_code_deactivation.json()['code'] == 404
+        assert context.latest_response_idpay_code_deactivation.json()[
+                   'message'] == 'The selected payment instrument is not active for such user and initiative.'
 
 
 @given('the instrument IDPay Code is in {status} status for citizen {citizen_name} on initiative')
