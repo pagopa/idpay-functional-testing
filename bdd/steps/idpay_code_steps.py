@@ -51,9 +51,9 @@ def step_check_idpay_code_status(context, status, citizen_name):
         assert res.json()['isIdPayCodeEnabled'] is False
 
 
-@when('the citizen {citizen_name} enrolls the CIE')
-@given('the citizen {citizen_name} enrolls the CIE')
-def step_citizen_enroll_cie(context, citizen_name):
+@when('the citizen {citizen_name} enrolls the IDPay Code')
+@given('the citizen {citizen_name} enrolls the IDPay Code')
+def step_citizen_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io,
                                    body={'initiativeId': context.initiative_id})
@@ -62,24 +62,24 @@ def step_citizen_enroll_cie(context, citizen_name):
     step_check_idpay_code_status(context=context, status='enabled', citizen_name=citizen_name)
 
 
-@when('the citizen {citizen_name} enables the CIE')
-def step_citizen_enable_cie(context, citizen_name):
+@when('the citizen {citizen_name} enables the IDPay Code')
+def step_citizen_enable_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = put_code_instrument(token=token_io, initiative_id=context.initiative_id)
 
     assert res.status_code == 200
 
 
-@when('the citizen {citizen_name} tries to enable the CIE')
-def step_citizen_try_enable_cie(context, citizen_name):
+@when('the citizen {citizen_name} tries to enable the IDPay Code')
+def step_citizen_try_enable_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = put_code_instrument(token=token_io, initiative_id=context.initiative_id)
 
     context.latest_enabling_response = res
 
 
-@then('the latest CIE enabling fails because {cause_ko}')
-def step_check_latest_cie_enabling_failed(context, cause_ko):
+@then('the latest IDPay Code enabling fails because {cause_ko}')
+def step_check_latest_idpay_code_enabling_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
     if cause_ko == 'THE CODE IS MISSING':
@@ -88,16 +88,16 @@ def step_check_latest_cie_enabling_failed(context, cause_ko):
         assert context.latest_enabling_response.json()['message'] == 'IdpayCode must be generated'
 
 
-@when('the citizen {citizen_name} tries to enroll the CIE')
-def step_citizen_try_enroll_cie(context, citizen_name):
+@when('the citizen {citizen_name} tries to enroll the IDPay Code')
+def step_citizen_try_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io, body={'initiativeId': context.initiative_id})
 
     context.latest_enrollment_response = res
 
 
-@then('the latest CIE enrollment fails because {cause_ko}')
-def step_check_latest_cie_enrollment_failed(context, cause_ko):
+@then('the latest IDPay Code enrollment fails because {cause_ko}')
+def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
@@ -111,9 +111,9 @@ def step_check_latest_cie_enrollment_failed(context, cause_ko):
         assert context.latest_enrollment_response.json()['message'] == 'You are unsubscribed at this initiative!'
 
 
-@when('the citizen {citizen_name} disables the CIE')
-@given('the citizen {citizen_name} disables the CIE')
-def step_citizen_try_disable_cie(context, citizen_name):
+@when('the citizen {citizen_name} disables the IDPay Code')
+@given('the citizen {citizen_name} disables the IDPay Code')
+def step_citizen_try_disable_idpay_code(context, citizen_name):
     initiative_id = context.initiative_id
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -121,21 +121,21 @@ def step_citizen_try_disable_cie(context, citizen_name):
     assert res.status_code == 200
     assert res.json()['instrumentList'] != []
 
-    instrument_cie = None
+    instrument_idpay_code = None
     for instrument in res.json()['instrumentList']:
         if instrument['instrumentType'] == 'IDPAYCODE':
-            instrument_cie = instrument
+            instrument_idpay_code = instrument
 
-    assert instrument_cie is not None
-    instrument_id = instrument_cie['instrumentId']
+    assert instrument_idpay_code is not None
+    instrument_id = instrument_idpay_code['instrumentId']
 
     res = remove_payment_instrument(initiative_id=initiative_id, token=token_io, instrument_id=instrument_id)
     assert res.status_code == 200
 
 
-@given('the instrument CIE is in {status} status for citizen {citizen_name} on initiative')
-@then('the instrument CIE is in {status} status for citizen {citizen_name} on initiative')
-def step_check_status_instrument_cie(context, status, citizen_name):
+@given('the instrument IDPay Code is in {status} status for citizen {citizen_name} on initiative')
+@then('the instrument IDPay Code is in {status} status for citizen {citizen_name} on initiative')
+def step_check_status_instrument_idpay_code(context, status, citizen_name):
     initiative_id = context.initiative_id
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])

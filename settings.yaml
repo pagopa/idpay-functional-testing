@@ -298,14 +298,13 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  Scontoditipo1_enrollment_cie:
-    id: 'PILOT_ENROLLMENT_CIE'
+  enrollment_idpay_code:
+    id: 'PILOT_ENROLLMENT_IDPAY_CODE'
     cashback_percentage: 100
     budget_per_citizen: 300
-    min_age: 18
-    max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         budget: 999999999
@@ -316,7 +315,7 @@ initiatives:
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
-          it: 'Iniziativa di test Sconto tipo 1 - enrollment cie'
+          it: 'Enrollment IDPay Code'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
