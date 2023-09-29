@@ -555,9 +555,9 @@ def put_publish_ranking(selfcare_token: str, initiative_id: str):
         timeout=settings.default_timeout
     )
     return res
-  
-  
-def post_idpay_code_generate(token: str, body):
+
+
+def post_idpay_code_generate(token: str, body: dict = None):
     return requests.post(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_generate}',
         headers={

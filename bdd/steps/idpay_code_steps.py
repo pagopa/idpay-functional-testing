@@ -21,8 +21,7 @@ instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 @when('the citizen {citizen_name} generates the IDPay Code')
 def step_idpay_code_generate(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
-    res = post_idpay_code_generate(token=token_io, body={})
-
+    res = post_idpay_code_generate(token=token_io)
     assert res.status_code == 200
 
     context.idpay_code = res.json()['idpayCode']
@@ -104,7 +103,8 @@ def step_check_latest_cie_enrollment_failed(context, cause_ko):
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
         assert context.latest_enrollment_response.status_code == 404
         assert context.latest_enrollment_response.json()['code'] == 404
-        assert context.latest_enrollment_response.json()['message'] == 'The requested initiative is not active for the current user!'
+        assert context.latest_enrollment_response.json()[
+                   'message'] == 'The requested initiative is not active for the current user!'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_enrollment_response.status_code == 400
         assert context.latest_enrollment_response.json()['code'] == 400
