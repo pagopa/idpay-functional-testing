@@ -17,9 +17,9 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 
-@given('the citizen {citizen_name} generates the idpay code')
-@when('the citizen {citizen_name} generates the idpay code')
-@when('the citizen {citizen_name} regenerates the idpay code')
+@given('the citizen {citizen_name} generates the IDPay Code')
+@when('the citizen {citizen_name} generates the IDPay Code')
+@when('the citizen {citizen_name} regenerates the IDPay Code')
 def step_idpay_code_generate(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io, body={})
@@ -27,8 +27,8 @@ def step_idpay_code_generate(context, citizen_name):
     assert res.status_code == 200
 
 
-@given('the idpay_code is {status} for citizen {citizen_name}')
-@then('the idpay_code is {status} for citizen {citizen_name}')
+@given('the IDPay Code is {status} for citizen {citizen_name}')
+@then('the IDPay Code is {status} for citizen {citizen_name}')
 def step_check_idpay_code_status(context, status, citizen_name):
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
