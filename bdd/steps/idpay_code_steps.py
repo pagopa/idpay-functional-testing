@@ -51,8 +51,8 @@ def step_check_idpay_code_status(context, status, citizen_name):
         assert res.json()['isIdPayCodeEnabled'] is False
 
 
-@when('the citizen {citizen_name} enrolls the IDPay Code')
-@given('the citizen {citizen_name} enrolls the IDPay Code')
+@when('the citizen {citizen_name} enrolls a new IDPay Code on the initiative')
+@given('the citizen {citizen_name} enrolls a new IDPay Code on the initiative')
 def step_citizen_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io,
@@ -62,7 +62,8 @@ def step_citizen_enroll_idpay_code(context, citizen_name):
     step_check_idpay_code_status(context=context, status='enabled', citizen_name=citizen_name)
 
 
-@when('the citizen {citizen_name} enables the IDPay Code')
+@given('the citizen {citizen_name} uses its IDPay Code on the initiative')
+@when('the citizen {citizen_name} uses its IDPay Code on the initiative')
 def step_citizen_enable_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = put_code_instrument(token=token_io, initiative_id=context.initiative_id)
@@ -70,12 +71,12 @@ def step_citizen_enable_idpay_code(context, citizen_name):
     assert res.status_code == 200
 
 
-@when('the citizen {citizen_name} tries to enable the IDPay Code')
+@when('the citizen {citizen_name} tries to use its IDPay Code on the initiative')
 def step_citizen_try_enable_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = put_code_instrument(token=token_io, initiative_id=context.initiative_id)
 
-    context.latest_enabling_response = res
+    context.latest_idpay_code_enabling_response = res
 
 
 @then('the latest IDPay Code enabling fails because {cause_ko}')
@@ -83,17 +84,17 @@ def step_check_latest_idpay_code_enabling_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
     if cause_ko == 'THE CODE IS MISSING':
-        assert context.latest_enabling_response.status_code == 403
-        assert context.latest_enabling_response.json()['code'] == 403
-        assert context.latest_enabling_response.json()['message'] == 'IdpayCode must be generated'
+        assert context.latest_idpay_code_enabling_response.status_code == 403
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 403
+        assert context.latest_idpay_code_enabling_response.json()['message'] == 'IdpayCode must be generated'
 
 
-@when('the citizen {citizen_name} tries to enroll the IDPay Code')
+@when('the citizen {citizen_name} tries to enroll a new IDPay Code on the initiative')
 def step_citizen_try_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io, body={'initiativeId': context.initiative_id})
 
-    context.latest_enrollment_response = res
+    context.latest_idpay_code_enabling_response = res
 
 
 @then('the latest IDPay Code enrollment fails because {cause_ko}')
@@ -101,18 +102,19 @@ def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
-        assert context.latest_enrollment_response.status_code == 404
-        assert context.latest_enrollment_response.json()['code'] == 404
-        assert context.latest_enrollment_response.json()[
+        assert context.latest_idpay_code_enabling_response.status_code == 404
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 404
+        assert context.latest_idpay_code_enabling_response.json()[
                    'message'] == 'The requested initiative is not active for the current user!'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
-        assert context.latest_enrollment_response.status_code == 400
-        assert context.latest_enrollment_response.json()['code'] == 400
-        assert context.latest_enrollment_response.json()['message'] == 'You are unsubscribed at this initiative!'
+        assert context.latest_idpay_code_enabling_response.status_code == 400
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 400
+        assert context.latest_idpay_code_enabling_response.json()[
+                   'message'] == 'You are unsubscribed at this initiative!'
 
 
-@when('the citizen {citizen_name} disables the IDPay Code')
-@given('the citizen {citizen_name} disables the IDPay Code')
+@given('the citizen {citizen_name} disables the IDPay Code from the initiative')
+@when('the citizen {citizen_name} disables the IDPay Code from the initiative')
 def step_citizen_try_disable_idpay_code(context, citizen_name):
     initiative_id = context.initiative_id
     token_io = get_io_token(context.citizens_fc[citizen_name])
