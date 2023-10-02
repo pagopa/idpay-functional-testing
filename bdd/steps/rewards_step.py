@@ -164,8 +164,8 @@ def step_merchant_confirms_a_transactions(context, trx_name):
 
 @when('the batch process confirms all the transactions')
 def step_merchant_confirms_all_transactions(context):
-    for curr_trx_id in context.trx_ids:
-        assert_merchant_confirmation(trx_id=curr_trx_id, merchant_id=context.latest_merchant_id)
+    for i in range(len(context.trx_ids)):
+        step_merchant_confirms_a_transactions(context=context, trx_name=str(i))
 
 
 def assert_merchant_confirmation(trx_id, merchant_id):
