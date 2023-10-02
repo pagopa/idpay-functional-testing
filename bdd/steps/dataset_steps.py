@@ -56,7 +56,7 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
 
-    if citizen_fc not in context:
+    if context.citizens_fc is None:
         context.citizens_fc = {}
 
     context.citizens_fc[citizen_name] = citizen_fc
