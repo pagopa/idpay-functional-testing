@@ -100,7 +100,7 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
                                                                exported_file_name=export_name)
     context.payment_disposition_unique_ids = get_payment_disposition_unique_ids(
         payment_dispositions=context.payment_exports_list, fiscal_code=curr_fiscal_code,
-        expected_rewards=[reward(curr_iban, float(expected_refund))])
+        expected_reward=reward(curr_iban, float(expected_refund)))
     assert len(context.payment_disposition_unique_ids) > 0
     result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids)
     upload_payment_results(initiative_id=context.initiative_id, payment_result_name=result_file_name)

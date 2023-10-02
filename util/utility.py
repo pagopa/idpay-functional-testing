@@ -479,14 +479,14 @@ def check_rewards(initiative_id: str,
     assert success
 
 
-def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_rewards: [reward]):
+def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expected_reward: reward):
     unique_ids = []
+    total_amount = 0
     for disposition in payment_dispositions:
-        if str(disposition[2]) == str(fiscal_code):
-            for reward in expected_rewards:
-                if str(disposition[4]) == reward.iban and floor(
-                        float(disposition[5])) == reward.amount * 100:
-                    unique_ids.append(disposition[1])
+        if str(disposition[2]) == str(fiscal_code) and str(disposition[4]) == expected_reward.iban:
+            unique_ids.append(disposition[1])
+            total_amount += float(disposition[5])
+    assert floor(total_amount) == expected_reward.amount * 100
     return unique_ids
 
 
