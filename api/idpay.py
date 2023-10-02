@@ -608,7 +608,8 @@ def put_code_instrument(token: str, initiative_id: str):
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout)
-  
+
+
 def put_payment_results(selfcare_token: str,
                         initiative_id: str,
                         results_file_name: str,

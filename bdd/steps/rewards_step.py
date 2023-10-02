@@ -85,6 +85,7 @@ def step_set_expected_amount_left(context):
 
 @then('the merchant {merchant_name} is refunded {expected_refund} euros')
 def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
+    curr_merchant_id = context.merchants[merchant_name]['id']
     curr_iban = context.merchants[merchant_name]['iban']
     curr_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     export_ids, export_path = force_rewards(initiative_id=context.initiative_id)
@@ -109,6 +110,12 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
                   export_ids=export_ids,
                   exptected_status='COMPLETED_OK'
                   )
+    check_merchant_statistics(merchant_id=curr_merchant_id,
+                              initiative_id=context.initiative_id,
+                              old_statistics=context.base_merchants_statistics[merchant_name],
+                              accrued_rewards_increment=-float(expected_refund),
+                              refunded_increment=float(expected_refund)
+                              )
 
 
 @when('the batch process confirms the transaction {trx_name}')

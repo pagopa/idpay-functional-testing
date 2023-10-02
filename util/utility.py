@@ -396,6 +396,7 @@ def check_merchant_statistics(merchant_id: str,
                               initiative_id: str,
                               old_statistics: dict,
                               accrued_rewards_increment: float,
+                              refunded_increment: float = 0,
                               tries=10,
                               delay=1):
     success = False
@@ -406,7 +407,9 @@ def check_merchant_statistics(merchant_id: str,
                                                                                 initiative_id=initiative_id).json()
         are_accrued_rewards_incremented = (current_merchant_statistics['accrued'] == old_statistics[
             'accrued'] + accrued_rewards_increment)
-        success = are_accrued_rewards_incremented
+        are_refunded_incremented = (current_merchant_statistics['refunded'] == old_statistics[
+            'refunded'] + refunded_increment)
+        success = are_accrued_rewards_incremented and are_refunded_incremented
         time.sleep(delay)
         count += 1
         if count == tries:
@@ -726,6 +729,7 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
         success = len(instruments) == num_required
     assert success
     return res
+
 
 def get_refund_exported_content(initiative_id: str,
                                 exported_file_name: str):
