@@ -1,7 +1,7 @@
-from api.idpay import delete_initiative
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import create_initiative_and_update_conf
+from util.utility import delete_new_initiatives_after_test
 
 
 def before_all(context):
@@ -27,13 +27,4 @@ def before_feature(context, feature):
 def after_all(context):
     """Delete each initiative created during the run
     """
-
-    if not settings.KEEP_INITIATIVES_AFTER_TEST:
-        for initiative_id in secrets['newly_created']:
-            res = delete_initiative(initiative_id=initiative_id)
-            if res.status_code == 204:
-                print(
-                    f'Deleted initiative {initiative_id}')
-            else:
-                print(
-                    f'Failed to delete initiative {initiative_id}')
+    delete_new_initiatives_after_test()

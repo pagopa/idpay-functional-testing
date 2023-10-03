@@ -5,6 +5,7 @@ import time
 import uuid
 from hashlib import sha256
 
+from api.idpay import delete_initiative
 from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
@@ -646,3 +647,15 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
+
+
+def delete_new_initiatives_after_test():
+    if not settings.KEEP_INITIATIVES_AFTER_TEST:
+        for initiative_id in secrets['newly_created']:
+            res = delete_initiative(initiative_id=initiative_id)
+            if res.status_code == 204:
+                print(
+                    f'Deleted initiative {initiative_id}')
+            else:
+                print(
+                    f'Failed to delete initiative {initiative_id}')

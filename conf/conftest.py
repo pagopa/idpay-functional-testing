@@ -4,11 +4,11 @@ import time
 
 import pytest
 
-from api.idpay import delete_initiative
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.text_formatter import TextFormat
 from util.utility import create_initiative
+from util.utility import delete_new_initiatives_after_test
 
 
 def pytest_configure():
@@ -24,6 +24,7 @@ def pytest_configure():
 
     create_test_initiatives('cashback_like')
     create_test_initiatives('not_started')
+    create_test_initiatives('complex')
     time.sleep(settings.INITIATIVE_STARTUP_TIME_SECONDS)
 
 
@@ -38,9 +39,7 @@ def pytest_collection_modifyitems(items):
 
 def pytest_sessionfinish(session, exitstatus):
     # This code will run once at the end of the pytest session
-    for initiative_id in secrets['newly_created']:
-        delete_initiative(initiative_id=initiative_id)
-        print(f'Deleted initiative {initiative_id}')
+    delete_new_initiatives_after_test()
 
 
 def create_test_initiatives(initiative_name: str):
