@@ -555,3 +555,34 @@ def put_publish_ranking(selfcare_token: str, initiative_id: str):
         timeout=settings.default_timeout
     )
     return res
+
+
+def post_idpay_code_generate(token: str, body: dict = None):
+    return requests.post(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_generate}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        json=body,
+        timeout=settings.default_timeout)
+
+
+def get_idpay_code_status(token: str):
+    return requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_status}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)
+
+
+def put_code_instrument(token: str, initiative_id: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.code_instruments}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)
