@@ -25,6 +25,7 @@ def pytest_configure():
     create_test_initiatives('cashback_like')
     create_test_initiatives('not_started')
     create_test_initiatives('complex')
+    create_test_initiatives('timeframes')
     time.sleep(settings.INITIATIVE_STARTUP_TIME_SECONDS)
 
 
