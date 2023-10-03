@@ -31,6 +31,7 @@ cashback_percentage = settings.initiatives.complex.cashback_percentage
 budget_per_citizen = settings.initiatives.complex.budget_per_citizen
 min_amount = settings.initiatives.complex.min_trx_amount
 max_amount = settings.initiatives.complex.max_trx_amount
+mcc_whitelist = settings.initiatives.complex.creation_payloads.reward.trxRule.mccFilter['values']
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -63,7 +64,7 @@ def test_send_five_transactions_award_second_and_third():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.1.4
@@ -84,7 +85,7 @@ def test_send_five_transactions_award_second_and_third():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(5000)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.1.7
@@ -103,7 +104,7 @@ def test_send_five_transactions_award_second_and_third():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(30000)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.1.11
@@ -124,8 +125,8 @@ def test_send_five_transactions_award_second_and_third():
 
     amount3 = floor(45500)
     amount4 = floor(10000)
-    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
-    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
+    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction3, transaction4])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.1.15
@@ -172,7 +173,7 @@ def test_send_five_transactions_award_second_and_third_not_erode():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(500)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.2.4
@@ -193,7 +194,7 @@ def test_send_five_transactions_award_second_and_third_not_erode():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(100)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.2.7
@@ -212,7 +213,7 @@ def test_send_five_transactions_award_second_and_third_not_erode():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(1000)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.2.11
@@ -233,8 +234,8 @@ def test_send_five_transactions_award_second_and_third_not_erode():
 
     amount5 = floor(10000)
     amount6 = floor(15000)
-    transaction3 = custom_transaction(pan, amount5, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
-    transaction4 = custom_transaction(pan, amount6, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction3 = custom_transaction(pan, amount5, mcc=random.choice(mcc_whitelist))
+    transaction4 = custom_transaction(pan, amount6, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction3, transaction4])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.2.15
@@ -281,7 +282,7 @@ def test_send_one_transactions_no_award():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.3.4
@@ -329,7 +330,7 @@ def test_send_five_transactions_award_decimal():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1055)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.4.4
@@ -350,7 +351,7 @@ def test_send_five_transactions_award_decimal():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(1165)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.4.7
@@ -369,7 +370,7 @@ def test_send_five_transactions_award_decimal():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(515)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.4.11
@@ -416,7 +417,7 @@ def test_erode_budget_with_one_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(10000)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.5.4
@@ -437,7 +438,7 @@ def test_erode_budget_with_one_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(10000)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.5.7
@@ -456,7 +457,7 @@ def test_erode_budget_with_one_transaction():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(2000)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.5.11
@@ -503,7 +504,7 @@ def test_no_award_insufficient_amount():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(199)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.6.4
@@ -524,7 +525,7 @@ def test_no_award_insufficient_amount():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(min_amount * 100 - 1)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.6.7
@@ -546,8 +547,8 @@ def test_no_award_insufficient_amount():
 
     amount3 = floor(125)
     amount4 = floor(123)
-    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
-    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
+    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction3, transaction4])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.6.10
@@ -593,7 +594,7 @@ def test_award_max_budget():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(112595)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.7.4
@@ -614,7 +615,7 @@ def test_award_max_budget():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(200000)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.7.7
@@ -661,8 +662,8 @@ def test_no_award_insufficient_amount_and_transactions():
 
     amount1 = floor(50)
     amount2 = floor(55)
-    transaction1 = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
-    transaction2 = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction1 = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
+    transaction2 = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction1), transaction1, transaction2])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.8.4
@@ -683,7 +684,7 @@ def test_no_award_insufficient_amount_and_transactions():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(9950)
-    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction3 = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction3), transaction3])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.8.7
@@ -729,7 +730,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(99)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.9.4
@@ -750,7 +751,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(200)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.9.7
@@ -769,7 +770,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(500)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.9.10
@@ -815,7 +816,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(20000)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.10.4
@@ -836,7 +837,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(10010)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.10.7
@@ -855,7 +856,7 @@ def test_no_reward_on_first_transaction_insufficient_amount():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(50000)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.10.11
@@ -875,8 +876,8 @@ def test_no_reward_on_first_transaction_insufficient_amount():
 
     amount4 = floor(10000)
     amount5 = floor(10000)
-    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
-    transaction5 = custom_transaction(pan, amount5, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction4 = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
+    transaction5 = custom_transaction(pan, amount5, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction4, transaction5])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.6.10
@@ -922,7 +923,7 @@ def test_no_reward_one_cent():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(551)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.11.4
@@ -943,7 +944,7 @@ def test_no_reward_one_cent():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(555)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.11.7
@@ -962,7 +963,7 @@ def test_no_reward_one_cent():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(1)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.11.11
@@ -1008,7 +1009,7 @@ def test_no_reward_zero_cent():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(0)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.12.4
@@ -1029,7 +1030,7 @@ def test_no_reward_zero_cent():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(10000)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.12.7
@@ -1077,7 +1078,7 @@ def test_no_reward_exceed_max_trx_amount():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(max_amount * 100 + 1)
-    transaction = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.13.4
@@ -1098,7 +1099,7 @@ def test_no_reward_exceed_max_trx_amount():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(max_amount * 100 + 5)
-    transaction = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.13.7
@@ -1119,7 +1120,7 @@ def test_no_reward_exceed_max_trx_amount():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(3000)
-    transaction = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.13.10
@@ -1140,7 +1141,7 @@ def test_no_reward_exceed_max_trx_amount():
     clean_trx_files(curr_file_name)
 
     amount4 = floor(2000)
-    transaction = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.13.13
@@ -1159,7 +1160,7 @@ def test_no_reward_exceed_max_trx_amount():
     clean_trx_files(curr_file_name)
 
     amount5 = floor(2500)
-    transaction = custom_transaction(pan, amount5, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount5, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.13.17
@@ -1206,7 +1207,7 @@ def test_wrong_reward_reverting_first_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1228,7 +1229,7 @@ def test_wrong_reward_reverting_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.14.7
@@ -1250,7 +1251,7 @@ def test_wrong_reward_reverting_first_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.14.11
@@ -1278,7 +1279,7 @@ def test_wrong_reward_reverting_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount4 = floor(1000)
-    transaction = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction), transaction])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.14.12
@@ -1325,7 +1326,7 @@ def test_no_reward_on_reverted_not_awarded_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1347,7 +1348,7 @@ def test_no_reward_on_reverted_not_awarded_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.15.7
@@ -1369,7 +1370,7 @@ def test_no_reward_on_reverted_not_awarded_transaction():
 
     amount3 = floor(2000)
     transaction_c = custom_transaction(pan=pan, amount=amount3,
-                                       mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                       mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.15.11
@@ -1389,7 +1390,7 @@ def test_no_reward_on_reverted_not_awarded_transaction():
 
     amount4 = floor(5000)
     transaction_d = custom_transaction(pan=pan, amount=amount4,
-                                       mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                       mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_d), transaction_d])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.15.16
@@ -1411,7 +1412,7 @@ def test_no_reward_on_reverted_not_awarded_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.15.19
@@ -1467,7 +1468,7 @@ def test_update_reward_on_reverted_awarded_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1489,7 +1490,7 @@ def test_update_reward_on_reverted_awarded_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     transaction_b_correlation_id = transaction_b.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1512,7 +1513,7 @@ def test_update_reward_on_reverted_awarded_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_b_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.16.12
@@ -1534,7 +1535,7 @@ def test_update_reward_on_reverted_awarded_transaction():
 
     amount3 = floor(3000)
     transaction_c = custom_transaction(pan=pan, amount=amount3,
-                                       mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                       mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.16.14
@@ -1556,7 +1557,7 @@ def test_update_reward_on_reverted_awarded_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.16.19
@@ -1610,7 +1611,7 @@ def test_partial_reversal_on_first_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1632,7 +1633,7 @@ def test_partial_reversal_on_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(1522)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.17.7
@@ -1651,7 +1652,7 @@ def test_partial_reversal_on_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(1211)
-    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.17.12
@@ -1673,7 +1674,7 @@ def test_partial_reversal_on_first_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.17.17
@@ -1727,7 +1728,7 @@ def test_partial_reversal_on_first_transaction_making_it_unacceptable():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(200)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1749,7 +1750,7 @@ def test_partial_reversal_on_first_transaction_making_it_unacceptable():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(1522)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.18.7
@@ -1768,7 +1769,7 @@ def test_partial_reversal_on_first_transaction_making_it_unacceptable():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(1211)
-    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.18.12
@@ -1790,7 +1791,7 @@ def test_partial_reversal_on_first_transaction_making_it_unacceptable():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.18.17
@@ -1844,7 +1845,7 @@ def test_no_award_new_transaction_after_reversal_on_first_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -1866,7 +1867,7 @@ def test_no_award_new_transaction_after_reversal_on_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.19.7
@@ -1888,7 +1889,7 @@ def test_no_award_new_transaction_after_reversal_on_first_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.19.12
@@ -1914,7 +1915,7 @@ def test_no_award_new_transaction_after_reversal_on_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(1000)
-    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.19.13
@@ -1931,7 +1932,7 @@ def test_no_award_new_transaction_after_reversal_on_first_transaction():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     amount4 = floor(5000)
-    transaction_d = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_d = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_d), transaction_d])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.19.18
@@ -1978,7 +1979,7 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     transaction_a_correlation_id = transaction_a.split(';')[7]
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
@@ -2000,7 +2001,7 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(3000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.20.7
@@ -2019,7 +2020,7 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
     clean_trx_files(curr_file_name)
 
     amount3 = floor(2000)
-    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.20.13
@@ -2041,7 +2042,7 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
     transaction_a_reversal = custom_transaction(pan=pan, amount=reverse_amount,
                                                 correlation_id=transaction_a_correlation_id,
                                                 reversal=True,
-                                                mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+                                                mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a_reversal), transaction_a_reversal])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.20.12
@@ -2067,7 +2068,7 @@ def test_award_new_transaction_after_reversal_on_awarded_transaction():
     clean_trx_files(curr_file_name)
 
     amount4 = floor(4000)
-    transaction_d = custom_transaction(pan, amount4, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_d = custom_transaction(pan, amount4, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_d), transaction_d])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.20.18
@@ -2114,7 +2115,7 @@ def test_no_award_wrong_mcc():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.21.4
@@ -2136,7 +2137,7 @@ def test_no_award_wrong_mcc():
 
     amount2 = floor(5000)
     wrong_mcc = str(random.randint(1, 9999)).zfill(4)
-    while wrong_mcc in settings.initiatives.complex.mcc_whitelist:
+    while wrong_mcc in mcc_whitelist:
         wrong_mcc = str(random.randint(1, 9999)).zfill(4)
 
     transaction_b = custom_transaction(pan, amount2, mcc=wrong_mcc)
@@ -2189,7 +2190,7 @@ def test_no_award_wrong_mcc_on_first_transaction():
 
     amount1 = floor(3000)
     wrong_mcc = str(random.randint(1, 9999)).zfill(4)
-    while wrong_mcc in settings.initiatives.complex.mcc_whitelist:
+    while wrong_mcc in mcc_whitelist:
         wrong_mcc = str(random.randint(1, 9999)).zfill(4)
     transaction_a = custom_transaction(pan, amount1, mcc=wrong_mcc)
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
@@ -2212,7 +2213,7 @@ def test_no_award_wrong_mcc_on_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.22.7
@@ -2262,7 +2263,7 @@ def test_award_transactions_done_with_two_payment_methods():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(3000)
-    transaction_a = custom_transaction(pan1, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan1, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.25.4
@@ -2283,7 +2284,7 @@ def test_award_transactions_done_with_two_payment_methods():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(5000)
-    transaction_b = custom_transaction(pan1, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan1, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.25.7
@@ -2313,7 +2314,7 @@ def test_award_transactions_done_with_two_payment_methods():
                    delay=0.5, message='Card not enrolled')
 
     amount3 = floor(2000)
-    transaction_c = custom_transaction(pan2, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan2, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.25.13
@@ -2370,7 +2371,7 @@ def test_not_award_transactions_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.26.6
@@ -2391,7 +2392,7 @@ def test_not_award_transactions_after_unsubscribe():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(2000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.26.9
@@ -2441,7 +2442,7 @@ def test_unsubscribe_after_first_transaction():
                  initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1000)
-    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_a = custom_transaction(pan, amount1, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_a), transaction_a])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.27.4
@@ -2462,7 +2463,7 @@ def test_unsubscribe_after_first_transaction():
     clean_trx_files(curr_file_name)
 
     amount2 = floor(5000)
-    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_b = custom_transaction(pan, amount2, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_b), transaction_b])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.27.7
@@ -2490,7 +2491,7 @@ def test_unsubscribe_after_first_transaction():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     amount3 = floor(5000)
-    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(settings.initiatives.complex.mcc_whitelist))
+    transaction_c = custom_transaction(pan, amount3, mcc=random.choice(mcc_whitelist))
     trx_file_content = '\n'.join([transactions_hash(transaction_c), transaction_c])
     res, curr_file_name = encrypt_and_upload(trx_file_content)
     # 2.27.11
