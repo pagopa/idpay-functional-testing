@@ -49,21 +49,21 @@ class Timeframe:
 
 
 awardable_timeframes = {
-    'monday': Timeframe('2099-01-05', '07:00:00', '09:00:00'),
-    'tuesday': Timeframe('2099-01-06', '10:00:00', '11:00:00'),
-    'wednesday': Timeframe('2099-01-07', '12:00:00', '13:01:00'),
-    'thursday': Timeframe('2099-01-08', '13:03:00', '16:59:00'),
-    'friday_early': Timeframe('2099-01-08', '23:01:00', '23:59:59'),
-    'friday': Timeframe('2099-01-09', '00:00:00', '22:59:59'),
-    'saturday_early': Timeframe('2099-01-09', '23:00:00', '23:59:59'),
-    'saturday': Timeframe('2099-01-10', '00:00:00', '23:59:59'),
-    'sunday': Timeframe('2099-01-11', '00:00:00', '23:59:59'),
+    'monday': Timeframe('2028-01-03', '07:00:00', '09:00:00'),
+    'tuesday': Timeframe('2028-01-04', '10:00:00', '11:00:00'),
+    'wednesday': Timeframe('2028-01-05', '12:00:00', '13:01:00'),
+    'thursday': Timeframe('2028-01-06', '13:03:00', '16:59:00'),
+    'friday_early': Timeframe('2028-01-06', '23:01:00', '23:59:59'),
+    'friday': Timeframe('2028-01-07', '00:00:00', '22:59:59'),
+    'saturday_early': Timeframe('2028-01-07', '23:00:00', '23:59:59'),
+    'saturday': Timeframe('2028-01-08', '00:00:00', '23:59:59'),
+    'sunday': Timeframe('2028-01-0-09', '00:00:00', '23:59:59'),
 }
 
 samples_of_not_awardable_timeframes = {
-    'saturday_early': Timeframe('2099-01-09', '23:00:00', '23:59:59'),
-    'saturday': Timeframe('2099-01-10', '00:00:00', '23:59:59'),
-    'sunday': Timeframe('2099-01-11', '00:00:00', '23:59:59'),
+    'saturday_early': Timeframe('2028-01-08', '23:00:00', '23:59:59'),
+    'saturday': Timeframe('2028-01-08', '00:00:00', '23:59:59'),
+    'sunday': Timeframe('2028-01-09', '00:00:00', '23:59:59'),
 }
 
 
