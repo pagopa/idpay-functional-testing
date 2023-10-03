@@ -188,6 +188,56 @@ initiatives:
     budget_per_citizen: 100
     mcc_whitelist: [ '0743', '0744', '0763', '0742', '1353', '0780' ]
     fruition_end: '2099-03-31T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 100
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Complex'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          mccFilter:
+            allowedList: true
+            values:
+              - "0742"
+              - "0743"
+              - "0744"
+              - "0763"
+              - "0780"
+              - "1353"
+          rewardLimits:
+            - frequency: "DAILY"
+              rewardLimit: 5000
+          threshold:
+            from: 1
+            fromIncluded: true
+            to: 2000
+            toIncluded: true
+          trxCount:
+            from: 2
+            fromIncluded: true
+            to: 3
+            toIncluded: true
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   timeframes:
     id: 'TIMEFRAMES'
     flat_cashback_amount: 5.01
