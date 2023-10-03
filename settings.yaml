@@ -248,6 +248,68 @@ initiatives:
     budget_per_citizen: 100
     fruition_start: '2023-04-17T00:00:00.000+01:00'
     fruition_end: '2099-04-17T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 100
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Timeframes'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 5.01
+          rewardValueType: 'ABSOLUTE'
+        trxRule:
+          rewardLimits:
+            - frequency: "DAILY"
+              rewardLimit: 4000.02
+          threshold:
+            from: 5.01
+            fromIncluded: true
+            to: 2000.01
+            toIncluded: true
+          daysOfWeek:
+            - daysOfWeek:
+                - MONDAY
+              intervals:
+                - startTime: '08:00:00.000'
+                  endTime: '10:00:00.000'
+            - daysOfWeek:
+                - TUESDAY
+              intervals:
+                - startTime: '11:00:00.000'
+                  endTime: '12:00:00.000'
+            - daysOfWeek:
+                - WEDNESDAY
+              intervals:
+                - startTime: '13:00:00.000'
+                  endTime: '14:01:00.000'
+            - daysOfWeek:
+                - THURSDAY
+              intervals:
+                - startTime: '14:03:00.000'
+                  endTime: '17:59:00.000'
+            - daysOfWeek:
+                - FRIDAY
+              intervals:
+                - startTime: '00:01:00.000'
+                  endTime: '23:59:00.000'
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   Scontoditipo1:
     id: 'PILOT'
     cashback_percentage: 100
