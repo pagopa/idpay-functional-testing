@@ -96,7 +96,7 @@ def onboard_io(fc, initiative_id):
     assert res.status_code == 204
 
     retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
-                        initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                        initiative_id=initiative_id, field='status', tries=50, delay=1,
                         message='Citizen not ACCEPTED_TC')
 
     res = check_prerequisites(token, initiative_id)
@@ -109,7 +109,7 @@ def onboard_io(fc, initiative_id):
     assert res.status_code == 200
 
     res = retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                              initiative_id=initiative_id, field='status', tries=50, delay=0.1,
+                              initiative_id=initiative_id, field='status', tries=50, delay=1,
                               message='Citizen onboard not OK')
     return res
 
@@ -756,11 +756,13 @@ def get_refund_exported_content(initiative_id: str,
 
 def generate_payment_results(
         payment_disposition_unique_ids: [str],
-        payment_result: str = PAYMENT_OK, ):
+        success: bool = True):
     refunds = []
+    payment_result = PAYMENT_OK
     reject_reason = ''
 
-    if payment_result == PAYMENT_KO:
+    if not success:
+        payment_result = PAYMENT_KO
         reject_reason = REJECT_REASON
 
     for unique_id in payment_disposition_unique_ids:
