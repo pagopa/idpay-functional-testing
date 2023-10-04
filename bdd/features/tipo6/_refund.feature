@@ -14,10 +14,3 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 0.01 euros successfully
     Then the merchant 1 is refunded 0.01 euros
-
-  @skip
-  Scenario: An unpaid transaction is not present in the refunds file
-    Given the merchant 1 generates the transaction X of amount 2000 cents
-    When the citizen A confirms the transaction X
-    And the transaction X is not rewarded
-    Then the merchant get not rewarded accordingly
