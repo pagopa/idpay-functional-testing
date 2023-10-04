@@ -83,18 +83,19 @@ def step_set_expected_amount_left(context):
     context.expected_amount_left = round(float(context.budget_per_citizen - context.expected_accrued), 2)
 
 
-@then('the merchant {merchant_name} is refunded {expected_refund} euros')
-def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
-    curr_merchant_id = context.merchants[merchant_name]['id']
+@when('the institution refunds the merchant {merchant_name} of {expected_refund} euros successfully')
+def step_institution_refunds_merchant(context, merchant_name, expected_refund):
     curr_iban = context.merchants[merchant_name]['iban']
     curr_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     export_ids, export_path = force_rewards(initiative_id=context.initiative_id)
+    context.export_ids = export_ids
     check_rewards(initiative_id=context.initiative_id,
                   organization_id=secrets.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
                   export_ids=export_ids,
                   exptected_status='EXPORTED'
                   )
+
     export_name = export_path.split('/')[3]
     context.payment_exports_list = get_refund_exported_content(initiative_id=context.initiative_id,
                                                                exported_file_name=export_name)
@@ -104,10 +105,16 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
     assert len(context.payment_disposition_unique_ids) > 0
     result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids)
     upload_payment_results(initiative_id=context.initiative_id, payment_result_name=result_file_name)
+
+
+@then('the merchant {merchant_name} is refunded {expected_refund} euros')
+def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_iban = context.merchants[merchant_name]['iban']
     check_rewards(initiative_id=context.initiative_id,
                   organization_id=secrets.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
-                  export_ids=export_ids,
+                  export_ids=context.export_ids,
                   exptected_status='COMPLETED_OK'
                   )
     check_merchant_statistics(merchant_id=curr_merchant_id,
@@ -118,6 +125,7 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
                               )
 
 
+@given('the batch process confirms the transaction {trx_name}')
 @when('the batch process confirms the transaction {trx_name}')
 def step_merchant_confirms_a_transactions(context, trx_name):
     curr_merchant_name = context.associated_merchant[trx_name]
