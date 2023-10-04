@@ -470,7 +470,7 @@ def check_rewards(initiative_id: str,
                 if check_absence:
                     success = not is_present
                 else:
-                    success = is_rewarded
+                    success = is_rewarded and is_present
         if not success:
             time.sleep(delay)
             count += 1
