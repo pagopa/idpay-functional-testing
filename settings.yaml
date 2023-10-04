@@ -409,7 +409,7 @@ initiatives:
           rewardValue: 100
           rewardValueType: 'PERCENTAGE'
         trxRule:
-          threshold: #VALUTA SE RIMUOVERE QUESTI LIMITI ANCHE SE NON SONO TESTATI IN ALTRE INIZIATIVE
+          threshold:
             from: 11.15
             fromIncluded: true
             to: 100
