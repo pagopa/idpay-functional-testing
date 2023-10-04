@@ -117,3 +117,10 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 0.01 euros successfully
     Then the merchant 1 is refunded 0.01 euros
+
+  Scenario: Merchant do not receives refund if the institution payment fails
+    Given the merchant 1 generates the transaction X of amount 20001 cents
+    And the citizen A confirms the transaction X
+    And the batch process confirms the transaction X
+    When the institution refunds the merchant 1 of 200.01 euros unsuccessfully
+    Then the merchant 1 is not refunded 200.01 euros
