@@ -79,7 +79,6 @@ Feature: A merchant gets refunded if a transaction is discounted
     And the batch process confirms the transaction Z
     Then the citizen A is rewarded with 70 euros
 
-  @test
   Scenario: Citizen makes 4 transactions, then only 1 is confirmed
     Given the merchant 1 generates the transaction X of amount 1000 cents
     And the merchant 1 generates the transaction Y of amount 2000 cents
