@@ -83,8 +83,8 @@ def step_set_expected_amount_left(context):
     context.expected_amount_left = round(float(context.budget_per_citizen - context.expected_accrued), 2)
 
 
-@when('the institution refunds the merchant {merchant_name} of {expected_refund} euros successfully')
-def step_institution_refunds_merchant(context, merchant_name, expected_refund):
+@when('the institution refunds the merchant {merchant_name} of {expected_refund} euros {result}')
+def step_institution_refunds_merchant(context, merchant_name, expected_refund, result):
     curr_iban = context.merchants[merchant_name]['iban']
     curr_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     export_ids, export_path = force_rewards(initiative_id=context.initiative_id)
@@ -103,7 +103,14 @@ def step_institution_refunds_merchant(context, merchant_name, expected_refund):
         payment_dispositions=context.payment_exports_list, fiscal_code=curr_fiscal_code,
         expected_reward=reward(curr_iban, float(expected_refund)))
     assert len(context.payment_disposition_unique_ids) > 0
-    result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids)
+    if result == 'successfully':
+        success = True
+    elif result == 'unsuccessfully':
+        success = False
+    else:
+        assert False, 'Unpredicted payment result'
+    result_file_name = generate_payment_results(payment_disposition_unique_ids=context.payment_disposition_unique_ids,
+                                                success=success)
     upload_payment_results(initiative_id=context.initiative_id, payment_result_name=result_file_name)
 
 
