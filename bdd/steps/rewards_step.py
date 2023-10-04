@@ -115,7 +115,7 @@ def step_institution_refunds_merchant(context, merchant_name, expected_refund, r
 
 
 @then('the merchant {merchant_name} is refunded {expected_refund} euros')
-def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
+def step_check_refund_of_merchant(context, merchant_name, expected_refund):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_iban = context.merchants[merchant_name]['iban']
     check_rewards(initiative_id=context.initiative_id,
@@ -129,6 +129,24 @@ def step_check_rewards_of_merchant(context, merchant_name, expected_refund):
                               old_statistics=context.base_merchants_statistics[merchant_name],
                               accrued_rewards_increment=-float(expected_refund),
                               refunded_increment=float(expected_refund)
+                              )
+
+
+@then('the merchant {merchant_name} is not refunded {expected_refund} euros')
+def step_check_missing_refund_of_merchant(context, merchant_name, expected_refund):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_iban = context.merchants[merchant_name]['iban']
+    check_rewards(initiative_id=context.initiative_id,
+                  organization_id=secrets.organization_id,
+                  expected_rewards=[reward(curr_iban, float(expected_refund))],
+                  export_ids=context.export_ids,
+                  exptected_status='COMPLETED_KO'
+                  )
+    check_merchant_statistics(merchant_id=curr_merchant_id,
+                              initiative_id=context.initiative_id,
+                              old_statistics=context.base_merchants_statistics[merchant_name],
+                              accrued_rewards_increment=0,
+                              refunded_increment=0
                               )
 
 
