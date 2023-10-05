@@ -5,6 +5,7 @@ import time
 import uuid
 from hashlib import sha256
 
+from api.idpay import delete_initiative
 from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
@@ -115,7 +116,7 @@ def iban_enroll(fc, iban, initiative_id):
                          initiative_id=initiative_id, field='operationType', tries=10, delay=3,
                          message='IBAN not enrolled')
 
-    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.unknown_psp, iban=iban, request=get_iban_info,
+    retry_iban_info(expected=settings.IDPAY.endpoints.onboarding.iban.mocked_ok, iban=iban, request=get_iban_info,
                     token=token, field='checkIbanStatus', tries=50,
                     delay=1)
 
@@ -676,3 +677,15 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
         success = len(instruments) == num_required
     assert success
     return res
+
+
+def delete_new_initiatives_after_test():
+  if not settings.KEEP_INITIATIVES_AFTER_TEST:
+      for initiative_id in secrets['newly_created']:
+          res = delete_initiative(initiative_id=initiative_id)
+          if res.status_code == 204:
+              print(
+                  f'Deleted initiative {initiative_id}')
+          else:
+              print(
+                  f'Failed to delete initiative {initiative_id}')
