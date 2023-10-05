@@ -265,8 +265,7 @@ def test_cannot_enroll_same_payment_instrument_of_another_unsubscribed_citizen()
     assert res.status_code == 204
     # 1.24.0
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token1,
-                 initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='Not unsubscribed')
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)
 
     res = enroll(initiative_id,
                  test_fc2,
@@ -330,21 +329,17 @@ def test_ok_card_enroll_already_associated_to_another_initiative_same_citizen():
 
     onboard_io(test_fc, cashback_initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1)
     card_enroll(test_fc, pan, cashback_initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1)
 
     onboard_io(test_fc, complex_initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1)
     card_enroll(test_fc, pan, complex_initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=complex_initiative_id, field='status', tries=50, delay=0.1)
 
 
 @pytest.mark.IO
@@ -357,8 +352,7 @@ def test_abnormal_of_card_enroll():
     n = 100
     onboard_io(test_fc, cashback_initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1)
     for i in range(n):
         pan = fake_pan()
         res = enroll(cashback_initiative_id,

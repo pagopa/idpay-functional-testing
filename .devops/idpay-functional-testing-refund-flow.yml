@@ -64,7 +64,6 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              source .venv/bin/activate
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all" ]; then
                 python3 -m pipenv run pytest --junitxml=tests/reports/pytest/junit.xml -vv
               else
