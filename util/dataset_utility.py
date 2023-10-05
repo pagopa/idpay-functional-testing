@@ -2,6 +2,7 @@ import datetime
 import math
 import os
 import random
+import uuid
 from dataclasses import dataclass
 from hashlib import sha256
 
@@ -24,6 +25,13 @@ circuits = ['visa', 'mastercard', 'maestro', 'amex']
 class reward:
     iban: str
     amount: float
+
+
+@dataclass()
+class merchantInfo:
+    vat: str
+    fc: str
+    iban: str
 
 
 def hash_pan(pan: str):
@@ -188,3 +196,14 @@ def serialize(dataset, columns, destination_path, have_header=False):
 
     with open(trx_file_path, 'a', newline='') as f:
         f.write(dataset_dataframe.to_csv(index=False, header=have_header, sep=CSV_SEPARATOR, lineterminator='\n'))
+
+
+def fake_merchant_file(acquirer_id: str,
+                       merchants_info: [merchantInfo]):
+    header = f'Acquirer ID;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN'
+    merchants_csv = [header]
+    for merchant_info in merchants_info:
+        merchants_csv.append(
+            f'{acquirer_id};Esercente di test {datetime.datetime.now().strftime("%Y%m%d - %H%M%S")} {str(uuid.uuid4())[:4]};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{merchant_info.fc};{merchant_info.vat};a;v;c;s;w;d;f;e;{merchant_info.iban}')
+
+    return merchants_csv

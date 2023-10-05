@@ -1,3 +1,4 @@
+import csv
 import datetime
 import os
 import random
@@ -50,8 +51,10 @@ from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_iban
+from util.dataset_utility import fake_merchant_file
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
+from util.dataset_utility import merchantInfo
 from util.dataset_utility import reward
 from util.dataset_utility import serialize
 from util.encrypt_utilities import pgp_string_routine
@@ -640,22 +643,34 @@ def create_initiative_and_update_conf(initiative_name: str):
     time.sleep(startup_time)
 
 
-def onboard_random_merchant(initiative_id: str,
-                            institution_selfcare_token: str):
+def onboard_one_random_merchant(initiative_id: str,
+                                institution_selfcare_token: str):
     fc = fake_vat()
     vat = fc
     iban = fake_iban('00000')
+    merchant_csv = fake_merchant_file(acquirer_id=settings.idpay.acquirer_id,
+                                      merchants_info=[merchantInfo(vat=vat, fc=fc, iban=iban)])
+
+    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
+
+    with open(csv_file_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        for info_row in merchant_csv:
+            writer.writerow([info_row])
+
+    merchant_csv_upload_payload = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
 
     res = upload_merchant_csv(selfcare_token=institution_selfcare_token,
                               initiative_id=initiative_id,
-                              vat=vat,
-                              fc=fc,
-                              iban=iban)
+                              merchants_payload=merchant_csv_upload_payload
+                              )
     assert res.status_code == 200
 
     curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
                                            desired_fc=fc)
     assert curr_merchant_id is not None
+
+    os.remove(csv_file_path)
 
     return {
         'id': curr_merchant_id,
