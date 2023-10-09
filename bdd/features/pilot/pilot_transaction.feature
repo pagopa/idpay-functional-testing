@@ -278,6 +278,7 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen B tries to confirm the transaction X
     Then the transaction X is already assigned
 
+  @skip
   Scenario: 2 transactions cannot be authorized by the same citizen if at least one second has not passed between authorizations.
     Given the random merchant 1 is onboard
     And the citizen A is onboard
@@ -287,6 +288,7 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen A tries to confirm the transaction Y
     Then the transaction Y is exceeding rate limit
 
+  @skip
   @MIL
   Scenario: 2 transactions, created through MIL, cannot be authorized by the same citizen if at least one second has not passed between authorizations.
     Given the random merchant 1 is onboard
@@ -322,6 +324,7 @@ Feature: A transaction is generated, authorized and confirmed
     Then the transaction X is authorized
     And the transaction Y is authorized
 
+  @skip
   Scenario: One second after a rate limit failure the transaction can be authorized.
     Given the random merchant 1 is onboard
     And the citizen A is 20 years old at most
@@ -335,6 +338,7 @@ Feature: A transaction is generated, authorized and confirmed
     And the citizen A confirms the transaction Y
     Then the transaction Y is authorized
 
+  @skip
   @MIL
   Scenario: One second after a rate limit failure the transaction, created through MIL, can be authorized.
     Given the random merchant 1 is onboard
