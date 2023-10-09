@@ -94,4 +94,4 @@ def step_allocate_initiative_budget(context, precision):
 @given('a new initiative "{initiative_name}"')
 def step_create_new_initiative(context, initiative_name):
     create_initiative_and_update_conf(initiative_name=initiative_name)
-    step_given_initiative_id(context=context, initiative_name=initiative_name)
+    step_given_initiative_name(context=context, initiative_name=initiative_name)
