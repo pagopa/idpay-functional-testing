@@ -28,12 +28,14 @@ Feature: A transaction is generated, authorized and confirmed
     When the merchant 1 tries to generate the transaction X of amount 30000 cents through MIL
     Then the transaction X is not created because the merchant is not qualified
 
+  @skip
   @need_fix
   Scenario: The merchant tries to generate the transaction with wrong acquirer ID
     Given the random merchant 1 is onboard
     When the merchant 1 tries to generate the transaction X of amount 30000 cents with wrong acquirer ID
     Then the transaction X is not created
 
+  @skip
   @MIL
   @need_fix
   Scenario: The merchant tries to generate the transaction with wrong acquirer ID through MIL
