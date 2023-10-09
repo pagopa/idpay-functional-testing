@@ -504,6 +504,7 @@ def check_unprocessed_transactions(initiative_id,
                                    check_absence: bool = False
                                    ):
     res = get_merchant_unprocessed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
+    assert res.status_code == 200
     processed_trxs = res.json()['content']
     for trx in processed_trxs:
         if trx['trxId'].strip() == expected_trx_id.strip():
@@ -748,15 +749,15 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
 
 
 def delete_new_initiatives_after_test():
-  if not settings.KEEP_INITIATIVES_AFTER_TEST:
-      for initiative_id in secrets['newly_created']:
-          res = delete_initiative(initiative_id=initiative_id)
-          if res.status_code == 204:
-              print(
-                  f'Deleted initiative {initiative_id}')
-          else:
-              print(
-                  f'Failed to delete initiative {initiative_id}')
+    if not settings.KEEP_INITIATIVES_AFTER_TEST:
+        for initiative_id in secrets['newly_created']:
+            res = delete_initiative(initiative_id=initiative_id)
+            if res.status_code == 204:
+                print(
+                    f'Deleted initiative {initiative_id}')
+            else:
+                print(
+                    f'Failed to delete initiative {initiative_id}')
 
 
 def get_refund_exported_content(initiative_id: str,
