@@ -369,6 +369,7 @@ initiatives:
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         beneficiaryType: 'PF'
