@@ -13,7 +13,7 @@ Feature: A transaction is generated, authorized and confirmed
     Then the latest unsubscribe is OK
     And the onboard of A is unsubscribed
 
-  @need_fix @IDP-1710
+  @IDP-1710
   Scenario: An unsubscribed citizen tries to unsubscribe again and receives OK
     Given the citizen A is unsubscribed
     When the citizen A tries to unsubscribe
@@ -37,12 +37,14 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen A tries to onboard the initiative Scontoditipo1_not_started
     Then the onboard of A is OK
 
+  @refund
   Scenario: The transaction made before unsubscribing is present in the rewards file
     Given the random merchant 1 is onboard
     And the merchant 1 generates the transaction X of amount 20001 cents
     And the citizen A confirms the transaction X
+    And the batch process confirms the transaction X
     And the citizen A is unsubscribed
-    When the batch process confirms the transaction X
+    When the institution refunds the merchant 1 of 200.01 euros successfully
     Then the merchant 1 is refunded 200.01 euros
 
   Scenario: A suspended citizen can unsubscribe
