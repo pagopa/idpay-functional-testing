@@ -705,7 +705,8 @@ initiatives:
     initiative_startup_time_seconds: 0
     creation_payloads:
       general:
-        beneficiaryType: 'PF'
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'INPS'
         beneficiaryKnown: false
         rankingEnabled: false
         budget: 999999999
