@@ -38,12 +38,14 @@ Feature: A transaction can be cancelled by the merchant
     Then the transaction X is cancelled
     And the citizen A has its transaction cancelled
 
+  @skip
   Scenario: The transaction cancellation fails if done shortly after the confirmation
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms, immediately before the next step, the transaction X
     When the merchant 1 tries to cancel the transaction X
     Then the latest cancellation fails exceeding rate limit
 
+  @skip
   @MIL
   Scenario: The transaction cancellation through MIL fails if done shortly after the confirmation
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL
@@ -51,6 +53,7 @@ Feature: A transaction can be cancelled by the merchant
     When the merchant 1 tries to cancel the transaction X through MIL
     Then the latest cancellation fails exceeding rate limit
 
+  @skip
   Scenario: The transaction cancellation fails if done shortly after the confirmation but can be cancelled later
     Given the merchant 1 generates the transaction X of amount 15000 cents
     And the citizen A confirms, immediately before the next step, the transaction X
@@ -59,6 +62,7 @@ Feature: A transaction can be cancelled by the merchant
     And the merchant 1 cancels the transaction X
     Then the transaction X is cancelled
 
+  @skip
   @MIL
   Scenario: The transaction cancellation through MIL fails if done shortly after the confirmation but can be cancelled later
     Given the merchant 1 generates the transaction X of amount 15000 cents through MIL

@@ -55,10 +55,8 @@ stages:
             displayName: "Display Python version"
           - script: |
               python3 --version
-              python3 -m pip install --user virtualenv
-              python3 -m virtualenv .venv
-              source .venv/bin/activate
-              pip install -r requirements.txt
+              python3 -m pip install --user pipenv
+              python3 -m pipenv sync
             displayName: "Install requirements"
           - task: DownloadSecureFile@1
             name: idpay_secrets
@@ -66,11 +64,10 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              source .venv/bin/activate
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all" ]; then
-                pytest --junitxml=tests/reports/pytest/junit.xml -vv
+                python3 -m pipenv run pytest --junitxml=tests/reports/pytest/junit.xml -vv
               else
-                pytest --junitxml=tests/reports/pytest/junit.xml -vv -m "${{ parameters.tag }}"
+                python3 -m pipenv run pytest --junitxml=tests/reports/pytest/junit.xml -vv -m "${{ parameters.tag }}"
               fi
             displayName: 'Run tests with Pytest'
             env:

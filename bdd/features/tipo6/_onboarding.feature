@@ -1,6 +1,6 @@
 @Scontoditipo6
 @onboarding
-Feature: A citizen A onboards the pilot initiative
+Feature: A citizen onboards the pilot initiative
 
   Background:
     Given the initiative is "Scontoditipo6"

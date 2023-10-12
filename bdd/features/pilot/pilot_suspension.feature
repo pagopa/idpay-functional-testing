@@ -46,6 +46,19 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     When the citizen A tries to authorize the transaction X
     Then the latest authorization fails because the user is suspended
 
+  @refund
+  Scenario: A citizen is correctly awarded for a transaction confirmed before its suspension
+    Given the initiative is "Scontoditipo1"
+    And the random merchant 1 is onboard
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 1001 cents
+    And the citizen A confirms the transaction X
+    And the institution suspends correctly the citizen A
+    When the batch process confirms the transaction X
+    Then the citizen A is rewarded with 10.01 euros
+
+  @refund
   Scenario: If a transaction is correctly authorized by the citizen, if the latter is suspended, the payment mandate is correctly generated
     Given the initiative is "Scontoditipo1"
     And the random merchant 1 is onboard
@@ -54,23 +67,9 @@ Feature: A citizen can be suspended from an initiative by the promoting institut
     And the merchant 1 generates the transaction X of amount 1001 cents
     And the citizen A confirms the transaction X
     And the institution suspends correctly the citizen A
-    When the batch process confirms the transaction X
-    Then the citizen A is rewarded with 10.01 euros
-    And the merchant 1 is refunded 10.01 euros
-
-  @skip
-  Scenario: If a transaction is confirmed by the citizen and it is subsequently suspended, the Institution will receive a refund
-    Given the initiative is "Scontoditipo1"
-    And the random merchant 1 is onboard
-    And the citizen A is 25 years old at most
-    And the citizen A is onboard
-    And the merchant 1 generates the transaction X of amount 1001 cents
-    And the citizen A confirms the transaction X
-    And the institution suspends correctly the citizen A
-    When the batch process confirms the transaction X
-    Then the citizen A is rewarded with 10.01 euros
-    And the merchant 1 is refunded 10.01 euros
-    And the return flow is ok
+    And the batch process confirms the transaction X
+    When the institution refunds the merchant 1 of 10.01 euros successfully
+    Then the merchant 1 is refunded 10.01 euros
 
   Scenario: Suspending a citizen does not free up the budget of an initiative with a fully allocated budget
     Given the initiative is "Scontoditipo1_allocated"

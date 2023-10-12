@@ -6,7 +6,8 @@ default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 KEEP_INITIATIVES_AFTER_TEST: false
-INITIATIVE_STARTUP_TIME_SECONDS: 30
+KEEP_INITIATIVES_AFTER_FAILED_TEST: false
+INITIATIVE_STARTUP_TIME_SECONDS: 120
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
   CSTAR: "https://api.uat.cstar.pagopa.it"
@@ -33,7 +34,7 @@ IDPAY:
       iban:
         start_path: "/wallet"
         end_path: "/iban"
-        unknown_psp: "UNKNOWN_PSP"
+        mocked_ok: "OK"
       unsubscribed_message: 'Unsubscribed to initiative'
       unsubscribed_error_details: 'GENERIC_ERROR'
     wallet:
@@ -49,6 +50,13 @@ IDPAY:
         unsubscribed: 'UNSUBSCRIBED'
         suspended: 'SUSPENDED'
         readmitted: 'READMITTED'
+      code_generate: '/code/generate'
+      code_status: '/code/status'
+      code_instruments: '/code/instruments'
+      instrument_type:
+        card: 'CARD'
+        idpaycode: 'IDPAYCODE'
+        qrcode: 'QRCODE'
     timeline:
       path: '/timeline'
       operations:
@@ -60,6 +68,8 @@ IDPAY:
         reversal: 'REVERSAL'
         suspended: 'SUSPENDED'
         readmitted: 'READMITTED'
+        rejected_add_instrument: 'REJECTED_ADD_INSTRUMENT'
+        rejected_delete_instrument: 'REJECTED_DELETE_INSTRUMENT'
     rewards:
       path: '/idpayrewardnotification/idpay'
       force_reward: '/reward/notification/exports/start?notificationDateToSearch='
@@ -81,7 +91,6 @@ IDPAY:
       path: '/idpaymerchant'
     mock:
       isee: '/mock/citizen/isee'
-      family: '/mock/family'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
       beneficiary:
@@ -111,12 +120,73 @@ initiatives:
   not_started:
     message: 'The initiative has not yet begun'
     details: 'INITIATIVE_NOT_STARTED'
+    id: 'NOT_STARTED'
+    cashback_percentage: 30.22
+    budget_per_citizen: 51.5
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
+    fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 51.5
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Test initiative - Not started'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30.22
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   cashback_like:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
     fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 51.5
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Cashback-like'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30.22
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   complex:
     id: 'COMPLEX'
     cashback_percentage: 100
@@ -126,8 +196,57 @@ initiatives:
     max_trx_amount: 2000
     daily_budget: 5000
     budget_per_citizen: 100
-    mcc_whitelist: [ '0743', '0744', '0763', '0742', '1353', '0780' ]
     fruition_end: '2099-03-31T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 100
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Complex'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          mccFilter:
+            allowedList: true
+            values:
+              - "0742"
+              - "0743"
+              - "0744"
+              - "0763"
+              - "0780"
+              - "1353"
+          rewardLimits:
+            - frequency: "DAILY"
+              rewardLimit: 5000
+          threshold:
+            from: 1
+            fromIncluded: true
+            to: 2000
+            toIncluded: true
+          trxCount:
+            from: 2
+            fromIncluded: true
+            to: 3
+            toIncluded: true
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   timeframes:
     id: 'TIMEFRAMES'
     flat_cashback_amount: 5.01
@@ -139,6 +258,68 @@ initiatives:
     budget_per_citizen: 100
     fruition_start: '2023-04-17T00:00:00.000+01:00'
     fruition_end: '2099-04-17T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 99999999999999
+        beneficiaryBudget: 100
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Timeframes'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 5.01
+          rewardValueType: 'ABSOLUTE'
+        trxRule:
+          rewardLimits:
+            - frequency: "DAILY"
+              rewardLimit: 4000.02
+          threshold:
+            from: 5.01
+            fromIncluded: true
+            to: 2000.01
+            toIncluded: true
+          daysOfWeek:
+            - daysOfWeek:
+                - MONDAY
+              intervals:
+                - startTime: '08:00:00.000'
+                  endTime: '10:00:00.000'
+            - daysOfWeek:
+                - TUESDAY
+              intervals:
+                - startTime: '11:00:00.000'
+                  endTime: '12:00:00.000'
+            - daysOfWeek:
+                - WEDNESDAY
+              intervals:
+                - startTime: '13:00:00.000'
+                  endTime: '14:01:00.000'
+            - daysOfWeek:
+                - THURSDAY
+              intervals:
+                - startTime: '14:03:00.000'
+                  endTime: '17:59:00.000'
+            - daysOfWeek:
+                - FRIDAY
+              intervals:
+                - startTime: '00:01:00.000'
+                  endTime: '23:59:00.000'
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   Scontoditipo1:
     id: 'PILOT'
     cashback_percentage: 100
@@ -149,10 +330,10 @@ initiatives:
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 300
         startDate: 'today'
         endDate: 'future'
@@ -189,13 +370,14 @@ initiatives:
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
-        budget: 999999999
-        beneficiaryBudget: 300
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
+        beneficiaryBudget: 300
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -236,15 +418,50 @@ initiatives:
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 1000000
-        beneficiaryBudget: 200000
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 1000000
+        beneficiaryBudget: 200000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
           it: 'Iniziativa di test Sconto tipo 1 - allocated'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  enrollment_idpay_code:
+    id: 'PILOT_ENROLLMENT_IDPAY_CODE'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Enrollment IDPay Code'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
@@ -272,10 +489,10 @@ initiatives:
     fruition_end: '2026-05-29T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 99.9
         startDate: 'today'
         endDate: 'future'
@@ -315,10 +532,10 @@ initiatives:
     fruition_end: '2024-05-30T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 300
         startDate: 'today'
         endDate: 'future'
@@ -361,10 +578,10 @@ initiatives:
     fruition_end: '2033-05-29T23:59:59.000+02:00'
     creation_payloads:
       general:
-        budget: 1000000
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 1000000
         beneficiaryBudget: 200000
         startDate: 'today'
         endDate: 'future'
@@ -393,24 +610,27 @@ initiatives:
     budget_per_citizen: 1
     fruition_start: '2023-09-06T00:00:00.000+02:00'
     fruition_end: '2023-09-07:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
   Scontoditipo5:
     id: 'SCONTOTIPO5'
     cashback_percentage: 100
     budget_per_citizen: 1
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
   ScontoditipoB:
     id: 'SCONTOTIPOB'
-    cashback_percentage: 1000
+    cashback_percentage: 100
     budget_per_citizen: 10
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
-        budget: 999999999
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
+        budget: 999999999
         beneficiaryBudget: 10
         startDate: 'today'
         endDate: 'future'
@@ -434,36 +654,35 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  family_no_ranking:
-    id: 'FAMILY_NO_RANKING'
+  ranking_initiative:
+    id: 'ranking_initiative'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 10
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
     creation_payloads:
       general:
-        budget: 999999999
-        beneficiaryType: 'NF'
+        beneficiaryType: 'PF'
         beneficiaryKnown: false
-        rankingEnabled: false
-        familyUnitComposition: 'INPS'
-        beneficiaryBudget: 300
-        startDate: 'today'
-        endDate: 'future'
+        rankingEnabled: true
+        budget: 50
+        beneficiaryBudget: 10
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
         descriptionMap:
-          it: 'Test initiative - Family no ranking'
+          it: 'Test initiative - Ranking with ISEE criteria'
       beneficiary:
         automatedCriteria:
           - authority: 'INPS'
             code: 'ISEE'
-            operator: 'GT'
+            operator: 'LE'
+            orderDirection: "ASC"
             iseeTypes:
               - "ORDINARIO"
-            value: '1'
-        selfDeclarationCriteria:
-          - _type: 'boolean'
-            description: '1'
-            value: true
-            code: '1'
+            value: '50000'
       reward:
         initiativeRewardType: 'DISCOUNT'
         rewardRule:

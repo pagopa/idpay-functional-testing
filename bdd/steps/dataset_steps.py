@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 import uuid
 
@@ -19,6 +20,13 @@ def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
     context.citizens_fc[citizen_name] = citizen_fc
+
+
+@given('citizens {citizens_names} have fiscal code random')
+def step_citizens_fc_exact_or_random(context, citizens_names: str):
+    citizens = json.loads(citizens_names)
+    for c in citizens:
+        step_citizen_fc_exact_or_random(context=context, citizen_name=c, citizen_fc='random')
 
 
 @given('the citizen {citizen_name} is {age} years old {precision}')
@@ -47,13 +55,27 @@ def step_citizen_fc_from_name_age_and_precision(context, citizen_name: str, age:
 
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
-    context.citizens_fc[citizen_name] = citizen_fc
+
+    try:
+        context.citizens_fc[citizen_name] = citizen_fc
+    except AttributeError:
+        context.citizens_fc = {citizen_name: citizen_fc}
 
 
 @given('the citizen {citizen_name} has ISEE {isee} of type "{isee_type}"')
 def step_set_citizen_isee(context, citizen_name: str, isee: int, isee_type: str):
-    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=float(isee), isee_type=isee_type)
-    assert res.status_code == 201
+    isee = float(isee)
+    res = control_mocked_isee(fc=context.citizens_fc[citizen_name], isee=isee, isee_type=isee_type)
+    assert res.status_code == 200
+
+    context.citizen_isee[context.citizens_fc[citizen_name]] = isee
+
+
+@given('citizens {citizens_name} have ISEE {isee} of type "{isee_type}"')
+def step_set_citizens_isee(context, citizens_name: str, isee: int, isee_type: str):
+    citizens = json.loads(citizens_name)
+    for c in citizens:
+        step_set_citizen_isee(context=context, citizen_name=c, isee=isee, isee_type=isee_type)
 
 
 @given('the transaction {trx_name} does not exists')

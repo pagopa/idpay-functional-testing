@@ -17,7 +17,6 @@ def control_mocked_isee(fc: str,
             - SOCIOSANITARIO
             - DOTTORATO
             - RESIDENZIALE
-            - CORRENTE
         :returns: the response of the call.
         :rtype: requests.Response
     """

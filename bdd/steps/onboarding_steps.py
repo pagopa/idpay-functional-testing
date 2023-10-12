@@ -1,3 +1,5 @@
+import json
+
 import requests
 from behave import given
 from behave import then
@@ -19,7 +21,7 @@ from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import get_selfcare_token
 from util.utility import iban_enroll
-from util.utility import onboard_random_merchant
+from util.utility import onboard_one_random_merchant
 from util.utility import retry_io_onboarding
 from util.utility import retry_merchant_statistics
 from util.utility import retry_timeline
@@ -36,6 +38,40 @@ def step_named_citizen_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
+
+
+@given('the citizen {citizen_name} onboards and waits for ranking')
+@when('the citizen {citizen_name} onboards and waits for ranking')
+def step_named_citizen_joins_ranking(context, citizen_name):
+    step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
+
+
+@given('{citizens} onboard in order and wait for ranking')
+@then('{citizens} onboard in order and wait for ranking')
+def step_citizens_join_ranking(context, citizens):
+    citizens = json.loads(citizens)
+    for c in citizens:
+        step_citizen_accept_terms_and_conditions(context=context, citizen_name=c)
+        step_insert_self_declared_criteria(context=context, citizen_name=c, correctness='correctly')
+        step_check_onboarding_status(context=context, citizen_name=c, status='ON_EVALUATION')
+
+
+@then('{citizens} are elected')
+def step_check_citizens_correct_election(context, citizens):
+    citizens = json.loads(citizens)
+    for c in citizens:
+        step_check_onboarding_status(context=context, citizen_name=c, status='ELECTED')
+
+    check_statistics(organization_id=context.organization_id,
+                     initiative_id=context.initiative_id,
+                     old_statistics=context.base_statistics,
+                     onboarded_citizen_count_increment=len(citizens),
+                     accrued_rewards_increment=0,
+                     skip_trx_check=True)
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
 
 
 @given('the citizen {citizen_name} is suspended')
@@ -59,6 +95,11 @@ def step_citizen_not_onboard(context, citizen_name):
                      onboarded_citizen_count_increment=0,
                      accrued_rewards_increment=0,
                      skip_trx_check=True)
+
+
+@then('the citizen {citizen_name} is onboard and waits for ranking')
+def step_named_citizen_suspension(context, citizen_name):
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
 @when('the citizen {citizen_name} tries to onboard')
@@ -111,6 +152,9 @@ def step_citizen_accept_terms_and_conditions(context, citizen_name):
 
 @then('the onboard of {citizen_name} is {status}')
 def step_check_onboarding_status(context, citizen_name, status):
+    skip_statistics_check = False
+    curr_onboarded_citizen_count_increment = 0
+
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = status_onboarding(token_io, context.initiative_id)
@@ -184,17 +228,52 @@ def step_check_onboarding_status(context, citizen_name, status):
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         curr_onboarded_citizen_count_increment = 0
 
+    elif status == 'ON_EVALUATION':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen not {status}'
+                            )
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'ELECTED':
+        expected_status = f'ONBOARDING_OK'
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not onboard')
+        expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'],
+                               expected_accrued=0,
+                               token=token_io,
+                               initiative_id=context.initiative_id)
+        skip_statistics_check = True
+    elif status == 'ELIGIBLE_KO':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        skip_statistics_check = False
     else:
         assert False, 'Unexpected status'
 
-    check_statistics(organization_id=context.organization_id,
-                     initiative_id=context.initiative_id,
-                     old_statistics=context.base_statistics,
-                     onboarded_citizen_count_increment=curr_onboarded_citizen_count_increment,
-                     accrued_rewards_increment=0,
-                     skip_trx_check=True)
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
-                                                        initiative_id=context.initiative_id).json()
+    if not skip_statistics_check:
+        check_statistics(organization_id=context.organization_id,
+                         initiative_id=context.initiative_id,
+                         old_statistics=context.base_statistics,
+                         onboarded_citizen_count_increment=curr_onboarded_citizen_count_increment,
+                         accrued_rewards_increment=0,
+                         skip_trx_check=True)
+        context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                            initiative_id=context.initiative_id).json()
 
 
 @when('the citizen {citizen_name} insert self-declared criteria {correctness}')
@@ -282,8 +361,8 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
 @given('the random merchant {merchant_name} is onboard')
 def step_merchant_qualified(context, merchant_name):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
-                                                 institution_selfcare_token=institution_token)
+    curr_merchant_info = onboard_one_random_merchant(initiative_id=context.initiative_id,
+                                                     institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
 
     context.base_merchants_statistics[merchant_name] = retry_merchant_statistics(

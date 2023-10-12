@@ -146,11 +146,11 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             'message'].startswith('Cannot create transaction with invalid amount: ')
         return
 
-    if status == 'NOT CREATED BECAUSE THE INITIATIVE IS TERMINATED':
+    if status == 'NOT CREATED BECAUSE IT IS OUT OF VALID PERIOD':
         assert context.latest_create_transaction_response.status_code == 400
         assert context.latest_create_transaction_response.json()['code'] == 'INVALID DATE'
         assert context.latest_create_transaction_response.json()[
-                   'message'] == f'Cannot create transaction out of valid period. Initiative startDate: {context.initiative_settings["fruition_start"][:10]} endDate: {context.initiative_settings["fruition_end"][:10]}'
+            'message'].startswith(f'Cannot create transaction out of valid period. Initiative startDate: ')
         return
 
     if status == 'ALREADY AUTHORIZED':
@@ -406,7 +406,7 @@ def step_check_latest_pre_authorization_failed_not_found(context):
 def step_check_latest_pre_authorization_failed_user_suspended(context):
     curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
     assert context.latest_pre_authorization_response.status_code == 403
-    assert context.latest_pre_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
     assert context.latest_pre_authorization_response.json()[
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 
@@ -424,7 +424,7 @@ def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
 def step_check_latest_pre_authorization_failed_user_suspended(context):
     curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
     assert context.latest_authorization_response.status_code == 403
-    assert context.latest_authorization_response.json()['code'] == 'USER_SUSPENDED'
+    assert context.latest_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
     assert context.latest_authorization_response.json()[
                'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
 

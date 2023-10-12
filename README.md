@@ -1,6 +1,27 @@
 # IDPay Functional Testing
 
-## Installation
+This repository contains functional tests for IDPay platform.
+Test runs can be executed both with Azure DevOps or locally.
+
+## Run on Azure DevOps
+
+1. Go
+   to `idpay-functional-testing` [pipeline](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_build?definitionScope=%5Cidpay%5Cidpay-functional-testing)\
+   ![img.png](docs/images/pipelines_folder.png)
+2. Chose and click one of the 3 pipelines available:
+    - `idpay-functional-testing.discount-flow`
+    - `idpay-functional-testing.refund-flow`
+    - `idpay-functional-testing.code-review`
+3. On the upper right click on `Run pipeline`:\
+   ![img.png](docs/images/run_pipeline.png)
+4. Fill the fields according to the needs:\
+   ![img.png](docs/images/pre_run_window.png)
+   > Target tests tags can be separated by commas to include each scenario tagged with at least one of them.
+6. Click `Run`
+
+## Run on local environment
+
+### Installation
 
 Clone the repository:
 
@@ -14,43 +35,50 @@ Enter the cloned repository:
 cd idpay-functional-testing
 ```
 
-Create a virtual environment:
+Install [pipenv](https://pipenv.pypa.io/en/latest/):
 
-```commandline
-python3 -m venv venv
+```
+pip install pipenv
 ```
 
-Enter the virtual environment:
+Create and enter the virtual environment:
 
 ```commandline
-source venv/bin/activate
+pipenv shell
 ```
 
-Install dependencies:pip
+Install dependencies:
 
 ```commandline
-pip install -r requirements.txt
+pipenv sync
 ```
 
-### Create `.secret.yaml` based on `.secrets_semplate.yaml` and customize it.
+> **_NOTE_**: Create `.secret.yaml` based on `.secrets_semplate.yaml` and customize it.
 
 ## Usage
 
-Run tests:
+> Default target environment is **UAT**.
+
+Run discount flow tests:
+
+```commandline
+[IDPAY_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
+```
+
+For example this command runs in UAT all suspension tests and save the junitxml report to a file:
+
+```commandline
+behave --junit --junit-directory "tests/reports/behave" --tags @suspension,readmission
+```
+
+Run discount flow tests:
 
 ```commandline
 [IDPAY_TARGET_ENV=<myenv>] pytest [--junitxml=path/to/report.xml] [-vv] [-m "[not] <TEST_MARKER>"]
 ```
 
-> Default target environment is **dev**.
-
-For example this command runs verbose all API test and save the junitxml report to a file:
+For example this command runs verbose in DEV all API test and save the junitxml report to a file:
 
 ```commandline
-pytest --junitxml=tests/reports/junit.xml -vv -m "API"
+IDPAY_TARGET_ENV=dev pytest --junitxml=tests/reports/junit.xml -vv -m "API"
 ```
-
-## Available initiatives:
-
-- `not_started` : initiative that is not started yet.
-- `cashback_like` : initiative like cashback.

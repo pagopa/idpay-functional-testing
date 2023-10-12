@@ -11,11 +11,20 @@ from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
+from util.utility import create_initiative_and_update_conf
+from util.utility import retry_institution_statistics
 
 
 @given('the initiative is "{initiative_name}"')
-def step_given_initiative_id(context, initiative_name):
+def step_given_initiative_name(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.initiative_settings = settings.initiatives[initiative_name]
+    base_context_initialization(context)
+
+
+@given('the initiative id is "{initiative_id}" ("{initiative_name}")')
+def step_given_initiative_id(context, initiative_id, initiative_name):
+    context.initiative_id = initiative_id
     context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
@@ -38,8 +47,7 @@ def base_context_initialization(context):
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
 
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
-                                                        initiative_id=context.initiative_id).json()
+    context.base_statistics = retry_institution_statistics(initiative_id=context.initiative_id)
     context.base_merchants_statistics = {}
 
     context.transactions = {}
@@ -58,6 +66,8 @@ def base_context_initialization(context):
 
     context.associated_citizen = {}
     context.associated_merchant = {}
+
+    context.citizen_isee = {}
 
 
 @given("the initiative's budget is {precision} allocated")
@@ -79,3 +89,9 @@ def step_allocate_initiative_budget(context, precision):
         i += 1
 
     assert context.base_statistics['onboardedCitizenCount'] == allowable_citizens
+
+
+@given('a new initiative "{initiative_name}"')
+def step_create_new_initiative(context, initiative_name):
+    create_initiative_and_update_conf(initiative_name=initiative_name)
+    step_given_initiative_name(context=context, initiative_name=initiative_name)
