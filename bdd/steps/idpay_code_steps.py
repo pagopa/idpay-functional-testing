@@ -242,34 +242,6 @@ def step_check_status_instrument_idpay_code(context, status, citizen_name):
                        delay=2, message='Delete card not rejected')
 
 
-def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: str) -> (str, str):
-    """
-    This function is mocking a request from the POS to authorize a transaction payable by IDPay Code.
-    Here the pin block is calculated.
-
-    Returns:
-        pin_block : str
-            The pin block calculated from pin and second factor about IDPay Code
-        key_encrypted: str
-            The key that encrypts the data block which is in turn encrypted with IDPay public key
-    """
-    pin_bytes = binascii.a2b_hex(pin + "F" * (16 - len(pin)))
-    second_factor_bytes = binascii.a2b_hex(second_factor)
-
-    data_block_bytes = tools.xor(pin_bytes, second_factor_bytes)
-    data_block = codecs.encode(data_block_bytes, 'hex').decode('utf-8')
-
-    cipher = AES.new(bytes(KEY, 'utf-8'), AES.MODE_CBC, IV)
-    pin_block_bytes = cipher.encrypt(pad(data_block.encode('utf-8'), AES.block_size))
-    pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')
-
-    cipher = PKCS1_OAEP.new(RSA.import_key(PEM_KEY))
-    key_encrypted_bytes = cipher.encrypt(KEY.encode())
-    key_encrypted = b64encode(key_encrypted_bytes).decode('utf-8')
-
-    return pin_block, key_encrypted
-
-
 @given(
     'the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents through MIL (new)')
 def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
@@ -297,7 +269,8 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
                                    )
 
 
-@then('the transaction {trx_name} was {expected_status} for citizen')
+@then('the transaction {trx_name} was {expected_status}')
+@given('the transaction {trx_name} was {expected_status}')
 def step_check_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
 
@@ -309,6 +282,11 @@ def step_check_transaction_status(context, trx_name, expected_status):
     if status == 'AUTHORIZED':
         assert context.latest_merchant_authorize_transaction_mil.status_code == 200
         assert context.transactions[trx_name]['status'] == 'AUTHORIZED'
+
+    if status == 'NOT AUTHORIZED FOR IDPAY CODE NOT ENABLED':
+        assert context.latest_merchant_pre_authorize_transaction_mil.status.code == 400
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_NOT_VALID'
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'] == ''
 
 
 @given('the MinInt associates the transaction {trx_name} with the citizen {citizen_name} by IDPay Code')
@@ -362,6 +340,47 @@ def step_check_latest_association_by_minint(context, trx_name, reason_ko):
                    'message'] == f'Transaction with trxCode [{trx_code}] is already assigned to another user'
 
 
+def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: str) -> (str, str):
+    """
+    This function is mocking a request from the POS to authorize a transaction payable by IDPay Code.
+    Here the pin block is calculated.
+
+    Returns:
+        pin_block : str
+            The pin block calculated from pin and second factor about IDPay Code
+        key_encrypted: str
+            The key that encrypts the data block which is in turn encrypted with IDPay public key
+    """
+    pin_bytes = codecs.decode(pin + "F" * (16 - len(pin)), 'hex')
+    second_factor_bytes = codecs.decode(second_factor, 'hex')
+
+    data_block_bytes = tools.xor(pin_bytes, second_factor_bytes)
+    data_block = codecs.encode(data_block_bytes, 'hex').decode('utf-8')
+
+    cipher = AES.new(bytes(KEY, 'utf-8'), AES.MODE_CBC, IV)
+    pin_block_bytes = cipher.encrypt(pad(data_block.encode('utf-8'), AES.block_size))
+    pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')
+
+    cipher = PKCS1_OAEP.new(RSA.import_key(PEM_KEY))
+    key_encrypted_bytes = cipher.encrypt(KEY.encode())
+    key_encrypted = b64encode(key_encrypted_bytes).decode('utf-8')
+
+    return pin_block, key_encrypted
+
+
+def step_auth_trx_mil(context, trx_name, merchant_name, pin, second_factor):
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    trx_id = context.transactions[trx_name]['id']
+    pin_block, encrypted_key = step_create_authorize_request_trx_request_by_pos(pin=pin,
+                                                                                second_factor=second_factor)
+
+    context.latest_merchant_authorize_transaction_mil = put_merchant_authorize_transaction_mil(
+        transaction_id=trx_id,
+        merchant_fiscal_code=curr_merchant_fiscal_code,
+        pin_block=pin_block,
+        encrypted_key=encrypted_key)
+
+
 @when('the merchant {merchant_name} pre-authorizes and authorizes the transaction {trx_name} with IDPay Code '
       '{correctness} inserted by citizen {citizen_name}')
 @given('the merchant {merchant_name} pre-authorizes and authorizes the transaction {trx_name} with IDPay Code '
@@ -386,26 +405,12 @@ def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, cit
         step_auth_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name,
                           pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000),
                           second_factor=second_factor)
-        step_check_latest_auth_fails(context=context, reason_ko='THE IDPAY CODE IS INCORRECT')
 
 
-def step_auth_trx_mil(context, trx_name, merchant_name, pin, second_factor):
-    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
-    trx_id = context.transactions[trx_name]['id']
-    pin_block, encrypted_key = step_create_authorize_request_trx_request_by_pos(pin=pin,
-                                                                                second_factor=second_factor)
-
-    context.latest_merchant_authorize_transaction_mil = put_merchant_authorize_transaction_mil(
-        transaction_id=trx_id,
-        merchant_fiscal_code=curr_merchant_fiscal_code,
-        pin_block=pin_block,
-        encrypted_key=encrypted_key)
-
-
-@then('the latest authorization fails because {reason_ko}')
+@then('the latest authorization by IDPay Code fails because it is {reason_ko}')
 def step_check_latest_auth_fails(context, reason_ko):
     reason_ko = reason_ko.upper()
-    if reason_ko == 'THE IDPAY CODE IS INCORRECT':
+    if reason_ko == 'INCORRECT':
         assert context.latest_merchant_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_authorize_transaction_mil.json()['message'] == 'PAYMENT_INVALID_PINBLOCK'
 

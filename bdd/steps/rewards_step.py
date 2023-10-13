@@ -35,6 +35,7 @@ def step_check_rewards_on_wallet(context, token_io):
 
 
 @then('the citizen {citizen_name} is rewarded with {expected_accrued} euros')
+@given('the citizen {citizen_name} is rewarded with {expected_accrued} euros')
 def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
     expected_accrued = float(expected_accrued)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
