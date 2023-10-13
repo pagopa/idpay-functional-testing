@@ -24,6 +24,7 @@ from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
 from bdd.steps.discount_transaction_steps import step_given_amount_cents
 from conf.configuration import settings
+from conf.configuration import secrets
 from util.utility import get_io_token
 from util.utility import check_unprocessed_transactions
 from util.utility import tokenize_fc
@@ -34,8 +35,8 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 IV = bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-KEY = 'ENCRYPT_KEY_TEST'
-PEM_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3h1Aixr+TX0LiT+ywbFztcCX+s3gFjXAwB0JcTLc9Od9XSH53qqOcGfI2n84Aq0RnhuPqyAtVuSRE34XQGCy4QU82a9WT7HudFiRWepaQwt6tMbWjt8b23xUuOQBnRfR5HV1YBV0L5qzQGs5xkR/zx0Te4s53dqO+pLdxlppt92o3WsSGcBvAOQTIqIpYHHaO0D7lbr/4u9CaQXJcVMXfND0EqH9YfdHuB7dtw+DxVsRDSlGdQgYlotAApuffbH6qICMS3xqKs0A/IoyO0hcS0nTxbhCc7T8rMdgucZqUzK/OoEJ4oDwEEI7zBooEKbWuunEvMHeUVK5MdEpCToQ7QIDAQAB\n-----END PUBLIC KEY-----"
+KEY = secrets.encrypt_key_test
+PEM_KEY = secrets.public_encrypt_key
 
 
 @given('the citizen {citizen_name} generates the IDPay Code')
