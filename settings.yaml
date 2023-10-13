@@ -6,6 +6,7 @@ default_timeout: 5000
 long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 KEEP_INITIATIVES_AFTER_TEST: false
+KEEP_INITIATIVES_AFTER_FAILED_TEST: false
 INITIATIVE_STARTUP_TIME_SECONDS: 120
 base_path:
   IO: "https://api-io.uat.cstar.pagopa.it"
@@ -373,6 +374,7 @@ initiatives:
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         beneficiaryType: 'PF'
@@ -557,7 +559,7 @@ initiatives:
           rewardValue: 100
           rewardValueType: 'PERCENTAGE'
         trxRule:
-          threshold: #VALUTA SE RIMUOVERE QUESTI LIMITI ANCHE SE NON SONO TESTATI IN ALTRE INIZIATIVE
+          threshold:
             from: 11.15
             fromIncluded: true
             to: 100

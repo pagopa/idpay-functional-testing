@@ -28,3 +28,14 @@ def after_all(context):
     """Delete each initiative created during the run
     """
     delete_new_initiatives_after_test()
+
+
+def after_feature(context, feature):
+    """Delete the feature's initiative only if no scenario in the feature failed
+    """
+    if settings.KEEP_INITIATIVES_AFTER_FAILED_TEST:
+        if any(scenario.status == 'failed' for scenario in feature.scenarios):
+            for curr_initiative_name in feature.tags:
+                if curr_initiative_name in secrets.initiatives.keys():
+                    print(f'Tengo {curr_initiative_name}')
+                    secrets['newly_created'].remove(secrets.initiatives[curr_initiative_name]['id'])

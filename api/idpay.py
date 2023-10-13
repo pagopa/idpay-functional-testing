@@ -1,10 +1,10 @@
 import datetime
-import os
 import uuid
 
 import requests
 
-from conf.configuration import settings, secrets
+from conf.configuration import settings
+from conf.configuration import secrets
 from util.certs_loader import load_certificates
 from util.dataset_utility import tomorrow_date
 from util.dataset_utility import yesterday_date
@@ -435,31 +435,15 @@ def get_initiatives_summary(selfcare_token: str
 
 def upload_merchant_csv(selfcare_token: str,
                         initiative_id: str,
-                        vat: str,
-                        fc: str,
-                        iban: str
-                        ):
-    merchant_csv = f'Acquirer ID;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN' \
-                   f'\n{settings.idpay.acquirer_id};Esercente di test {str(uuid.uuid4())[:8]};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{fc};{vat};a;v;c;s;w;d;f;e;{iban}'
-
-    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
-
-    with open(csv_file_path, 'w') as f:
-        f.write(merchant_csv)
-
-    headers = {
-        'Authorization': f'Bearer {selfcare_token}'
-    }
-
-    files = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
-
+                        merchants_payload: dict):
     res = requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/merchant/initiative/{initiative_id}/upload',
-        files=files,
-        headers=headers,
+        files=merchants_payload,
+        headers={
+            'Authorization': f'Bearer {selfcare_token}'
+        },
         timeout=settings.default_timeout
     )
-    os.remove(csv_file_path)
 
     return res
 
@@ -479,7 +463,8 @@ def get_merchant_list(organization_id: str,
         headers={
             'Content-Type': 'application/json',
         },
-        timeout=settings.default_timeout)
+        timeout=settings.default_timeout
+    )
 
 
 def delete_initiative(initiative_id: str):
@@ -504,6 +489,27 @@ def put_citizen_suspension(selfcare_token: str,
         },
         timeout=settings.default_timeout
     )
+
+
+def get_payment_dispositions_export_content(selfcare_token: str,
+                                            initiative_id: str,
+                                            exported_file_name: str):
+    """API to get the desired export file.
+        :param selfcare_token: Self-Care token of the test organization that should download the exports.
+        :param initiative_id: ID of the initiative of interest.
+        :param exported_file_name: Name of the export file.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    res = requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/exports/{exported_file_name}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'accept': 'application/json'
+        },
+        timeout=settings.default_timeout
+    )
+    return res
 
 
 def put_citizen_readmission(selfcare_token: str,
@@ -586,6 +592,21 @@ def put_code_instrument(token: str, initiative_id: str):
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout)
+
+
+def put_payment_results(selfcare_token: str,
+                        initiative_id: str,
+                        results_file_name: str,
+                        results_file):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/import/{results_file_name}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'accept': 'application/json'
+        },
+        data=results_file,
+        timeout=settings.default_timeout
+    )
 
 
 def put_minint_associate_user_and_payment(fiscal_code: str,

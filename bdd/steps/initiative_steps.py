@@ -16,8 +16,15 @@ from util.utility import retry_institution_statistics
 
 
 @given('the initiative is "{initiative_name}"')
-def step_given_initiative_id(context, initiative_name):
+def step_given_initiative_name(context, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.initiative_settings = settings.initiatives[initiative_name]
+    base_context_initialization(context)
+
+
+@given('the initiative id is "{initiative_id}" ("{initiative_name}")')
+def step_given_initiative_id(context, initiative_id, initiative_name):
+    context.initiative_id = initiative_id
     context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
 
@@ -87,4 +94,4 @@ def step_allocate_initiative_budget(context, precision):
 @given('a new initiative "{initiative_name}"')
 def step_create_new_initiative(context, initiative_name):
     create_initiative_and_update_conf(initiative_name=initiative_name)
-    step_given_initiative_id(context=context, initiative_name=initiative_name)
+    step_given_initiative_name(context=context, initiative_name=initiative_name)
