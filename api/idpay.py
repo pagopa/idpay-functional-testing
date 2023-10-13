@@ -606,3 +606,28 @@ def put_payment_results(selfcare_token: str,
         data=results_file,
         timeout=settings.default_timeout
     )
+
+
+def post_create_payment_bar_code(token, initiative_id: str):
+    return requests.put(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'accept': 'application/json'
+        },
+        json={
+            'initiativeId': initiative_id
+        }
+    )
+
+
+def put_authorize_bar_code_merchant(merchant_id: str, trx_code: str, amount_cents: int):
+    return requests.put(
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
+        headers={
+            'x-merchant-id': merchant_id
+        },
+        json={
+            'amountCents': amount_cents
+        }
+    )
