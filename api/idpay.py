@@ -3,8 +3,8 @@ import uuid
 
 import requests
 
-from conf.configuration import settings
 from conf.configuration import secrets
+from conf.configuration import settings
 from util.certs_loader import load_certificates
 from util.dataset_utility import tomorrow_date
 from util.dataset_utility import yesterday_date
@@ -614,7 +614,7 @@ def put_minint_associate_user_and_payment(fiscal_code: str,
     response = requests.put(
         f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MININT.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/user',
         headers={
-            settings.API_KEY_HEADER: secrets.api_key.IDPAY_MININT_PRODUCT,
+            settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIN_INT_PRODUCT,
             'Fiscal-Code': f'{fiscal_code}'
         }
     )

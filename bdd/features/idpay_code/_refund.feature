@@ -38,4 +38,3 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the citizen A is rewarded with 300 euros
         When the batch process confirms all the transactions
         Then the merchant 1 is refunded 300 euros
-

@@ -63,7 +63,7 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         When the merchant 1 pre-authorizes and authorizes the transaction X with IDPay Code correctly inserted by citizen A
         Then the transaction X was authorized
 
-    @unsubscribed
+    @unsubscribe
     Scenario: An unsubscribed citizen tries to pay with IDPay Code
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the citizen A is unsubscribed
@@ -76,4 +76,3 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the transaction X does not exists
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
         Then the latest association by MinInt fails because the transaction X is expired
-

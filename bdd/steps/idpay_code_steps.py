@@ -3,12 +3,13 @@ import random
 from base64 import b64encode
 from hashlib import sha256
 
-from Cryptodome.Cipher import PKCS1_OAEP, AES
-from Cryptodome.PublicKey import RSA
-from Cryptodome.Util.Padding import pad
 from behave import given
 from behave import then
 from behave import when
+from Cryptodome.Cipher import AES
+from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Util.Padding import pad
 from psec import tools
 
 from api.idpay import get_idpay_code_status
@@ -22,13 +23,13 @@ from api.mil import post_merchant_create_transaction_mil
 from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
 from bdd.steps.discount_transaction_steps import step_given_amount_cents
-from conf.configuration import settings
 from conf.configuration import secrets
-from util.utility import get_io_token
+from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
-from util.utility import tokenize_fc
+from util.utility import get_io_token
 from util.utility import retry_payment_instrument
 from util.utility import retry_timeline
+from util.utility import tokenize_fc
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
@@ -350,7 +351,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
         key_encrypted: str
             The key that encrypts the data block which is in turn encrypted with IDPay public key
     """
-    pin_bytes = codecs.decode(pin + "F" * (16 - len(pin)), 'hex')
+    pin_bytes = codecs.decode(pin + 'F' * (16 - len(pin)), 'hex')
     second_factor_bytes = codecs.decode(second_factor, 'hex')
 
     data_block_bytes = tools.xor(pin_bytes, second_factor_bytes)
@@ -393,7 +394,7 @@ def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, cit
 
     correctness = correctness.upper()
 
-    if correctness == "CORRECTLY":
+    if correctness == 'CORRECTLY':
         step_auth_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name,
                           pin=context.idpay_code[citizen_name], second_factor=second_factor)
 
