@@ -32,8 +32,7 @@ def test_enrollment_iban():
     iban_enroll(test_fc, curr_iban, secrets.initiatives.cashback_like.id)
 
     retry_wallet(expected=only_iban_status, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=3, delay=3,
-                 message='IBAN not registered')
+                 initiative_id=initiative_id, field='status', tries=3, delay=3)
 
 
 @pytest.mark.IO
@@ -76,8 +75,7 @@ def test_enroll_same_iban_on_different_citizens():
         onboard_io(citizen, initiative_id).json()
         iban_enroll(citizen, curr_iban, secrets.initiatives.cashback_like.id)
         retry_wallet(expected=only_iban_status, request=wallet, token=token,
-                     initiative_id=initiative_id, field='status', tries=3, delay=3,
-                     message='IBAN not registered')
+                     initiative_id=initiative_id, field='status', tries=3, delay=3)
 
 
 @pytest.mark.IO
@@ -93,5 +91,4 @@ def test_enroll_iban_more_times():
     for i in range(10):
         iban_enroll(test_fc, curr_iban, secrets.initiatives.cashback_like.id)
         retry_wallet(expected=only_iban_status, request=wallet, token=token,
-                     initiative_id=initiative_id, field='status', tries=3, delay=3,
-                     message='IBAN not registered')
+                     initiative_id=initiative_id, field='status', tries=3, delay=3)

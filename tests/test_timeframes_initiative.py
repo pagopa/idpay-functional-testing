@@ -49,21 +49,21 @@ class Timeframe:
 
 
 awardable_timeframes = {
-    'monday': Timeframe('2099-01-05', '07:00:00', '09:00:00'),
-    'tuesday': Timeframe('2099-01-06', '10:00:00', '11:00:00'),
-    'wednesday': Timeframe('2099-01-07', '12:00:00', '13:01:00'),
-    'thursday': Timeframe('2099-01-08', '13:03:00', '16:59:00'),
-    'friday_early': Timeframe('2099-01-08', '23:01:00', '23:59:59'),
-    'friday': Timeframe('2099-01-09', '00:00:00', '22:59:59'),
-    'saturday_early': Timeframe('2099-01-09', '23:00:00', '23:59:59'),
-    'saturday': Timeframe('2099-01-10', '00:00:00', '23:59:59'),
-    'sunday': Timeframe('2099-01-11', '00:00:00', '23:59:59'),
+    'monday': Timeframe('2028-01-03', '07:00:00', '09:00:00'),
+    'tuesday': Timeframe('2028-01-04', '10:00:00', '11:00:00'),
+    'wednesday': Timeframe('2028-01-05', '12:00:00', '13:01:00'),
+    'thursday': Timeframe('2028-01-06', '13:03:00', '16:59:00'),
+    'friday_early': Timeframe('2028-01-06', '23:01:00', '23:59:59'),
+    'friday': Timeframe('2028-01-07', '00:00:00', '22:59:59'),
+    'saturday_early': Timeframe('2028-01-07', '23:00:00', '23:59:59'),
+    'saturday': Timeframe('2028-01-08', '00:00:00', '23:59:59'),
+    'sunday': Timeframe('2028-01-0-09', '00:00:00', '23:59:59'),
 }
 
 samples_of_not_awardable_timeframes = {
-    'saturday_early': Timeframe('2099-01-09', '23:00:00', '23:59:59'),
-    'saturday': Timeframe('2099-01-10', '00:00:00', '23:59:59'),
-    'sunday': Timeframe('2099-01-11', '00:00:00', '23:59:59'),
+    'saturday_early': Timeframe('2028-01-08', '23:00:00', '23:59:59'),
+    'saturday': Timeframe('2028-01-08', '00:00:00', '23:59:59'),
+    'sunday': Timeframe('2028-01-09', '00:00:00', '23:59:59'),
 }
 
 
@@ -83,19 +83,16 @@ def test_award_transaction():
     # 3.1.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.1.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.1.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(1000)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -134,19 +131,16 @@ def test_not_award_transaction_after_allowed_timeframe():
     # 3.2.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.2.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.2.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -205,17 +199,14 @@ def test_award_transaction_exact_timeframe_start():
 
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -249,18 +240,15 @@ def test_award_transaction_exact_timeframe_end():
 
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -293,18 +281,15 @@ def test_not_award_transaction_1ms_before_timeframe():
 
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -342,18 +327,15 @@ def test_not_award_transaction_1ms_after_timeframe():
 
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -391,19 +373,16 @@ def test_not_award_transaction_insufficient_amount():
     # 3.3.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.3.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.3.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(400)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -444,19 +423,16 @@ def test_award_transaction_1_sec_before_timeframe_end():
     # 3.4.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.4.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.4.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(2200)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -495,19 +471,16 @@ def test_not_award_transaction_1_sec_before_timeframe_start():
     # 3.5.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.5.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.5.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(3000)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -548,19 +521,16 @@ def test_not_award_transaction_1_sec_after_timeframe_start():
     # 3.6.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.6.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.6.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(4500)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -601,19 +571,16 @@ def test_not_award_transaction_exceeds_max_amount():
     # 3.7.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.7.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.7.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(450000)
     transaction = custom_transaction(pan=pan, amount=amount,
@@ -654,19 +621,16 @@ def test_not_award_transaction_wrong_day():
     # 3.8.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.8.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.8.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(5500)
     transaction = custom_transaction(pan=pan, amount=amount1, curr_date=awardable_timeframes['friday'].trx_date
@@ -727,19 +691,16 @@ def test_not_award_insufficient_amount():
     # 3.9.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.9.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.9.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(min_amount - 1)
     transaction = custom_transaction(pan=pan, amount=amount1, curr_date=awardable_timeframes['monday'].trx_date
@@ -780,19 +741,16 @@ def test_not_award_exceeds_max_amount():
     # 3.10.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.10.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.10.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(max_amount + 1)
     transaction = custom_transaction(pan=pan, amount=amount1, curr_date=awardable_timeframes['tuesday'].trx_date
@@ -833,19 +791,16 @@ def test_erode_budget():
     # 3.11.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.11.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.11.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     num_transactions_a = 5
     transactions_a = []
@@ -982,19 +937,16 @@ def test_not_award_out_of_amount_range():
     # 3.12.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.12.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.12.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(1400)
     transaction = custom_transaction(pan=pan, amount=amount1,
@@ -1066,19 +1018,16 @@ def test_no_award_transaction_after_card_removal():
     # 3.13.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.13.2
     card_enroll(test_fc, pan_a, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.13.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount_a = floor(1400)
     transaction = custom_transaction(pan=pan_a, amount=amount_a,
@@ -1106,8 +1055,7 @@ def test_no_award_transaction_after_card_removal():
     # 3.13.10
     card_enroll(test_fc, pan_b, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount_b = floor(5400)
     transaction = custom_transaction(pan=pan_b, amount=amount_b,
@@ -1148,19 +1096,16 @@ def test_ko_card_enroll_already_associated_to_the_same_initiative():
     # 3.14.1
     onboard_io(test_fc_x, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.14.2
     card_enroll(test_fc_x, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.14.3
     iban_enroll(test_fc_x, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount_a = floor(1400)
     transaction = custom_transaction(pan=pan, amount=amount_a,
@@ -1185,8 +1130,7 @@ def test_ko_card_enroll_already_associated_to_the_same_initiative():
     # 3.14.5
     onboard_io(test_fc_y, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     res = enroll(initiative_id,
                  test_fc_y,
@@ -1224,19 +1168,16 @@ def test_ko_card_enroll_already_associated_to_another_initiative():
     # 3.15.1
     onboard_io(test_fc_x, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.15.2
     card_enroll(test_fc_x, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.15.3
     iban_enroll(test_fc_x, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount_a = floor(5000)
     transaction = custom_transaction(pan=pan, amount=amount_a,
@@ -1261,8 +1202,7 @@ def test_ko_card_enroll_already_associated_to_another_initiative():
     # 3.15.5
     onboard_io(test_fc_y, cashback_initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_y,
-                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=cashback_initiative_id, field='status', tries=50, delay=0.1)
 
     res = enroll(cashback_initiative_id,
                  test_fc_y,
@@ -1303,56 +1243,47 @@ def test_enroll_same_iban_1():
     # 3.16.1
     onboard_io(test_fc_x, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.2
     card_enroll(test_fc_x, pan_x, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.3
     iban_enroll(test_fc_x, iban_1, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.5
     onboard_io(test_fc_y, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.6
     card_enroll(test_fc_y, pan_y, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.8
     iban_enroll(test_fc_y, iban_1, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.9
     onboard_io(test_fc_z, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.2,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.2)
 
     # 3.16.10
     card_enroll(test_fc_z, pan_z, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.16.12
     iban_enroll(test_fc_z, iban_1, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(5000)
     transaction = custom_transaction(pan=pan_x, amount=amount,
@@ -1437,56 +1368,47 @@ def test_enroll_same_iban_2():
     # 3.17.1
     onboard_io(test_fc_x, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.2
     onboard_io(test_fc_y, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.3
     card_enroll(test_fc_x, pan_x, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.4
     card_enroll(test_fc_y, pan_y, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.5
     iban_enroll(test_fc_x, curr_iban_xy, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_x,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.6
     iban_enroll(test_fc_y, curr_iban_xy, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_y,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.7
     onboard_io(test_fc_z, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.2,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.2)
 
     # 3.17.8
     card_enroll(test_fc_z, pan_z, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.17.9
     iban_enroll(test_fc_z, curr_iban_xy, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_z,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount = floor(5000)
     transaction = custom_transaction(pan=pan_z, amount=amount,
@@ -1525,19 +1447,16 @@ def test_not_award_transaction_wrong_day_sunday():
     # 3.22.1
     onboard_io(test_fc, initiative_id).json()
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Not subscribed')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
     # 3.22.2
     card_enroll(test_fc, pan, initiative_id)
     retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='Card not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     # 3.22.3
     iban_enroll(test_fc, curr_iban, initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
-                 initiative_id=initiative_id, field='status', tries=50, delay=0.1,
-                 message='IBAN not enrolled')
+                 initiative_id=initiative_id, field='status', tries=50, delay=0.1)
 
     amount1 = floor(3000)
     transaction = custom_transaction(pan=pan, amount=amount1,

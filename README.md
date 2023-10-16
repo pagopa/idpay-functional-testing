@@ -16,6 +16,7 @@ Test runs can be executed both with Azure DevOps or locally.
    ![img.png](docs/images/run_pipeline.png)
 4. Fill the fields according to the needs:\
    ![img.png](docs/images/pre_run_window.png)
+   > Target tests tags can be separated by commas to include each scenario tagged with at least one of them.
 6. Click `Run`
 
 ## Run on local environment
@@ -61,13 +62,13 @@ pipenv sync
 Run discount flow tests:
 
 ```commandline
-[IDPAY_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<TEST_TAG>]
+[IDPAY_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
 ```
 
 For example this command runs in UAT all suspension tests and save the junitxml report to a file:
 
 ```commandline
-behave --junit --junit-directory "tests/reports/behave" --tags @suspension
+behave --junit --junit-directory "tests/reports/behave" --tags @suspension,readmission
 ```
 
 Run discount flow tests:

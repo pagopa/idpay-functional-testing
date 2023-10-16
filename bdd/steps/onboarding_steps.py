@@ -21,7 +21,7 @@ from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import get_selfcare_token
 from util.utility import iban_enroll
-from util.utility import onboard_random_merchant
+from util.utility import onboard_one_random_merchant
 from util.utility import retry_io_onboarding
 from util.utility import retry_merchant_statistics
 from util.utility import retry_timeline
@@ -361,8 +361,8 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
 @given('the random merchant {merchant_name} is onboard')
 def step_merchant_qualified(context, merchant_name):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    curr_merchant_info = onboard_random_merchant(initiative_id=context.initiative_id,
-                                                 institution_selfcare_token=institution_token)
+    curr_merchant_info = onboard_one_random_merchant(initiative_id=context.initiative_id,
+                                                     institution_selfcare_token=institution_token)
     context.merchants[merchant_name] = curr_merchant_info
 
     context.base_merchants_statistics[merchant_name] = retry_merchant_statistics(
