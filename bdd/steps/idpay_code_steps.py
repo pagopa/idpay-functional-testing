@@ -1,4 +1,3 @@
-import binascii
 import codecs
 import random
 from base64 import b64encode
