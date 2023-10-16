@@ -108,6 +108,12 @@ def step_citizen_tries_to_onboard(context, citizen_name):
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
 
 
+@when('the first citizen of {citizens} onboards')
+def step_check_citizens_correct_election(context, citizens):
+    citizens = json.loads(citizens)
+    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+
+
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
 def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initiative_name):
     new_context = context
@@ -254,6 +260,7 @@ def step_check_onboarding_status(context, citizen_name, status):
                                token=token_io,
                                initiative_id=context.initiative_id)
         skip_statistics_check = True
+
     elif status == 'ELIGIBLE_KO':
         expected_status = status
 
@@ -262,6 +269,16 @@ def step_check_onboarding_status(context, citizen_name, status):
                             message=f'Citizen onboard not {status}'
                             )
         skip_statistics_check = False
+
+    elif status == 'DEMANDED':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        curr_onboarded_citizen_count_increment = 0
+
     else:
         assert False, 'Unexpected status'
 
