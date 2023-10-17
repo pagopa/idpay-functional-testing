@@ -255,7 +255,7 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
         merchant_fiscal_code=curr_merchant_fiscal_code
     )
     # TODO fix with detail of trx (new)
-    context.transactions[trx_name] = context.latest_merchant_create_transaction_mil
+    context.transactions[trx_name] = context.latest_merchant_create_transaction_mil.json()
 
     step_check_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
     context.associated_merchant[trx_name] = merchant_name
