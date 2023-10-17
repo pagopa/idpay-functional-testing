@@ -612,7 +612,7 @@ def put_payment_results(selfcare_token: str,
 def put_minint_associate_user_and_payment(fiscal_code: str,
                                           transaction_id: str):
     response = requests.put(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MININT.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/user',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.MININT.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/user',
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIN_INT_PRODUCT,
             'Fiscal-Code': f'{fiscal_code}'
