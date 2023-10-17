@@ -104,8 +104,8 @@ def step_create_new_initiative(context, initiative_name):
 def step_initiative_in_grace_period(context):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
     res = get_initiative_info(selfcare_token=institution_token, initiative_id=context.initiative_id)
-    assert res.json()['rankingEndDate'] < datetime.datetime.now().strftime('%Y-%m-%d')
-    assert res.json()['startDate'] > datetime.datetime.now().strftime('%Y-%m-%d')
+    assert res.json()['general']['rankingEndDate'] < datetime.datetime.now().strftime('%Y-%m-%d')
+    assert res.json()['general']['startDate'] > datetime.datetime.now().strftime('%Y-%m-%d')
 
 
 @given('the initiative has a rank')
