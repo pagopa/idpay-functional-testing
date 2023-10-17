@@ -693,7 +693,7 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  ranking_grace_period:
+  Ranking_in_grace_period:
     id: 'ranking_grace_period'
     cashback_percentage: 100
     budget_per_citizen: 99999999999
