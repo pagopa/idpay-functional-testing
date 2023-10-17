@@ -275,7 +275,7 @@ def step_check_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
 
     if status == 'CREATED':
-        assert context.latest_merchant_create_transaction_mil.status_code == 200
+        assert context.latest_merchant_create_transaction_mil.status_code == 201
         assert context.latest_merchant_create_transaction_mil.json()['status'] == 'CREATED'
         return
 

@@ -68,7 +68,9 @@ def base_context_initialization(context):
     context.associated_merchant = {}
 
     context.citizen_isee = {}
+
     context.idpay_code = {}
+    context.old_idpay_code = {}
 
 
 @given("the initiative's budget is {precision} allocated")
