@@ -1,6 +1,6 @@
 import codecs
 import random
-from base64 import b64encode
+from base64 import b64encode, urlsafe_b64decode
 from hashlib import sha256
 
 from behave import given
@@ -19,7 +19,7 @@ from api.idpay import put_code_instrument
 from api.idpay import put_minint_associate_user_and_payment
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
-from api.mil import post_merchant_create_transaction_mil
+from api.mil import post_merchant_create_transaction_mil, get_public_key
 from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
 from bdd.steps.discount_transaction_steps import step_given_amount_cents
@@ -361,7 +361,12 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     pin_block_bytes = cipher.encrypt(pad(data_block.encode('utf-8'), AES.block_size))
     pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')
 
-    cipher = PKCS1_OAEP.new(RSA.import_key(PEM_KEY))
+    rsa_key = get_public_key()
+    e = int.from_bytes(urlsafe_b64decode(rsa_key['e'] + '=='), 'big')
+    n = int.from_bytes(urlsafe_b64decode(rsa_key['n'] + '=='), 'big')
+    pubkey = RSA.construct((n, e))
+
+    cipher = PKCS1_OAEP.new(RSA.import_key(pubkey.publickey().export_key()))
     key_encrypted_bytes = cipher.encrypt(KEY.encode())
     key_encrypted = b64encode(key_encrypted_bytes).decode('utf-8')
 

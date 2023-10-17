@@ -142,3 +142,16 @@ def put_merchant_authorize_transaction_mil(transaction_id: str,
         }
     )
     return response
+
+
+def get_public_key(acquirer_id: str = settings.idpay.acquirer_id):
+    cert = load_certificates()
+    response = requests.get(
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}/publickey',
+        cert=cert,
+        headers={
+            settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
+            'x-acquirer-id': acquirer_id
+        }
+    )
+    return response
