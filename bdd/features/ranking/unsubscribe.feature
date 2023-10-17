@@ -1,12 +1,11 @@
 @ranking_initiative
 @ranking
-@suspension
+@unsubscribe
 Feature: A citizen onboards an initiative with ranking
 
   Background:
     Given a new initiative "ranking_initiative"
 
-  @unsubscribe
   Scenario: Onboard citizen cannot unsubscribe before ranking
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
