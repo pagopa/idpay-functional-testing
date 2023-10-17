@@ -1,12 +1,11 @@
-@ranking_initiative
-@ranking_initiative_on_grace_period
+#@ranking_initiative
 @ranking
 @transaction
 Feature: A merchant creates a transaction and a citizen tries to confirm it during grace period on an initiative with ranking
 
   @skip
   Scenario: A new ranking initiative is generate in order to create the conditions to test grace period
-    Given a new initiative "ranking_initiative"
+    Given a new initiative "Ranking_in_grace_period"
     And the citizen A has fiscal code random
     And the citizen B has fiscal code random
     And the citizen C has fiscal code random
@@ -14,8 +13,23 @@ Feature: A merchant creates a transaction and a citizen tries to confirm it duri
     And the citizen C has ISEE 29999 of type "ordinario"
     And the citizen B has ISEE 59999 of type "ordinario"
     When the citizen A tries to onboard
-    And the citizen A tries to onboard
-    And the citizen A tries to onboard
+    And the citizen B tries to onboard
+    And the citizen C tries to onboard
+    And the ranking period ends
+    And the institution publishes the ranking
+
+  @skip
+  Scenario: A new ranking initiative is generate in order to create the conditions to test fruition period
+    Given a new initiative "Ranking_fruition_open"
+    And the citizen A has fiscal code random
+    And the citizen B has fiscal code random
+    And the citizen C has fiscal code random
+    And the citizen A has ISEE 19999 of type "ordinario"
+    And the citizen C has ISEE 29999 of type "ordinario"
+    And the citizen B has ISEE 59999 of type "ordinario"
+    When the citizen A tries to onboard
+    And the citizen B tries to onboard
+    And the citizen C tries to onboard
     And the ranking period ends
     And the institution publishes the ranking
 
