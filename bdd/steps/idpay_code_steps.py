@@ -294,6 +294,7 @@ def step_minint_associates_trx_with_citizen(context, trx_name, citizen_name):
     response = put_minint_associate_user_and_payment(fiscal_code=context.citizens_fc[citizen_name],
                                                      transaction_id=context.transactions[trx_name]['id'])
 
+    print(response)
     assert response.status_code == 200
     assert response.json()['status'] == 'IDENTIFIED'
 
