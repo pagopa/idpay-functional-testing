@@ -13,3 +13,12 @@ Feature: A citizen onboards an initiative with ranking
     When the citizen A tries to unsubscribe
     Then the latest unsubscribe is KO because the initiative has not started yet
     And the citizen A is onboard and waits for ranking
+
+  @test
+  @ranking_initiative_on_grace_period
+  Scenario: A merchant cannot generate a transaction during the grace period
+    Given the initiative is "Ranking_in_grace_period"
+    And the initiative is in grace period
+    And the initiative has a rank
+    When the onboard citizen tries to unsubscribe
+    Then the latest unsubscribe is KO because the initiative has not started yet
