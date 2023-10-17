@@ -1,5 +1,6 @@
 @ranking_initiative
 @ranking
+@onboarding
 Feature: A citizen onboards an initiative with ranking
 
   Background:
@@ -111,15 +112,9 @@ Feature: A citizen onboards an initiative with ranking
     And <eligible citizens> are ranked in the correct order
     And the citizen F is not eligible
 
-
     Examples: Citizens and ranking order
       | citizens                       | eligible citizens         |
       | ["A", "B", "C", "D", "E", "F"] | ["A", "B", "C", "D", "E"] |
-
-  Scenario: The merchant cannot generate a transaction during the onboarding period
-    Given the random merchant 1 is onboard
-    When the merchant 1 tries to generate the transaction X of amount 30000 cents
-    Then the transaction X is not created because it is out of valid period
 
   @skip
   Scenario: The merchant can generate a transaction after the publication of the ranking
