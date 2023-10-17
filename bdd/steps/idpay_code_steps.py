@@ -284,7 +284,7 @@ def step_check_transaction_status(context, trx_name, expected_status):
         assert context.transactions[trx_name]['status'] == 'AUTHORIZED'
 
     if status == 'NOT AUTHORIZED FOR IDPAY CODE NOT ENABLED':
-        assert context.latest_merchant_pre_authorize_transaction_mil.status.code == 400
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 400
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_NOT_VALID'
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'] == ''
 
@@ -294,7 +294,6 @@ def step_minint_associates_trx_with_citizen(context, trx_name, citizen_name):
     response = put_minint_associate_user_and_payment(fiscal_code=context.citizens_fc[citizen_name],
                                                      transaction_id=context.transactions[trx_name]['id'])
 
-    print(response)
     assert response.status_code == 200
     assert response.json()['status'] == 'IDENTIFIED'
 
@@ -387,7 +386,7 @@ def step_auth_trx_mil(context, trx_name, merchant_name, pin, second_factor):
 @given('the merchant {merchant_name} pre-authorizes and authorizes the transaction {trx_name} with IDPay Code '
        '{correctness} inserted by citizen {citizen_name}')
 def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, citizen_name):
-    step_tries_to_pre_authorize_transaction_mil(merchant_name=merchant_name, trx_name=trx_name)
+    step_tries_to_pre_authorize_transaction_mil(context=context, merchant_name=merchant_name, trx_name=trx_name)
 
     assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 200
     second_factor = context.latest_merchant_pre_authorize_transaction_mil.json()['secondFactor']
