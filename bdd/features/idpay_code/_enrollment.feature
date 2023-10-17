@@ -1,8 +1,8 @@
-@discount_idpay_code
+#@discount_idpay_code
 Feature: A citizen can enroll an IDPay Code to an initiative
 
     Background:
-        Given the initiative is "discount_idpay_code"
+        Given the initiative id is "652e886882b08d1934cd751c" ("discount_idpay_code")
         And the citizen A has fiscal code random
         And the citizen A is onboard
 

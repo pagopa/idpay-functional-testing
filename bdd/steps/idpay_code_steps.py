@@ -361,7 +361,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     pin_block_bytes = cipher.encrypt(pad(data_block.encode('utf-8'), AES.block_size))
     pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')
 
-    rsa_key = get_public_key()
+    rsa_key = get_public_key().json()
     e = int.from_bytes(urlsafe_b64decode(rsa_key['e'] + '=='), 'big')
     n = int.from_bytes(urlsafe_b64decode(rsa_key['n'] + '=='), 'big')
     pubkey = RSA.construct((n, e))
