@@ -619,3 +619,20 @@ def put_payment_results(selfcare_token: str,
         data=results_file,
         timeout=settings.default_timeout
     )
+
+
+def get_initiative_info(selfcare_token: str,
+                        initiative_id: str):
+    """API to get information related to an initiative.
+            :param selfcare_token: token SelfCare.
+            :param initiative_id: ID of the initiative of interest.
+            :returns: the response of the call.
+            :rtype: requests.Response
+        """
+    return requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)
