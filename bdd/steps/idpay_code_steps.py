@@ -316,24 +316,25 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_SUSPENDED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'User has been suspended for initiative {context.initiative_id}'
+                   'message'] == f'The user has been suspended for initiative {context.initiative_id}'
     elif reason_ko == 'UNSUBSCRIBED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'User is unsubscribed for initiative {context.initiative_id}'
+                   'message'] == f'The user is unsubscribed for initiative {context.initiative_id}'
 
 
 @then('the latest association by MinInt fails because the transaction {trx_name} is {reason_ko}')
 def step_check_latest_association_by_minint(context, trx_name, reason_ko):
     reason_ko = reason_ko.upper()
     trx_code = context.transactions[trx_name]['trxCode']
+    trx_id = context.transactions[trx_name]['id']
 
-    if reason_ko == 'EXPIRED':
+    if reason_ko == 'NOT FOUND':
         assert context.latest_minint_association.status_code == 404
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'Cannot find transaction with trxCode [{trx_code}]'
+                   'message'] == f'Cannot find transaction with transactionId [{trx_id}]'
     elif reason_ko == 'ALREADY ASSIGNED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_NOT_VALID'

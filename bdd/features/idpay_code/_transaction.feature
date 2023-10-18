@@ -74,8 +74,8 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
         Then the latest association by MinInt fails because the citizen is unsubscribed
 
-    Scenario: A citizen tries to pay with IDPay Code but the transaction is expired
+    Scenario: A citizen tries to pay with IDPay Code but the transaction is not found
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the transaction X does not exists
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
-        Then the latest association by MinInt fails because the transaction X is expired
+        Then the latest association by MinInt fails because the transaction X is not found
