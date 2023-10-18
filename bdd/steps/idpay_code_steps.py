@@ -406,6 +406,7 @@ def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, cit
 
         assert context.latest_merchant_authorize_transaction_mil.status_code == 200
         context.transactions[trx_name] = context.latest_merchant_authorize_transaction_mil.json()
+        context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
     elif correctness == 'INCORRECTLY':
         step_auth_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name,
