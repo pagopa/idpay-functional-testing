@@ -79,7 +79,7 @@ def step_set_citizens_isee(context, citizens_name: str, isee: int, isee_type: st
 
 
 @given('the transaction {trx_name} does not exists')
-def step_trx_before_fruition_period(context, trx_name):
+def step_trx_does_not_exists(context, trx_name):
     context.transactions[trx_name] = {'trxCode': str(uuid.uuid4())[:8],
                                       'id': str(uuid.uuid4())}
 

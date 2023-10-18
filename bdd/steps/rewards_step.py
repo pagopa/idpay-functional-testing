@@ -197,6 +197,7 @@ def step_merchant_confirms_a_transactions(context, trx_name):
 
 
 @when('the batch process confirms all the transactions')
+@given('the batch process confirms all the transactions')
 def step_merchant_confirms_all_transactions(context):
     for i in range(len(context.trx_ids)):
         step_merchant_confirms_a_transactions(context=context, trx_name=str(i))
