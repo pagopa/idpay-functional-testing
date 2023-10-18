@@ -36,7 +36,6 @@ instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 IV = bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 KEY = secrets.idpay_code.encrypt_key_test
-PEM_KEY = secrets.idpay_code.public_encrypt_key
 
 
 @given('the citizen {citizen_name} generates the IDPay Code')
