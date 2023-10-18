@@ -284,11 +284,11 @@ def step_check_transaction_status(context, trx_name, expected_status):
         return
 
     if status == 'NOT AUTHORIZED FOR IDPAY CODE NOT ENABLED':
-        print(context.latest_merchant_pre_authorize_transaction_mil)
-        print(context.latest_merchant_pre_authorize_transaction_mil.json())
+        trx_code = context.transactions[trx_name]['trxCode']
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 400
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_NOT_VALID'
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'] == ''
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_GENERIC_REJECTED'
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
+                   'message'] == f'Transaction with trxCode [{trx_code}] is rejected'
         return
 
 
@@ -313,6 +313,7 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'SUSPENDED':
+        print(context.latest_minint_association.json()['message'])
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_SUSPENDED'
         assert context.latest_minint_association.json()[
