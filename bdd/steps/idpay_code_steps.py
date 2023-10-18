@@ -436,7 +436,7 @@ def step_tries_to_pre_authorize_transaction_mil(context, merchant_name, trx_name
 @then('the latest pre-authorization by IDPay Code fails because {reason_ko}')
 def step_check_latest_pre_auth_fails(context, reason_ko):
     reason_ko = reason_ko.upper()
-    if reason_ko == 'IDPAY CODE IS NOT ENABLED':
+    if reason_ko == 'THE IDPAY CODE IS NOT ENABLED':
         #TODO fix message
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_GENERIC_REJECTED'
