@@ -285,7 +285,7 @@ def step_check_transaction_status(context, trx_name, expected_status):
 
     if status == 'NOT AUTHORIZED FOR IDPAY CODE NOT ENABLED':
         trx_code = context.transactions[trx_name]['trxCode']
-        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 400
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_GENERIC_REJECTED'
         assert context.latest_merchant_pre_authorize_transaction_mil.json()[
                    'message'] == f'Transaction with trxCode [{trx_code}] is rejected'
@@ -313,16 +313,15 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'SUSPENDED':
-        print(context.latest_minint_association.json()['message'])
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_SUSPENDED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'The user has been suspended for initiative {context.initiative_id}'
+                   'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
     elif reason_ko == 'UNSUBSCRIBED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'The user is unsubscribed for initiative {context.initiative_id}'
+                   'message'] == f'The user is unsubscribed for initiative [{context.initiative_id}]'
 
 
 @then('the latest association by MinInt fails because the transaction {trx_name} is {reason_ko}')
