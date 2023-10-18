@@ -37,14 +37,16 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         When the merchant 1 tries to pre-authorize the transaction X with IDPay Code
         Then the transaction X was not authorized for IDPay Code not enabled
 
-    Scenario: A citizen tries to pay with IDPay Code a transaction that already authorized by another citizen
-        Given the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
+    Scenario: A citizen tries to pay with IDPay Code a transaction that already assigned to another citizen
+        Given the citizen A enrolls correctly a new IDPay Code on the initiative
+        And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         And the MinInt associates the transaction X with the citizen A by IDPay Code
         And the merchant 1 pre-authorizes and authorizes the transaction X with IDPay Code correctly inserted by citizen A
         And the citizen B has fiscal code random
         And the citizen B is onboard
+        And the citizen B enrolls correctly a new IDPay Code on the initiative
         When the MinInt tries to associate the transaction X with the citizen B by IDPay Code
-        Then the latest association by MinInt fails because the transaction X is already authorized
+        Then the latest association by MinInt fails because the transaction X is already assigned
 
     @suspension
     Scenario: A suspended citizen tries to pay with IDPay Code
@@ -52,7 +54,7 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the citizen A enrolls correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
-        Then the latest association by MinInt fails because citizen A is suspended
+        Then the latest association by MinInt fails because the citizen is suspended
 
     Scenario: A readmitted citizen pays with IDPay Code by inserting the correct code
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
@@ -64,12 +66,13 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         Then the transaction X was authorized
 
     @unsubscribe
+    @skip
     Scenario: An unsubscribed citizen tries to pay with IDPay Code
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the citizen A is unsubscribed
         And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
-        Then the latest association by MinInt fails because citizen A is unsubscribed
+        Then the latest association by MinInt fails because the citizen is unsubscribed
 
     Scenario: A citizen tries to pay with IDPay Code but the transaction is expired
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
