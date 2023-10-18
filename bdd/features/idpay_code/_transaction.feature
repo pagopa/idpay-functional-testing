@@ -13,7 +13,7 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         And the MinInt associates the transaction X with the citizen A by IDPay Code
         When the merchant 1 pre-authorizes and authorizes the transaction X with IDPay Code correctly inserted by citizen A
-        Then the transaction X was authorized
+        Then the transaction X with IDPay Code is authorized
 
     Scenario: A citizen tries to pay with IDPay Code inserting the old code after regenerating it
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
@@ -29,13 +29,13 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         And the MinInt associates the transaction X with the citizen A by IDPay Code
         When the merchant 1 pre-authorizes and authorizes the transaction X with IDPay Code correctly inserted by citizen A
-        Then the transaction X was authorized
+        Then the transaction X with IDPay Code is authorized
 
     Scenario: A citizen tries to pay with IDPay Code without having enabled the code on initiative
         Given the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         And the MinInt associates the transaction X with the citizen A by IDPay Code
         When the merchant 1 tries to pre-authorize the transaction X with IDPay Code
-        Then the transaction X was not authorized for IDPay Code not enabled
+        Then the transaction X with IDPay Code is not authorized for IDPay Code not enabled
 
     Scenario: A citizen tries to pay with IDPay Code a transaction that already assigned to another citizen
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
@@ -63,7 +63,7 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
         And the MinInt associates the transaction X with the citizen A by IDPay Code
         When the merchant 1 pre-authorizes and authorizes the transaction X with IDPay Code correctly inserted by citizen A
-        Then the transaction X was authorized
+        Then the transaction X with IDPay Code is authorized
 
     @unsubscribe
     @skip
@@ -79,3 +79,12 @@ Feature: A citizen can pay with IDPay Code on a discount initiative
         And the transaction X does not exists
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
         Then the latest association by MinInt fails because the transaction X is not found
+
+    Scenario: A citizen tries to pay with IDPay Code but the transaction is already rejected
+        Given the merchant 1 generates the transaction X of amount 30000 cents through MIL (new)
+        And the MinInt associates the transaction X with the citizen A by IDPay Code
+        And the merchant 1 tries to pre-authorize the transaction X with IDPay Code
+        And the transaction X with IDPay Code is not authorized for IDPay Code not enabled
+        And the citizen A enrolls correctly a new IDPay Code on the initiative
+        When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
+        Then the latest association by MinInt fails because the transaction X is already rejected

@@ -268,8 +268,8 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
                                    )
 
 
-@then('the transaction {trx_name} was {expected_status}')
-@given('the transaction {trx_name} was {expected_status}')
+@then('the transaction {trx_name} with IDPay Code is {expected_status}')
+@given('the transaction {trx_name} with IDPay Code is {expected_status}')
 def step_check_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
 
@@ -289,6 +289,12 @@ def step_check_transaction_status(context, trx_name, expected_status):
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_GENERIC_REJECTED'
         assert context.latest_merchant_pre_authorize_transaction_mil.json()[
                    'message'] == f'Transaction with trxCode [{trx_code}] is rejected'
+        return
+
+    if status == 'NOT AUTHORIZED FOR BUDGET EXHAUSTED':
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'].startswith('Budget exhausted')
         return
 
 
@@ -335,11 +341,18 @@ def step_check_latest_association_by_minint(context, trx_name, reason_ko):
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
         assert context.latest_minint_association.json()[
                    'message'] == f'Cannot find transaction with transactionId [{trx_id}]'
+
     elif reason_ko == 'ALREADY ASSIGNED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_NOT_VALID'
         assert context.latest_minint_association.json()[
                    'message'] == f'Transaction with trxCode [{trx_code}] is already assigned to another user'
+
+    elif reason_ko == 'ALREADY REJECTED':
+        assert context.latest_minint_association.status_code == 400
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+        assert context.latest_minint_association.json()[
+                   'message'] == f'Cannot relate transaction [{trx_code}] in status REJECTED'
 
 
 def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: str) -> (str, str):
@@ -424,6 +437,7 @@ def step_check_latest_auth_fails(context, reason_ko):
 
 
 @when('the merchant {merchant_name} tries to pre-authorize the transaction {trx_name} with IDPay Code')
+@given('the merchant {merchant_name} tries to pre-authorize the transaction {trx_name} with IDPay Code')
 def step_tries_to_pre_authorize_transaction_mil(context, merchant_name, trx_name):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     trx_id = context.transactions[trx_name]['id']
