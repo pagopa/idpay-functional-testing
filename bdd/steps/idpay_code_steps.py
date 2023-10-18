@@ -434,6 +434,7 @@ def step_tries_to_pre_authorize_transaction_mil(context, merchant_name, trx_name
 
 
 @then('the latest pre-authorization by IDPay Code fails because {reason_ko}')
+@given('the latest pre-authorization by IDPay Code fails because {reason_ko}')
 def step_check_latest_pre_auth_fails(context, reason_ko):
     reason_ko = reason_ko.upper()
     if reason_ko == 'THE IDPAY CODE IS NOT ENABLED':
