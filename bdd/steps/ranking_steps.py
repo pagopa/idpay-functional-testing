@@ -13,6 +13,7 @@ from api.idpay import put_ranking_end_date
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from conf.configuration import secrets
 from util.encrypt_utilities import verify_and_clear_p7m_file
+from util.utility import check_ranking_status_institution_portal
 from util.utility import get_selfcare_token
 
 
@@ -72,6 +73,8 @@ def step_check_ranking_order(context, rank_order: str):
         assert curr_rank[3] == count + 1
         assert citizen == curr_rank[0]
         assert context.citizen_isee[citizen] == floor(curr_rank[2]) / 100
+        assert check_ranking_status_institution_portal(initiative_id=context.initiative_id, desired_fc=citizen,
+                                                       desired_status='ELIGIBLE_OK'), 'The citizen is either not present or not in the desired status'
 
 
 @then('the citizen {citizen_name} is not in rank')
@@ -89,5 +92,5 @@ def step_check_not_eligibility_in_ranking(context, citizen_name: str):
     for rank in context.ranking:
         if citizen_fc == rank[0]:
             assert rank[4] == 'ELIGIBLE_KO'
-            return
-    assert False, 'The citizen be present in ranking but not eligible'
+    assert check_ranking_status_institution_portal(initiative_id=context.initiative_id, desired_fc=citizen_fc,
+                                                   desired_status='ELIGIBLE_KO'), 'The citizen is either not present or not in the desired status'
