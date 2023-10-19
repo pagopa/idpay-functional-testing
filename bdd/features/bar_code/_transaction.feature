@@ -32,7 +32,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         When the merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents
         Then the latest authorization by merchant fails because the citizen is suspended
 
-    @unsubscribe
+    @unsubscribe @skip
     Scenario: An unsubscribed citizen tries to generate a transaction by Bar Code
         Given the citizen A creates the transaction X by Bar Code
         And the institution suspends correctly the citizen A

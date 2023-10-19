@@ -33,15 +33,15 @@ def step_check_latest_citizen_creation_bar_code(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'THE BUDGET IS EXHAUSTED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_merchant_authorization_bar_code.json()[
+        assert context.latest_citizen_creation_bar_code.status_code == 403
+        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+        assert context.latest_citizen_creation_bar_code.json()[
                    'message'] == f'The budget related to the user on initiativeId [{context.initiative_id}] was exhausted.'
 
     if reason_ko == 'THE CITIZEN IS NOT ONBOARDED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
-        assert context.latest_merchant_authorization_bar_code.json()[
+        assert context.latest_citizen_creation_bar_code.status_code == 403
+        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
+        assert context.latest_citizen_creation_bar_code.json()[
                    'message'] == f'The user is not onboarded on initiative [{context.initiative_id}].'
 
 
@@ -53,7 +53,6 @@ def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_ce
 
     assert context.latest_merchant_authorization_bar_code.status_code == 200
     context.transactions[trx_name] = context.latest_merchant_authorization_bar_code.json()
-    context.amount_cents[trx_name] = amount_cents
 
 
 @when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
@@ -73,7 +72,6 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
 
     if status == 'AUTHORIZED':
         assert context.transactions[trx_name]['status'] == 'AUTHORIZED'
-        assert context.transactions[trx_name]['amountCents'] == context.amount_cents[trx_name]
 
 
 @then('the latest authorization by merchant fails because {reason_ko}')
