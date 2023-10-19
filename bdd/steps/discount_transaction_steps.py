@@ -585,6 +585,23 @@ def step_citizen_tries_to_cancel_a_transaction(context, citizen_name, trx_name):
     context.latest_citizen_cancellation_response = res
 
 
+@when('the elected citizen confirms the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_when_citizen_confirms_transaction(context=context, citizen_name=context.eligible_citizen, trx_name=trx_name)
+
+
+@when('the unelected citizen tries to pre-authorize the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_citizen_only_pre_authorize_transaction(context=context, citizen_name=context.not_eligible_citizen,
+                                                trx_name=trx_name)
+
+
+@when('the not eligible citizen tries to pre-authorize the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_citizen_only_pre_authorize_transaction(context=context, citizen_name=context.not_onboard_citizen,
+                                                trx_name=trx_name)
+
+
 def update_user_counters(context, citizen_name, reward):
     if citizen_name not in context.accrued_per_citizen.keys():
         context.accrued_per_citizen[citizen_name] = reward
