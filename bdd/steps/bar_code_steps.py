@@ -2,8 +2,9 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import post_create_payment_bar_code, put_authorize_bar_code_merchant
-from util.utility import get_io_token, tokenize_fc
+from api.idpay import post_create_payment_bar_code
+from api.idpay import put_authorize_bar_code_merchant
+from util.utility import get_io_token
 
 
 @given('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
@@ -16,6 +17,32 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
     assert response.json()['status'] == 'CREATED'
 
     context.transactions[trx_name] = response.json()
+
+
+@when('the citizen {citizen_name} tries to create the transaction {trx_name} by Bar Code')
+def step_citizen_create_bar_code(context, citizen_name, trx_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    response = post_create_payment_bar_code(token=token_io,
+                                            initiative_id=context.initiative_id)
+
+    context.latest_citizen_creation_bar_code = response
+
+
+@then('the latest transaction creation by citizen fails because {reason_ko}')
+def step_check_latest_citizen_creation_bar_code(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'THE BUDGET IS EXHAUSTED':
+        assert context.latest_merchant_authorization_bar_code.status_code == 403
+        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+        assert context.latest_merchant_authorization_bar_code.json()[
+                   'message'] == f'The budget related to the user on initiativeId [{context.initiative_id}] was exhausted.'
+
+    if reason_ko == 'THE CITIZEN IS NOT ONBOARDED':
+        assert context.latest_merchant_authorization_bar_code.status_code == 403
+        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
+        assert context.latest_merchant_authorization_bar_code.json()[
+                   'message'] == f'The user is not onboarded on initiative [{context.initiative_id}].'
 
 
 @when('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
@@ -38,7 +65,7 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
                                                                                      amount_cents=amount_cents)
 
 
-@then('the payment of transaction {trx_name} is {expected_status}')
+@then('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
@@ -65,20 +92,19 @@ def step_check_latest_merchant_authorized_bar_code_trx(context, trx_name, reason
                    'message'] == f'Transaction with trxCode [{trx_code}] is already authorized'
 
 
-@then('the latest authorization by merchant fails because the citizen {citizen_name} is {reason_ko}')
-def step_check_latest_merchant_authorized_bar_code_citizen(context, citizen_name, reason_ko):
+@then('the latest authorization by merchant fails because the citizen is {reason_ko}')
+def step_check_latest_merchant_authorized_bar_code_citizen(context, reason_ko):
     reason_ko = reason_ko.upper()
-    curr_tokenized_fc = tokenize_fc(context.citizens_fc[citizen_name])
 
     if reason_ko == 'SUSPENDED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_SUSPENDED'
         assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+                   'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
 
     if reason_ko == 'UNSUBSCRIBED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
         assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'User {curr_tokenized_fc} is unsubscribed from initiative {context.initiative_id}'
+                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
