@@ -4,7 +4,7 @@
 Feature: A merchant creates a transaction and a citizen tries to confirm it during grace period on an initiative with ranking
 
   @skip
-  Scenario: A new ranking initiative is generate in order to create the conditions to test grace period
+  Scenario: A new ranking initiative is generate in order to create the conditions to test grace period after ranking publication
     Given a new initiative "Ranking_in_grace_period"
     And the citizen A has fiscal code random
     And the citizen B has fiscal code random
