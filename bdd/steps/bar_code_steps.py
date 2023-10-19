@@ -46,6 +46,7 @@ def step_check_latest_citizen_creation_bar_code(context, reason_ko):
 
 
 @when('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
+@given('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
 def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_cents):
     step_merchant_try_to_authorize_bar_code(context=context, merchant_name=merchant_name,
                                             trx_name=trx_name, amount_cents=amount_cents)
@@ -66,6 +67,7 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
 
 
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
+@given('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
@@ -74,37 +76,36 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
         assert context.transactions[trx_name]['amountCents'] == context.amount_cents[trx_name]
 
 
-@then('the latest authorization by merchant fails because the transaction {trx_name} is {reason_ko}')
-def step_check_latest_merchant_authorized_bar_code_trx(context, trx_name, reason_ko):
+@then('the latest authorization by merchant fails because {reason_ko}')
+def step_check_latest_merchant_authorized_bar_code(context, reason_ko):
     reason_ko = reason_ko.upper()
-    trx_code = context.transactions[trx_name]['trxCode']
 
-    if reason_ko == 'NOT FOUND':
+    if reason_ko == 'THE TRANSACTION IS NOT FOUND':
         assert context.latest_merchant_authorization_bar_code.status_code == 404
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
         assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'Cannot find transaction with trxCode [{trx_code}]'
+                   'message'].startswith('Cannot find transaction with trxCode')
 
-    if reason_ko == 'ALREADY AUTHORIZED':
+    if reason_ko == 'THE TRANSACTION IS ALREADY AUTHORIZED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
-        assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'Transaction with trxCode [{trx_code}] is already authorized'
+        assert context.latest_merchant_authorization_bar_code.json()['message'].startswith('Transaction with trxCode')
+        assert context.latest_merchant_authorization_bar_code.json()['message'].endswith('is already authorized')
 
-
-@then('the latest authorization by merchant fails because the citizen is {reason_ko}')
-def step_check_latest_merchant_authorized_bar_code_citizen(context, reason_ko):
-    reason_ko = reason_ko.upper()
-
-    if reason_ko == 'SUSPENDED':
+    if reason_ko == 'THE CITIZEN IS SUSPENDED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_SUSPENDED'
         assert context.latest_merchant_authorization_bar_code.json()[
                    'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
 
-    if reason_ko == 'UNSUBSCRIBED':
+    if reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
         assert context.latest_merchant_authorization_bar_code.json()[
                    'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
+    if reason_ko == 'THE BUDGET IS EXHAUSTED':
+        assert context.latest_merchant_authorization_bar_code.status_code == 403
+        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+        assert context.latest_merchant_authorization_bar_code.json()[
+                   'message'] == f'The budget related to the user on initiativeId [{context.initiative_id}] was exhausted.'

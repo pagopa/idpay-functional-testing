@@ -609,7 +609,7 @@ def put_payment_results(selfcare_token: str,
 
 
 def post_create_payment_bar_code(token, initiative_id: str):
-    return requests.put(
+    return requests.post(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}',
         headers={
             'Authorization': f'Bearer {token}',
