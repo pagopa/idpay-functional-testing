@@ -14,6 +14,13 @@ def step_citizen_tries_to_unsubscribe(context, citizen_name):
     context.latest_unsubscribe_response = res
 
 
+@when('the onboard citizen tries to unsubscribe')
+def step_citizen_tries_to_unsubscribe(context):
+    token = get_io_token(context.eligible_citizen)
+    res = unsubscribe(context.initiative_id, token)
+    context.latest_unsubscribe_response = res
+
+
 @then('the latest unsubscribe is {status}')
 def step_check_latest_cancellation_failed(context, status):
     status = status.upper()
