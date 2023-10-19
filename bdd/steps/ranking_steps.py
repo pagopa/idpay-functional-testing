@@ -24,11 +24,9 @@ def step_end_ranking(context):
     assert res.status_code == 200
 
 
-@given('the institution publishes the ranking')
-@when('the institution publishes the ranking')
-def step_publish_ranking_(context):
-    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-
+@given('the ranking is produced')
+@when('the ranking is produced')
+def step_force_ranking(context):
     res = force_ranking()
     assert res.status_code == 200
 
@@ -41,13 +39,23 @@ def step_publish_ranking_(context):
 
     assert ranking_file_path is not None
 
+    context.ranking_file_path = ranking_file_path
+
+
+@given('the institution publishes the ranking')
+@when('the institution publishes the ranking')
+def step_publish_ranking_(context):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+
+    step_force_ranking(context)
+
     res = put_publish_ranking(selfcare_token=institution_token, initiative_id=context.initiative_id)
     assert res.status_code == 204
 
     res = get_ranking_file(selfcare_token=institution_token, initiative_id=context.initiative_id,
-                           ranking_file_path=ranking_file_path.split('/')[-1])
+                           ranking_file_path=context.ranking_file_path.split('/')[-1])
     assert res.status_code == 200
-    response_content_filename = '-'.join(ranking_file_path.split('/')[1:3])
+    response_content_filename = '-'.join(context.ranking_file_path.split('/')[1:3])
     clear_ranking_filename = response_content_filename + '.clear.csv'
 
     with open(response_content_filename, 'wb') as f:
