@@ -51,6 +51,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         And the citizen A creates the transaction Y by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 30000 cents
         And with Bar Code the transaction X is authorized
+        And 5 second/s pass
         When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 20000 cents
         Then the latest authorization by merchant fails because the budget is exhausted
 
@@ -58,6 +59,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 30000 cents
         And with Bar Code the transaction X is authorized
+        And 5 second/s pass
         When the citizen A tries to create the transaction Y by Bar Code
         Then the latest transaction creation by citizen fails because the budget is exhausted
 
