@@ -13,26 +13,29 @@ from Cryptodome.Util.Padding import pad
 from psec import tools
 
 from api.idpay import get_idpay_code_status
+from api.idpay import wallet
 from api.idpay import get_payment_instruments
 from api.idpay import post_idpay_code_generate
 from api.idpay import put_code_instrument
 from api.idpay import put_minint_associate_user_and_payment
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
-from api.mil import post_merchant_create_transaction_mil, get_public_key
+from api.mil import post_merchant_create_transaction_mil
+from api.mil import get_public_key
 from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
 from bdd.steps.discount_transaction_steps import step_given_amount_cents
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
+from util.utility import retry_wallet
 from util.utility import get_io_token
 from util.utility import retry_payment_instrument
 from util.utility import retry_timeline
-from util.utility import tokenize_fc
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
+wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 
 IV = bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 KEY = secrets.idpay_code.encrypt_key_test
@@ -85,6 +88,11 @@ def step_citizen_enroll_idpay_code(context, citizen_name):
     context.idpay_code[citizen_name] = res.json()['idpayCode']
 
     step_check_idpay_code_status(context=context, status='enabled', citizen_name=citizen_name)
+
+    citizen_wallet = retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                                  initiative_id=context.initiative_id, field='status', tries=5, delay=3)
+    # By default, a citizen onboarded to a discount initiative has app_io_payment as payment method
+    assert citizen_wallet.json()['nInstr'] == 2
 
 
 @given('the citizen {citizen_name} enrolls correctly a new IDPay Code on the initiative')
