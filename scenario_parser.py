@@ -1,87 +1,74 @@
 import os
 
-from behave.model import Background
 from behave.model import Scenario
 from behave.model import ScenarioOutline
 from behave.parser import Parser
 
 
-def parse_feature_files(feature_files):
-    scenarios = {}
+def parse_feature_files(feat_files):
+    feature_scenarios = {}
     parser = Parser()
 
-    for feature_file in feature_files:
-        with open(feature_file, 'r') as file:
-            feature_content = file.read()  # Read the file content as a string
-            feature = parser.parse(feature_content, filename=feature_file)
+    for curr_feature_file in feat_files:
+        with open(curr_feature_file, 'r') as f:
+            feature_content = f.read()
+            feature = parser.parse(feature_content, filename=curr_feature_file)
 
-            feature_name = feature.name  # Get the feature name
-            feature_scenarios = []
-            background_steps = []
+            curr_feature_file = feature.name
+            scenarios = []
 
-            # Find and extract background steps
-            for element in feature:
-                if isinstance(element, Background):
-                    background_steps = [step.keyword + ' ' + step.name for step in element.steps]
-
-            # Find and extract scenarios
             for element in feature:
                 if isinstance(element, (ScenarioOutline, Scenario)):
-                    scenario_steps = [step.keyword + ' ' + step.name for step in element.steps]
-                    if background_steps:
-                        # Prepend background steps to scenario steps
-                        scenario_steps = background_steps + scenario_steps
-                    feature_scenarios.append({
-                        'name': element.name,
-                        'description': element.description,
-                        'steps': scenario_steps,
+                    # Extract only scenario name and description
+                    scenario_name = element.name
+                    scenario_description = element.description
+                    scenarios.append({
+                        'name': scenario_name,
+                        'description': scenario_description,
                     })
 
-            scenarios[feature_name] = {
-                'file_paths': [feature_file],  # Store the file paths as a list
-                'scenarios': feature_scenarios,
-            }
+            if scenarios:
+                # Use the original feature file name (without extension) as the key
+                feature_file_name = os.path.splitext(os.path.basename(curr_feature_file))[0]
+                feature_scenarios[feature_file_name] = {
+                    'feature_name': feature_file_name,
+                    'scenarios': scenarios,
+                }
 
-    return scenarios
+    return feature_scenarios
 
 
-# Set the root directory for feature files
 root_directory = 'bdd/features/pilot'
 
-# Collect all feature file paths within the root directory and its subdirectories
 feature_files = []
 for root, dirs, files in os.walk(root_directory):
     for file in files:
         if file.endswith('.feature'):
             feature_files.append(os.path.join(root, file))
 
-# Call the function to parse the feature files and retrieve the scenarios
-scenarios = parse_feature_files(feature_files)
+scenarios_by_feature = parse_feature_files(feature_files)
 
-# Create and open the output file in write mode
-output_file_path = 'docs/output.md'
-os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
-with open(output_file_path, 'w') as output_file:
-    # Write the extracted scenarios per feature to the output file
-    for feature, feature_data in scenarios.items():
-        file_paths = feature_data['file_paths']
-        file_path = file_paths[
-            0] if file_paths else ''  # Access the first element or use an empty string if no file path exists
-        output_file.write(f'## Feature: [{feature}]({file_path})\n\n')
-        for scenario in feature_data['scenarios']:
-            output_file.write(f'### Scenario: {scenario["name"]}\n')
-            output_file.write(f'Description: {scenario["description"]}\n')
-            output_file.write('<details>\n')
-            output_file.write('<summary>Steps (Click to expand)</summary>\n')
-            output_file.write(f'\n')
-            steps = '\n\n'.join(f'- {step}' for step in scenario['steps'])
-            output_file.write(f'{steps}\n')
-            output_file.write('</details>\n')
-            output_file.write('\n---\n')
+output_directory = 'docs/features'  # Save feature-specific MD files under 'docs/features'
+os.makedirs(output_directory, exist_ok=True)
 
-# Read the contents of the output file
-with open(output_file_path, 'r') as output_file:
-    output_content = output_file.read()
+# Create index.md to list features and link to respective pages
+index_content = '# Features\n\n'
 
-# Print a message to indicate successful file generation
-print(f'Output file generated: {output_file_path}')
+for curr_feature_file_name, data in scenarios_by_feature.items():
+    feature_name = data['feature_name']
+    output_file_name = f'{curr_feature_file_name}.md'
+    feature_file_path = os.path.join(output_directory, output_file_name)
+
+    # Create a link to the feature's page
+    index_content += f"- [{feature_name}]({os.path.join('features', output_file_name)})\n"
+
+    # Save the feature-specific MD file in 'docs/features' subdirectory
+    with open(feature_file_path, 'w') as feature_file:
+        feature_file.write(f'# Feature: {feature_name}\n\n')
+        for scenario in data['scenarios']:
+            feature_file.write(f'* {scenario["name"]}\n')
+
+# Save index.md in 'docs' directory
+index_file_path = os.path.join('docs', 'index.md')
+with open(index_file_path, 'w') as index_file:
+    index_file.write(index_content)
