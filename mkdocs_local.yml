@@ -1,0 +1,18 @@
+site_name: IDPay Functional Testing
+site_url: ""
+site_author: PagoPA
+use_directory_urls: False
+
+repo_name: pagopa/idpay-functional-testing
+repo_url: https://github.com/pagopa/idpay-functional-testing
+
+nav:
+  - Home: 'docs/index.md'
+  - Features:
+      - 'docs/features/*.md'
+
+theme:
+  name: material
+  font:
+    text: Roboto
+    code: Roboto Mono
