@@ -57,6 +57,7 @@ IDPAY:
         card: 'CARD'
         idpaycode: 'IDPAYCODE'
         qrcode: 'QRCODE'
+        app_io_payment: 'APP_IO_PAYMENT'
     timeline:
       path: '/timeline'
       operations:

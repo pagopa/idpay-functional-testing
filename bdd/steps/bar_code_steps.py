@@ -3,12 +3,35 @@ from behave import then
 from behave import when
 
 from api.idpay import post_create_payment_bar_code
+from api.idpay import get_payment_instruments
+from api.idpay import wallet
 from api.idpay import put_authorize_bar_code_merchant
+from conf.configuration import settings
 from util.utility import get_io_token
+from util.utility import retry_wallet
+from util.utility import retry_payment_instrument
+
+wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
+instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
+
+
+def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name):
+    # Every citizen onboarded to discount initiative is enabled to pay by Bar Code or QR Code
+    # (considered as 'App IO Payment')
+    token = get_io_token(context.citizens_fc[citizen_name])
+
+    citizen_wallet = retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token,
+                                  initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+
+    assert citizen_wallet.json()['nInstr'] == 1
+    retry_payment_instrument(expected_type=instrument_types.app_io_payment, expected_status='ACTIVE',
+                             request=get_payment_instruments, token=token, initiative_id=context.initiative_id,
+                             field_type='instrumentType', field_status='status', num_required=1, tries=10, delay=2)
 
 
 @given('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
 def step_citizen_create_bar_code(context, citizen_name, trx_name):
+    #TODO ADD step_check_citizen_is_enabled_to_app_io_payment_method(context=context, citizen_name=citizen_name)
     token_io = get_io_token(context.citizens_fc[citizen_name])
     response = post_create_payment_bar_code(token=token_io,
                                             initiative_id=context.initiative_id)
