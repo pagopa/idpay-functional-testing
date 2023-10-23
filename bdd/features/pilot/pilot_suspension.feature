@@ -2,7 +2,7 @@
 @Scontoditipo1_not_started
 @Scontoditipo1_allocated
 @suspension
-Feature: A citizen can be suspended from an initiative by the promoting institution
+Feature: Suspension
 
   Scenario: The Institution tries to suspend an onboard citizen during the fruition period and receives an OK result
     Given the initiative is "Scontoditipo1"

@@ -1,7 +1,7 @@
 @Scontoditipo1
 @Scontoditipo1_not_started
 @unsubscribe
-Feature: A transaction is generated, authorized and confirmed
+Feature: Unsubscription
 
   Background:
     Given the initiative is "Scontoditipo1"

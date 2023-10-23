@@ -1,6 +1,6 @@
 @Scontoditipo1
 @cancellation
-Feature: A transaction can be cancelled by the merchant
+Feature: Cancellation
 
   Background:
     Given the initiative is "Scontoditipo1"
