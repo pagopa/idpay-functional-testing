@@ -1,5 +1,6 @@
 import os
 
+import yaml
 from behave.model import Scenario
 from behave.model import ScenarioOutline
 from behave.parser import Parser
@@ -54,6 +55,8 @@ os.makedirs(output_directory, exist_ok=True)
 # Create index.md to list features and link to respective pages
 index_content = '# Features\n\n'
 
+nav_links = []
+
 for curr_feature_file_name, data in scenarios_by_feature.items():
     feature_name = data['feature_name']
     output_file_name = f'{curr_feature_file_name}.md'
@@ -61,6 +64,11 @@ for curr_feature_file_name, data in scenarios_by_feature.items():
 
     # Create a link to the feature's page
     index_content += f"- [{feature_name}]({os.path.join('features', output_file_name)})\n"
+
+    # Append a navigation link for the feature
+    nav_links.append(
+        {feature_name: f'features/{curr_feature_file_name}.md'}
+    )
 
     # Save the feature-specific MD file in 'docs/features' subdirectory
     with open(feature_file_path, 'w') as feature_file:
@@ -79,3 +87,24 @@ with open(index_file_path, 'w') as index_file:
     azure_devops_badge = '[![Build Status](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_apis/build/status%2Fidpay%2Fidpay-functional-testing%2Fidpay-functional-testing.discount-flow?branchName=main&jobName=Run_functional_tests)](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_build/latest?definitionId=1385&branchName=main)'
     index_file.write(f'\n\n **[{azure_devops_link}]({azure_devops_url})**')
     index_file.write(f'\n\n {azure_devops_badge}')
+
+# Update the MkDocs configuration file (mkdocs.yml) to include navigation link
+mkdocs_config = {
+    'site_name': 'IDPay Functional Testing',
+    'site_author': 'PagoPA',
+    'use_directory_urls': False,
+    'nav': [
+        {'Home': 'index.md'},
+        {'Features': nav_links},
+        {'Azure DevOps Pipeline': azure_devops_url}
+    ],
+    'theme': {
+        'name': 'material',
+        'font': {'text': 'Roboto', 'code': 'Roboto Mono'},
+    },
+}
+
+# Save the updated MkDocs configuration to mkdocs.yml
+mkdocs_yaml_path = 'mkdocs.yml'
+with open(mkdocs_yaml_path, 'w') as mkdocs_yaml:
+    yaml.dump(mkdocs_config, mkdocs_yaml)
