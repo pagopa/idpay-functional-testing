@@ -10,12 +10,15 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: python:latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: python --version
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - run: python3 --version
       - run: pip install -r requirements.txt
-      - run: python scenario_parser.py
+      - run: python3 scenario_parser.py
       - run: pip install mkdocs-material
       - run: mkdocs gh-deploy --force
 #      - run: mkdocs build --config-file ./mkdocs_local.yaml # Use this to run locally
