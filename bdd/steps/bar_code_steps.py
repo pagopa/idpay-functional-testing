@@ -67,6 +67,12 @@ def step_check_latest_citizen_creation_bar_code(context, reason_ko):
         assert context.latest_citizen_creation_bar_code.json()[
                    'message'] == f'The user is not onboarded on initiative [{context.initiative_id}].'
 
+    if reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
+        assert context.latest_merchant_authorization_bar_code.status_code == 403
+        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
+        assert context.latest_merchant_authorization_bar_code.json()[
+                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
+
 
 @when('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
 @given('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
