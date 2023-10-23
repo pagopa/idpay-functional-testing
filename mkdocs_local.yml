@@ -1,5 +1,5 @@
 site_name: IDPay Functional Testing
-site_url: ""
+site_url: https://github.com/pagopa/idpay-functional-testing
 site_author: PagoPA
 use_directory_urls: False
 
