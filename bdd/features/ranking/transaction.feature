@@ -40,7 +40,7 @@ Feature: A merchant creates a transaction and a citizen tries to confirm it duri
     Then the transaction X is not created because it is out of valid period
 
   Scenario: A merchant cannot generate a transaction during the grace period
-    Given a new initiative "ranking_initiative"
+    Given the initiative is "Ranking_in_grace_period"
     And the random merchant 1 is onboard
     And the ranking period ends
     And the ranking is produced
