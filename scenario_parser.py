@@ -72,3 +72,10 @@ for curr_feature_file_name, data in scenarios_by_feature.items():
 index_file_path = os.path.join('docs', 'index.md')
 with open(index_file_path, 'w') as index_file:
     index_file.write(index_content)
+
+    # Add a link to the Azure DevOps pipeline
+    azure_devops_link = 'Azure DevOps pipeline analytics'
+    azure_devops_url = 'https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_test/analytics?definitionId=1385&contextType=build'
+    azure_devops_badge = '[![Build Status](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_apis/build/status%2Fidpay%2Fidpay-functional-testing%2Fidpay-functional-testing.discount-flow?branchName=main&jobName=Run_functional_tests)](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_build/latest?definitionId=1385&branchName=main)'
+    index_file.write(f'\n\n **[{azure_devops_link}]({azure_devops_url})**')
+    index_file.write(f'\n\n {azure_devops_badge}')
