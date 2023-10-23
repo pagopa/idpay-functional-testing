@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - IDP-1296-publish-scenarios-report
 
 permissions:
   contents: write
