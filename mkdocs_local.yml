@@ -7,9 +7,9 @@ repo_name: pagopa/idpay-functional-testing
 repo_url: https://github.com/pagopa/idpay-functional-testing
 
 nav:
-  - Home: 'docs/index.md'
+  - Home: 'index.md'
   - Features:
-      - 'docs/features/*.md'
+      - '/features/*.md'
 
 theme:
   name: material
