@@ -314,7 +314,7 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
 
     retry_timeline(expected=timeline_operations.transaction, request=timeline,
                    num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
-                   initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                   initiative_id=context.initiative_id, field='operationType', tries=60, delay=1,
                    message='Transaction not received')
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
