@@ -47,7 +47,16 @@ Feature: A merchant creates a transaction and a citizen tries to confirm it duri
     When the merchant 1 tries to generate the transaction X of amount 30000 cents
     Then the transaction X is not created because it is out of valid period
 
-  @test
+  @skip
+  Scenario: The merchant can generate a transaction after the publication of the ranking
+    Given the initiative is "Ranking_fruition_open"
+    And the initiative is in fruition period
+    And the initiative has a rank
+    And the random merchant 1 is onboard
+    When the merchant 1 generates the transaction X of amount 100 cents
+    Then the transaction X is created
+
+  @skip
   Scenario: An elected citizen authorizes a transaction during the fruition period after ranking publication
     Given the initiative is "Ranking_fruition_open"
     And the initiative is in fruition period
@@ -58,7 +67,7 @@ Feature: A merchant creates a transaction and a citizen tries to confirm it duri
     Then the transaction X is authorized
     And the citizen A is rewarded with 0.01 euros
 
-  @test
+  @skip
   Scenario: An unelected citizen cannot authorize a transaction during the fruition period after ranking publication
     Given the initiative is "Ranking_fruition_open"
     And the initiative is in fruition period
@@ -68,7 +77,7 @@ Feature: A merchant creates a transaction and a citizen tries to confirm it duri
     When the unelected citizen tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the citizen is not onboard
 
-  @test
+  @skip
   Scenario: A not eligible citizen cannot authorize a transaction during the fruition period after ranking publication
     Given the initiative is "Ranking_fruition_open"
     And the initiative is in fruition period

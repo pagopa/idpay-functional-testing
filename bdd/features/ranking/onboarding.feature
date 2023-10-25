@@ -70,7 +70,7 @@ Feature: A citizen onboards an initiative with ranking
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
     And the ranking period ends
-    And the institution publishes the ranking
+    And the ranking is produced
     When the citizen A tries to onboard
     Then the onboard of A is KO
 
@@ -90,11 +90,3 @@ Feature: A citizen onboards an initiative with ranking
     Examples: Citizens and ranking order
       | citizens                       | eligible citizens         |
       | ["A", "B", "C", "D", "E", "F"] | ["A", "B", "C", "D", "E"] |
-
-  @skip
-  Scenario: The merchant can generate a transaction after the publication of the ranking
-    Given the random merchant 1 is onboard
-    And the ranking period ends
-    And the institution publishes the ranking
-    When the merchant 1 generates the transaction X of amount 30000 cents
-    Then the transaction X is created
