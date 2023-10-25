@@ -6,11 +6,13 @@ from behave import then
 from api.idpay import wallet
 from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
-from util.utility import detokenize_to_fc, get_io_token, expect_wallet_counters, retry_wallet
+from util.utility import detokenize_to_fc
+from util.utility import get_io_token
+from util.utility import retry_wallet
 from util.utility import tokenize_fc
 
 
-@given('citizens {citizens_name} are in the same family')
+@given('citizens {citizens_names} are in the same family')
 def step_given_same_family_id(context, citizens_names: str):
     citizens = citizens_names.split()
     citizens_fc = list((context.citizens_fc[name] for name in citizens))
