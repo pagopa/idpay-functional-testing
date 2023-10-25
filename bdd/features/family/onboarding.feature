@@ -78,8 +78,8 @@ Feature: A family onboards an initiative
     And the onboard of A is OK
     And the onboard of B is demanded
     And the onboard of C is demanded
-    When the citizen B tries to onboard
-    Then the onboard of B is OK
+    When the demanded family member B onboards
+    Then the onboard of B is OK after demanded
 
   @suspension
   Scenario: One member of a family is suspended from an initiative
@@ -89,11 +89,11 @@ Feature: A family onboards an initiative
     And citizens A B C have ISEE 19999 of type "ordinario"
     And the first citizen of A B C onboards
     And the onboard of A is OK
-    And the citizen B onboarded
+    And the demanded family member B onboards
     And the onboard of C is demanded
     When the institution suspends the citizen A
     Then the onboard of A is suspended
-    And the onboard of B is OK
+    And the onboard of B is OK after demanded
     And the onboard of C is demanded
 
   @readmission
@@ -104,12 +104,12 @@ Feature: A family onboards an initiative
     And citizens A B C have ISEE 19999 of type "ordinario"
     And the first citizen of A B C onboards
     And the onboard of A is OK
-    And the citizen B onboarded
+    And the demanded family member B onboards
     And the onboard of C is demanded
     And the institution suspends correctly the citizen A
     When the institution tries to readmit the citizen A
     Then the onboard of A is readmitted
-    And the onboard of B is OK
+    And the onboard of B is OK after demanded
     And the onboard of C is demanded
 
   @unsubscribe
@@ -120,9 +120,9 @@ Feature: A family onboards an initiative
     And citizens A B C have ISEE 19999 of type "ordinario"
     And the first citizen of A B C onboards
     And the onboard of A is OK
-    And the citizen B onboarded
+    And the demanded family member B onboards
     And the onboard of C is demanded
     When the citizen A tries to unsubscribe
     Then the onboard of A is unsubscribed
-    And the onboard of B is OK
+    And the onboard of B is OK after demanded
     And the onboard of C is demanded

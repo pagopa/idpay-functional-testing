@@ -2,10 +2,14 @@ import json
 
 from behave import given
 from behave import then
+from behave import when
 
 from api.idpay import wallet
 from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
+from api.onboarding_io import check_prerequisites
+from api.onboarding_io import accept_terms_and_conditions
+from bdd.steps.onboarding_steps import step_check_onboarding_status
 from util.utility import detokenize_to_fc
 from util.utility import get_io_token
 from util.utility import retry_wallet
@@ -24,6 +28,20 @@ def step_given_same_family_id(context, citizens_names: str):
     assert res.status_code == 200
     assert res.json()['familyId'] == family_id
     assert set(detokenize_to_fc(x) for x in res.json()['memberIds']) == set(citizens_fc)
+
+
+@given('the demanded family member {citizen_name} onboards')
+@when('the demanded family member {citizen_name} onboards')
+def step_demanded_family_member_onboards(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
+    assert context.accept_tc_response.status_code == 204
+
+    res = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
+    assert res.status_code == 200
+
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK AFTER DEMANDED')
 
 
 @then('the family member {citizen_name} has budget of {amount_left} euros left')

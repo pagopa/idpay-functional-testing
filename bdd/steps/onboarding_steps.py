@@ -32,7 +32,6 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 
 @given('the citizen {citizen_name} onboarded')
-@when('the citizen {citizen_name} onboarded')
 @given('the citizen {citizen_name} is onboard')
 @given('the citizen {citizen_name} is onboarded')
 def step_named_citizen_onboard(context, citizen_name):
@@ -280,6 +279,20 @@ def step_check_onboarding_status(context, citizen_name, status):
                             initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
                             message=f'Citizen onboard not {status}'
                             )
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'OK AFTER DEMANDED':
+        expected_status = f'ONBOARDING_OK'
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}')
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not onboard')
+
         curr_onboarded_citizen_count_increment = 0
 
     else:
