@@ -32,6 +32,7 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
 
 @given('the citizen {citizen_name} onboarded')
+@when('the citizen {citizen_name} onboarded')
 @given('the citizen {citizen_name} is onboard')
 @given('the citizen {citizen_name} is onboarded')
 def step_named_citizen_onboard(context, citizen_name):
@@ -158,6 +159,7 @@ def step_citizen_accept_terms_and_conditions(context, citizen_name):
 
 
 @then('the onboard of {citizen_name} is {status}')
+@given('the onboard of {citizen_name} is {status}')
 def step_check_onboarding_status(context, citizen_name, status):
     skip_statistics_check = False
     curr_onboarded_citizen_count_increment = 0
