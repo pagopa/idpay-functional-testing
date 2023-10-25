@@ -108,9 +108,10 @@ def step_citizen_tries_to_onboard(context, citizen_name):
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
 
 
-@when('the first citizen of {citizens} onboards')
-def step_check_citizens_correct_election(context, citizens):
-    citizens = json.loads(citizens)
+@when('the first citizen of {citizens_names} onboards')
+@given('the first citizen of {citizens_names} onboards')
+def step_check_citizens_correct_election(context, citizens_names):
+    citizens = citizens_names.split()
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
 
 
