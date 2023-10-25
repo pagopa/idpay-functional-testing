@@ -384,6 +384,16 @@ Feature: A transaction is generated, authorized and confirmed
     When the citizen B tries to confirm the transaction X
     Then the transaction X is already assigned
 
+  Scenario: A citizen can pre-authorize two transactions of maximum amount at the same time
+    Given the random merchant 1 is onboard
+    And the citizen A is onboard
+    And the merchant 1 generates the transaction X of amount 30000 cents
+    And the merchant 1 generates the transaction Y of amount 30000 cents
+    When the citizen A pre-authorizes the transaction X
+    And the citizen A pre-authorizes the transaction Y
+    Then the transaction X is identified
+    Then the transaction Y is identified
+
   Scenario: If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
     Given the random merchant 1 is onboard
     And the citizen A is onboard
