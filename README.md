@@ -17,7 +17,7 @@ Test runs can be executed both with Azure DevOps or locally.
 4. Fill the fields according to the needs:\
    ![img.png](docs/images/pre_run_window.png)
    > Target tests tags can be separated by commas to include each scenario tagged with at least one of them.
-6. Click `Run`
+5. Click `Run`
 
 ## Run on local environment
 
@@ -82,3 +82,41 @@ For example this command runs verbose in DEV all API test and save the junitxml 
 ```commandline
 IDPAY_TARGET_ENV=dev pytest --junitxml=tests/reports/junit.xml -vv -m "API"
 ```
+
+## Local GitHub Pages
+
+### Act
+
+To locally build and deploy GitHub Pages you need to install [act](https://github.com/nektos/act) and make sure do have
+a running Docker engine.
+
+Then run:
+
+```
+act -W .github/workflows/pages_local.yml -P python:latest=python:latest
+```
+
+> With M-series chip the addition argument `--container-architecture linux/amd64` is required.
+
+At the end of the process a web page should be exposed to http://localhost:8080/.
+
+---
+
+### Mkdocs
+
+To locally produce the documentation make sure to install [mkdocs](https://www.mkdocs.org/).
+Then run:
+
+```
+python3 scenario_parser.py
+```
+
+to parse all the scenario and produce `.md` feature files.
+
+Then build the documentation:
+
+```
+mkdocs build
+```
+
+At the end of the process you will find the output in `site` folder.
