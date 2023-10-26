@@ -4,8 +4,8 @@ on:
     branches:
       - main
       - IDP-1296-publish-scenarios-report
-    paths:
-      - "bdd/features/**"
+#    paths:
+#      - "bdd/features/**"
 
 permissions:
   contents: write
