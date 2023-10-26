@@ -1,6 +1,6 @@
 @Scontoditipo1
 @transaction
-Feature: A transaction is generated, authorized and confirmed
+Feature: Transaction
 
   Background:
     Given the initiative is "Scontoditipo1"
