@@ -314,7 +314,7 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
 
     retry_timeline(expected=timeline_operations.transaction, request=timeline,
                    num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
-                   initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                   initiative_id=context.initiative_id, field='operationType', tries=60, delay=1,
                    message='Transaction not received')
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
@@ -588,6 +588,23 @@ def step_citizen_tries_to_cancel_a_transaction(context, citizen_name, trx_name):
     res = delete_payment_citizen(trx_code=trx_code,
                                  token=token_io)
     context.latest_citizen_cancellation_response = res
+
+
+@when('the elected citizen confirms the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_when_citizen_confirms_transaction(context=context, citizen_name=context.eligible_citizen, trx_name=trx_name)
+
+
+@when('the unelected citizen tries to pre-authorize the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_citizen_only_pre_authorize_transaction(context=context, citizen_name=context.not_eligible_citizen,
+                                                trx_name=trx_name)
+
+
+@when('the not eligible citizen tries to pre-authorize the transaction {trx_name}')
+def step_when_onboard_citizen_confirms_transaction(context, trx_name):
+    step_citizen_only_pre_authorize_transaction(context=context, citizen_name=context.not_onboard_citizen,
+                                                trx_name=trx_name)
 
 
 def update_user_counters(context, citizen_name, reward):

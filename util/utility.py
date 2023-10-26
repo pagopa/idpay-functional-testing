@@ -22,6 +22,7 @@ from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_dispositions_export_content
 from api.idpay import get_payment_instruments
+from api.idpay import get_ranking_page
 from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
 from api.idpay import post_initiative_info
@@ -572,6 +573,8 @@ def natural_language_to_date_converter(natural_language_date: str):
         actual_date = datetime.datetime.now().strftime('%Y-%m-%d')
     elif natural_language_date == 'tomorrow':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    elif natural_language_date == 'ten_days_from_tomorrow':
+        actual_date = (datetime.datetime.now() + datetime.timedelta(days=12)).strftime('%Y-%m-%d')
     elif natural_language_date == 'day_after_tomorrow':
         actual_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     elif natural_language_date == 'future':
@@ -835,3 +838,21 @@ def upload_payment_results(
                                   results_file=f)
         assert res.status_code == 201
         return res
+
+
+def check_ranking_status_institution_portal(initiative_id: str,
+                                            desired_fc: str,
+                                            desired_status: str):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = get_ranking_page(selfcare_token=institution_token, initiative_id=initiative_id, page=0)
+    content = res.json()['content']
+    i = 1
+    while content:
+        for beneficiary in content:
+            if beneficiary['beneficiary'] == desired_fc:
+                if beneficiary['beneficiaryRankingStatus'] == desired_status:
+                    return True
+        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+        content = res.json()['content']
+        i += 1
+    return False

@@ -694,6 +694,84 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  Ranking_in_grace_period:
+    id: 'ranking_grace_period'
+    cashback_percentage: 100
+    budget_per_citizen: 99999999999
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: true
+        budget: 99999999999
+        beneficiaryBudget: 99999999998
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Test initiative - Ranking in grace period'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LE'
+            orderDirection: "ASC"
+            iseeTypes:
+              - "ORDINARIO"
+            value: '50000'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Ranking_fruition_open:
+    id: 'ranking_grace_period'
+    cashback_percentage: 100
+    budget_per_citizen: 99999999999
+    fruition_start: '2023-09-07T00:00:00.000+02:00'
+    fruition_end: '2099-09-05:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: true
+        budget: 99999999999
+        beneficiaryBudget: 99999999998
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'ten_days_from_tomorrow'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Ranking fruition period'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LE'
+            orderDirection: "ASC"
+            iseeTypes:
+              - "ORDINARIO"
+            value: '50000'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   family:
     id: 'family'
     cashback_percentage: 100
