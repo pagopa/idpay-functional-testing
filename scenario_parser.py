@@ -91,8 +91,11 @@ with open(index_file_path, 'w') as index_file:
 # Update the MkDocs configuration file (mkdocs.yml) to include navigation link
 mkdocs_config = {
     'site_name': 'IDPay Functional Testing',
+    'site_url': 'https://pagopa.github.io/idpay-functional-testing',
+    'repo_name': 'pagopa/idpay-functional-testing',
+    'repo_url': 'https://github.com/pagopa/idpay-functional-testing',
     'site_author': 'PagoPA',
-    'use_directory_urls': False,
+    'use_directory_urls': True,
     'nav': [
         {'Home': 'index.md'},
         {'Features': nav_links},
