@@ -11,7 +11,7 @@ Feature: A member family can pay a transaction by QR Code
     When the first citizen of A B C onboards
     Then the onboard of A is OK
 
-  Scenario: A family member in status demanded by another member cannot pay a transaction
+  Scenario: A demanded family member cannot pay a transaction by QR Code
     Given the onboard of B is demanded
     And the merchant 1 generates the transaction X of amount 30000 cents
     When the citizen B tries to pre-authorize the transaction X
@@ -20,7 +20,7 @@ Feature: A member family can pay a transaction by QR Code
     Then the transaction X is authorized
 
   @suspension
-  Scenario: A family member pays a transaction, although another member is suspended
+  Scenario: A family member pays a transaction by QR Code, although another member is suspended
     Given the demanded family member B onboards
     And the institution suspends correctly the citizen B
     And the merchant 1 generates the transaction X of amount 10000 cents
@@ -31,7 +31,7 @@ Feature: A member family can pay a transaction by QR Code
     Then the latest pre-authorization fails because the user is suspended
 
   @unsubscribe
-  Scenario: A family member pays a transaction, although another member has unsubscribed
+  Scenario: A family member pays a transaction by QR Code, although another member has unsubscribed
     Given the demanded family member B onboards
     And the citizen B is unsubscribed
     And the merchant 1 generates the transaction X of amount 10000 cents
@@ -41,7 +41,7 @@ Feature: A member family can pay a transaction by QR Code
     When the citizen B tries to pre-authorize the transaction Y
     Then the latest pre-authorization fails because the user is unsubscribed
 
-  Scenario: A family member onboarded after another family member pays a transaction
+  Scenario: A family member onboarded after another family member pays a transaction by QR Code
     Given the merchant 1 generates the transaction X of amount 10000 cents
     And the citizen A confirms the transaction X
     And the transaction X is authorized
@@ -50,7 +50,7 @@ Feature: A member family can pay a transaction by QR Code
     And the family member A has budget of 200 euros left
 
   @refund
-  Scenario: All family members pay a transaction and they are rewarded individually, sharing the budget
+  Scenario: All family members pay a transaction by QR Code and they are rewarded individually, sharing the budget
     Given the demanded family member B onboards
     And the demanded family member C onboards
     And the merchant 1 generates the transaction X of amount 10000 cents
@@ -72,7 +72,7 @@ Feature: A member family can pay a transaction by QR Code
     Then the merchant 1 is refunded 225.50 euros
 
   @refund
-  Scenario: Two family members pay a transaction and the second one exhausts the budget
+  Scenario: Two family members pay a transaction by QR Code and the second one exhausts the budget
     Given the demanded family member B onboards
     And the merchant 1 generates the transaction X of amount 20000 cents
     And the merchant 1 generates the transaction Y of amount 15000 cents
@@ -88,7 +88,7 @@ Feature: A member family can pay a transaction by QR Code
     Then the merchant 1 is refunded 300 euros
 
   @refund
-  Scenario: Two family members pay a transaction but the first one exhausted the budget
+  Scenario: Two family members pay a transaction by QR Code but the first one exhausted the budget
     Given the demanded family member B onboards
     And the merchant 1 generates the transaction X of amount 35000 cents
     And the merchant 1 generates the transaction Y of amount 17000 cents

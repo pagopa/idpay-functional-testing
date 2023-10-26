@@ -67,3 +67,12 @@ def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
 
     retry_wallet(expected=expected_accrued, request=wallet, token=curr_token_io,
                  initiative_id=context.initiative_id, field='accrued', tries=10, delay=2)
+
+
+@given('the family members {citizens_names} enrolls correctly a new IDPay Code on the initiative')
+def step_family_members_enrolls_idpay_code(context, citizens_names):
+    citizens = citizens_names.split()
+    # TODO after merge with branch about IDPay code
+    # for citizen in citizens:
+    # step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
+    pass
