@@ -204,14 +204,12 @@ def post_merchant_create_transaction_acquirer(initiative_id,
 
 
 def get_transaction_detail(transaction_id,
-                           merchant_id: str = 'MERCHANTID',
-                           acquirer_id: str = settings.idpay.acquirer_id,
+                           merchant_id: str = 'MERCHANTID'
                            ):
     response = requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/status',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
             'x-apim-request-id': 'TEST',
         }
     )
@@ -621,13 +619,19 @@ def post_create_payment_bar_code(token, initiative_id: str):
     )
 
 
-def put_authorize_bar_code_merchant(merchant_id: str, trx_code: str, amount_cents: int):
+def put_authorize_bar_code_merchant(merchant_id: str,
+                                    trx_code: str,
+                                    amount_cents: int,
+                                    acquirer_id: str = settings.idpay.acquirer_id
+                                    ):
     return requests.put(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
         headers={
-            'x-merchant-id': merchant_id
+            'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id
         },
         json={
-            'amountCents': amount_cents
+            'amountCents': amount_cents,
+            'idTrxAcquirer': uuid.uuid4().int
         }
     )
