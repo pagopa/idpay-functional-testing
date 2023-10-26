@@ -221,13 +221,15 @@ def get_transaction_detail(transaction_id,
 
 def put_merchant_confirms_payment(transaction_id,
                                   merchant_id: str = 'MERCHANTID',
-                                  acquirer_id: str = settings.idpay.acquirer_id
+                                  acquirer_id: str = settings.idpay.acquirer_id,
+                                  apim_request_id: str = 'APIMREQUESTID'
                                   ):
     response = requests.put(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/confirm',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}/confirm',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id
+            'x-acquirer-id': acquirer_id,
+            'x-apim-request-id': apim_request_id
         }
     )
     return response
@@ -550,6 +552,19 @@ def get_ranking_file(selfcare_token: str, initiative_id: str, ranking_file_path:
     return res
 
 
+def get_ranking_page(selfcare_token: str,
+                     initiative_id: str,
+                     page: int = 0):
+    res = requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports?page={page}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res
+
+
 def put_publish_ranking(selfcare_token: str, initiative_id: str):
     res = requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/notified',
@@ -605,6 +620,23 @@ def put_payment_results(selfcare_token: str,
         data=results_file,
         timeout=settings.default_timeout
     )
+
+
+def get_initiative_info(selfcare_token: str,
+                        initiative_id: str):
+    """API to get information related to an initiative.
+            :param selfcare_token: token SelfCare.
+            :param initiative_id: ID of the initiative of interest.
+            :returns: the response of the call.
+            :rtype: requests.Response
+        """
+    return requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)
 
 
 def put_minint_associate_user_and_payment(fiscal_code: str,

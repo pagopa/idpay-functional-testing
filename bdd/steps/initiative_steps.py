@@ -5,13 +5,16 @@ import pytz
 from behave import given
 from behave import then
 
+from api.idpay import get_initiative_info
 from api.idpay import get_initiative_statistics
+from api.idpay import get_ranking_page
 from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
 from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_statistics
 from util.utility import create_initiative_and_update_conf
+from util.utility import get_selfcare_token
 from util.utility import retry_institution_statistics
 
 
@@ -99,3 +102,38 @@ def step_allocate_initiative_budget(context, precision):
 def step_create_new_initiative(context, initiative_name):
     create_initiative_and_update_conf(initiative_name=initiative_name)
     step_given_initiative_name(context=context, initiative_name=initiative_name)
+
+
+@given('the initiative is in grace period')
+def step_initiative_in_grace_period(context):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = get_initiative_info(selfcare_token=institution_token, initiative_id=context.initiative_id)
+    assert res.json()['general']['rankingEndDate'] < datetime.datetime.now().strftime('%Y-%m-%d')
+    assert res.json()['general']['startDate'] > datetime.datetime.now().strftime('%Y-%m-%d')
+
+
+@given('the initiative is in fruition period')
+def step_initiative_in_grace_period(context):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = get_initiative_info(selfcare_token=institution_token, initiative_id=context.initiative_id)
+    assert res.json()['general']['rankingEndDate'] <= datetime.datetime.now().strftime('%Y-%m-%d')
+    assert res.json()['general']['startDate'] <= datetime.datetime.now().strftime('%Y-%m-%d')
+
+
+@given('the initiative has a rank')
+def step_initiative_has_a_rank(context):
+    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    res = get_ranking_page(selfcare_token=institution_token, initiative_id=context.initiative_id)
+    assert res.json()['rankingStatus'] == 'COMPLETED'
+
+    for citizen in res.json()['content']:
+        if citizen['beneficiaryRankingStatus'] == 'ELIGIBLE_OK':
+            context.eligible_citizen = citizen['beneficiary']
+        elif citizen['beneficiaryRankingStatus'] == 'ELIGIBLE_KO':
+            context.not_eligible_citizen = citizen['beneficiary']
+        elif citizen['beneficiaryRankingStatus'] == 'ONBOARDING_KO':
+            context.not_onboard_citizen = citizen['beneficiary']
+
+    assert context.eligible_citizen is not None
+    assert context.not_eligible_citizen is not None
+    assert context.not_onboard_citizen is not None
