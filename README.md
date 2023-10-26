@@ -93,7 +93,7 @@ a running Docker engine.
 Then run:
 
 ```
-act -W .github/workflows/pages_local.yml -P python:latest=python:latest
+act -W .github/workflows/pages_local.yaml -P python:latest=python:latest
 ```
 
 > With M-series chip the addition argument `--container-architecture linux/amd64` is required.
