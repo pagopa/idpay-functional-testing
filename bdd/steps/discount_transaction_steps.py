@@ -184,6 +184,7 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             return
 
         if status == 'AUTHORIZED':
+            print(trx_details)
             assert trx_details['status'] == status
             return
 
@@ -408,7 +409,7 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
     assert context.latest_pre_authorization_response.json()[
-               'message'] == f'User {curr_tokenized_fc} has been suspended for initiative {context.initiative_id}'
+               'message'] == f'The user has been suspended for initiative {context.initiative_id}'
 
 
 @then('the latest pre-authorization fails because the user is unsubscribed')

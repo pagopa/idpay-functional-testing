@@ -65,7 +65,7 @@ Feature: A member family can pay a transaction by QR Code
     When the citizen C confirms the transaction Z
     Then the family member C is rewarded with 75.50 euros
     And the family members A B C have budget of 74.50 euros left
-    And the batch process confirms the transaction X
+    Given the batch process confirms the transaction X
     And the batch process confirms the transaction Y
     And the batch process confirms the transaction Z
     When the institution refunds the merchant 1 of 225.50 euros successfully
@@ -82,7 +82,7 @@ Feature: A member family can pay a transaction by QR Code
     When the citizen B confirms the transaction Y
     Then the family member B is rewarded with 100 euros
     And the family members A B have budget of 0 euros left
-    And the batch process confirms the transaction X
+    Given the batch process confirms the transaction X
     And the batch process confirms the transaction Y
     When the institution refunds the merchant 1 of 300 euros successfully
     Then the merchant 1 is refunded 300 euros
