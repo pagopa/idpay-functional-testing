@@ -1,5 +1,6 @@
 @ranking_initiative
 @ranking
+@onboarding
 Feature: A citizen onboards an initiative with ranking
 
   Background:
@@ -64,39 +65,14 @@ Feature: A citizen onboards an initiative with ranking
       | citizens        |
       | ["A", "B", "C"] |
 
-  @unsubscribe
-  Scenario: Onboard citizen cannot unsubscribe before ranking
-    Given the citizen A has fiscal code random
-    And the citizen A has ISEE 40000 of type "ordinario"
-    And the citizen A onboards and waits for ranking
-    When the citizen A tries to unsubscribe
-    Then the latest unsubscribe is KO because the initiative has not started yet
-    And the citizen A is onboard and waits for ranking
-
-  @suspension
-  Scenario: The Institution cannot suspend an onboard citizen before ranking
-    Given the citizen A has fiscal code random
-    And the citizen A has ISEE 40000 of type "ordinario"
-    And the citizen A onboards and waits for ranking
-    When the institution tries to suspend the citizen A
-    Then the latest suspension fails not finding the citizen
-
   @skip
   Scenario: A citizen receives KO if it tries to onboard during grace period
     Given the citizen A has fiscal code random
     And the citizen A has ISEE 40000 of type "ordinario"
     And the ranking period ends
-    And the institution publishes the ranking
+    And the ranking is produced
     When the citizen A tries to onboard
     Then the onboard of A is KO
-
-  @suspension
-  Scenario: The Institution tries to suspend an onboard citizen during grace period and receives an KO result
-    Given the citizen A has fiscal code random
-    And the citizen A has ISEE 40000 of type "ordinario"
-    And the citizen A onboards and waits for ranking
-    When the institution tries to suspend the citizen A
-    Then the latest suspension fails not finding the citizen
 
   @budget
   Scenario Outline: Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
@@ -111,20 +87,6 @@ Feature: A citizen onboards an initiative with ranking
     And <eligible citizens> are ranked in the correct order
     And the citizen F is not eligible
 
-
     Examples: Citizens and ranking order
       | citizens                       | eligible citizens         |
       | ["A", "B", "C", "D", "E", "F"] | ["A", "B", "C", "D", "E"] |
-
-  Scenario: The merchant cannot generate a transaction during the onboarding period
-    Given the random merchant 1 is onboard
-    When the merchant 1 tries to generate the transaction X of amount 30000 cents
-    Then the transaction X is not created because it is out of valid period
-
-  @skip
-  Scenario: The merchant can generate a transaction after the publication of the ranking
-    Given the random merchant 1 is onboard
-    And the ranking period ends
-    And the institution publishes the ranking
-    When the merchant 1 generates the transaction X of amount 30000 cents
-    Then the transaction X is created

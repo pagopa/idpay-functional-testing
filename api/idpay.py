@@ -549,6 +549,19 @@ def get_ranking_file(selfcare_token: str, initiative_id: str, ranking_file_path:
     return res
 
 
+def get_ranking_page(selfcare_token: str,
+                     initiative_id: str,
+                     page: int = 0):
+    res = requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports?page={page}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+    return res
+
+
 def put_publish_ranking(selfcare_token: str, initiative_id: str):
     res = requests.put(
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/notified',
@@ -635,3 +648,20 @@ def put_authorize_bar_code_merchant(merchant_id: str,
             'idTrxAcquirer': uuid.uuid4().int
         }
     )
+
+  
+def get_initiative_info(selfcare_token: str,
+                        initiative_id: str):
+    """API to get information related to an initiative.
+            :param selfcare_token: token SelfCare.
+            :param initiative_id: ID of the initiative of interest.
+            :returns: the response of the call.
+            :rtype: requests.Response
+        """
+    return requests.get(
+        f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json',
+        },
+        timeout=settings.default_timeout)

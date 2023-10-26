@@ -1,7 +1,7 @@
 @Scontoditipo1
 @Scontoditipo1_not_started
 @readmission
-Feature: A citizen can be suspended from an initiative by the promoting institution
+Feature: Readmission
 
   Scenario: The Institution tries to readmit a suspended citizen during the fruition period and receives an OK result
     Given the initiative is "Scontoditipo1"

@@ -1,0 +1,23 @@
+nav:
+  - Home: index.md
+  - Features:
+      - Transaction: features/Transaction.md
+      - Cancellation: features/Cancellation.md
+      - Unsubscription: features/Unsubscription.md
+      - Merchant refund: features/Merchant refund.md
+      - Onboarding: features/Onboarding.md
+      - Readmission: features/Readmission.md
+      - Suspension: features/Suspension.md
+      - IDPay Code enrollment: features/IDPay Code enrollment.md
+  - Azure DevOps Pipeline: https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_test/analytics?definitionId=1385&contextType=build
+repo_name: pagopa/idpay-functional-testing
+repo_url: https://github.com/pagopa/idpay-functional-testing
+site_author: PagoPA
+site_name: IDPay Functional Testing
+site_url: https://pagopa.github.io/idpay-functional-testing
+theme:
+  font:
+    code: Roboto Mono
+    text: Roboto
+  name: material
+use_directory_urls: true

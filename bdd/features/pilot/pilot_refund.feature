@@ -1,6 +1,6 @@
 @Scontoditipo1
 @refunds
-Feature: A merchant gets refunded if a transaction is discounted
+Feature: Merchant refund
 
   Background:
     Given the initiative is "Scontoditipo1"
