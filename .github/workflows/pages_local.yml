@@ -22,7 +22,7 @@ jobs:
       - name: Build Docs
         run: |
           python3 scenario_parser.py
-          mkdocs build --config-file mkdocs_local.yml
+          mkdocs build
 
       - name: Start Local Web Server
         run: |
