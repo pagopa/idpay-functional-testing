@@ -16,7 +16,7 @@ Feature: A member family can pay a transaction by QR Code
     And the merchant 1 generates the transaction X of amount 30000 cents
     When the citizen B tries to pre-authorize the transaction X
     Then the latest pre-authorization fails because the citizen is not onboard
-    When the citizen A pre-authorizes the transaction X
+    When the citizen A confirms the transaction X
     Then the transaction X is authorized
 
   @suspension
