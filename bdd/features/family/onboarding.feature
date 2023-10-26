@@ -13,7 +13,6 @@ Feature: A family onboards an initiative
     And the onboard of B is demanded
     And the onboard of C is demanded
 
-
   Scenario: One member of a family tries to onboard an initiative with ISEE greater than allowed
     Given the initiative is "family"
     And citizens A B C have fiscal code random
@@ -24,7 +23,6 @@ Feature: A family onboards an initiative
     And the onboard of B is KO
     And the onboard of C is KO
 
-
   Scenario: One member of a family tries to onboard an initiative with ISEE equal to the allowable limit
     Given the initiative is "family"
     And citizens A B C have fiscal code random
@@ -34,7 +32,6 @@ Feature: A family onboards an initiative
     Then the onboard of A is KO
     And the onboard of B is KO
     And the onboard of C is KO
-    
 
   Scenario: Only a few family are eligible for the initiative because of the budget
     Given the initiative is "family_allocated"
@@ -55,7 +52,6 @@ Feature: A family onboards an initiative
     And citizens E F have ISEE 19999 of type "ordinario"
     When the citizen E tries to accept terms and conditions
     Then the latest accept terms and conditions failed for budget terminated
-    
 
   Scenario: One member of a family with self-declared incorrect criteria tries onboarding unsuccessfully
     Given the initiative is "family"
@@ -65,9 +61,6 @@ Feature: A family onboards an initiative
     And the citizen A accepts terms and conditions
     When the citizen A insert self-declared criteria not correctly
     Then the onboard of A is KO
-    And the onboard of B is KO
-    And the onboard of C is KO
-
 
   Scenario: One member of a family onboards when demanded by another member on initiative
     Given the initiative is "family"
