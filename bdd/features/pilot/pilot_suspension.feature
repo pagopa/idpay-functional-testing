@@ -81,3 +81,17 @@ Feature: Suspension
     When the citizen B tries to accept terms and conditions
     Then the latest accept terms and conditions failed for budget terminated
     And the onboard of B is KO
+
+  Scenario: A transaction can still be authorized even if a suspended citizen tried to pre-authorize it
+    Given the initiative is "Scontoditipo1"
+    And the random merchant 1 is onboard
+    And the citizen A is 25 years old at most
+    And the citizen A is onboard
+    And the citizen B is 25 years old at most
+    And the citizen B is onboard
+    And the institution suspends correctly the citizen A
+    And the merchant 1 generates the transaction X of amount 100 cents
+    And the citizen A tries to pre-authorize the transaction X
+    When the citizen B confirms the transaction X
+    Then the transaction X is authorized
+    And the citizen B is rewarded with 1 euros
