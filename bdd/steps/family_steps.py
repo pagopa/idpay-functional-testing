@@ -7,8 +7,8 @@ from behave import when
 from api.idpay import wallet
 from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
-from api.onboarding_io import check_prerequisites
 from api.onboarding_io import accept_terms_and_conditions
+from api.onboarding_io import check_prerequisites
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from util.utility import detokenize_to_fc
 from util.utility import get_io_token

@@ -97,4 +97,3 @@ Feature: A member family can pay a transaction by QR Code
     And the family members A B have budget of 0 euros left
     When the citizen B tries to pre-authorize the transaction Y
     Then the transaction Y is not authorized for budget eroded
-
