@@ -20,7 +20,7 @@ from api.idpay import put_code_instrument
 from api.idpay import put_minint_associate_user_and_payment
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
-from api.mil import post_merchant_create_transaction_mil
+from api.mil import post_merchant_create_transaction_mil, get_transaction_detail_mil
 from api.mil import get_public_key
 from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
@@ -256,15 +256,21 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
 
     step_given_amount_cents(context=context, amount_cents=amount_cents)
+
     context.latest_merchant_create_transaction_mil = post_merchant_create_transaction_mil(
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
         merchant_fiscal_code=curr_merchant_fiscal_code
     )
-    # TODO fix with detail of trx (new)
-    context.transactions[trx_name] = context.latest_merchant_create_transaction_mil.json()
+    assert context.latest_merchant_create_transaction_mil.status_code == 201
+
+    context.transactions[trx_name] = get_transaction_detail_mil(
+        transaction_id=context.latest_merchant_create_transaction_mil.json()['id'],
+        merchant_fiscal_code=curr_merchant_fiscal_code
+    ).json()
 
     step_check_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
+
     context.associated_merchant[trx_name] = merchant_name
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
@@ -281,14 +287,23 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
 def step_check_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
 
+    res = get_transaction_detail_mil(
+        transaction_id=context.transactions[trx_name]['id'],
+        merchant_fiscal_code=context.merchants[context.associated_merchant[trx_name]]['fiscal_code']
+    )
+    assert res == 200
+    trx_details = res.json()
+
     if status == 'CREATED':
-        assert context.latest_merchant_create_transaction_mil.status_code == 201
-        assert context.latest_merchant_create_transaction_mil.json()['status'] == 'CREATED'
+        assert trx_details['status'] == 'CREATED'
         return
 
     if status == 'AUTHORIZED':
-        assert context.latest_merchant_authorize_transaction_mil.status_code == 200
-        assert context.transactions[trx_name]['status'] == 'AUTHORIZED'
+        assert trx_details['status'] == 'AUTHORIZED'
+        return
+
+    if status == 'IDENTIFIED':
+        assert trx_details['status'] == 'IDENTIFIED'
         return
 
 
@@ -298,7 +313,7 @@ def step_minint_associates_trx_with_citizen(context, trx_name, citizen_name):
                                                      transaction_id=context.transactions[trx_name]['id'])
 
     assert response.status_code == 200
-    assert response.json()['status'] == 'IDENTIFIED'
+    step_check_transaction_status(context=context, trx_name=trx_name, expected_status='IDENTIFIED')
 
 
 @when('the MinInt tries to associate the transaction {trx_name} with the citizen {citizen_name} by IDPay Code')
@@ -321,32 +336,31 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'The user is unsubscribed for initiative [{context.initiative_id}]'
+                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
 
 @then('the latest association by MinInt fails because the transaction {trx_name} is {reason_ko}')
 def step_check_latest_association_by_minint(context, trx_name, reason_ko):
     reason_ko = reason_ko.upper()
-    trx_code = context.transactions[trx_name]['trxCode']
     trx_id = context.transactions[trx_name]['id']
 
     if reason_ko == 'NOT FOUND':
         assert context.latest_minint_association.status_code == 404
-        assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
         assert context.latest_minint_association.json()[
                    'message'] == f'Cannot find transaction with transactionId [{trx_id}]'
 
     elif reason_ko == 'ALREADY ASSIGNED':
         assert context.latest_minint_association.status_code == 403
-        assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_NOT_VALID'
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_ALREADY_ASSIGNED'
         assert context.latest_minint_association.json()[
-                   'message'] == f'Transaction with trxCode [{trx_code}] is already assigned to another user'
+                   'message'] == f'Transaction with transactionId [{trx_id}] is already assigned to another user'
 
     elif reason_ko == 'ALREADY REJECTED':
         assert context.latest_minint_association.status_code == 400
-        assert context.latest_minint_association.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_ALLOWED_FOR_TRX_STATUS'
         assert context.latest_minint_association.json()[
-                   'message'] == f'Cannot relate transaction [{trx_code}] in status REJECTED'
+                   'message'] == f'Cannot operate on transaction with transactionId [{trx_id}] in status REJECTED'
 
 
 def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: str) -> (str, str):
@@ -382,11 +396,14 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     return pin_block, key_encrypted
 
 
-def step_auth_trx_mil(context, trx_name, merchant_name, pin, second_factor):
+@when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
+def step_tries_to_authorize_trx_mil(context, merchant_name, trx_name, citizen_name, pin):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     trx_id = context.transactions[trx_name]['id']
-    pin_block, encrypted_key = step_create_authorize_request_trx_request_by_pos(pin=pin,
-                                                                                second_factor=second_factor)
+
+    pin_block, encrypted_key = step_create_authorize_request_trx_request_by_pos(
+        pin=pin or context.idpay_code[citizen_name],
+        second_factor=context.second_factor[citizen_name])
 
     context.latest_merchant_authorize_transaction_mil = put_merchant_authorize_transaction_mil(
         transaction_id=trx_id,
@@ -395,31 +412,34 @@ def step_auth_trx_mil(context, trx_name, merchant_name, pin, second_factor):
         encrypted_key=encrypted_key)
 
 
+@given('the merchant {merchant_name} authorizes the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
+def step_authorize_trx_mil(context, merchant_name, trx_name, citizen_name):
+    step_tries_to_authorize_trx_mil(context=context,
+                                    merchant_name=merchant_name,
+                                    trx_name=trx_name,
+                                    citizen_name=citizen_name)
+
+    assert context.latest_merchant_authorize_transaction_mil.status_code == 200
+    step_check_transaction_status(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
+
+
 @when('the merchant {merchant_name} pre-authorizes and authorizes the transaction {trx_name} by IDPay Code '
       '{correctness} inserted by citizen {citizen_name}')
 @given('the merchant {merchant_name} pre-authorizes and authorizes the transaction {trx_name} by IDPay Code '
        '{correctness} inserted by citizen {citizen_name}')
 def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, citizen_name):
-    step_tries_to_pre_authorize_transaction_mil(context=context, merchant_name=merchant_name, trx_name=trx_name)
-
-    assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 200
-    second_factor = context.latest_merchant_pre_authorize_transaction_mil.json()['secondFactor']
-    assert second_factor is not None
+    step_pre_authorize_transaction_mil(context=context, merchant_name=merchant_name,
+                                       trx_name=trx_name, citizen_name=citizen_name)
 
     correctness = correctness.upper()
-
     if correctness == 'CORRECTLY':
-        step_auth_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name,
-                          pin=context.idpay_code[citizen_name], second_factor=second_factor)
-
-        assert context.latest_merchant_authorize_transaction_mil.status_code == 200
-        context.transactions[trx_name] = context.latest_merchant_authorize_transaction_mil.json()
-        context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
+        step_authorize_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name)
 
     elif correctness == 'INCORRECTLY':
-        step_auth_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name,
-                          pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000),
-                          second_factor=second_factor)
+        step_tries_to_authorize_trx_mil(context=context, trx_name=trx_name,
+                                        merchant_name=merchant_name,
+                                        pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000))
 
 
 @then('the latest authorization by IDPay Code fails because {reason_ko}')
@@ -429,6 +449,24 @@ def step_check_latest_auth_fails(context, reason_ko):
         assert context.latest_merchant_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_authorize_transaction_mil.json()['code'] == 'PAYMENT_INVALID_PINBLOCK'
         assert context.latest_merchant_authorize_transaction_mil.json()['message'] == 'The Pinblock is incorrect'
+
+    elif reason_ko == 'THE BUDGET IS EXHAUSTED':
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
+                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
+
+
+@given('the merchant {merchant_name} pre-authorizes the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
+def step_pre_authorize_transaction_mil(context, merchant_name, trx_name, citizen_name):
+    step_tries_to_pre_authorize_transaction_mil(context=context,
+                                                merchant_name=merchant_name,
+                                                trx_name=trx_name)
+
+    assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 200
+    second_factor = context.latest_merchant_pre_authorize_transaction_mil.json()['secondFactor']
+    assert second_factor is not None
+    context.second_factor[citizen_name] = second_factor
 
 
 @when('the merchant {merchant_name} tries to pre-authorize the transaction {trx_name} by IDPay Code')
@@ -447,14 +485,15 @@ def step_tries_to_pre_authorize_transaction_mil(context, merchant_name, trx_name
 def step_check_latest_pre_auth_fails(context, reason_ko):
     reason_ko = reason_ko.upper()
     if reason_ko == 'THE IDPAY CODE IS NOT ENABLED':
-        #TODO fix message
-        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_GENERIC_REJECTED'
-        #assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'] == f''
-        return
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 404
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_IDPAYCODE_NOT_FOUND'
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
+                   'message'] == f'There is not a IDPay Code for the current user'
 
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()['message'].startswith('Budget exhausted')
-        return
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
+                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
+
+

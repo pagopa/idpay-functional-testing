@@ -54,7 +54,7 @@ def get_transaction_detail_mil(transaction_id,
                                ):
     cert = load_certificates()
     response = requests.get(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/status',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,

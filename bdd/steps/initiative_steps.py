@@ -71,6 +71,7 @@ def base_context_initialization(context):
 
     context.idpay_code = {}
     context.old_idpay_code = {}
+    context.second_factor = {}
 
 
 @given("the initiative's budget is {precision} allocated")
