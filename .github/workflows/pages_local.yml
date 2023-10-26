@@ -1,6 +1,9 @@
 name: Build Doc pages
 
-on: None
+on:
+  push:
+    branches:
+      - non-existent-branch
 
 permissions:
   contents: write
