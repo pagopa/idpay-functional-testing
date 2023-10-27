@@ -28,4 +28,3 @@ Feature: A transaction by IDPay Code can be cancelled by the merchant
         And the batch process confirms the transaction X
         When the merchant 1 tries to cancel the transaction X through MIL
         Then the latest cancellation by merchant through MIL fails because the transaction is not found
-

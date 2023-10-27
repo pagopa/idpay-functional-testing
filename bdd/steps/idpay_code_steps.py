@@ -1,6 +1,7 @@
 import codecs
 import random
-from base64 import b64encode, urlsafe_b64decode
+from base64 import b64encode
+from base64 import urlsafe_b64decode
 from hashlib import sha256
 
 from behave import given
@@ -13,25 +14,26 @@ from Cryptodome.Util.Padding import pad
 from psec import tools
 
 from api.idpay import get_idpay_code_status
-from api.idpay import wallet
 from api.idpay import get_payment_instruments
 from api.idpay import post_idpay_code_generate
 from api.idpay import put_code_instrument
 from api.idpay import put_minint_associate_user_and_payment
 from api.idpay import remove_payment_instrument
 from api.idpay import timeline
-from api.mil import post_merchant_create_transaction_mil, get_transaction_detail_mil
+from api.idpay import wallet
 from api.mil import get_public_key
+from api.mil import get_transaction_detail_mil
+from api.mil import post_merchant_create_transaction_mil
 from api.mil import put_merchant_authorize_transaction_mil
 from api.mil import put_merchant_pre_authorize_transaction_mil
 from bdd.steps.discount_transaction_steps import step_given_amount_cents
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
-from util.utility import retry_wallet
 from util.utility import get_io_token
 from util.utility import retry_payment_instrument
 from util.utility import retry_timeline
+from util.utility import retry_wallet
 
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
@@ -499,5 +501,3 @@ def step_check_latest_pre_auth_fails(context, reason_ko):
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
         assert context.latest_merchant_pre_authorize_transaction_mil.json()[
                    'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
-
-
