@@ -13,8 +13,8 @@ from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
 from api.mil import delete_transaction_mil
+from api.mil import post_merchant_create_transaction_mil
 from api.mil import get_transaction_detail_mil
-from api.mil import post_merchant_create_transaction_acquirer_mil
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
@@ -48,7 +48,7 @@ def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name,
     context.latest_merchant_id = curr_merchant_id
 
     step_given_amount_cents(context=context, amount_cents=amount_cents)
-    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer_mil(
+    context.latest_create_transaction_response = post_merchant_create_transaction_mil(
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
         merchant_fiscal_code=curr_merchant_fiscal_code

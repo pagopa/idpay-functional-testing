@@ -1,6 +1,6 @@
 @discount_idpay_code
 @cancellation
-Feature: A transaction by IDPay Code can be cancelled by the merchant
+Feature: A transaction paid by IDPay Code can be cancelled by the merchant
 
     Background:
         Given the initiative is "discount_idpay_code"
