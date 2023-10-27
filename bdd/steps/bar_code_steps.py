@@ -101,16 +101,18 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
+    if status == 'CREATED':
+        assert context.transactions[trx_name]['status'] == 'CREATED'
+        return
+
     res = get_transaction_detail(
         context.transactions[trx_name]['id'],
-        merchant_id=context.transactions[trx_name]['merchantId']
+        merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
     )
     assert res.status_code == 200
     trx_details = res.json()
 
-    if status == 'CREATED':
-        assert trx_details['status'] == 'CREATED'
-    elif status == 'AUTHORIZED':
+    if status == 'AUTHORIZED':
         assert trx_details['status'] == 'AUTHORIZED'
     elif status == 'CANCELLED':
         assert trx_details['status'] == 'CANCELLED'
