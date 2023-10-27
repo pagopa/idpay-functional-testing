@@ -293,23 +293,25 @@ def step_check_transaction_status(context, trx_name, expected_status):
         transaction_id=context.transactions[trx_name]['id'],
         merchant_fiscal_code=context.merchants[context.associated_merchant[trx_name]]['fiscal_code']
     )
-    assert res.status_code == 200
-    trx_details = res.json()
 
     if status == 'CREATED':
-        assert trx_details['status'] == 'CREATED'
+        assert res.status_code == 200
+        assert res.json()['status'] == 'CREATED'
         return
 
     if status == 'AUTHORIZED':
-        assert trx_details['status'] == 'AUTHORIZED'
+        assert res.status_code == 200
+        assert res.json()['status'] == 'AUTHORIZED'
         return
 
     if status == 'IDENTIFIED':
-        assert trx_details['status'] == 'IDENTIFIED'
+        assert res.status_code == 200
+        assert res.json()['status'] == 'IDENTIFIED'
         return
 
     if status == 'CANCELLED':
-        assert trx_details['status'] == 'CANCELLED'
+        assert res.status_code == 404
+        assert context.latest_cancellation_response.status_code == 200
         return
 
 
@@ -470,7 +472,6 @@ def step_pre_authorize_transaction_mil(context, merchant_name, trx_name, citizen
                                                 merchant_name=merchant_name,
                                                 trx_name=trx_name)
 
-    print(context.latest_merchant_pre_authorize_transaction_mil.json())
     assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 200
     second_factor = context.latest_merchant_pre_authorize_transaction_mil.json()['secondFactor']
     assert second_factor is not None

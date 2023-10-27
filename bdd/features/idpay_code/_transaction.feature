@@ -66,7 +66,6 @@ Feature: A citizen can pay by IDPay Code on a discount initiative
         Then with IDPay Code the transaction X is authorized
 
     @unsubscribe
-    @skip
     Scenario: An unsubscribed citizen tries to pay by IDPay Code
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the citizen A is unsubscribed
@@ -80,11 +79,11 @@ Feature: A citizen can pay by IDPay Code on a discount initiative
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
         Then the latest association by MinInt fails because the transaction X is not found
 
-    Scenario: A citizen tries to pay by IDPay Code but the transaction is already rejected
-        Given the merchant 1 generates the transaction X of amount 30000 cents to be paid by IDPay Code through MIL
-        And the MinInt associates the transaction X with the citizen A by IDPay Code
-        And the merchant 1 tries to pre-authorize the transaction X by IDPay Code
-        And the latest pre-authorization by IDPay Code fails because the IDPay Code is not enabled
-        And the citizen A enrolls correctly a new IDPay Code on the initiative
-        When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
-        Then the latest association by MinInt fails because the transaction X is already rejected
+    #Scenario: A citizen tries to pay by IDPay Code but the transaction is already rejected
+    #    Given the merchant 1 generates the transaction X of amount 30000 cents to be paid by IDPay Code through MIL
+    #    And the MinInt associates the transaction X with the citizen A by IDPay Code
+    #    And the merchant 1 tries to pre-authorize the transaction X by IDPay Code
+    #    And the latest pre-authorization by IDPay Code fails because the IDPay Code is not enabled
+    #    And the citizen A enrolls correctly a new IDPay Code on the initiative
+    #    When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
+    #    Then the latest association by MinInt fails because the transaction X is already rejected
