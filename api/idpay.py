@@ -204,12 +204,14 @@ def post_merchant_create_transaction_acquirer(initiative_id,
 
 
 def get_transaction_detail(transaction_id,
-                           merchant_id: str = 'MERCHANTID'
+                           merchant_id: str = 'MERCHANTID',
+                           acquirer_id: str = settings.idpay.acquirer_id
                            ):
     response = requests.get(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/status',
         headers={
             'x-merchant-id': merchant_id,
+            'x-acquirer-id': acquirer_id,
             'x-apim-request-id': 'TEST',
         }
     )
