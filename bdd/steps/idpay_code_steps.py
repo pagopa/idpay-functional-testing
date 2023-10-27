@@ -272,9 +272,8 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
         merchant_fiscal_code=curr_merchant_fiscal_code
     ).json()
 
-    step_check_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
-
     context.associated_merchant[trx_name] = merchant_name
+    step_check_transaction_status(context=context, trx_name=trx_name, expected_status='CREATED')
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
                                    expected_trx_id=context.transactions[trx_name]['id'],
