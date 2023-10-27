@@ -2,7 +2,7 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import post_create_payment_bar_code
+from api.idpay import post_create_payment_bar_code, get_transaction_detail
 from api.idpay import get_payment_instruments
 from api.idpay import wallet
 from api.idpay import put_authorize_bar_code_merchant
@@ -82,9 +82,8 @@ def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_ce
                                             trx_name=trx_name, amount_cents=amount_cents)
 
     assert context.latest_merchant_authorization_bar_code.status_code == 200
-    context.transactions[trx_name] = context.latest_merchant_authorization_bar_code.json()
+    step_check_detail_transaction_bar_code(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
     context.associated_merchant[trx_name] = merchant_name
-
 
 
 @when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
@@ -102,10 +101,19 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
+    res = get_transaction_detail(
+        context.transactions[trx_name]['id'],
+        merchant_id=context.transactions[trx_name]['merchantId']
+    )
+    assert res.status_code == 200
+    trx_details = res.json()
+
     if status == 'CREATED':
-        assert context.transactions[trx_name]['status'] == 'CREATED'
+        assert trx_details['status'] == 'CREATED'
     elif status == 'AUTHORIZED':
-        assert context.transactions[trx_name]['status'] == 'AUTHORIZED'
+        assert trx_details['status'] == 'AUTHORIZED'
+    elif status == 'CANCELLED':
+        assert trx_details['status'] == 'CANCELLED'
 
 
 @then('the latest authorization by merchant fails because {reason_ko}')

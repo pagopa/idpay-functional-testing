@@ -14,7 +14,7 @@ Feature: A transaction by Bar Code can be cancelled by the merchant
         And with Bar Code the transaction X is authorized
         And 2 second/s pass
         When the merchant 1 cancels the transaction X
-        Then the transaction X is cancelled
+        Then with Bar Code the transaction X is cancelled
 
     Scenario: The merchant tries to cancel a transaction after it has been confirmed
         Given the citizen A creates the transaction X by Bar Code
