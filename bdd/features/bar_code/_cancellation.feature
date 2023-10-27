@@ -12,7 +12,7 @@ Feature: A transaction by Bar Code can be cancelled by the merchant
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
-        And 2 second/s pass
+        And 1 second/s pass
         When the merchant 1 cancels the transaction X
         Then with Bar Code the transaction X is cancelled
 
