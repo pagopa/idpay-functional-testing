@@ -293,7 +293,7 @@ def step_check_transaction_status(context, trx_name, expected_status):
         transaction_id=context.transactions[trx_name]['id'],
         merchant_fiscal_code=context.merchants[context.associated_merchant[trx_name]]['fiscal_code']
     )
-    assert res == 200
+    assert res.status_code == 200
     trx_details = res.json()
 
     if status == 'CREATED':
