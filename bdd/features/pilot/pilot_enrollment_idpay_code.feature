@@ -1,5 +1,5 @@
 @enrollment_idpay_code
-Feature: A citizen can enroll an IDPay Code to an initiative
+Feature: IDPay Code enrollment
 
   Background:
     Given the initiative is "enrollment_idpay_code"

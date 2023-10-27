@@ -1,0 +1,32 @@
+name: Build Doc pages
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bdd/features/**"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
+
+      - name: Setup Python
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 #v4.7.1
+        with:
+          python-version: 3.x
+      - run: python3 --version
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install behave mkdocs-material
+
+      - name: Build Docs
+        run: |
+          python3 scenario_parser.py
+          mkdocs gh-deploy --force
