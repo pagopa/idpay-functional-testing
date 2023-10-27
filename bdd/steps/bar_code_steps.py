@@ -40,7 +40,7 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
     assert response.json()['status'] == 'CREATED'
 
     context.transactions[trx_name] = response.json()
-    context.associated_citizen[trx_name] = citizen_name
+    context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
 @when('the citizen {citizen_name} tries to create the transaction {trx_name} by Bar Code')
