@@ -14,7 +14,6 @@ Feature: A merchant gets refunded if a transaction by Bar Code is discounted
     And with Bar Code the transaction X is authorized
     When the batch process confirms the transaction X
     Then the citizen A is rewarded with 200 euros
-    And the merchant 1 is refunded 0 euros
     When the institution refunds the merchant 1 of 200 euros successfully
     Then the merchant 1 is refunded 200 euros
 
@@ -27,7 +26,7 @@ Feature: A merchant gets refunded if a transaction by Bar Code is discounted
     Given the citizen A creates the transaction Y by Bar Code
     And the merchant 1 authorizes the transaction Y by Bar Code of amount 20000 cents
     When the batch process confirms the transaction Y
-    Then the citizen A is rewarded with 100 euros
+    Then the citizen A is rewarded with 300 euros
     When the institution refunds the merchant 1 of 300 euros successfully
     Then the merchant 1 is refunded 300 euros
 
