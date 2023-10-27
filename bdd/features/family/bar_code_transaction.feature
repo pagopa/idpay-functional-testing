@@ -1,6 +1,6 @@
 @family
 @transaction
-Feature: A member family can pay a transaction by Bar Code
+Feature: A family member can pay a transaction by Bar Code
 
     Background:
       Given the initiative is "family"

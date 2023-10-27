@@ -1,6 +1,6 @@
 @family
 @transaction
-Feature: A member family can pay a transaction by IDPay Code
+Feature: A family member can pay a transaction by IDPay Code
 
   Background:
     Given the initiative is "family"
@@ -128,3 +128,16 @@ Feature: A member family can pay a transaction by IDPay Code
 	And the merchant 1 authorizes the transaction X by IDPay Code
 	When the merchant 1 tries to authorize the transaction Y by IDPay Code
 	Then the latest authorization by IDPay Code fails because the budget is exhausted
+
+  @cancellation
+  Scenario: After a cancellation of a transaction by IDPay Code the family member budget is updated
+	Given the demanded family member B onboards
+	And the citizen A enrolls correctly a new IDPay Code on the initiative
+    And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
+    And the MinInt associates the transaction X with the citizen A by IDPay Code
+    When the merchant 1 pre-authorizes and authorizes the transaction X by IDPay Code correctly inserted by citizen A
+    Then the family member A is rewarded with 300 euros
+    And the family members A B have budget of 0 euros left
+    When the merchant 1 cancels the transaction X
+    Then the family member A is rewarded with 0 euros
+    And the family members A B have budget of 300 euros left

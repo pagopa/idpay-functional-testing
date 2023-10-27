@@ -1,6 +1,6 @@
 @family
 @transaction
-Feature: A member family can pay a transaction by QR Code
+Feature: A family member can pay a transaction by QR Code
 
   Background:
     Given the initiative is "family"
@@ -97,3 +97,14 @@ Feature: A member family can pay a transaction by QR Code
     And the family members A B have budget of 0 euros left
     When the citizen B tries to pre-authorize the transaction Y
     Then the transaction Y is not authorized for budget eroded
+
+  @cancellation
+  Scenario: After a cancellation of a transaction by QR Code the family member budget is updated
+    Given the demanded family member B onboards
+    And the merchant 1 generates the transaction X of amount 20000 cents
+    When the citizen A confirms the transaction X
+    Then the citizen A is rewarded with 200 euros
+    And the family members A B have budget of 100 euros left
+    When the merchant 1 cancels the transaction X
+    Then the citizen A is rewarded with 0 euros
+    And the family members A B have budget of 300 euros left
