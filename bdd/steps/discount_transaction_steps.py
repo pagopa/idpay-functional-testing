@@ -503,6 +503,15 @@ def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_nam
     context.latest_cancellation_response = res
 
 
+@then('the latest cancellation by merchant fails because {reason_ko}')
+def step_check_latest_cancellation_by_merchant(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'THE TRANSACTION IS NOT FOUND':
+        assert context.latest_cancellation_response.status_code == 404
+        assert context.latest_cancellation_response.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
+
+
 @given('the merchant {merchant_name} fails cancelling the transaction {trx_name} through MIL')
 def step_merchant_tries_to_cancels_a_transaction_and_fails_mil(context, merchant_name, trx_name):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
