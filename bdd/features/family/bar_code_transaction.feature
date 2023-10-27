@@ -97,3 +97,14 @@ Feature: A family member can pay a transaction by Bar Code
       And the family members A B have budget of 0 euros left
       When the merchant 1 tries to authorize the transaction X by Bar Code of amount 17000 cents
       Then the latest authorization by merchant fails because the budget is exhausted
+
+    @cancellation
+    Scenario: After a cancellation of a transaction by Bar Code the family member budget is updated
+      Given the demanded family member B onboards
+      And the citizen A creates the transaction X by Bar Code
+      When the merchant 1 authorizes the transaction X by Bar Code of amount 17000 cents
+      Then the family member A is rewarded with 170 euros
+      And the family members A B have budget of 130 euros left
+      When the merchant 1 cancels the transaction X
+      Then the family member A is rewarded with 0 euros
+      And the family members A B have budget of 300 euros left
