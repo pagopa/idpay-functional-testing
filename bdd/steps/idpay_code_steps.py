@@ -403,7 +403,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
 
 
 @when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
-def step_tries_to_authorize_trx_mil(context, merchant_name, trx_name, citizen_name, pin):
+def step_tries_to_authorize_trx_mil(context, merchant_name, trx_name, citizen_name, pin=None):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     trx_id = context.transactions[trx_name]['id']
 
