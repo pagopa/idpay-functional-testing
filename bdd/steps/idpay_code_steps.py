@@ -95,7 +95,7 @@ def step_citizen_enroll_idpay_code(context, citizen_name):
                  initiative_id=context.initiative_id, field='status', tries=5, delay=3)
     # By default, a citizen onboarded to a discount initiative has app_io_payment as payment method
     retry_wallet(expected=2, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='nInstr', tries=5, delay=3)
+                 initiative_id=context.initiative_id, field='nInstr', tries=10, delay=3)
 
 
 @given('the citizen {citizen_name} enrolls correctly a new IDPay Code on the initiative')
@@ -440,11 +440,12 @@ def step_pre_and_auth_trx_mil(context, merchant_name, trx_name, correctness, cit
 
     correctness = correctness.upper()
     if correctness == 'CORRECTLY':
-        step_authorize_trx_mil(context=context, trx_name=trx_name, merchant_name=merchant_name)
+        step_authorize_trx_mil(context=context, trx_name=trx_name,
+                               merchant_name=merchant_name, citizen_name=citizen_name)
 
     elif correctness == 'INCORRECTLY':
         step_tries_to_authorize_trx_mil(context=context, trx_name=trx_name,
-                                        merchant_name=merchant_name,
+                                        merchant_name=merchant_name, citizen_name=citizen_name,
                                         pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000))
 
 
