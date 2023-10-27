@@ -82,8 +82,8 @@ def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_ce
                                             trx_name=trx_name, amount_cents=amount_cents)
 
     assert context.latest_merchant_authorization_bar_code.status_code == 200
-    step_check_detail_transaction_bar_code(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
     context.associated_merchant[trx_name] = merchant_name
+    step_check_detail_transaction_bar_code(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
 
 
 @when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
