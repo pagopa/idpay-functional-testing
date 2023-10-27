@@ -536,6 +536,8 @@ def check_processed_transactions(initiative_id,
                                  ):
     res = get_merchant_processed_transactions(initiative_id=initiative_id, merchant_id=merchant_id)
     processed_trxs = res.json()['content']
+    print(processed_trxs)
+    print(expected_trx_id)
     for trx in processed_trxs:
         if trx['trxId'].strip() == expected_trx_id.strip():
             if trx['fiscalCode'] == expected_fiscal_code:

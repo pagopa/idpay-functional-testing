@@ -109,13 +109,16 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
         context.transactions[trx_name]['id'],
         merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
     )
-    assert res.status_code == 200
-    trx_details = res.json()
 
     if status == 'AUTHORIZED':
-        assert trx_details['status'] == 'AUTHORIZED'
+        assert res.status_code == 200
+        assert res.json()['status'] == 'AUTHORIZED'
+        return
+
     elif status == 'CANCELLED':
-        assert trx_details['status'] == 'CANCELLED'
+        assert context.latest_cancellation_response.status_code == 200
+        assert res.status_code == 404
+        return
 
 
 @then('the latest authorization by merchant fails because {reason_ko}')
