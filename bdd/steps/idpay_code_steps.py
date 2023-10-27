@@ -95,7 +95,7 @@ def step_citizen_enroll_idpay_code(context, citizen_name):
                  initiative_id=context.initiative_id, field='status', tries=5, delay=3)
     # By default, a citizen onboarded to a discount initiative has app_io_payment as payment method
     retry_wallet(expected=2, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='nInstr', tries=10, delay=3)
+                 initiative_id=context.initiative_id, field='nInstr', tries=15, delay=3)
 
 
 @given('the citizen {citizen_name} enrolls correctly a new IDPay Code on the initiative')
@@ -470,6 +470,7 @@ def step_pre_authorize_transaction_mil(context, merchant_name, trx_name, citizen
                                                 merchant_name=merchant_name,
                                                 trx_name=trx_name)
 
+    print(context.latest_merchant_pre_authorize_transaction_mil.json())
     assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 200
     second_factor = context.latest_merchant_pre_authorize_transaction_mil.json()['secondFactor']
     assert second_factor is not None
