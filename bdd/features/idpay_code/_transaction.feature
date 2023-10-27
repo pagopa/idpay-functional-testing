@@ -50,8 +50,8 @@ Feature: A citizen can pay by IDPay Code on a discount initiative
 
     @suspension
     Scenario: A suspended citizen tries to pay by IDPay Code
-        Given the institution suspends correctly the citizen A
-        And the citizen A enrolls correctly a new IDPay Code on the initiative
+        Given the citizen A enrolls correctly a new IDPay Code on the initiative
+        And the institution suspends correctly the citizen A
         And the merchant 1 generates the transaction X of amount 30000 cents to be paid by IDPay Code through MIL
         When the MinInt tries to associate the transaction X with the citizen A by IDPay Code
         Then the latest association by MinInt fails because the citizen is suspended
