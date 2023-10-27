@@ -58,9 +58,9 @@ Run:
 and check for changes.
 
 - [ ] Yes
-    - [ ] `requirements.txt`
-    - [ ] `Pipfile`
-    - [ ] `Pipfile.lock`
+  - [ ] `requirements.txt`
+  - [ ] `Pipfile`
+  - [ ] `Pipfile.lock`
 - [ ] Not needed
 - [ ] No (_please provide further information_)
 

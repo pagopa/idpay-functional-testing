@@ -9,9 +9,9 @@ Test runs can be executed both with Azure DevOps or locally.
    to `idpay-functional-testing` [pipeline](https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_build?definitionScope=%5Cidpay%5Cidpay-functional-testing)\
    ![img.png](docs/images/pipelines_folder.png)
 2. Chose and click one of the 3 pipelines available:
-    - `idpay-functional-testing.discount-flow`
-    - `idpay-functional-testing.refund-flow`
-    - `idpay-functional-testing.code-review`
+   - `idpay-functional-testing.discount-flow`
+   - `idpay-functional-testing.refund-flow`
+   - `idpay-functional-testing.code-review`
 3. On the upper right click on `Run pipeline`:\
    ![img.png](docs/images/run_pipeline.png)
 4. Fill the fields according to the needs:\
