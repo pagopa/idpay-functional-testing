@@ -218,15 +218,13 @@ def get_transaction_detail(transaction_id,
 
 def put_merchant_confirms_payment(transaction_id,
                                   merchant_id: str = 'MERCHANTID',
-                                  acquirer_id: str = settings.idpay.acquirer_id,
-                                  apim_request_id: str = 'APIMREQUESTID'
+                                  acquirer_id: str = settings.idpay.acquirer_id
                                   ):
     response = requests.put(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}/confirm',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/confirm',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': apim_request_id
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
@@ -256,15 +254,13 @@ def put_authorize_payment(trx_code, token):
 
 def delete_payment_merchant(transaction_id,
                             merchant_id: str = 'MERCHANTID',
-                            acquirer_id: str = settings.idpay.acquirer_id,
-                            apim_request_id: str = 'APIMREQUESTID'
+                            acquirer_id: str = settings.idpay.acquirer_id
                             ):
     response = requests.delete(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': apim_request_id
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
