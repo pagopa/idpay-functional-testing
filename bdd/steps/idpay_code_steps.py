@@ -91,10 +91,11 @@ def step_citizen_enroll_idpay_code(context, citizen_name):
 
     step_check_idpay_code_status(context=context, status='enabled', citizen_name=citizen_name)
 
-    citizen_wallet = retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                                  initiative_id=context.initiative_id, field='status', tries=5, delay=3)
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                 initiative_id=context.initiative_id, field='status', tries=5, delay=3)
     # By default, a citizen onboarded to a discount initiative has app_io_payment as payment method
-    assert citizen_wallet.json()['nInstr'] == 2
+    retry_wallet(expected=2, request=wallet, token=token_io,
+                 initiative_id=context.initiative_id, field='nInstr', tries=5, delay=3)
 
 
 @given('the citizen {citizen_name} enrolls correctly a new IDPay Code on the initiative')
