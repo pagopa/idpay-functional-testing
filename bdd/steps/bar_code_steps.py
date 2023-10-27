@@ -31,7 +31,7 @@ def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name
 
 @given('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
 def step_citizen_create_bar_code(context, citizen_name, trx_name):
-    #TODO ADD step_check_citizen_is_enabled_to_app_io_payment_method(context=context, citizen_name=citizen_name)
+    step_check_citizen_is_enabled_to_app_io_payment_method(context=context, citizen_name=citizen_name)
     token_io = get_io_token(context.citizens_fc[citizen_name])
     response = post_create_payment_bar_code(token=token_io,
                                             initiative_id=context.initiative_id)
@@ -40,6 +40,7 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
     assert response.json()['status'] == 'CREATED'
 
     context.transactions[trx_name] = response.json()
+    context.associated_citizen[trx_name] = citizen_name
 
 
 @when('the citizen {citizen_name} tries to create the transaction {trx_name} by Bar Code')
@@ -83,6 +84,7 @@ def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_ce
     assert context.latest_merchant_authorization_bar_code.status_code == 200
     context.transactions[trx_name] = context.latest_merchant_authorization_bar_code.json()
     context.associated_merchant[trx_name] = merchant_name
+
 
 
 @when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
