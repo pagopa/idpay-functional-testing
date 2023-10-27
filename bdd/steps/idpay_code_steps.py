@@ -306,6 +306,10 @@ def step_check_transaction_status(context, trx_name, expected_status):
         assert trx_details['status'] == 'IDENTIFIED'
         return
 
+    if status == 'CANCELLED':
+        assert trx_details['status'] == 'CANCELLED'
+        return
+
 
 @given('the MinInt associates the transaction {trx_name} with the citizen {citizen_name} by IDPay Code')
 def step_minint_associates_trx_with_citizen(context, trx_name, citizen_name):

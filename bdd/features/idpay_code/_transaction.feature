@@ -3,7 +3,7 @@
 Feature: A citizen can pay by IDPay Code on a discount initiative
 
     Background:
-        Given the initiative id is "652e886882b08d1934cd751c" ("discount_idpay_code")
+        Given the initiative is "discount_idpay_code"
         And the citizen A has fiscal code random
         And the citizen A is onboard
         And the random merchant 1 is onboard
