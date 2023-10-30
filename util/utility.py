@@ -219,6 +219,12 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
     count = 0
     res = request(initiative_id, token, page)
 
+    if res.status_code == 404:
+        res = request(initiative_id, token, page)
+        while res.status_code == 404:
+            time.sleep(delay)
+            res = request(initiative_id, token, page)
+
     operations = []
     for operation in res.json()['operationList']:
         if field in operation:
