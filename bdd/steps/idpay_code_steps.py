@@ -11,7 +11,6 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Util.Padding import pad
-from psec import tools
 
 from api.idpay import get_idpay_code_status
 from api.idpay import get_payment_instruments
@@ -385,7 +384,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     pin_bytes = codecs.decode(pin + 'F' * (16 - len(pin)), 'hex')
     second_factor_bytes = codecs.decode(second_factor, 'hex')
 
-    data_block_bytes = tools.xor(pin_bytes, second_factor_bytes)
+    data_block_bytes = bytes(a ^ b for a, b in zip(pin_bytes, second_factor_bytes))
     data_block = codecs.encode(data_block_bytes, 'hex').decode('utf-8')
 
     cipher = AES.new(bytes(KEY, 'utf-8'), AES.MODE_CBC, IV)
