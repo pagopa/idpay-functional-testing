@@ -13,8 +13,8 @@ from api.idpay import put_authorize_payment
 from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
 from api.mil import delete_transaction_mil
-from api.mil import post_merchant_create_transaction_mil
 from api.mil import get_transaction_detail_mil
+from api.mil import post_merchant_create_transaction_mil
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
