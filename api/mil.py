@@ -25,8 +25,8 @@ def post_merchant_create_transaction_acquirer_mil(initiative_id,
             'initiativeId': initiative_id,
             'idTrxAcquirer': uuid.uuid4().int,
             'amountCents': amount_cents,
-            'mcc': mcc,
-        },
+            'mcc': mcc
+        }
     )
     return response
 
@@ -58,7 +58,7 @@ def get_transaction_detail_mil(transaction_id,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
             'x-merchant-fiscalcode': merchant_fiscal_code,
-            'x-acquirer-id': acquirer_id,
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
