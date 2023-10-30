@@ -183,7 +183,7 @@ def post_merchant_create_transaction_acquirer(initiative_id,
                                               apim_request_id: str = 'APIMREQUESTID',
                                               mcc: str = '1234'):
     response = requests.post(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}/',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}',
         headers={
             'x-merchant-id': merchant_id,
             'x-acquirer-id': acquirer_id,

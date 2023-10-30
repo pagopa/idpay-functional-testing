@@ -14,7 +14,7 @@ def post_merchant_create_transaction_acquirer_mil(initiative_id,
                                                   merchant_fiscal_code: str = '12345678901'):
     cert = load_certificates()
     response = requests.post(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}/',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
