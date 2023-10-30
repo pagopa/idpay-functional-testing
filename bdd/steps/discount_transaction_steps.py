@@ -82,8 +82,6 @@ def step_when_merchant_generated_a_named_transaction(context, merchant_name, trx
 
     step_when_merchant_tries_to_create_a_transaction(context=context, trx_name=trx_name, amount_cents=amount_cents,
                                                      merchant_name=merchant_name)
-    print(context.latest_create_transaction_response.status_code)
-    print(context.latest_create_transaction_response.json())
     assert context.latest_create_transaction_response.status_code == 201
 
     step_given_amount_cents(context=context, amount_cents=amount_cents)
