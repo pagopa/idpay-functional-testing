@@ -438,19 +438,20 @@ def upload_merchant_csv(selfcare_token: str,
     return res
 
 
-def get_merchant_list(organization_id: str,
+def get_merchant_list(selfcare_token: str,
                       initiative_id: str,
                       page: int = 0):
     """API to get initiative statistics.
-        :param organization_id: ID of the organization of interest.
+        :param selfcare_token: SelfCare token of the test organization.
         :param initiative_id: ID of the initiative of interest.
         :param page: Page of merchants to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.internal_path}{settings.IDPAY.endpoints.merchant.path}/organization/{organization_id}/initiative/{initiative_id}/merchants?page={page}',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.merchant.path}/initiative/{initiative_id}/merchants?page={page}',
         headers={
+            'Authorization': f'Bearer {selfcare_token}',
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout
@@ -615,7 +616,7 @@ def put_payment_results(selfcare_token: str,
 def get_initiative_info(selfcare_token: str,
                         initiative_id: str):
     """API to get information related to an initiative.
-            :param selfcare_token: token SelfCare.
+            :param selfcare_token: SelfCare token of the test organization.
             :param initiative_id: ID of the initiative of interest.
             :returns: the response of the call.
             :rtype: requests.Response

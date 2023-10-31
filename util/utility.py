@@ -310,7 +310,7 @@ def custom_transaction(pan: str,
     if not mcc:
         mcc = '1234'
 
-    return f'IDPAY;{"01" if reversal else "00"};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+    return f'IDPAY;{'01' if reversal else '00'};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
 
 
 def clean_trx_files(source_filename: str):
@@ -555,16 +555,17 @@ def merchant_id_from_fc(initiative_id: str,
                         delay=5):
     success = False
     count = 0
+    selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 
     while not success:
-        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+        res = get_merchant_list(selfcare_token=selfcare_token, initiative_id=initiative_id)
         content = res.json()['content']
         i = 1
         while content:
             for merchant in content:
                 if merchant['fiscalCode'] == desired_fc:
                     return merchant['merchantId']
-            res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+            res = get_merchant_list(selfcare_token=selfcare_token, initiative_id=initiative_id, page=i)
             content = res.json()['content']
             i += 1
         count += 1
@@ -645,7 +646,7 @@ def create_initiative(initiative_name_in_settings: str):
 
 def create_initiative_and_update_conf(initiative_name: str):
     secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
-    print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
+    print(f'Created initiative {secrets.initiatives[initiative_name]['id']} ({initiative_name})')
     secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
 
     startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
@@ -662,7 +663,7 @@ def onboard_one_random_merchant(initiative_id: str,
     merchant_csv = fake_merchant_file(acquirer_id=settings.idpay.acquirer_id,
                                       merchants_info=[merchantInfo(vat=vat, fc=fc, iban=iban)])
 
-    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
+    csv_file_path = f'merchant_{datetime.datetime.now().strftime('%Y%m%d.%H%M%S')}.csv'
 
     with open(csv_file_path, 'w', newline='') as f:
         writer = csv.writer(f)
@@ -848,7 +849,7 @@ def check_ranking_status_institution_portal(initiative_id: str,
             if beneficiary['beneficiary'] == desired_fc:
                 if beneficiary['beneficiaryRankingStatus'] == desired_status:
                     return True
-        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+        res = get_merchant_list(selfcare_token=institution_token, initiative_id=initiative_id, page=i)
         content = res.json()['content']
         i += 1
     return False
