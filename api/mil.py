@@ -81,8 +81,6 @@ def delete_transaction_mil(transaction_id,
     return response
 
 
-
-
 def put_merchant_pre_authorize_transaction_mil(transaction_id: str,
                                                acquirer_id: str = settings.idpay.acquirer_id,
                                                merchant_fiscal_code: str = '12345678901'):
