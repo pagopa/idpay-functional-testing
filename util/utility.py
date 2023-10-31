@@ -310,7 +310,7 @@ def custom_transaction(pan: str,
     if not mcc:
         mcc = '1234'
 
-    return f'IDPAY;{'01' if reversal else '00'};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
+    return f'IDPAY;{"01" if reversal else "00"};00;{hash_pan(pan)};{curr_date};{uuid.uuid4().int};{uuid.uuid4().int};{correlation_id};{amount};978;12345;{uuid.uuid4().int};{uuid.uuid4().int};{pan[:8]};{mcc};{dataset_utility.fake_fc()};{fake_vat()};00;{sha256(f"{pan}".encode()).hexdigest().upper()[:29]}'
 
 
 def clean_trx_files(source_filename: str):
@@ -646,7 +646,7 @@ def create_initiative(initiative_name_in_settings: str):
 
 def create_initiative_and_update_conf(initiative_name: str):
     secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
-    print(f'Created initiative {secrets.initiatives[initiative_name]['id']} ({initiative_name})')
+    print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
     secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
 
     startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
@@ -663,7 +663,7 @@ def onboard_one_random_merchant(initiative_id: str,
     merchant_csv = fake_merchant_file(acquirer_id=settings.idpay.acquirer_id,
                                       merchants_info=[merchantInfo(vat=vat, fc=fc, iban=iban)])
 
-    csv_file_path = f'merchant_{datetime.datetime.now().strftime('%Y%m%d.%H%M%S')}.csv'
+    csv_file_path = f'merchant_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
 
     with open(csv_file_path, 'w', newline='') as f:
         writer = csv.writer(f)
