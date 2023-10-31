@@ -111,9 +111,25 @@ def step_citizen_tries_to_onboard(context, citizen_name):
 
 @when('the first citizen of {citizens_names} onboards')
 @given('the first citizen of {citizens_names} onboards')
-def step_check_citizens_correct_election(context, citizens_names):
+def step_family_member_onboards(context, citizens_names):
     citizens = citizens_names.split()
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+
+
+@given('the first citizen of {citizens_names} onboards and wait for ranking')
+def step_family_member_onboards_ranking(context, citizens_names):
+    citizens = citizens_names.split()
+    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+    step_check_onboarding_status(context=context, citizen_name=citizens[0], status='ON_EVALUATION')
+    other_family_members = citizens.pop(0)
+    for c in other_family_members:
+        step_check_onboard_not_found(context, c)
+
+
+def step_check_onboard_not_found(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    res = status_onboarding(token_io, context.initiative_id)
+    assert res.status_code == 404
 
 
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
@@ -308,6 +324,13 @@ def step_check_onboarding_status(context, citizen_name, status):
                          skip_trx_check=True)
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
+
+
+@then('the onboards of {citizens_names} are {status}')
+def step_check_onboarding_citizens_status(context, citizens_names, status):
+    citizens = citizens_names.split()
+    for c in citizens:
+        step_check_onboarding_status(context=context, citizen_name=c, status=status)
 
 
 @when('the citizen {citizen_name} insert self-declared criteria {correctness}')
