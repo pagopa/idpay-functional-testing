@@ -141,23 +141,17 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
     if status == 'NOT CREATED FOR INVALID AMOUNT':
         assert context.latest_create_transaction_response.status_code == 400
-        assert context.latest_create_transaction_response.json()['code'] == 'INVALID AMOUNT'
-        assert context.latest_create_transaction_response.json()[
-            'message'].startswith('Cannot create transaction with invalid amount: ')
+        assert context.latest_create_transaction_response.json()['code'] == 'PAYMENT_AMOUNT_NOT_VALID'
         return
 
     if status == 'NOT CREATED BECAUSE IT IS OUT OF VALID PERIOD':
-        assert context.latest_create_transaction_response.status_code == 400
-        assert context.latest_create_transaction_response.json()['code'] == 'INVALID DATE'
-        assert context.latest_create_transaction_response.json()[
-            'message'].startswith(f'Cannot create transaction out of valid period. Initiative startDate: ')
+        assert context.latest_create_transaction_response.status_code == 403
+        assert context.latest_create_transaction_response.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
         return
 
     if status == 'ALREADY AUTHORIZED':
         assert context.latest_pre_authorization_response.status_code == 403
         assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
-        assert context.latest_pre_authorization_response.json()[
-                   'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already authorized'
         return
 
     elif status == 'CANCELLED':
@@ -192,8 +186,6 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
             assert trx_details['status'] == 'REJECTED'
             assert context.latest_pre_authorization_response.json()['code'] == f'PAYMENT_GENERIC_REJECTED'
-            assert context.latest_pre_authorization_response.json()[
-                       'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is rejected'
             return
 
         if status == 'NOT AUTHORIZED FOR BUDGET ERODED':
@@ -202,25 +194,16 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert trx_details['status'] == 'REJECTED'
 
             assert context.latest_pre_authorization_response.json()['code'] == f'PAYMENT_BUDGET_EXHAUSTED'
-            assert context.latest_pre_authorization_response.json()['message'].startswith(
-                f'Budget exhausted for user [')
-            assert context.latest_pre_authorization_response.json()['message'].endswith(
-                f'] and initiative [{context.initiative_id}]')
             return
 
         if status == 'ALREADY ASSIGNED':
             assert context.latest_pre_authorization_response.status_code == 403
-
-            assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_VALID'
-            assert context.latest_pre_authorization_response.json()[
-                       'message'] == f'Transaction with trxCode [{context.transactions[trx_name]["trxCode"]}] is already assigned to another user'
+            assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_ALREADY_ASSIGNED'
             return
 
         if status == 'EXCEEDING RATE LIMIT':
             assert context.latest_authorization_response.status_code == 429
             assert context.latest_authorization_response.json()['code'] == 'PAYMENT_TOO_MANY_REQUESTS'
-            assert context.latest_authorization_response.json()[
-                       'message'] == f'Too many request on the ms reward'
             return
 
     assert False, 'Status not implemented'
@@ -397,9 +380,7 @@ def step_check_latest_pre_authorization_failed(context):
 @then('the latest pre-authorization fails because the transaction cannot be found')
 def step_check_latest_pre_authorization_failed_not_found(context):
     assert context.latest_pre_authorization_response.status_code == 404
-    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_EXPIRED'
-    assert context.latest_pre_authorization_response.json()['message'].startswith(
-        'Cannot find transaction with trxCode ')
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
 
 
 @then('the latest pre-authorization fails because the user is suspended')
@@ -407,32 +388,24 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
     curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
-    assert context.latest_pre_authorization_response.json()[
-               'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
 
 
 @then('the latest pre-authorization fails because the citizen is not onboard')
 def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
-    assert context.latest_pre_authorization_response.json()[
-               'message'] == f'The user is not onboarded on initiative [{context.initiative_id}].'
 
 
 @then('the latest authorization fails because the user is suspended')
 def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_authorization_response.status_code == 403
     assert context.latest_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
-    assert context.latest_authorization_response.json()[
-               'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
 
 
 @then('the latest authorization fails because the user did not pre-authorize the transaction')
 def step_check_latest_pre_authorization_failed_missing_pre_auth(context):
     assert context.latest_authorization_response.status_code == 400
-    assert context.latest_authorization_response.json()['code'] == 'PAYMENT_STATUS_NOT_VALID'
-    assert context.latest_authorization_response.json()[
-               'message'] == f'Cannot relate transaction in status CREATED'
+    assert context.latest_authorization_response.json()['code'] == 'PAYMENT_NOT_ALLOWED_FOR_TRX_STATUS'
 
 
 @then('the latest authorization fails because the transaction cannot be found')

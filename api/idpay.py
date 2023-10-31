@@ -169,7 +169,7 @@ def get_initiative_statistics(organization_id, initiative_id):
 
 def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/merchant/portal/initiatives/{initiative_id}/statistics',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}{settings.IDPAY.endpoints.merchant.path}/portal/initiatives/{initiative_id}/statistics',
         headers={
             'x-merchant-id': merchant_id,
         },
@@ -182,23 +182,19 @@ def post_merchant_create_transaction_acquirer(initiative_id,
                                               merchant_id: str = 'MERCHANTID',
                                               acquirer_id: str = settings.idpay.acquirer_id,
                                               apim_request_id: str = 'APIMREQUESTID',
-                                              mcc: str = '1234',
-                                              merchant_fiscal_code: str = '12345678901',
-                                              vat: str = '12345678901'):
+                                              mcc: str = '1234'):
     response = requests.post(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/',
         headers={
             'x-merchant-id': merchant_id,
             'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': apim_request_id,
+            'x-apim-request-id': apim_request_id
         },
         json={
             'amountCents': amount_cents,
             'idTrxAcquirer': uuid.uuid4().int,
             'initiativeId': initiative_id,
-            'mcc': mcc,
-            'merchantFiscalCode': merchant_fiscal_code,
-            'vat': vat,
+            'mcc': mcc
         },
     )
     return response
@@ -209,11 +205,10 @@ def get_transaction_detail(transaction_id,
                            acquirer_id: str = settings.idpay.acquirer_id,
                            ):
     response = requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/status',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': 'TEST',
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
@@ -257,15 +252,13 @@ def put_authorize_payment(trx_code, token):
 
 def delete_payment_merchant(transaction_id,
                             merchant_id: str = 'MERCHANTID',
-                            acquirer_id: str = settings.idpay.acquirer_id,
-                            apim_request_id: str = 'APIMREQUESTID'
+                            acquirer_id: str = settings.idpay.acquirer_id
                             ):
     response = requests.delete(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}',
         headers={
             'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': apim_request_id
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
@@ -435,7 +428,7 @@ def upload_merchant_csv(selfcare_token: str,
                         initiative_id: str,
                         merchants_payload: dict):
     res = requests.put(
-        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/merchant/initiative/{initiative_id}/upload',
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.merchant.path}/initiative/{initiative_id}/upload',
         files=merchants_payload,
         headers={
             'Authorization': f'Bearer {selfcare_token}'
@@ -446,19 +439,20 @@ def upload_merchant_csv(selfcare_token: str,
     return res
 
 
-def get_merchant_list(organization_id: str,
+def get_merchant_list(selfcare_token: str,
                       initiative_id: str,
                       page: int = 0):
     """API to get initiative statistics.
-        :param organization_id: ID of the organization of interest.
+        :param selfcare_token: SelfCare token of the test organization.
         :param initiative_id: ID of the initiative of interest.
         :param page: Page of merchants to query.
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.merchant.path}{settings.IDPAY.domain}/merchant/organization/{organization_id}/initiative/{initiative_id}/merchants?page={page}',
+        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.merchant.path}/initiative/{initiative_id}/merchants?page={page}',
         headers={
+            'Authorization': f'Bearer {selfcare_token}',
             'Content-Type': 'application/json',
         },
         timeout=settings.default_timeout
@@ -623,7 +617,7 @@ def put_payment_results(selfcare_token: str,
 def get_initiative_info(selfcare_token: str,
                         initiative_id: str):
     """API to get information related to an initiative.
-            :param selfcare_token: token SelfCare.
+            :param selfcare_token: SelfCare token of the test organization.
             :param initiative_id: ID of the initiative of interest.
             :returns: the response of the call.
             :rtype: requests.Response

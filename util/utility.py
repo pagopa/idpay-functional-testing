@@ -555,16 +555,17 @@ def merchant_id_from_fc(initiative_id: str,
                         delay=5):
     success = False
     count = 0
+    selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 
     while not success:
-        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id)
+        res = get_merchant_list(selfcare_token=selfcare_token, initiative_id=initiative_id)
         content = res.json()['content']
         i = 1
         while content:
             for merchant in content:
                 if merchant['fiscalCode'] == desired_fc:
                     return merchant['merchantId']
-            res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+            res = get_merchant_list(selfcare_token=selfcare_token, initiative_id=initiative_id, page=i)
             content = res.json()['content']
             i += 1
         count += 1
@@ -848,7 +849,7 @@ def check_ranking_status_institution_portal(initiative_id: str,
             if beneficiary['beneficiary'] == desired_fc:
                 if beneficiary['beneficiaryRankingStatus'] == desired_status:
                     return True
-        res = get_merchant_list(organization_id=secrets.organization_id, initiative_id=initiative_id, page=i)
+        res = get_merchant_list(selfcare_token=institution_token, initiative_id=initiative_id, page=i)
         content = res.json()['content']
         i += 1
     return False
