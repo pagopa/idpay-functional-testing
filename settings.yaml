@@ -882,6 +882,7 @@ initiatives:
           - authority: 'INPS'
             code: 'ISEE'
             operator: 'LT'
+            orderDirection: "ASC"
             iseeTypes:
               - "ORDINARIO"
             value: '50000'
