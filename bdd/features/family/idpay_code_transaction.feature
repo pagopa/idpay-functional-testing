@@ -1,9 +1,10 @@
+@family_initiative
 @family
 @transaction
 Feature: A family member can pay a transaction by IDPay Code
 
   Background:
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And the random merchant 1 is onboard
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family

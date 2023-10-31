@@ -1,10 +1,11 @@
+@family_initiative
+@family_allocated_initiative
 @family
-@family_allocated
 @onboarding
 Feature: A family onboards an initiative
 
   Scenario: One member of a family onboards an initiative
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
@@ -14,7 +15,7 @@ Feature: A family onboards an initiative
     And the onboard of C is demanded
 
   Scenario: One member of a family tries to onboard an initiative with ISEE greater than allowed
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 20001 of type "ordinario"
@@ -24,7 +25,7 @@ Feature: A family onboards an initiative
     And the onboard of C is KO
 
   Scenario: One member of a family tries to onboard an initiative with ISEE equal to the allowable limit
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 20000 of type "ordinario"
@@ -34,7 +35,7 @@ Feature: A family onboards an initiative
     And the onboard of C is KO
 
   Scenario: Only a few family are eligible for the initiative because of the budget
-    Given the initiative is "family_allocated"
+    Given the initiative is "family_allocated_initiative"
     And citizens A B have fiscal code random
     And citizens A B are in the same family
     And citizens A B have ISEE 19999 of type "ordinario"
@@ -54,7 +55,7 @@ Feature: A family onboards an initiative
     Then the latest accept terms and conditions failed for budget terminated
 
   Scenario: One member of a family with self-declared incorrect criteria tries onboarding unsuccessfully
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
@@ -63,7 +64,7 @@ Feature: A family onboards an initiative
     Then the onboard of A is KO
 
   Scenario: One member of a family onboards when demanded by another member on initiative
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
@@ -76,7 +77,7 @@ Feature: A family onboards an initiative
 
   @suspension
   Scenario: One member of a family is suspended from an initiative
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
@@ -91,7 +92,7 @@ Feature: A family onboards an initiative
 
   @readmission
   Scenario: One member of a family is readmitted from an initiative
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
@@ -107,7 +108,7 @@ Feature: A family onboards an initiative
 
   @unsubscribe
   Scenario: One member of a family unsubscribes from an initiative
-    Given the initiative is "family"
+    Given the initiative is "family_initiative"
     And citizens A B C have fiscal code random
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"

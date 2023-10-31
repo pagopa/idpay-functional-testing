@@ -772,8 +772,8 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  family:
-    id: 'family'
+  family_initiative:
+    id: 'family_initiative'
     cashback_percentage: 100
     budget_per_citizen: 300
     fruition_start: '2023-05-22T00:00:00.000+02:00'
@@ -814,8 +814,8 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  family_allocated:
-    id: 'family_allocated'
+  family_allocated_initiative:
+    id: 'family_allocated_initiative'
     cashback_percentage: 100
     budget_per_citizen: 10000
     fruition_start: '2023-05-22T00:00:00.000+02:00'
