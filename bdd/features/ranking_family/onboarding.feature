@@ -11,8 +11,8 @@ Feature: A family onboards an initiative with ranking
     Scenario Outline: Families with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
       Given citizens <citizens> have fiscal code random
       And citizens <citizens> are in the same family
-      And citizens A B C have ISEE 32568 of type "ordinario"
-      And citizens D E F have ISEE 19999 of type "ordinario"
+      And citizens A,B,C have ISEE 32568 of type "ordinario"
+      And citizens D,E,F have ISEE 19999 of type "ordinario"
       And the first citizen of <citizens> onboards and wait for ranking
       When the ranking period ends
       And the institution publishes the ranking
@@ -22,5 +22,5 @@ Feature: A family onboards an initiative with ranking
 
       Examples: Family members
         | citizens  |
-        | A B C     |
-        | D E F     |
+        | A,B,C     |
+        | D,E,F     |

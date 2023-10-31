@@ -118,7 +118,7 @@ def step_family_member_onboards(context, citizens_names):
 
 @given('the first citizen of {citizens_names} onboards and wait for ranking')
 def step_family_member_onboards_ranking(context, citizens_names):
-    citizens = citizens_names.split()
+    citizens = citizens_names.split(",")
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
     step_check_onboarding_status(context=context, citizen_name=citizens[0], status='ON_EVALUATION')
     other_family_members = citizens.pop(0)
