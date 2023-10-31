@@ -118,7 +118,7 @@ def step_family_member_onboards(context, citizens_names):
 
 @given('the first citizen of {citizens_names} onboards and wait for ranking')
 def step_family_member_onboards_ranking(context, citizens_names):
-    citizens = citizens_names.split(",")
+    citizens = citizens_names.split()
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
     step_check_onboarding_status(context=context, citizen_name=citizens[0], status='ON_EVALUATION')
     other_family_members = citizens.pop(0)
@@ -280,8 +280,8 @@ def step_check_onboarding_status(context, citizen_name, status):
                                initiative_id=context.initiative_id)
         skip_statistics_check = True
 
-    elif status == 'ELIGIBLE_KO':
-        expected_status = status
+    elif status == 'NOT ELIGIBLE':
+        expected_status = 'ELIGIBLE_KO'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                             initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,

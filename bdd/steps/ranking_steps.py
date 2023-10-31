@@ -95,7 +95,7 @@ def step_check_absence_in_ranking(context, citizen_name: str):
 
 @then('the citizen {citizen_name} is not eligible')
 def step_check_not_eligibility_in_ranking(context, citizen_name: str):
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ELIGIBLE_KO')
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='NOT ELIGIBLE')
     citizen_fc = context.citizens_fc[citizen_name]
     for rank in context.ranking:
         if citizen_fc == rank[0]:

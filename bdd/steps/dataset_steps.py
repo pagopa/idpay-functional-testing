@@ -24,7 +24,7 @@ def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
 
 @given('citizens {citizens_names} have fiscal code random')
 def step_citizens_fc_exact_or_random(context, citizens_names: str):
-    citizens = citizens_names.split(",")
+    citizens = citizens_names.split()
     for c in citizens:
         step_citizen_fc_exact_or_random(context=context, citizen_name=c, citizen_fc='random')
 
