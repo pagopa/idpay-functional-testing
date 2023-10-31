@@ -91,7 +91,8 @@ IDPAY:
       processed: '/transactions/processed'
       unprocessed: '/transactions'
     merchant:
-      path: '/idpaymerchant'
+      path: '/merchant'
+      internal_path: '/idpaymerchant/idpay'
     mock:
       isee: '/mock/citizen/isee'
     initiatives:
