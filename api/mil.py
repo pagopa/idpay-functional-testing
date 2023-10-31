@@ -14,7 +14,7 @@ def post_merchant_create_transaction_acquirer_mil(initiative_id,
                                                   merchant_fiscal_code: str = '12345678901'):
     cert = load_certificates()
     response = requests.post(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
@@ -23,11 +23,10 @@ def post_merchant_create_transaction_acquirer_mil(initiative_id,
         },
         json={
             'initiativeId': initiative_id,
-            'merchantFiscalCode': merchant_fiscal_code,
             'idTrxAcquirer': uuid.uuid4().int,
             'amountCents': amount_cents,
-            'mcc': mcc,
-        },
+            'mcc': mcc
+        }
     )
     return response
 
@@ -37,7 +36,7 @@ def get_initiative_list_mil(merchant_fiscal_code: str,
                             ):
     cert = load_certificates()
     response = requests.get(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/initiatives',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.merchant.path}/initiatives',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
@@ -54,12 +53,12 @@ def get_transaction_detail_mil(transaction_id,
                                ):
     cert = load_certificates()
     response = requests.get(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/status/{transaction_id}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/status',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
             'x-merchant-fiscalcode': merchant_fiscal_code,
-            'x-acquirer-id': acquirer_id,
+            'x-acquirer-id': acquirer_id
         }
     )
     return response
@@ -71,7 +70,7 @@ def delete_transaction_mil(transaction_id,
                            ):
     cert = load_certificates()
     response = requests.delete(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}{settings.IDPAY.endpoints.payment.qr_code.merchant}/{transaction_id}',
+        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.MIL.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
