@@ -309,6 +309,13 @@ def step_check_onboarding_status(context, citizen_name, status):
                                                             initiative_id=context.initiative_id).json()
 
 
+@then('the onboards of {citizens_names} are {status}')
+def step_check_onboarding_citizens_status(context, citizens_names, status):
+    citizens = citizens_names.split()
+    for c in citizens:
+        step_check_onboarding_status(context=context, citizen_name=c, status=status)
+
+
 @when('the citizen {citizen_name} insert self-declared criteria {correctness}')
 def step_insert_self_declared_criteria(context, citizen_name, correctness):
     token_io = get_io_token(context.citizens_fc[citizen_name])
