@@ -326,6 +326,7 @@ def step_check_onboarding_status(context, citizen_name, status):
 
 
 @then('the onboards of {citizens_names} are {status}')
+@given('the onboards of {citizens_names} are {status}')
 def step_check_onboarding_citizens_status(context, citizens_names, status):
     citizens = citizens_names.split()
     for c in citizens:

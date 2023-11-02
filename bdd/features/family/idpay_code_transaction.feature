@@ -12,7 +12,7 @@ Feature: A family member can pay a transaction by IDPay Code
     When the first citizen of A B C onboards
     Then the onboard of A is OK
 
-  Scenario: A family member cannot pay a transaction by IDPay Code of another member family
+  Scenario: A family member cannot pay a transaction by IDPay Code of another family member
     Given the demanded family member B onboards
     And the citizen A enrolls correctly a new IDPay Code on the initiative
     And the IDPay Code is not enabled for citizen B
