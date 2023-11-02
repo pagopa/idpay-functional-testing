@@ -18,8 +18,8 @@ Feature: A citizen onboards an initiative with ranking
     And <ordered citizens> are ranked in the correct order
 
     Examples: Citizens and ranking order
-      | citizens        | ordered citizens |
-      | ["A", "B", "C"] | ["C", "B", "A"]  |
+      | citizens | ordered citizens |
+      | A B C    | C B A            |
 
   Scenario Outline: Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
     Given citizens <citizens> have fiscal code random
@@ -32,7 +32,7 @@ Feature: A citizen onboards an initiative with ranking
 
     Examples: Citizens and ranking order
       | citizens        | ordered citizens |
-      | ["C", "B", "A"] | ["C", "B", "A"]  |
+      | C B A           | C B A            |
 
   Scenario Outline: User with incorrect self-declared criteria tries onboarding unsuccessfully
     Given citizens <citizens> have fiscal code random
@@ -47,7 +47,7 @@ Feature: A citizen onboards an initiative with ranking
 
     Examples: Citizens
       | citizens   |
-      | ["A", "B"] |
+      | A B        |
 
   Scenario Outline: Onboarding result depends on citizens' ISEE
     Given citizens <citizens> have fiscal code random
@@ -63,7 +63,7 @@ Feature: A citizen onboards an initiative with ranking
 
     Examples: Citizens with different
       | citizens        |
-      | ["A", "B", "C"] |
+      | A B C           |
 
   @skip
   Scenario: A citizen receives KO if it tries to onboard during grace period
@@ -88,5 +88,5 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen F has status not eligible in ranking
 
     Examples: Citizens and ranking order
-      | citizens                       | eligible citizens         |
-      | ["A", "B", "C", "D", "E", "F"] | ["A", "B", "C", "D", "E"] |
+      | citizens    | eligible citizens |
+      | A B C D E F | A B C D E         |
