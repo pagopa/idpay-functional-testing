@@ -51,7 +51,7 @@ Feature: A family onboards an initiative with ranking
     Then <eligible citizens> are elected
     And the onboard of B is elected
     And the onboard of F is elected
-    And the onboard of F is not eligible
+    And the onboard of H is not eligible
     And the onboard of C is demanded
     And the family members <not ranked citizens> are not in ranking
 
@@ -98,7 +98,8 @@ Feature: A family onboards an initiative with ranking
     And citizens <family members 2> have ISEE 68700 of type "ordinario"
     When the citizen A tries to onboard
     And the citizen D tries to onboard
-    Then the onboards of <ko citizens> are KO
+    Then the onboards of <family members 1> are KO
+    Then the onboards of <family members 2> are KO
     When the ranking period ends
     And the institution publishes the ranking
     Then the citizen A has status KO in ranking
@@ -106,8 +107,8 @@ Feature: A family onboards an initiative with ranking
     And the family members <not ranked citizens> are not in ranking
 
     Examples: Citizens and ranking order
-      | family members 1  | family members 2 | ko citizens | not ranked citizens |
-      | A B C             | D E F            | A B C D E F | B C E F             |
+      | family members 1  | family members 2 | not ranked citizens |
+      | A B C             | D E F            | B C E F             |
 
   Scenario Outline: A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
     Given a new initiative "family_ranking_initiative"
