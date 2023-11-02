@@ -1,5 +1,6 @@
 @discount_idpay_code
 @transaction
+@transaction_idpay_code
 Feature: A citizen can pay by IDPay Code on a discount initiative
 
     Background:

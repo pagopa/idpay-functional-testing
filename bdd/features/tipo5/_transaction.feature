@@ -1,5 +1,5 @@
 @Scontoditipo5
-@onboarding
+@transaction
 Feature: Transaction on an adhesion-closed initiative
 
   Background:
