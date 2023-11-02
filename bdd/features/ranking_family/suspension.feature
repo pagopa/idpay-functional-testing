@@ -1,4 +1,4 @@
-@ranking_initiative
+@family_ranking_initiative
 @ranking
 @suspension
 Feature: Suspension on an initiative for families with ranking
