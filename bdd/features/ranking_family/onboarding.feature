@@ -21,7 +21,7 @@ Feature: A family onboards an initiative with ranking
     And <ordered citizens> are ranked in the correct order
     And the family members <demanded citizens> are not in ranking
 
-    Examples: Citizens and ranking order
+    Examples: Families members, eligible citizens, demanded citizens and ordered citizens
       | family members 1  | family members 2 | eligible citizens | demanded citizens | ordered citizens |
       | A B C             | D E F            | A D               | B C E F           | D A              |
 
@@ -55,7 +55,7 @@ Feature: A family onboards an initiative with ranking
     And the onboard of C is demanded
     And the family members <not ranked citizens> are not in ranking
 
-    Examples: Citizens and ranking order
+    Examples: Families members, eligible citizens and not ranked citizens
       | family members 1  | family members 2 | family members 3 | family members 4 | eligible citizens | not ranked citizens |
       | A B C             | D                | E F              | G H I            | A D E             | B C F H I           |
 
@@ -84,7 +84,7 @@ Feature: A family onboards an initiative with ranking
     And the citizen H has status not eligible in ranking
     And the onboard of I is not eligible
 
-    Examples: Citizens and ranking order
+    Examples: Families members, eligible citizens and demanded citizens
       | family members 1  | family members 2 | family members 3 | family members 4 | eligible citizens | demanded citizens |
       | A                 | B C D            | E F G            | H I              | A B E             | C D F G           |
 
@@ -106,7 +106,7 @@ Feature: A family onboards an initiative with ranking
     And the citizen D has status KO in ranking
     And the family members <not ranked citizens> are not in ranking
 
-    Examples: Citizens and ranking order
+    Examples: Families members and not ranked citizens
       | family members 1  | family members 2 | not ranked citizens |
       | A B C             | D E F            | B C E F             |
 
@@ -136,6 +136,6 @@ Feature: A family onboards an initiative with ranking
     And the family members <demanded citizens> are not in ranking
     And the citizen A has status not eligible in ranking
 
-    Examples: Citizens and ranking order
+    Examples: Families members, eligible citizens and demanded citizens
       | family members 1  | family members 2 | family members 3 | family members 4 | eligible citizens | demanded citizens |
       | A                 | B C D            | E F G            | H I              | H E B             | C D F G I         |
