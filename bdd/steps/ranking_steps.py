@@ -93,12 +93,21 @@ def step_check_absence_in_ranking(context, citizen_name: str):
             assert False, 'The citizen should not be present in ranking'
 
 
-@then('the citizen {citizen_name} is not eligible')
-def step_check_not_eligibility_in_ranking(context, citizen_name: str):
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='NOT ELIGIBLE')
+@then('the citizen {citizen_name} has status {status} in ranking')
+def step_check_citizen_ranking_status(context, citizen_name, status):
+    status = status.upper()
     citizen_fc = context.citizens_fc[citizen_name]
-    for rank in context.ranking:
-        if citizen_fc == rank[0]:
-            assert rank[4] == 'ELIGIBLE_KO'
-    assert check_ranking_status_institution_portal(initiative_id=context.initiative_id, desired_fc=citizen_fc,
-                                                   desired_status='ELIGIBLE_KO'), 'The citizen is either not present or not in the desired status'
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status=status)
+
+    if status == 'KO':
+        for rank in context.ranking:
+            if citizen_fc == rank[0]:
+                assert rank[4] == 'ONBOARDING_KO'
+        assert check_ranking_status_institution_portal(initiative_id=context.initiative_id, desired_fc=citizen_fc,
+                                                       desired_status='ONBOARDING_KO'), 'The citizen is either not present or not in the desired status'
+    elif status == 'NOT ELIGIBLE':
+        for rank in context.ranking:
+            if citizen_fc == rank[0]:
+                assert rank[4] == 'ELIGIBLE_KO'
+        assert check_ranking_status_institution_portal(initiative_id=context.initiative_id, desired_fc=citizen_fc,
+                                                       desired_status='ELIGIBLE_KO'), 'The citizen is either not present or not in the desired status'

@@ -85,7 +85,7 @@ Feature: A citizen onboards an initiative with ranking
     And the institution publishes the ranking
     Then <eligible citizens> are elected
     And <eligible citizens> are ranked in the correct order
-    And the citizen F is not eligible
+    And the citizen F has status not eligible in ranking
 
     Examples: Citizens and ranking order
       | citizens                       | eligible citizens         |
