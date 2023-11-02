@@ -305,8 +305,8 @@ def step_check_latest_trx_creation_by_mil(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'IS OUT OF VALID PERIOD':
-        assert context.latest_minint_association.status_code == 403
-        assert context.latest_minint_association.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
+        assert context.latest_merchant_create_transaction_mil.status_code == 403
+        assert context.latest_merchant_create_transaction_mil.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
 
 
 @then('with IDPay Code the transaction {trx_name} is {expected_status}')
