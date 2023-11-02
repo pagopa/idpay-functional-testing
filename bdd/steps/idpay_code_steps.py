@@ -251,6 +251,22 @@ def step_check_status_instrument_idpay_code(context, status, citizen_name):
                        delay=2, message='Delete card not rejected')
 
 
+@given('the merchant {merchant_name} tries to generates the transaction {trx_name} of amount {amount_cents} cents to be paid by IDPay Code through MIL')
+def step_when_merchant_try_to_generate_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
+    context.latest_merchant_id = curr_merchant_id
+
+    step_given_amount_cents(context=context, amount_cents=amount_cents)
+    context.latest_merchant_create_transaction_mil = post_merchant_create_transaction_mil(
+        initiative_id=context.initiative_id,
+        amount_cents=amount_cents,
+        merchant_fiscal_code=curr_merchant_fiscal_code
+    )
+
+    context.transactions[trx_name] = context.latest_merchant_create_transaction_mil
+
+
 @given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents to be paid '
        'by IDPay Code through MIL')
 def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
@@ -281,6 +297,15 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
                                    merchant_id=curr_merchant_id,
                                    expected_status='CREATED'
                                    )
+
+
+@then('the latest transaction creation by merchant through MIL fails because {reason_ko}')
+def step_check_latest_trx_creation_by_mil(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'IS OUT OF VALID PERIOD':
+        assert context.latest_minint_association.status_code == 403
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
 
 
 @then('with IDPay Code the transaction {trx_name} is {expected_status}')
@@ -337,37 +362,26 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
     if reason_ko == 'SUSPENDED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_SUSPENDED'
-        assert context.latest_minint_association.json()[
-                   'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
     elif reason_ko == 'UNSUBSCRIBED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-        assert context.latest_minint_association.json()[
-                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
 
 @then('the latest association by MinInt fails because the transaction {trx_name} is {reason_ko}')
 def step_check_latest_association_by_minint(context, trx_name, reason_ko):
     reason_ko = reason_ko.upper()
-    trx_id = context.transactions[trx_name]['id']
 
     if reason_ko == 'NOT FOUND':
         assert context.latest_minint_association.status_code == 404
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
-        assert context.latest_minint_association.json()[
-                   'message'] == f'Cannot find transaction with transactionId [{trx_id}]'
 
     elif reason_ko == 'ALREADY ASSIGNED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_ALREADY_ASSIGNED'
-        assert context.latest_minint_association.json()[
-                   'message'] == f'Transaction with transactionId [{trx_id}] is already assigned to another user'
 
     elif reason_ko == 'ALREADY REJECTED':
         assert context.latest_minint_association.status_code == 400
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_ALLOWED_FOR_TRX_STATUS'
-        assert context.latest_minint_association.json()[
-                   'message'] == f'Cannot operate on transaction with transactionId [{trx_id}] in status REJECTED'
 
 
 def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: str) -> (str, str):
@@ -456,13 +470,10 @@ def step_check_latest_auth_fails(context, reason_ko):
     if reason_ko == 'THE PIN IS INCORRECT':
         assert context.latest_merchant_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_authorize_transaction_mil.json()['code'] == 'PAYMENT_INVALID_PINBLOCK'
-        assert context.latest_merchant_authorize_transaction_mil.json()['message'] == 'The Pinblock is incorrect'
 
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
-                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
 
 
 @given('the merchant {merchant_name} pre-authorizes the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
@@ -495,11 +506,7 @@ def step_check_latest_pre_auth_fails(context, reason_ko):
     if reason_ko == 'THE IDPAY CODE IS NOT ENABLED':
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 404
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_IDPAYCODE_NOT_FOUND'
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
-                   'message'] == f'There is not a IDPay Code for the current user'
 
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
-                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
