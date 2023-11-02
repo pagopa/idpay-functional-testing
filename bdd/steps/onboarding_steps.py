@@ -51,7 +51,7 @@ def step_named_citizen_joins_ranking(context, citizen_name):
 @given('{citizens} onboard in order and wait for ranking')
 @then('{citizens} onboard in order and wait for ranking')
 def step_citizens_join_ranking(context, citizens):
-    citizens = json.loads(citizens)
+    citizens = citizens.split()
     for c in citizens:
         step_citizen_accept_terms_and_conditions(context=context, citizen_name=c)
         step_insert_self_declared_criteria(context=context, citizen_name=c, correctness='correctly')
@@ -60,7 +60,7 @@ def step_citizens_join_ranking(context, citizens):
 
 @then('{citizens} are elected')
 def step_check_citizens_correct_election(context, citizens):
-    citizens = json.loads(citizens)
+    citizens = citizens.split()
     for c in citizens:
         step_check_onboarding_status(context=context, citizen_name=c, status='ELECTED')
 
