@@ -251,7 +251,8 @@ def step_check_status_instrument_idpay_code(context, status, citizen_name):
                        delay=2, message='Delete card not rejected')
 
 
-@given('the merchant {merchant_name} tries to generates the transaction {trx_name} of amount {amount_cents} cents to be paid by IDPay Code through MIL')
+@given('the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents '
+       'to be paid by IDPay Code through MIL')
 def step_when_merchant_try_to_generate_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
