@@ -2,7 +2,7 @@
 @family_allocated_initiative
 @family
 @onboarding
-Feature: A family onboards an initiative
+Feature: A family onboards on discount initiative
 
   Scenario Outline: One member of a family onboards an initiative
     Given the initiative is "family_initiative"
@@ -29,7 +29,7 @@ Feature: A family onboards an initiative
       | family members |
       | A B C          |
 
-  Scenario Outline: One member of a family tries to onboard an initiative with ISEE equal to the allowable limit
+  Scenario Outline: One member of a family tries to onboard an initiative with ISEE equal to the not allowable limit
     Given the initiative is "family_initiative"
     And citizens <family members> have fiscal code random
     And citizens <family members> are in the same family
