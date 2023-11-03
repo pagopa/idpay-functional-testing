@@ -308,6 +308,10 @@ def step_check_latest_trx_creation_by_mil(context, reason_ko):
         assert context.latest_merchant_create_transaction_mil.status_code == 403
         assert context.latest_merchant_create_transaction_mil.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
 
+    elif reason_ko == 'THE MERCHANT IS NOT QUALIFIED':
+        assert context.latest_merchant_create_transaction_mil.status_code == 403
+        assert context.latest_merchant_create_transaction_mil.json()['code'] == 'PAYMENT_MERCHANT_NOT_ONBOARDED'
+
 
 @then('with IDPay Code the transaction {trx_name} is {expected_status}')
 @given('with IDPay Code the transaction {trx_name} is {expected_status}')
@@ -511,3 +515,8 @@ def step_check_latest_pre_auth_fails(context, reason_ko):
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+
+    elif reason_ko == 'THE MERCHANT IS NOT ALLOWED TO OPERATE ON THIS TRANSACTION':
+        assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
+        assert context.latest_merchant_pre_authorize_transaction_mil.json()[
+                   'code'] == 'PAYMENT_NOT_ALLOWED_MISMATCHED_MERCHANT'
