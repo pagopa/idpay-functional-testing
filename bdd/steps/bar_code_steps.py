@@ -144,5 +144,5 @@ def step_check_latest_merchant_authorized_bar_code(context, reason_ko):
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
 
     elif reason_ko == 'THE MERCHANT IS NOT QUALIFIED':
-        assert context.latest_merchant_create_transaction_mil.status_code == 403
-        assert context.latest_merchant_create_transaction_mil.json()['code'] == 'PAYMENT_MERCHANT_NOT_ONBOARDED'
+        assert context.latest_merchant_authorization_bar_code.status_code == 403
+        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_MERCHANT_NOT_ONBOARDED'
