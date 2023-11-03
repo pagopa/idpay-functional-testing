@@ -99,7 +99,7 @@ Feature: A family onboards an initiative with ranking
     When the citizen A tries to onboard
     And the citizen D tries to onboard
     Then the onboards of <family members 1> are KO
-    Then the onboards of <family members 2> are KO
+    And the onboards of <family members 2> are KO
     When the ranking period ends
     And the institution publishes the ranking
     Then the citizen A has status KO in ranking
@@ -139,3 +139,16 @@ Feature: A family onboards an initiative with ranking
     Examples: Families members, eligible citizens and demanded citizens
       | family members 1  | family members 2 | family members 3 | family members 4 | eligible citizens | demanded citizens |
       | A                 | B C D            | E F G            | H I              | H E B             | C D F G I         |
+
+  @skip
+  Scenario Outline: A family cannot onboard during grace period on a initiative with ranking
+    Given a new initiative "family_ranking_in_grace_period"
+    And citizens <family members 1> have fiscal code random
+    And citizens <family members 1> are in the same family
+    And citizens <family members 1> have ISEE 38500 of type "ordinario"
+    When the citizen A tries to accept terms and conditions
+    Then the latest accept terms and conditions failed for onboarding period ended
+
+    Examples: Family members
+      | family members 1  |
+      | A B C             |
