@@ -1,5 +1,6 @@
 @discount_bar_code
 @transaction
+@transaction_bar_code
 Feature: A citizen can pay by Bar Code on a discount initiative
 
     Background:
@@ -57,7 +58,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         And the citizen A creates the transaction Y by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 30000 cents
         And with Bar Code the transaction X is authorized
-        And 5 second/s pass
+        And 1 second/s pass
         When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 20000 cents
         Then the latest authorization by merchant fails because the budget is exhausted
 
@@ -65,7 +66,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 30000 cents
         And with Bar Code the transaction X is authorized
-        And 5 second/s pass
+        And 1 second/s pass
         When the citizen A tries to create the transaction Y by Bar Code
         Then the latest transaction creation by citizen fails because the budget is exhausted
 
@@ -73,3 +74,9 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         Given the citizen B has fiscal code random
         When the citizen B tries to create the transaction X by Bar Code
         Then the latest transaction creation by citizen fails because the citizen is not onboarded
+
+    Scenario: A not onboarded merchant tries to authorize a transaction by Bar Code
+        Given the citizen A creates the transaction X by Bar Code
+        And the merchant 2 is not qualified
+        When the merchant 2 tries to authorize the transaction X by Bar Code of amount 20000 cents
+        Then the latest authorization by merchant fails because the merchant is not qualified

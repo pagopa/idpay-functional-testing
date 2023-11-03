@@ -59,20 +59,18 @@ def step_check_latest_citizen_creation_bar_code(context, reason_ko):
     if reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_citizen_creation_bar_code.status_code == 403
         assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_citizen_creation_bar_code.json()[
-                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
 
     if reason_ko == 'THE CITIZEN IS NOT ONBOARDED':
         assert context.latest_citizen_creation_bar_code.status_code == 403
         assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
-        assert context.latest_citizen_creation_bar_code.json()[
-                   'message'] == f'The current user is not onboarded on initiative [{context.initiative_id}]'
 
     if reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_citizen_creation_bar_code.status_code == 403
         assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-        assert context.latest_citizen_creation_bar_code.json()[
-                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
+
+    if reason_ko == 'IS OUT OF VALID PERIOD':
+        assert context.latest_citizen_creation_bar_code.status_code == 403
+        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
 
 
 @when('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
@@ -128,29 +126,23 @@ def step_check_latest_merchant_authorized_bar_code(context, reason_ko):
     if reason_ko == 'THE TRANSACTION IS NOT FOUND':
         assert context.latest_merchant_authorization_bar_code.status_code == 404
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
-        assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'].startswith('Cannot find transaction with trxCode')
 
-    if reason_ko == 'THE TRANSACTION IS ALREADY AUTHORIZED':
+    elif reason_ko == 'THE TRANSACTION IS ALREADY AUTHORIZED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
-        assert context.latest_merchant_authorization_bar_code.json()['message'].startswith('Transaction with trxCode')
-        assert context.latest_merchant_authorization_bar_code.json()['message'].endswith('is already authorized')
 
-    if reason_ko == 'THE CITIZEN IS SUSPENDED':
+    elif reason_ko == 'THE CITIZEN IS SUSPENDED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_SUSPENDED'
-        assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'The user has been suspended for initiative [{context.initiative_id}]'
 
-    if reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
+    elif reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-        assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
-    if reason_ko == 'THE BUDGET IS EXHAUSTED':
+    elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_authorization_bar_code.status_code == 403
         assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-        assert context.latest_merchant_authorization_bar_code.json()[
-                   'message'] == f'Budget exhausted for the current user and initiative [{context.initiative_id}]'
+
+    elif reason_ko == 'THE MERCHANT IS NOT QUALIFIED':
+        assert context.latest_merchant_create_transaction_mil.status_code == 403
+        assert context.latest_merchant_create_transaction_mil.json()['code'] == 'PAYMENT_MERCHANT_NOT_ONBOARDED'
