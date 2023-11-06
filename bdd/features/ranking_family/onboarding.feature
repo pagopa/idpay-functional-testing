@@ -4,16 +4,18 @@
 @onboarding
 Feature: A family onboards an initiative with ranking
 
-  Scenario Outline: Families are ranked correctly ordered by ISEE after ranking publication of initiative
+  Background:
     Given a new initiative "family_ranking_initiative"
-    And citizens <family members 1> have fiscal code random
+
+  Scenario Outline: Families are ranked correctly ordered by ISEE after ranking publication of initiative
+    Given citizens <family members 1> have fiscal code random
     And citizens <family members 1> are in the same family
     And citizens <family members 1> have ISEE 32568 of type "ordinario"
     And citizens <family members 2> have fiscal code random
     And citizens <family members 2> are in the same family
     And citizens <family members 2> have ISEE 19999 of type "ordinario"
-    And the first citizen of <family members 1> onboards and wait for ranking
-    And the first citizen of <family members 2> onboards and wait for ranking
+    And the first citizen of <family members 1> onboards and waits for ranking
+    And the first citizen of <family members 2> onboards and waits for ranking
     When the ranking period ends
     And the institution publishes the ranking
     Then <eligible citizens> are elected
@@ -26,8 +28,7 @@ Feature: A family onboards an initiative with ranking
       | A B C             | D E F            | A D               | B C E F           | D A              |
 
   Scenario Outline: Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-    Given a new initiative "family_ranking_initiative"
-    And citizens <family members 1> have fiscal code random
+    Given citizens <family members 1> have fiscal code random
     And citizens <family members 1> are in the same family
     And citizens <family members 1> have ISEE 25038 of type "ordinario"
     And citizens <family members 2> have fiscal code random
@@ -39,10 +40,10 @@ Feature: A family onboards an initiative with ranking
     And citizens <family members 4> have fiscal code random
     And citizens <family members 4> are in the same family
     And citizens <family members 4> have ISEE 42010 of type "ordinario"
-    And the first citizen of <family members 1> onboards and wait for ranking
-    And the first citizen of <family members 2> onboards and wait for ranking
-    And the first citizen of <family members 3> onboards and wait for ranking
-    And the first citizen of <family members 4> onboards and wait for ranking
+    And the first citizen of <family members 1> onboards and waits for ranking
+    And the first citizen of <family members 2> onboards and waits for ranking
+    And the first citizen of <family members 3> onboards and waits for ranking
+    And the first citizen of <family members 4> onboards and waits for ranking
     And the citizen B onboards and waits for ranking
     And the citizen F onboards and waits for ranking
     And the citizen H onboards and waits for ranking
@@ -60,8 +61,7 @@ Feature: A family onboards an initiative with ranking
       | A B C             | D                | E F              | G H I            | A D E             | B C F H I           |
 
   Scenario Outline: Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
-    Given a new initiative "family_ranking_initiative"
-    And citizens <family members 1> have fiscal code random
+    Given citizens <family members 1> have fiscal code random
     And citizens <family members 1> are in the same family
     And citizens <family members 1> have ISEE 12000 of type "ordinario"
     And citizens <family members 2> have fiscal code random
@@ -73,10 +73,10 @@ Feature: A family onboards an initiative with ranking
     And citizens <family members 4> have fiscal code random
     And citizens <family members 4> are in the same family
     And citizens <family members 4> have ISEE 35000 of type "ordinario"
-    And the first citizen of <family members 1> onboards and wait for ranking
-    And the first citizen of <family members 2> onboards and wait for ranking
-    And the first citizen of <family members 3> onboards and wait for ranking
-    And the first citizen of <family members 4> onboards and wait for ranking
+    And the first citizen of <family members 1> onboards and waits for ranking
+    And the first citizen of <family members 2> onboards and waits for ranking
+    And the first citizen of <family members 3> onboards and waits for ranking
+    And the first citizen of <family members 4> onboards and waits for ranking
     When the ranking period ends
     And the institution publishes the ranking
     Then <eligible citizens> are elected
@@ -89,8 +89,7 @@ Feature: A family onboards an initiative with ranking
       | A                 | B C D            | E F G            | H I              | A B E             | C D F G           |
 
   Scenario Outline: Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-    Given a new initiative "family_ranking_initiative"
-    And citizens <family members 1> have fiscal code random
+    Given citizens <family members 1> have fiscal code random
     And citizens <family members 1> are in the same family
     And citizens <family members 1> have ISEE 50000 of type "ordinario"
     And citizens <family members 2> have fiscal code random
@@ -111,8 +110,7 @@ Feature: A family onboards an initiative with ranking
       | A B C             | D E F            | B C E F             |
 
   Scenario Outline: A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-    Given a new initiative "family_ranking_initiative"
-    And citizens <family members 1> have fiscal code random
+    Given citizens <family members 1> have fiscal code random
     And citizens <family members 1> are in the same family
     And citizens <family members 1> have ISEE 49999 of type "ordinario"
     And citizens <family members 2> have fiscal code random
@@ -124,10 +122,10 @@ Feature: A family onboards an initiative with ranking
     And citizens <family members 4> have fiscal code random
     And citizens <family members 4> are in the same family
     And citizens <family members 4> have ISEE 25789 of type "ordinario"
-    And the first citizen of <family members 1> onboards and wait for ranking
-    And the first citizen of <family members 2> onboards and wait for ranking
-    And the first citizen of <family members 3> onboards and wait for ranking
-    And the first citizen of <family members 4> onboards and wait for ranking
+    And the first citizen of <family members 1> onboards and waits for ranking
+    And the first citizen of <family members 2> onboards and waits for ranking
+    And the first citizen of <family members 3> onboards and waits for ranking
+    And the first citizen of <family members 4> onboards and waits for ranking
     When the ranking period ends
     And the institution publishes the ranking
     Then <eligible citizens> are elected
@@ -139,16 +137,3 @@ Feature: A family onboards an initiative with ranking
     Examples: Families members, eligible citizens and demanded citizens
       | family members 1  | family members 2 | family members 3 | family members 4 | eligible citizens | demanded citizens |
       | A                 | B C D            | E F G            | H I              | H E B             | C D F G I         |
-
-  @skip
-  Scenario Outline: A family cannot onboard during grace period on a initiative with ranking
-    Given a new initiative "family_ranking_in_grace_period"
-    And citizens <family members 1> have fiscal code random
-    And citizens <family members 1> are in the same family
-    And citizens <family members 1> have ISEE 38500 of type "ordinario"
-    When the citizen A tries to accept terms and conditions
-    Then the latest accept terms and conditions failed for onboarding period ended
-
-    Examples: Family members
-      | family members 1  |
-      | A B C             |

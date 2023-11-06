@@ -97,8 +97,8 @@ def step_citizen_not_onboard(context, citizen_name):
                      skip_trx_check=True)
 
 
-@then('the citizen {citizen_name} is onboard and waits for ranking to be published')
-@then('the citizen {citizen_name} is onboard and waits for ranking')
+@then('the citizen {citizen_name} is still waiting for ranking')
+@then('the citizen {citizen_name} is waiting for ranking')
 def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
@@ -116,7 +116,7 @@ def step_family_member_onboards(context, citizens_names):
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
 
 
-@given('the first citizen of {citizens_names} onboards and wait for ranking')
+@given('the first citizen of {citizens_names} onboards and waits for ranking')
 def step_family_member_onboards_ranking(context, citizens_names):
     citizens = citizens_names.split()
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
