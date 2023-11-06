@@ -42,10 +42,12 @@ Feature: A family member can pay a transaction by IDPay Code
     Given the demanded family member B onboards
     And the institution suspends correctly the citizen B
 	And the citizen A enrolls correctly a new IDPay Code on the initiative
-	And the merchant 1 generates the transaction X of amount 15000 cents to be paid by IDPay Code through MIL
+	And the merchant 1 generates the transaction X of amount 17000 cents to be paid by IDPay Code through MIL
 	And the MinInt associates the transaction X with the citizen A by IDPay Code
     When the merchant 1 pre-authorizes and authorizes the transaction X by IDPay Code correctly inserted by citizen A
     Then with IDPay Code the transaction X is authorized
+	And the family member A is rewarded with 100 euros
+    And the family members A B have budget of 200 euros left
 
   @unsubscribe
   Scenario: An unsubscribed family member cannot pay a transaction by IDPay Code
