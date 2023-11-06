@@ -21,15 +21,22 @@ Feature: A family member can pay a transaction by QR Code
     Then the transaction X is authorized
 
   @suspension
+  Scenario: A suspended family member cannot pay a transaction by QR Code
+    Given the demanded family member B onboards
+    And the institution suspends correctly the citizen B
+    And the merchant 1 generates the transaction X of amount 10000 cents
+    When the citizen B tries to pre-authorize the transaction X
+    Then the latest pre-authorization fails because the user is suspended
+
+  @suspension
   Scenario: A family member pays a transaction by QR Code, although another member is suspended
     Given the demanded family member B onboards
     And the institution suspends correctly the citizen B
     And the merchant 1 generates the transaction X of amount 10000 cents
     When the citizen A confirms the transaction X
     Then the transaction X is authorized
-    Given the merchant 1 generates the transaction Y of amount 20000 cents
-    When the citizen B tries to pre-authorize the transaction Y
-    Then the latest pre-authorization fails because the user is suspended
+    And the family member A is rewarded with 100 euros
+    And the family members A B have budget of 200 euros left
 
   @unsubscribe
   Scenario: A family member pays a transaction by QR Code, although another member has unsubscribed

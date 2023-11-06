@@ -20,15 +20,22 @@ Feature: A family member can pay a transaction by Bar Code
       Then the transaction X is created
 
     @suspension
+    Scenario: A suspended family member cannot pay a transaction by Bar Code
+      Given the demanded family member B onboards
+      And the institution suspends correctly the citizen B
+      And the citizen B creates the transaction X by Bar Code
+      When the merchant 1 tries to authorize the transaction X by Bar Code of amount 15000 cents
+      Then the latest authorization by merchant fails because the citizen is suspended
+
+    @suspension
     Scenario: A family member pays a transaction by Bar Code, although another member is suspended
       Given the demanded family member B onboards
       And the institution suspends correctly the citizen B
       And the citizen A creates the transaction X by Bar Code
       When the the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
       Then with Bar Code the transaction X is authorized
-      Given the citizen B creates the transaction Y by Bar Code
-      When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 15000 cents
-      Then the latest authorization by merchant fails because the citizen is suspended
+      And the family member A is rewarded with 200 euros
+      And the family members A B have budget of 100 euros left
 
     @unsubscribe
     Scenario: A family member pays a transaction by Bar Code, although another member has unsubscribed
