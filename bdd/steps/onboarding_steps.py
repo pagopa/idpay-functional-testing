@@ -1,4 +1,6 @@
 import json
+import uuid
+from hashlib import sha256
 
 import requests
 from behave import given
@@ -9,7 +11,7 @@ from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import timeline
 from api.idpay import wallet
-from api.onboarding_io import accept_terms_and_conditions
+from api.onboarding_io import accept_terms_and_conditions, pdnd_autocertification
 from api.onboarding_io import status_onboarding
 from conf.configuration import secrets
 from conf.configuration import settings
@@ -36,7 +38,7 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 @given('the citizen {citizen_name} is onboarded')
 def step_named_citizen_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
-    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name)
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 
@@ -44,7 +46,7 @@ def step_named_citizen_onboard(context, citizen_name):
 @when('the citizen {citizen_name} onboards and waits for ranking')
 def step_named_citizen_joins_ranking(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
-    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name)
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
@@ -54,7 +56,7 @@ def step_citizens_join_ranking(context, citizens):
     citizens = json.loads(citizens)
     for c in citizens:
         step_citizen_accept_terms_and_conditions(context=context, citizen_name=c)
-        step_insert_self_declared_criteria(context=context, citizen_name=c, correctness='correctly')
+        step_insert_self_declared_criteria(context=context, citizen_name=c)
         step_check_onboarding_status(context=context, citizen_name=c, status='ON_EVALUATION')
 
 
@@ -88,7 +90,7 @@ def step_named_citizen_suspension(context, citizen_name):
 @given('the citizen {citizen_name} is not onboard')
 def step_citizen_not_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
-    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='not correctly')
+    step_try_to_save_pdnd_consent(context=context, citizen_name=citizen_name, correctness='not correctly')
     check_statistics(organization_id=context.organization_id,
                      initiative_id=context.initiative_id,
                      old_statistics=context.base_statistics,
@@ -106,7 +108,7 @@ def step_named_citizen_suspension(context, citizen_name):
 @when('the citizen {citizen_name} tries to onboard')
 def step_citizen_tries_to_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
-    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name)
 
 
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
@@ -116,7 +118,7 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
     context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                         initiative_id=context.initiative_id).json()
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
-    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
+    step_insert_self_declared_criteria(context=context, citizen_name=citizen_name)
 
 
 @when('the citizen {citizen_name} tries to accept terms and conditions')
@@ -125,21 +127,28 @@ def step_citizen_tries_to_accept_terms_and_conditions(context, citizen_name):
     context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
 
 
+@when('the citizen {citizen_name} tries to accept terms and conditions on a nonexistent initiative')
+def step_citizen_tries_to_accept_terms_and_conditions_nonexistent_initiative(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    initiative_id_non_existent = sha256(f'{citizen_name}'.encode()).hexdigest().lower()[:24]
+    context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=initiative_id_non_existent)
+
+
 @then('the latest accept terms and conditions failed for {reason_ko}')
 def step_check_latest_accept_tc_failed(context, reason_ko):
     reason = reason_ko.upper()
     if reason == 'BUDGET TERMINATED':
         assert context.accept_tc_response.status_code == 403
-        assert context.accept_tc_response.json()['details'] == 'BUDGET_TERMINATED'
+        assert context.accept_tc_response.json()['code'] == 'ONBOARDING_BUDGET_EXHAUSTED'
     elif reason == 'USER UNSUBSCRIBED':
-        assert context.accept_tc_response.status_code == 400
-        assert context.accept_tc_response.json()['message'] == 'Unsubscribed to initiative'
-        assert context.accept_tc_response.json()['details'] == 'GENERIC_ERROR'
+        assert context.accept_tc_response.status_code == 403
+        assert context.accept_tc_response.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
     elif reason == 'ONBOARDING PERIOD ENDED':
         assert context.accept_tc_response.status_code == 403
-        assert context.accept_tc_response.json()[
-                   'message'] == 'The opportunity to join the initiative has already ended'
-        assert context.accept_tc_response.json()['details'] == 'INITIATIVE_END'
+        assert context.accept_tc_response.json()['code'] == 'ONBOARDING_INITIATIVE_ENDED'
+    elif reason == 'INITIATIVE NOT FOUND':
+        assert context.accept_tc_response.status_code == 404
+        assert context.accept_tc_response.json()['code'] == 'ONBOARDING_INITIATIVE_NOT_FOUND'
     else:
         assert False, 'Uncovered fail reason'
 
@@ -276,69 +285,48 @@ def step_check_onboarding_status(context, citizen_name, status):
                                                             initiative_id=context.initiative_id).json()
 
 
-@when('the citizen {citizen_name} insert self-declared criteria {correctness}')
-def step_insert_self_declared_criteria(context, citizen_name, correctness):
+@when('the citizen {citizen_name} inserts self-declared criteria')
+def step_insert_self_declared_criteria(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
-    if correctness == 'not correctly':
-        pdnd_accept = 'false'
-        expected_status_code = 400
-    else:
-        pdnd_accept = 'true'
-        expected_status_code = 202
 
-    context.pdnd_autocertification_response = requests.put(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token_io}',
-        },
-        json={'initiativeId': context.initiative_id,
-              'pdndAccept': pdnd_accept,
-              'selfDeclarationList': [
-                  {
-                      '_type': 'boolean',
-                      'code': '1',
-                      'accepted': 'true'
-                  }]
-              },
-        timeout=settings.default_timeout
-    )
-    assert context.pdnd_autocertification_response.status_code == expected_status_code
+    context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
+                                                                     initiative_id=context.initiative_id)
+    assert context.pdnd_autocertification_response.status_code == 202
 
 
-@when('the citizen {citizen_name} tries to insert only self-declared criteria {correctness}')
-def step_insert_self_declared_criteria(context, citizen_name, correctness):
+@when('the citizen {citizen_name} tries to save PDND consent {correctness}')
+def step_try_to_save_pdnd_consent(context, citizen_name, correctness):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     if correctness == 'not correctly':
         pdnd_accept = 'false'
     else:
         pdnd_accept = 'true'
 
-    context.latest_pdnd_autocertification_response = requests.put(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.consent}',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token_io}',
-        },
-        json={'initiativeId': context.initiative_id,
-              'pdndAccept': pdnd_accept,
-              'selfDeclarationList': [
-                  {
-                      '_type': 'boolean',
-                      'code': '1',
-                      'accepted': 'true'
-                  }]
-              },
-        timeout=settings.default_timeout
-    )
+    context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
+                                                                     initiative_id=context.initiative_id,
+                                                                     pdnd_accept=pdnd_accept)
 
 
-@then('the latest PDND autorcertification call failed')
-def step_check_self_declared_criteria_call(context):
-    assert context.latest_pdnd_autocertification_response.status_code == 404
-    assert context.latest_pdnd_autocertification_response.json()['code'] == 404
-    assert context.latest_pdnd_autocertification_response.json()[
-               'message'] == f'Onboarding with initiativeId {context.initiative_id} and current userId not found.'
+@when('the citizen {citizen_name} tries to insert wrong value in self-declared criteria')
+def step_try_to_insert_self_declared_criteria(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
+                                                                     initiative_id=context.initiative_id,
+                                                                     self_declaration_accepted='false')
+
+
+@then('the latest saving of consent failed because {reason_ko}')
+def step_check_saving_consent(context, reason_ko):
+    reason_ko = reason_ko.upper()
+    if reason_ko == 'THE CITIZEN DID NOT ACCEPT T&C':
+        assert context.latest_pdnd_autocertification_response.status_code == 403
+        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_USER_NOT_ONBOARDED"
+    elif reason_ko == 'THE CONSENT WAS DENIED BY THE CITIZEN':
+        assert context.latest_pdnd_autocertification_response.status_code == 403
+        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_PDND_CONSENT_DENIED"
+    elif reason_ko == 'THE CITIZEN INSERTED THE WRONG VALUE':
+        assert context.latest_pdnd_autocertification_response.status_code == 403
+        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_SELF_DECLARATION_NOT_VALID"
 
 
 @given('the merchant {merchant_name} is {is_qualified}')

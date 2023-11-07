@@ -20,9 +20,8 @@ def test_fail_onboarding():
     token = res.content.decode('utf-8')
     res = accept_terms_and_conditions(token, secrets.initiatives.not_started.id)
 
-    assert res.json()['code'] == 403
-    assert res.json()['message'] == settings.initiatives.not_started.message
-    assert res.json()['details'] == settings.initiatives.not_started.details
+    assert res.status_code == 403
+    assert res.json()['code'] == 'ONBOARDING_INITIATIVE_NOT_STARTED'
 
 
 @pytest.mark.IO
