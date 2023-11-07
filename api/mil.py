@@ -25,7 +25,7 @@ def post_merchant_create_transaction_mil(initiative_id,
             'initiativeId': initiative_id,
             'idTrxAcquirer': uuid.uuid4().int,
             'amountCents': amount_cents,
-            'mcc': mcc,
+            'mcc': mcc
         }
     )
     return response
