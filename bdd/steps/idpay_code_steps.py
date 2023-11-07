@@ -49,6 +49,9 @@ def step_idpay_code_generate(context, citizen_name):
     res = post_idpay_code_generate(token=token_io)
     assert res.status_code == 200
 
+    if 'idpay_code' not in context:
+        context.idpay_code = {}
+
     context.idpay_code[citizen_name] = res.json()['idpayCode']
 
 
@@ -59,6 +62,9 @@ def step_idpay_code_regenerate(context, citizen_name):
     res = post_idpay_code_generate(token=token_io)
     assert res.status_code == 200
     assert res.json()['idpayCode'] != context.idpay_code[citizen_name]
+
+    if 'old_idpay_code' not in context:
+        context.old_idpay_code = {}
 
     context.old_idpay_code[citizen_name] = context.idpay_code[citizen_name]
     context.idpay_code[citizen_name] = res.json()['idpayCode']
