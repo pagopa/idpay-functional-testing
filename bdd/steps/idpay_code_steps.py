@@ -252,8 +252,8 @@ def step_check_status_instrument_idpay_code(context, status, citizen_name):
 
 
 @when('the merchant {merchant_name} tries to generate the transaction {trx_name} of amount {amount_cents} cents '
-       'to be paid by IDPay Code through MIL')
-def step_when_merchant_try_to_generate_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
+      'to be paid by IDPay Code through MIL')
+def step_merchant_tries_to_generate_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     context.latest_merchant_id = curr_merchant_id
@@ -270,7 +270,7 @@ def step_when_merchant_try_to_generate_a_transaction_mil(context, merchant_name,
 
 @given('the merchant {merchant_name} generates the transaction {trx_name} of amount {amount_cents} cents to be paid '
        'by IDPay Code through MIL')
-def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
+def step_merchant_generates_a_transaction_mil(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
 
@@ -301,7 +301,7 @@ def step_when_merchant_generated_a_transaction_mil(context, merchant_name, trx_n
 
 
 @then('the latest transaction creation by merchant through MIL fails because {reason_ko}')
-def step_check_latest_trx_creation_by_mil(context, reason_ko):
+def step_check_latest_trx_creation_through_mil(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'IS OUT OF VALID PERIOD':
@@ -422,7 +422,8 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     return pin_block, key_encrypted
 
 
-@when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
+@when(
+    'the merchant {merchant_name} tries to authorize the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
 def step_tries_to_authorize_trx_mil(context, merchant_name, trx_name, citizen_name, pin=None):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     trx_id = context.transactions[trx_name]['id']
@@ -481,7 +482,8 @@ def step_check_latest_auth_fails(context, reason_ko):
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
 
 
-@given('the merchant {merchant_name} pre-authorizes the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
+@given(
+    'the merchant {merchant_name} pre-authorizes the transaction {trx_name} by IDPay Code for citizen {citizen_name}')
 def step_pre_authorize_transaction_mil(context, merchant_name, trx_name, citizen_name):
     step_tries_to_pre_authorize_transaction_mil(context=context,
                                                 merchant_name=merchant_name,
