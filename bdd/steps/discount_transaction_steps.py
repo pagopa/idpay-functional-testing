@@ -173,6 +173,10 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
             assert trx_details['status'] == status
             return
 
+        if status == 'STILL NOT IDENTIFIED':
+            assert trx_details['status'] == 'CREATED'
+            return
+
         if status == 'IDENTIFIED':
             assert trx_details['status'] == status
             return
@@ -394,6 +398,12 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
 def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
+
+
+@then('the latest pre-authorization fails because the citizen is unsubscribed')
+def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
 
 
 @then('the latest authorization fails because the user is suspended')
