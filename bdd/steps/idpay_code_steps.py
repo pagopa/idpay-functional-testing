@@ -422,7 +422,7 @@ def step_tries_to_pre_authorize_transaction_mil(context, trx_name):
 
 
 @when('the payment by IDPay Code of transaction {trx_name} is about to be pre-authorized by merchant {merchant_name}')
-def step_tries_to_pre_authorize_transaction_mil(context, trx_name, merchant_name):
+def step_tries_to_pre_authorize_transaction_mil_another_merchant(context, trx_name, merchant_name):
     curr_merchant_fiscal_code = context.merchants[merchant_name]['fiscal_code']
     trx_id = context.transactions[trx_name]['id']
 
