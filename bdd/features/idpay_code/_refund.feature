@@ -11,13 +11,14 @@ Feature: A citizen can be rewarded and the merchant can be refunded about a tran
     Scenario: A citizen tries to pay by IDPay Code having exhausted the budget on the initiative
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 30000 cents to be paid by IDPay Code through MIL
-        And the MinInt associates the transaction X with the citizen A by IDPay Code
-        And the merchant 1 pre-authorizes and authorizes the transaction X by IDPay Code correctly inserted by citizen A
+        And the citizen A presents the ID card, reclaiming the transaction X
+        And the payment by IDPay Code of transaction X is pre-authorized
+        And the citizen A enters the IDPay Code correctly to pay the transaction X
         And with IDPay Code the transaction X is authorized
         And the citizen A is rewarded with 300 euros
         And the merchant 1 generates the transaction Y of amount 10000 cents to be paid by IDPay Code through MIL
-        And the MinInt associates the transaction Y with the citizen A by IDPay Code
-        When the merchant 1 tries to pre-authorize the transaction Y by IDPay Code
+        And the citizen A presents the ID card, reclaiming the transaction Y
+        When the payment by IDPay Code of transaction Y is about to be pre-authorized
         Then the latest pre-authorization by IDPay Code fails because the budget is exhausted
         Given the batch process confirms the transaction X
         When the institution refunds the merchant 1 of 300 euros successfully
@@ -26,13 +27,15 @@ Feature: A citizen can be rewarded and the merchant can be refunded about a tran
     Scenario: A citizen tries to pay by IDPay Code a second transaction by exhausting the budget
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 20000 cents to be paid by IDPay Code through MIL
-        And the MinInt associates the transaction X with the citizen A by IDPay Code
-        And the merchant 1 pre-authorizes and authorizes the transaction X by IDPay Code correctly inserted by citizen A
+        And the citizen A presents the ID card, reclaiming the transaction X
+        And the payment by IDPay Code of transaction X is pre-authorized
+        And the citizen A enters the IDPay Code correctly to pay the transaction X
         And with IDPay Code the transaction X is authorized
         And the citizen A is rewarded with 200 euros
         And the merchant 1 generates the transaction Y of amount 20000 cents to be paid by IDPay Code through MIL
-        And the MinInt associates the transaction Y with the citizen A by IDPay Code
-        When the merchant 1 pre-authorizes and authorizes the transaction Y by IDPay Code correctly inserted by citizen A
+        And the citizen A presents the ID card, reclaiming the transaction Y
+        And the payment by IDPay Code of transaction Y is pre-authorized
+        When the citizen A enters the IDPay Code correctly to pay the transaction Y
         Then with IDPay Code the transaction Y is authorized
         And the citizen A is rewarded with 300 euros
         Given the batch process confirms the transaction X
