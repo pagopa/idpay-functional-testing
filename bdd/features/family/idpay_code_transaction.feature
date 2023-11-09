@@ -64,7 +64,7 @@ Feature: A family member can pay a transaction by IDPay Code
   Scenario: All family members pay a transaction by IDPay Code and they are rewarded individually, sharing the budget
     Given the demanded family member B onboards
     And the demanded family member C onboards
-	And the family members A B C enrolls correctly a new IDPay Code on the initiative
+	And the family members A B C enroll correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 10000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 5000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Z of amount 7550 cents to be paid by IDPay Code through MIL
@@ -92,7 +92,7 @@ Feature: A family member can pay a transaction by IDPay Code
   @refund
   Scenario: Two family members pay a transaction by IDPay Code and the second one exhausts the budget
 	Given the demanded family member B onboards
-	And the family members A B enrolls correctly a new IDPay Code on the initiative
+	And the family members A B enroll correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 10000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 25000 cents to be paid by IDPay Code through MIL
 	And the citizen A presents the ID card, reclaiming the transaction X
@@ -113,7 +113,7 @@ Feature: A family member can pay a transaction by IDPay Code
   @refund
   Scenario: Two family members pay a transaction by IDPay Code but the second pre-authorization fails because the budget is exhausted
 	Given the demanded family member B onboards
-	And the family members A B enrolls correctly a new IDPay Code on the initiative
+	And the family members A B enroll correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 17000 cents to be paid by IDPay Code through MIL
 	And the citizen A presents the ID card, reclaiming the transaction X
@@ -129,7 +129,7 @@ Feature: A family member can pay a transaction by IDPay Code
   @refund
   Scenario: Two family members pay a transaction by IDPay Code but the second authorization fails because the budget is exhausted
 	Given the demanded family member B onboards
-	And the family members A B enrolls correctly a new IDPay Code on the initiative
+	And the family members A B enroll correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 17000 cents to be paid by IDPay Code through MIL
 	And the citizen A presents the ID card, reclaiming the transaction X
