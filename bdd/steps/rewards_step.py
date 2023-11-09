@@ -35,6 +35,7 @@ def step_check_rewards_on_wallet(context, token_io):
 
 
 @then('the citizen {citizen_name} is rewarded with {expected_accrued} euros')
+@given('the citizen {citizen_name} is rewarded with {expected_accrued} euros')
 def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
     expected_accrued = float(expected_accrued)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
@@ -153,6 +154,9 @@ def step_check_missing_refund_of_merchant(context, merchant_name, expected_refun
 @given('the batch process confirms the transaction {trx_name}')
 @when('the batch process confirms the transaction {trx_name}')
 def step_merchant_confirms_a_transactions(context, trx_name):
+    if trx_name == 'that eroded the budget':
+        trx_name = 'ERODING_BUDGET_TRX'
+
     curr_merchant_name = context.associated_merchant[trx_name]
     curr_merchant_id = context.merchants[curr_merchant_name]['id']
     context.transactions[trx_name] = get_transaction_detail(context.transactions[trx_name]['id'],
@@ -196,6 +200,7 @@ def step_merchant_confirms_a_transactions(context, trx_name):
 
 
 @when('the batch process confirms all the transactions')
+@given('the batch process confirms all the transactions')
 def step_merchant_confirms_all_transactions(context):
     for i in range(len(context.trx_ids)):
         step_merchant_confirms_a_transactions(context=context, trx_name=str(i))
