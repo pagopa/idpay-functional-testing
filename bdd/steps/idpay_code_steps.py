@@ -439,6 +439,8 @@ def step_check_latest_pre_auth_fails(context, reason_ko):
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_IDPAYCODE_NOT_FOUND'
 
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
+        print(context.latest_merchant_pre_authorize_transaction_mil.status_code)
+        print(context.latest_merchant_pre_authorize_transaction_mil.json())
         assert context.latest_merchant_pre_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_pre_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
 
