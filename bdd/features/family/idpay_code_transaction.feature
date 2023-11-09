@@ -140,6 +140,7 @@ Feature: A family member can pay a transaction by IDPay Code
 	And the payment by IDPay Code of transaction X is pre-authorized
 	And the payment by IDPay Code of transaction Y is pre-authorized
 	And the citizen A enters the IDPay Code correctly to pay the transaction X
+	And 1 second/s pass
 	When the citizen B enters the IDPay Code properly to pay the transaction Y
 	Then the latest authorization by IDPay Code fails because the budget is exhausted
 
