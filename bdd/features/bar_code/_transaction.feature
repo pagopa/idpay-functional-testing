@@ -1,6 +1,6 @@
 @discount_bar_code
 @transaction
-@transaction_bar_code
+@bar_code
 Feature: A citizen can pay by Bar Code on a discount initiative
 
     Background:
