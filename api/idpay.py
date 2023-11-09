@@ -644,7 +644,7 @@ def put_authorize_bar_code_merchant(merchant_id: str,
         }
     )
 
-  
+
 def get_initiative_info(selfcare_token: str,
                         initiative_id: str):
     """API to get information related to an initiative.

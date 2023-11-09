@@ -2,14 +2,15 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import post_create_payment_bar_code, get_transaction_detail
 from api.idpay import get_payment_instruments
-from api.idpay import wallet
+from api.idpay import get_transaction_detail
+from api.idpay import post_create_payment_bar_code
 from api.idpay import put_authorize_bar_code_merchant
+from api.idpay import wallet
 from conf.configuration import settings
 from util.utility import get_io_token
-from util.utility import retry_wallet
 from util.utility import retry_payment_instrument
+from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
