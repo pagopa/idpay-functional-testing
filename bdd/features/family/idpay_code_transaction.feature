@@ -68,9 +68,9 @@ Feature: A family member can pay a transaction by IDPay Code
 	And the merchant 1 generates the transaction X of amount 10000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 5000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Z of amount 7550 cents to be paid by IDPay Code through MIL
-	And the citizen A presents the ID card, trying to reclaim the transaction X
-	And the citizen B presents the ID card, trying to reclaim the transaction Y
-	And the citizen C presents the ID card, trying to reclaim the transaction Z
+	And the citizen A presents the ID card, reclaiming the transaction X
+	And the citizen B presents the ID card, reclaiming the transaction Y
+	And the citizen C presents the ID card, reclaiming the transaction Z
     And the payment by IDPay Code of transaction X is pre-authorized
   	And the payment by IDPay Code of transaction Y is pre-authorized
   	And the payment by IDPay Code of transaction Z is pre-authorized
@@ -95,8 +95,8 @@ Feature: A family member can pay a transaction by IDPay Code
 	And the family members A B enrolls correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 10000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 25000 cents to be paid by IDPay Code through MIL
-	And the citizen A presents the ID card, trying to reclaim the transaction X
-	And the citizen B presents the ID card, trying to reclaim the transaction Y
+	And the citizen A presents the ID card, reclaiming the transaction X
+	And the citizen B presents the ID card, reclaiming the transaction Y
 	And the payment by IDPay Code of transaction X is pre-authorized
   	And the payment by IDPay Code of transaction Y is pre-authorized
 	When the citizen A enters the IDPay Code correctly to pay the transaction X
@@ -116,8 +116,8 @@ Feature: A family member can pay a transaction by IDPay Code
 	And the family members A B enrolls correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 17000 cents to be paid by IDPay Code through MIL
-	And the citizen A presents the ID card, trying to reclaim the transaction X
-	And the citizen B presents the ID card, trying to reclaim the transaction Y
+	And the citizen A presents the ID card, reclaiming the transaction X
+	And the citizen B presents the ID card, reclaiming the transaction Y
 	And the payment by IDPay Code of transaction X is pre-authorized
 	When the citizen A enters the IDPay Code correctly to pay the transaction X
 	And the batch process confirms the transaction X
@@ -132,8 +132,8 @@ Feature: A family member can pay a transaction by IDPay Code
 	And the family members A B enrolls correctly a new IDPay Code on the initiative
 	And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
 	And the merchant 1 generates the transaction Y of amount 17000 cents to be paid by IDPay Code through MIL
-	And the citizen A presents the ID card, trying to reclaim the transaction X
-	And the citizen B presents the ID card, trying to reclaim the transaction Y
+	And the citizen A presents the ID card, reclaiming the transaction X
+	And the citizen B presents the ID card, reclaiming the transaction Y
 	And the payment by IDPay Code of transaction X is pre-authorized
 	And the payment by IDPay Code of transaction Y is pre-authorized
 	And the citizen A enters the IDPay Code correctly to pay the transaction X
@@ -145,7 +145,7 @@ Feature: A family member can pay a transaction by IDPay Code
 	Given the demanded family member B onboards
 	And the citizen A enrolls correctly a new IDPay Code on the initiative
     And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
-    And the citizen A presents the ID card, trying to reclaim the transaction X
+    And the citizen A presents the ID card, reclaiming the transaction X
 	And the payment by IDPay Code of transaction X is pre-authorized
     When the citizen A enters the IDPay Code correctly to pay the transaction X
     Then the family member A is rewarded with 300 euros
