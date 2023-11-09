@@ -1,4 +1,4 @@
-@IDPayCode
+@idpay_code
 Feature: A citizen can generate the IDPay Code
 
   Background:
