@@ -391,7 +391,7 @@ def step_check_latest_association_by_minint(context, trx_name, reason_ko):
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_ALREADY_ASSIGNED'
 
-    elif reason_ko == 'ALREADY REJECTED':
+    elif reason_ko == 'REJECTED':
         assert context.latest_minint_association.status_code == 400
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_NOT_ALLOWED_FOR_TRX_STATUS'
 

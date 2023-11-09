@@ -1,6 +1,6 @@
 @discount_idpay_code
 @transaction
-@transaction_idpay_code
+@idpay_code
 Feature: A citizen can pay by IDPay Code on a discount initiative
 
     Background:
@@ -95,7 +95,7 @@ Feature: A citizen can pay by IDPay Code on a discount initiative
         When the payment by IDPay Code of transaction Y is about to be pre-authorized
         Then the latest pre-authorization by IDPay Code fails because the budget is exhausted
         When the citizen A presents the ID card, trying to reclaim the transaction Y
-        Then the latest citizen reclaim fails because the transaction Y is already rejected
+        Then the latest citizen reclaim fails because the transaction Y is rejected
 
     Scenario: A not onboarded merchant tries to generate a transaction to be paid by IDPay Code
         Given the merchant 2 is not qualified
