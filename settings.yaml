@@ -19,6 +19,8 @@ IDPAY:
   domain: "/idpay"
   MIL:
     domain: "/mil"
+  MININT:
+    domain: "/minint"
   endpoints:
     onboarding:
       path: "/onboarding"
@@ -81,6 +83,8 @@ IDPAY:
       qr_code:
         path: '/qr-code'
         merchant: '/merchant'
+      idpay_code:
+        path: '/idpay-code'
     transactions:
       path: '/idpaytransactions'
       merchant: '/merchant'
@@ -446,13 +450,13 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  enrollment_idpay_code:
-    id: 'PILOT_ENROLLMENT_IDPAY_CODE'
+  discount_idpay_code:
+    id: 'DISCOUNT_IDPAY_CODE'
     cashback_percentage: 100
     budget_per_citizen: 300
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
-    initiative_startup_time_seconds: 0
+    initiative_startup_time_seconds: 120
     creation_payloads:
       general:
         budget: 999999999
@@ -463,7 +467,7 @@ initiatives:
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
-          it: 'Enrollment IDPay Code'
+          it: 'Discount IDPay Code'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
