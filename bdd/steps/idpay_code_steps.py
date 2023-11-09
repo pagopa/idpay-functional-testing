@@ -529,5 +529,3 @@ def step_check_latest_auth_fails(context, reason_ko):
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-
-
