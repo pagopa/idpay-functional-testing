@@ -8,7 +8,7 @@ Feature: A merchant gets refunded if a transaction by Bar Code is discounted
     And the citizen A is onboard
     And the random merchant 1 is onboard
 
-  Scenario: A merchant gets refunded about a transaction by Bar Code
+  Scenario: A merchant is refunded for a transaction made by Bar Code
     Given the citizen A creates the transaction X by Bar Code
     And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
     And with Bar Code the transaction X is authorized
@@ -17,7 +17,7 @@ Feature: A merchant gets refunded if a transaction by Bar Code is discounted
     When the institution refunds the merchant 1 of 200 euros successfully
     Then the merchant 1 is refunded 200 euros
 
-  Scenario: A merchant gets refunded about a transaction by Bar Code that exhausted the budget of citizen
+  Scenario: A merchant is refunded for a transaction made by Bar Code that exhausted the budget of citizen
     Given the citizen A creates the transaction X by Bar Code
     And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
     And with Bar Code the transaction X is authorized
@@ -30,7 +30,7 @@ Feature: A merchant gets refunded if a transaction by Bar Code is discounted
     When the institution refunds the merchant 1 of 300 euros successfully
     Then the merchant 1 is refunded 300 euros
 
-  Scenario: A merchant does not get refunded because the institution payment fails
+  Scenario: A merchant is not refunded for a transaction made by Bar Code because the institution payment fails
     Given the citizen A creates the transaction X by Bar Code
     And the merchant 1 authorizes the transaction X by Bar Code of amount 25000 cents
     And with Bar Code the transaction X is authorized

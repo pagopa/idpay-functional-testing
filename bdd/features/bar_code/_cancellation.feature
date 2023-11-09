@@ -8,7 +8,7 @@ Feature: A transaction by Bar Code can be cancelled by the merchant
         And the citizen A is onboard
         And the random merchant 1 is onboard
 
-    Scenario: The merchant cancels a transaction after authorizing it
+    Scenario: The merchant cancels a transaction made by Bar Code after authorizing it
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
@@ -16,7 +16,7 @@ Feature: A transaction by Bar Code can be cancelled by the merchant
         When the merchant 1 cancels the transaction X
         Then with Bar Code the transaction X is cancelled
 
-    Scenario: The merchant tries to cancel a transaction after it has been confirmed
+    Scenario: The merchant tries to cancel a transaction made by Bar Code after it has been confirmed
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
