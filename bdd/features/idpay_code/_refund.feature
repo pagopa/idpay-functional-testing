@@ -8,22 +8,20 @@ Feature: A citizen can be rewarded and the merchant can be refunded about a tran
         And the citizen A has fiscal code random
         And the citizen A is onboard
         And the random merchant 1 is onboard
+        And the citizen A enrolls correctly a new IDPay Code on the initiative
 
     @budget
     Scenario: A citizen tries to pay by IDPay Code having exhausted the budget on the initiative
         Given the citizen A's budget is eroded
-        And the citizen A enrolls correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction Y of amount 10000 cents to be paid by IDPay Code through MIL
         And the citizen A presents the ID card, reclaiming the transaction Y
         When the payment by IDPay Code of transaction Y is about to be pre-authorized
         Then the latest pre-authorization by IDPay Code fails because the budget is exhausted
-        Given the batch process confirms the transaction X
         When the institution refunds the merchant 1 of 300 euros successfully
         Then the merchant 1 is refunded 300 euros
 
     Scenario: A citizen tries to pay by IDPay Code a second transaction by exhausting the budget
-        Given the citizen A enrolls correctly a new IDPay Code on the initiative
-        And the merchant 1 generates the transaction X of amount 20000 cents to be paid by IDPay Code through MIL
+        Given the merchant 1 generates the transaction X of amount 20000 cents to be paid by IDPay Code through MIL
         And the citizen A presents the ID card, reclaiming the transaction X
         And the payment by IDPay Code of transaction X is pre-authorized
         And the citizen A enters the IDPay Code correctly to pay the transaction X
