@@ -1,4 +1,5 @@
 @discount_idpay_code
+@idpay_code
 Feature: A citizen can enroll an IDPay Code to an initiative
 
     Background:

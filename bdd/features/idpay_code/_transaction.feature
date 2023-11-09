@@ -83,7 +83,7 @@ Feature: A citizen can pay by IDPay Code on a discount initiative
         When the citizen A presents the ID card, trying to reclaim the transaction X
         Then the latest citizen reclaim fails because the transaction X is not found
 
-    Scenario: A citizen tries to pay by IDPay Code but the transaction is already rejected
+    Scenario: A citizen tries to pay by IDPay Code but the transaction is rejected
         Given the citizen A enrolls correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 30000 cents to be paid by IDPay Code through MIL
         And the citizen A presents the ID card, reclaiming the transaction X
