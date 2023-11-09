@@ -154,6 +154,9 @@ def step_check_missing_refund_of_merchant(context, merchant_name, expected_refun
 @given('the batch process confirms the transaction {trx_name}')
 @when('the batch process confirms the transaction {trx_name}')
 def step_merchant_confirms_a_transactions(context, trx_name):
+    if trx_name == 'that eroded the budget':
+        trx_name = 'ERODING_BUDGET_TRX'
+
     curr_merchant_name = context.associated_merchant[trx_name]
     curr_merchant_id = context.merchants[curr_merchant_name]['id']
     context.transactions[trx_name] = get_transaction_detail(context.transactions[trx_name]['id'],

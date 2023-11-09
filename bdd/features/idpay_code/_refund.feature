@@ -13,6 +13,7 @@ Feature: A citizen can be rewarded and the merchant can be refunded about a tran
     @budget
     Scenario: A citizen tries to pay by IDPay Code having exhausted the budget on the initiative
         Given the citizen A's budget is eroded
+        And the batch process confirms the transaction that eroded the budget
         And the merchant 1 generates the transaction Y of amount 10000 cents to be paid by IDPay Code through MIL
         And the citizen A presents the ID card, reclaiming the transaction Y
         When the payment by IDPay Code of transaction Y is about to be pre-authorized
