@@ -11,7 +11,8 @@ from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import timeline
 from api.idpay import wallet
-from api.onboarding_io import accept_terms_and_conditions, pdnd_autocertification
+from api.onboarding_io import accept_terms_and_conditions
+from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
 from conf.configuration import secrets
 from conf.configuration import settings
