@@ -169,6 +169,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
         And the batch process confirms the transaction Z
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
         Then the merchant 1 is refunded 225.50 euros
 

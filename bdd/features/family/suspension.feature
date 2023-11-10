@@ -13,11 +13,11 @@ Feature: A family member can be suspended from an initiative
         And the onboard of A is OK
 
     @bar_code
-    @need_fix
     Scenario: A suspended family member cannot pay a transaction by Bar Code
         Given the demanded family member B onboards
         And the institution suspends correctly the citizen B
-        And the citizen B creates the transaction X by Bar Code
+        When the citizen B tries to create the transaction X by Bar Code
+        Then with Bar Code the transaction X is created
         When the merchant 1 tries to authorize the transaction X by Bar Code of amount 15000 cents
         Then the latest authorization by merchant fails because the citizen is suspended
 
