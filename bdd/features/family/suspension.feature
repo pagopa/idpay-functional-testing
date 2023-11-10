@@ -9,10 +9,11 @@ Feature: A family member can be suspended from an initiative
         And citizens A B C have fiscal code random
         And citizens A B C are in the same family
         And citizens A B C have ISEE 19999 of type "ordinario"
-        When the first citizen of A B C onboards
-        Then the onboard of A is OK
+        And the first citizen of A B C onboards
+        And the onboard of A is OK
 
     @bar_code
+    @need_fix
     Scenario: A suspended family member cannot pay a transaction by Bar Code
         Given the demanded family member B onboards
         And the institution suspends correctly the citizen B

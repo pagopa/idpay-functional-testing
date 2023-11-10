@@ -9,8 +9,8 @@ Feature: A transaction can be cancelled by the merchant on initiative for family
         And citizens A B C have fiscal code random
         And citizens A B C are in the same family
         And citizens A B C have ISEE 19999 of type "ordinario"
-        When the first citizen of A B C onboards
-        Then the onboard of A is OK
+        And the first citizen of A B C onboards
+        And the onboard of A is OK
 
     @bar_code
     Scenario: After a cancellation of a transaction by Bar Code the family member budget is updated

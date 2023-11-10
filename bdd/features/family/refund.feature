@@ -9,8 +9,8 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And citizens A B C have fiscal code random
         And citizens A B C are in the same family
         And citizens A B C have ISEE 19999 of type "ordinario"
-        When the first citizen of A B C onboards
-        Then the onboard of A is OK
+        And the first citizen of A B C onboards
+        And the onboard of A is OK
 
     @bar_code
     Scenario: All family members pay a transaction by Bar Code and they are rewarded individually, sharing the budget
