@@ -9,8 +9,8 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And citizens A B C have fiscal code random
         And citizens A B C are in the same family
         And citizens A B C have ISEE 19999 of type "ordinario"
-        When the first citizen of A B C onboards
-        Then the onboard of A is OK
+        And the first citizen of A B C onboards
+        And the onboard of A is OK
 
     @bar_code
     Scenario: All family members pay a transaction by Bar Code and they are rewarded individually, sharing the budget
@@ -31,6 +31,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
         And the batch process confirms the transaction Z
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
         Then the merchant 1 is refunded 225.50 euros
 
@@ -40,13 +41,14 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the citizen A creates the transaction X by Bar Code
         And the citizen B creates the transaction Y by Bar Code
         When the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
-        Then the family member A is rewarded with 100 euros
-        And the family members A B have budget of 200 euros left
+        Then the family member A is rewarded with 200 euros
+        And the family members A B have budget of 100 euros left
         When the merchant 1 authorizes the transaction Y by Bar Code of amount 15000 cents
         Then the family member B is rewarded with 100 euros
         And the family members A B have budget of 0 euros left
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 300 euros successfully
         Then the merchant 1 is refunded 300 euros
 
@@ -58,7 +60,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         When the merchant 1 authorizes the transaction X by Bar Code of amount 35000 cents
         Then the family member A is rewarded with 300 euros
         And the family members A B have budget of 0 euros left
-        When the merchant 1 tries to authorize the transaction X by Bar Code of amount 17000 cents
+        When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 17000 cents
         Then the latest authorization by merchant fails because the budget is exhausted
 
     @idpay_code
@@ -104,10 +106,12 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the payment by IDPay Code of transaction X is pre-authorized
         And the payment by IDPay Code of transaction Y is pre-authorized
         When the citizen A enters the IDPay Code correctly to pay the transaction X
+        And 1 second/s pass
         And the batch process confirms the transaction X
         Then the family member A is rewarded with 100 euros
         And the family members A B have budget of 200 euros left
         When the citizen B enters the IDPay Code correctly to pay the transaction Y
+        And 1 second/s pass
         And the batch process confirms the transaction Y
         Then the family member B is rewarded with 200 euros
         And the family members A B have budget of 0 euros left
@@ -124,6 +128,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the citizen B presents the ID card, reclaiming the transaction Y
         And the payment by IDPay Code of transaction X is pre-authorized
         When the citizen A enters the IDPay Code correctly to pay the transaction X
+        And 1 second/s pass
         And the batch process confirms the transaction X
         Then the family member A is rewarded with 300 euros
         And the family members A B have budget of 0 euros left
@@ -142,7 +147,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the payment by IDPay Code of transaction Y is pre-authorized
         And the citizen A enters the IDPay Code correctly to pay the transaction X
         And 1 second/s pass
-        When the citizen B enters the IDPay Code properly to pay the transaction Y
+        When the citizen B enters the correct IDPay Code trying to pay the transaction Y
         Then the latest authorization by IDPay Code fails because the budget is exhausted
 
     @qr_code
@@ -164,6 +169,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
         And the batch process confirms the transaction Z
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
         Then the merchant 1 is refunded 225.50 euros
 

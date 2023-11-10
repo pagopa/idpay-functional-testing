@@ -9,15 +9,15 @@ Feature: A family member can unsubscribe from an initiative
         And citizens A B C have fiscal code random
         And citizens A B C are in the same family
         And citizens A B C have ISEE 19999 of type "ordinario"
-        When the first citizen of A B C onboards
-        Then the onboard of A is OK
+        And the first citizen of A B C onboards
+        And the onboard of A is OK
 
     @bar_code
     Scenario: A family member pays a transaction by Bar Code, although another member has unsubscribed
         Given the demanded family member B onboards
         And the citizen B is unsubscribed
         And the citizen A creates the transaction X by Bar Code
-        When the the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
+        When the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         Then with Bar Code the transaction X is authorized
         When the citizen B tries to create the transaction Y by Bar Code
         Then the latest transaction creation by citizen fails because the citizen is unsubscribed
