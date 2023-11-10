@@ -1,5 +1,3 @@
-import json
-
 from behave import given
 from behave import then
 from behave import when
@@ -20,8 +18,8 @@ from util.utility import tokenize_fc
 @given('citizens {citizens_names} are in the same family')
 def step_given_same_family_id(context, citizens_names: str):
     citizens = citizens_names.split()
-    citizens_fc = list((context.citizens_fc[name] for name in citizens))
-    res = put_mocked_family(family=json.dumps(citizens_fc))
+    citizens_fc = list(context.citizens_fc[name] for name in citizens)
+    res = put_mocked_family(family=citizens_fc)
     assert res.status_code == 200
     family_id = res.json()['familyId']
 
