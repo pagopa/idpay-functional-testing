@@ -40,8 +40,8 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the citizen A creates the transaction X by Bar Code
         And the citizen B creates the transaction Y by Bar Code
         When the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
-        Then the family member A is rewarded with 100 euros
-        And the family members A B have budget of 200 euros left
+        Then the family member A is rewarded with 200 euros
+        And the family members A B have budget of 100 euros left
         When the merchant 1 authorizes the transaction Y by Bar Code of amount 15000 cents
         Then the family member B is rewarded with 100 euros
         And the family members A B have budget of 0 euros left
@@ -58,7 +58,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         When the merchant 1 authorizes the transaction X by Bar Code of amount 35000 cents
         Then the family member A is rewarded with 300 euros
         And the family members A B have budget of 0 euros left
-        When the merchant 1 tries to authorize the transaction X by Bar Code of amount 17000 cents
+        When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 17000 cents
         Then the latest authorization by merchant fails because the budget is exhausted
 
     @idpay_code

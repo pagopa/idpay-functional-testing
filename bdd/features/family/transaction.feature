@@ -17,8 +17,8 @@ Feature: A family member can pay a transaction
         Given the onboard of B is demanded
         When the citizen B tries to create the transaction X by Bar Code
         Then the latest transaction creation by citizen fails because the citizen is not onboarded
-        When the citizen A tries to create the transaction X by Bar Code
-        Then the transaction X is created
+        When the citizen A tries to create the transaction Y by Bar Code
+        Then the transaction Y is created
 
     @bar_code
     Scenario: A family member onboarded after another family member pays a transaction by Bar Code
@@ -26,8 +26,8 @@ Feature: A family member can pay a transaction
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
         When the batch process confirms the transaction X
-        And the family member A has budget of 100 euros left
         Then the family member A is rewarded with 200 euros
+        And the family member A has budget of 100 euros left
         When the demanded family member B onboards
         Then the family member B has budget of 100 euros left
 
