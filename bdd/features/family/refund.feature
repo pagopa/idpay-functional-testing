@@ -31,6 +31,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
         And the batch process confirms the transaction Z
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
         Then the merchant 1 is refunded 225.50 euros
 
@@ -47,6 +48,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the family members A B have budget of 0 euros left
         Given the batch process confirms the transaction X
         And the batch process confirms the transaction Y
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 300 euros successfully
         Then the merchant 1 is refunded 300 euros
 
@@ -104,10 +106,12 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the payment by IDPay Code of transaction X is pre-authorized
         And the payment by IDPay Code of transaction Y is pre-authorized
         When the citizen A enters the IDPay Code correctly to pay the transaction X
+        And 1 second/s pass
         And the batch process confirms the transaction X
         Then the family member A is rewarded with 100 euros
         And the family members A B have budget of 200 euros left
         When the citizen B enters the IDPay Code correctly to pay the transaction Y
+        And 1 second/s pass
         And the batch process confirms the transaction Y
         Then the family member B is rewarded with 200 euros
         And the family members A B have budget of 0 euros left
