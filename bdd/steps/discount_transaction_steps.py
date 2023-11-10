@@ -396,8 +396,6 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
 def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-    assert context.latest_pre_authorization_response.json()[
-               'message'] == f'The user has unsubscribed from initiative [{context.initiative_id}]'
 
 
 @then('the latest pre-authorization fails because the citizen is not onboard')

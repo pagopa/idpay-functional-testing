@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from conf.configuration import secrets
@@ -35,7 +37,7 @@ def control_mocked_isee(fc: str,
                          )
 
 
-def put_mocked_family(family: str):
+def put_mocked_family(family: list):
     """API to mock a family grouping citizens in one family
         :param family: Fiscal code of the family members
         :returns: the response of the call.
@@ -46,7 +48,7 @@ def put_mocked_family(family: str):
         headers={
             'Content-Type': 'application/json'
         },
-        data=family,
+        data=json.dumps(family),
         timeout=settings.default_timeout
     )
 

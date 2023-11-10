@@ -518,12 +518,16 @@ def step_authorize_trx_mil(context, citizen_name, correctness, trx_name):
                                         citizen_name=citizen_name,
                                         pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000))
 
-    elif correctness == 'PROPERLY':
-        step_tries_to_authorize_trx_mil(context=context,
-                                        merchant_name=merchant_name,
-                                        trx_name=trx_name,
-                                        citizen_name=citizen_name,
-                                        pin=context.idpay_code[citizen_name])
+
+@when('the citizen {citizen_name} enters the correct IDPay Code trying to pay the transaction {trx_name}')
+def step_try_to_authorize_trx_mil(context, citizen_name, trx_name):
+    merchant_name = context.associated_merchant[trx_name]
+
+    step_tries_to_authorize_trx_mil(context=context,
+                                    merchant_name=merchant_name,
+                                    trx_name=trx_name,
+                                    citizen_name=citizen_name,
+                                    pin=context.idpay_code[citizen_name])
 
 
 @then('the latest authorization by IDPay Code fails because {reason_ko}')
