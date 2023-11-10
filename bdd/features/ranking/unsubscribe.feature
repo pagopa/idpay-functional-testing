@@ -12,7 +12,7 @@ Feature: A citizen onboards an initiative with ranking
     And the citizen A onboards and waits for ranking
     When the citizen A tries to unsubscribe
     Then the latest unsubscribe is KO because the initiative has not started yet
-    And the citizen A is onboard and waits for ranking
+    And the citizen A is still waiting for ranking
 
   Scenario: Onboard citizen cannot unsubscribe during the grace period before ranking publish
     Given the citizen A has fiscal code random
@@ -22,4 +22,4 @@ Feature: A citizen onboards an initiative with ranking
     And the ranking is produced
     When the citizen A tries to unsubscribe
     Then the latest unsubscribe is KO because the initiative has not started yet
-    And the citizen A is onboard and waits for ranking to be published
+    And the citizen A is still waiting for ranking

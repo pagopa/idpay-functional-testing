@@ -899,3 +899,48 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  family_ranking_initiative:
+    id: 'family_ranking_initiative'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-10-31T00:00:00.000+02:00'
+    fruition_end: '2024-10-31T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'INPS'
+        beneficiaryKnown: false
+        rankingEnabled: true
+        budget: 900
+        beneficiaryBudget: 300
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Iniziativa di test nuclei familiari'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LT'
+            orderDirection: "ASC"
+            iseeTypes:
+              - "ORDINARIO"
+            value: '50000'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
