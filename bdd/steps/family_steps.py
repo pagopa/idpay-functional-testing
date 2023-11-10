@@ -73,8 +73,7 @@ def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
 def step_family_members_enrolls_idpay_code(context, citizens_names):
     citizens = citizens_names.split()
     for citizen in citizens:
-      step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
-    pass
+        step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
 
 
 @then('the family members {citizens_names} are not in ranking')
@@ -82,5 +81,3 @@ def step_check_absence_in_ranking_families(context, citizens_names):
     citizens = citizens_names.split()
     for c in citizens:
         step_check_absence_in_ranking(context=context, citizen_name=c)
-    for citizen in citizens:
-        step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
