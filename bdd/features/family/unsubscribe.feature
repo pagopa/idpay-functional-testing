@@ -17,7 +17,7 @@ Feature: A family member can unsubscribe from an initiative
         Given the demanded family member B onboards
         And the citizen B is unsubscribed
         And the citizen A creates the transaction X by Bar Code
-        When the the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
+        When the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         Then with Bar Code the transaction X is authorized
         When the citizen B tries to create the transaction Y by Bar Code
         Then the latest transaction creation by citizen fails because the citizen is unsubscribed

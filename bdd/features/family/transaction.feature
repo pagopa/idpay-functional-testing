@@ -18,7 +18,7 @@ Feature: A family member can pay a transaction
         When the citizen B tries to create the transaction X by Bar Code
         Then the latest transaction creation by citizen fails because the citizen is not onboarded
         When the citizen A tries to create the transaction Y by Bar Code
-        Then the transaction Y is created
+        Then with Bar Code the transaction Y is created
 
     @bar_code
     Scenario: A family member onboarded after another family member pays a transaction by Bar Code
