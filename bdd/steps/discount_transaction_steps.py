@@ -392,6 +392,12 @@ def step_check_latest_pre_authorization_failed_user_suspended(context):
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
 
 
+@then('the latest pre-authorization fails because the user is unsubscribed')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
+
+
 @then('the latest pre-authorization fails because the citizen is not onboard')
 def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
     assert context.latest_pre_authorization_response.status_code == 403

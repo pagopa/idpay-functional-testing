@@ -109,6 +109,13 @@ def step_citizen_tries_to_onboard(context, citizen_name):
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name, correctness='correctly')
 
 
+@when('the first citizen of {citizens_names} onboards')
+@given('the first citizen of {citizens_names} onboards')
+def step_check_citizens_correct_election(context, citizens_names):
+    citizens = citizens_names.split()
+    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+
+
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
 def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initiative_name):
     new_context = context
@@ -152,6 +159,7 @@ def step_citizen_accept_terms_and_conditions(context, citizen_name):
 
 
 @then('the onboard of {citizen_name} is {status}')
+@given('the onboard of {citizen_name} is {status}')
 def step_check_onboarding_status(context, citizen_name, status):
     skip_statistics_check = False
     curr_onboarded_citizen_count_increment = 0
@@ -254,6 +262,7 @@ def step_check_onboarding_status(context, citizen_name, status):
                                token=token_io,
                                initiative_id=context.initiative_id)
         skip_statistics_check = True
+
     elif status == 'ELIGIBLE_KO':
         expected_status = status
 
@@ -262,6 +271,30 @@ def step_check_onboarding_status(context, citizen_name, status):
                             message=f'Citizen onboard not {status}'
                             )
         skip_statistics_check = False
+
+    elif status == 'DEMANDED':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'OK AFTER DEMANDED':
+        expected_status = f'ONBOARDING_OK'
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}')
+        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not onboard')
+
+        curr_onboarded_citizen_count_increment = 0
+
     else:
         assert False, 'Unexpected status'
 
@@ -274,6 +307,14 @@ def step_check_onboarding_status(context, citizen_name, status):
                          skip_trx_check=True)
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
+
+
+@then('the onboards of {citizens_names} are {status}')
+@given('the onboards of {citizens_names} are {status}')
+def step_check_onboarding_citizens_status(context, citizens_names, status):
+    citizens = citizens_names.split()
+    for c in citizens:
+        step_check_onboarding_status(context=context, citizen_name=c, status=status)
 
 
 @when('the citizen {citizen_name} insert self-declared criteria {correctness}')
