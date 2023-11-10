@@ -59,7 +59,7 @@ Feature: Onboarding
     Then the latest saving of consent failed because the consent was denied by the citizen
     And the onboard of A is KO
 
-  Scenario: A citizen in age range who denied PDND consent tries to onboard unsuccessfully
+  Scenario: A citizen in age range who accepted PDND consent tries to onboard successfully
     Given the citizen A is 25 years old tomorrow
     And the citizen A accepts terms and conditions
     When the citizen A inserts self-declared criteria
