@@ -14,12 +14,11 @@ from api.idpay import put_pre_authorize_payment
 from api.idpay import timeline
 from api.mil import delete_transaction_mil
 from api.mil import get_transaction_detail_mil
-from api.mil import post_merchant_create_transaction_acquirer_mil
+from api.mil import post_merchant_create_transaction_mil
 from conf.configuration import settings
 from util.utility import check_unprocessed_transactions
 from util.utility import get_io_token
 from util.utility import retry_timeline
-from util.utility import tokenize_fc
 
 default_merchant_name = '1'
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
@@ -48,7 +47,7 @@ def step_when_merchant_tries_to_create_a_transaction_mil(context, merchant_name,
     context.latest_merchant_id = curr_merchant_id
 
     step_given_amount_cents(context=context, amount_cents=amount_cents)
-    context.latest_create_transaction_response = post_merchant_create_transaction_acquirer_mil(
+    context.latest_create_transaction_response = post_merchant_create_transaction_mil(
         initiative_id=context.initiative_id,
         amount_cents=amount_cents,
         merchant_fiscal_code=curr_merchant_fiscal_code
@@ -171,6 +170,10 @@ def step_check_named_transaction_status(context, trx_name, expected_status):
 
         if status == 'CREATED':
             assert trx_details['status'] == status
+            return
+
+        if status == 'STILL NOT IDENTIFIED':
+            assert trx_details['status'] == 'CREATED'
             return
 
         if status == 'IDENTIFIED':
@@ -385,15 +388,26 @@ def step_check_latest_pre_authorization_failed_not_found(context):
 
 @then('the latest pre-authorization fails because the user is suspended')
 def step_check_latest_pre_authorization_failed_user_suspended(context):
-    curr_tokenized_fc = tokenize_fc(context.associated_citizen[context.latest_transaction_name])
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_SUSPENDED'
+
+
+@then('the latest pre-authorization fails because the user is unsubscribed')
+def step_check_latest_pre_authorization_failed_user_suspended(context):
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
 
 
 @then('the latest pre-authorization fails because the citizen is not onboard')
 def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
     assert context.latest_pre_authorization_response.status_code == 403
     assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
+
+
+@then('the latest pre-authorization fails because the citizen is unsubscribed')
+def step_check_latest_pre_authorization_failed_citizen_not_onboard(context):
+    assert context.latest_pre_authorization_response.status_code == 403
+    assert context.latest_pre_authorization_response.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
 
 
 @then('the latest authorization fails because the user is suspended')
@@ -465,6 +479,15 @@ def step_merchant_tries_to_cancels_a_transaction_mil(context, merchant_name, trx
     context.latest_cancellation_response = res
 
 
+@then('the latest cancellation by merchant through MIL fails because {reason_ko}')
+def step_check_latest_cancellation_by_merchant_through_mil(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'THE TRANSACTION IS NOT FOUND':
+        assert context.latest_cancellation_response.status_code == 404
+        assert context.latest_cancellation_response.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
+
+
 @when('the merchant {merchant_name} tries to cancel the transaction {trx_name}')
 def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_name):
     curr_merchant_id = context.merchants[merchant_name]['id']
@@ -474,6 +497,15 @@ def step_merchant_tries_to_cancels_a_transaction(context, merchant_name, trx_nam
                                   merchant_id=curr_merchant_id
                                   )
     context.latest_cancellation_response = res
+
+
+@then('the latest cancellation by merchant fails because {reason_ko}')
+def step_check_latest_cancellation_by_merchant(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'THE TRANSACTION IS NOT FOUND':
+        assert context.latest_cancellation_response.status_code == 404
+        assert context.latest_cancellation_response.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
 
 
 @given('the merchant {merchant_name} fails cancelling the transaction {trx_name} through MIL')

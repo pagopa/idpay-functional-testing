@@ -24,7 +24,7 @@ def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
 
 @given('citizens {citizens_names} have fiscal code random')
 def step_citizens_fc_exact_or_random(context, citizens_names: str):
-    citizens = json.loads(citizens_names)
+    citizens = citizens_names.split()
     for c in citizens:
         step_citizen_fc_exact_or_random(context=context, citizen_name=c, citizen_fc='random')
 
@@ -71,16 +71,17 @@ def step_set_citizen_isee(context, citizen_name: str, isee: int, isee_type: str)
     context.citizen_isee[context.citizens_fc[citizen_name]] = isee
 
 
-@given('citizens {citizens_name} have ISEE {isee} of type "{isee_type}"')
-def step_set_citizens_isee(context, citizens_name: str, isee: int, isee_type: str):
-    citizens = json.loads(citizens_name)
+@given('citizens {citizens_names} have ISEE {isee} of type "{isee_type}"')
+def step_set_citizens_isee(context, citizens_names: str, isee: int, isee_type: str):
+    citizens = citizens_names.split()
     for c in citizens:
         step_set_citizen_isee(context=context, citizen_name=c, isee=isee, isee_type=isee_type)
 
 
 @given('the transaction {trx_name} does not exists')
-def step_trx_before_fruition_period(context, trx_name):
-    context.transactions[trx_name] = {'trxCode': str(uuid.uuid4())[:8]}
+def step_trx_does_not_exists(context, trx_name):
+    context.transactions[trx_name] = {'trxCode': str(uuid.uuid4())[:8],
+                                      'id': str(uuid.uuid4())}
 
 
 @given('the transaction is created before fruition period')

@@ -385,8 +385,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (float(current_statistics['accruedRewards'].replace(',', '.')) == round(float(
-            old_statistics['accruedRewards'].replace(',', '.')) + accrued_rewards_increment, 2))
+        are_accrued_rewards_incremented = (float(current_statistics['accruedRewards']) == round(float(
+            old_statistics['accruedRewards']) + accrued_rewards_increment, 2))
 
         if not skip_trx_check:
             are_trxs_incremented = (
@@ -698,6 +698,16 @@ def tokenize_fc(fiscal_code: str):
     res = detokenize_pdv_token(token=token)
     assert res.json()['pii'] == fiscal_code
     return token
+
+
+def detokenize_to_fc(token: str):
+    res = detokenize_pdv_token(token=token)
+    assert res.status_code == 200
+    fiscal_code = res.json()['pii']
+    res = get_pdv_token(fiscal_code=fiscal_code)
+    assert res.status_code == 200
+    assert res.json()['token'] == token
+    return fiscal_code
 
 
 def suspend_citizen_from_initiative(initiative_id: str,

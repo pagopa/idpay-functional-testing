@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from conf.configuration import secrets
@@ -33,3 +35,31 @@ def control_mocked_isee(fc: str,
                          },
                          timeout=settings.default_timeout
                          )
+
+
+def put_mocked_family(family: list):
+    """API to mock a family grouping citizens in one family
+        :param family: Fiscal code of the family members
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.put(
+        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}',
+        headers={
+            'Content-Type': 'application/json'
+        },
+        data=json.dumps(family),
+        timeout=settings.default_timeout
+    )
+
+
+def get_family_from_user_id(user_id: str):
+    """API to get user ID of members given user ID
+        :param user_id: User ID of interest
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.get(
+        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}/user/{user_id}',
+        timeout=settings.default_timeout
+    )

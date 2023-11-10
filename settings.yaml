@@ -19,6 +19,8 @@ IDPAY:
   domain: "/idpay"
   MIL:
     domain: "/mil"
+  MININT:
+    domain: "/minint"
   endpoints:
     onboarding:
       path: "/onboarding"
@@ -57,6 +59,7 @@ IDPAY:
         card: 'CARD'
         idpaycode: 'IDPAYCODE'
         qrcode: 'QRCODE'
+        app_io_payment: 'APP_IO_PAYMENT'
     timeline:
       path: '/timeline'
       operations:
@@ -81,6 +84,10 @@ IDPAY:
       qr_code:
         path: '/qr-code'
         merchant: '/merchant'
+      bar_code:
+        path: '/bar-code'
+      idpay_code:
+        path: '/idpay-code'
     transactions:
       path: '/idpaytransactions'
       merchant: '/merchant'
@@ -92,6 +99,7 @@ IDPAY:
       internal_path: '/idpaymerchant/idpay'
     mock:
       isee: '/mock/citizen/isee'
+      family: '/mock/family'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
       beneficiary:
@@ -443,13 +451,13 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
-  enrollment_idpay_code:
-    id: 'PILOT_ENROLLMENT_IDPAY_CODE'
+  discount_idpay_code:
+    id: 'DISCOUNT_IDPAY_CODE'
     cashback_percentage: 100
     budget_per_citizen: 300
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
-    initiative_startup_time_seconds: 0
+    initiative_startup_time_seconds: 120
     creation_payloads:
       general:
         budget: 999999999
@@ -460,7 +468,42 @@ initiatives:
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
-          it: 'Enrollment IDPay Code'
+          it: 'Discount IDPay Code'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  discount_bar_code:
+    id: 'DISCOUNT_BAR_CODE'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 60
+    creation_payloads:
+      general:
+        budget: 999999999
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Discount Bar Code'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
@@ -760,6 +803,135 @@ initiatives:
             iseeTypes:
               - "ORDINARIO"
             value: '50000'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  family_initiative:
+    id: 'family_initiative'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 120
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'INPS'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 999999999
+        beneficiaryBudget: 300
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test nuclei familiari'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LT'
+            iseeTypes:
+              - "ORDINARIO"
+            value: '20000'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  family_allocated_initiative:
+    id: 'family_allocated_initiative'
+    cashback_percentage: 100
+    budget_per_citizen: 10000
+    fruition_start: '2023-05-22T00:00:00.000+02:00'
+    fruition_end: '2024-05-22T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'INPS'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 20000
+        beneficiaryBudget: 10000
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Iniziativa di test nuclei familiari'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LT'
+            iseeTypes:
+              - "ORDINARIO"
+            value: '20000'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  family_ranking_initiative:
+    id: 'family_ranking_initiative'
+    cashback_percentage: 100
+    budget_per_citizen: 300
+    fruition_start: '2023-10-31T00:00:00.000+02:00'
+    fruition_end: '2024-10-31T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'INPS'
+        beneficiaryKnown: false
+        rankingEnabled: true
+        budget: 900
+        beneficiaryBudget: 300
+        rankingStartDate: 'today'
+        rankingEndDate: 'tomorrow'
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: 'Iniziativa di test nuclei familiari'
+      beneficiary:
+        automatedCriteria:
+          - authority: 'INPS'
+            code: 'ISEE'
+            operator: 'LT'
+            orderDirection: "ASC"
+            iseeTypes:
+              - "ORDINARIO"
+            value: '50000'
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            value: true
+            code: '1'
       reward:
         initiativeRewardType: 'DISCOUNT'
         rewardRule:
