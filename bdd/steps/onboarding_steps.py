@@ -54,7 +54,7 @@ def step_named_citizen_joins_ranking(context, citizen_name):
 @given('{citizens} onboard in order and wait for ranking')
 @then('{citizens} onboard in order and wait for ranking')
 def step_citizens_join_ranking(context, citizens):
-    citizens = json.loads(citizens)
+    citizens = citizens.split()
     for c in citizens:
         step_citizen_accept_terms_and_conditions(context=context, citizen_name=c)
         step_insert_self_declared_criteria(context=context, citizen_name=c)
@@ -63,7 +63,7 @@ def step_citizens_join_ranking(context, citizens):
 
 @then('{citizens} are elected')
 def step_check_citizens_correct_election(context, citizens):
-    citizens = json.loads(citizens)
+    citizens = citizens.split()
     for c in citizens:
         step_check_onboarding_status(context=context, citizen_name=c, status='ELECTED')
 
@@ -100,8 +100,8 @@ def step_citizen_not_onboard(context, citizen_name):
                      skip_trx_check=True)
 
 
-@then('the citizen {citizen_name} is onboard and waits for ranking to be published')
-@then('the citizen {citizen_name} is onboard and waits for ranking')
+@then('the citizen {citizen_name} is still waiting for ranking')
+@then('the citizen {citizen_name} is waiting for ranking')
 def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
@@ -114,9 +114,25 @@ def step_citizen_tries_to_onboard(context, citizen_name):
 
 @when('the first citizen of {citizens_names} onboards')
 @given('the first citizen of {citizens_names} onboards')
-def step_check_citizens_correct_election(context, citizens_names):
+def step_family_member_onboards(context, citizens_names):
     citizens = citizens_names.split()
     step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+
+
+@given('the first citizen of {citizens_names} onboards and waits for ranking')
+def step_family_member_onboards_ranking(context, citizens_names):
+    citizens = citizens_names.split()
+    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
+    step_check_onboarding_status(context=context, citizen_name=citizens[0], status='ON_EVALUATION')
+    citizens.pop(0)
+    for c in citizens:
+        step_check_onboard_not_found(context, c)
+
+
+def step_check_onboard_not_found(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    res = status_onboarding(token_io, context.initiative_id)
+    assert res.status_code == 404
 
 
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
@@ -273,8 +289,8 @@ def step_check_onboarding_status(context, citizen_name, status):
                                initiative_id=context.initiative_id)
         skip_statistics_check = True
 
-    elif status == 'ELIGIBLE_KO':
-        expected_status = status
+    elif status == 'NOT ELIGIBLE':
+        expected_status = 'ELIGIBLE_KO'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                             initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,

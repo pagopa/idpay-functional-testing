@@ -9,6 +9,7 @@ from api.onboarding_io import accept_terms_and_conditions
 from api.onboarding_io import check_prerequisites
 from bdd.steps.idpay_code_steps import step_citizen_enroll_correctly_idpay_code
 from bdd.steps.onboarding_steps import step_check_onboarding_status
+from bdd.steps.ranking_steps import step_check_absence_in_ranking
 from util.utility import detokenize_to_fc
 from util.utility import get_io_token
 from util.utility import retry_wallet
@@ -73,3 +74,10 @@ def step_family_members_enrolls_idpay_code(context, citizens_names):
     citizens = citizens_names.split()
     for citizen in citizens:
         step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
+
+
+@then('the family members {citizens_names} are not in ranking')
+def step_check_absence_in_ranking_families(context, citizens_names):
+    citizens = citizens_names.split()
+    for c in citizens:
+        step_check_absence_in_ranking(context=context, citizen_name=c)
