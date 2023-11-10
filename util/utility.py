@@ -700,6 +700,16 @@ def tokenize_fc(fiscal_code: str):
     return token
 
 
+def detokenize_to_fc(token: str):
+    res = detokenize_pdv_token(token=token)
+    assert res.status_code == 200
+    fiscal_code = res.json()['pii']
+    res = get_pdv_token(fiscal_code=fiscal_code)
+    assert res.status_code == 200
+    assert res.json()['token'] == token
+    return fiscal_code
+
+
 def suspend_citizen_from_initiative(initiative_id: str,
                                     fiscal_code: str):
     institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)

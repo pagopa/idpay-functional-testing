@@ -31,6 +31,7 @@ def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name
 
 
 @given('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
+@when('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
 def step_citizen_create_bar_code(context, citizen_name, trx_name):
     step_check_citizen_is_enabled_to_app_io_payment_method(context=context, citizen_name=citizen_name)
     token_io = get_io_token(context.citizens_fc[citizen_name])
