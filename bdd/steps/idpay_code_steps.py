@@ -518,6 +518,13 @@ def step_authorize_trx_mil(context, citizen_name, correctness, trx_name):
                                         citizen_name=citizen_name,
                                         pin=context.old_idpay_code[citizen_name] or random.randint(10000, 20000))
 
+    elif correctness == 'PROPERLY':
+        step_tries_to_authorize_trx_mil(context=context,
+                                        merchant_name=merchant_name,
+                                        trx_name=trx_name,
+                                        citizen_name=citizen_name,
+                                        pin=context.idpay_code[citizen_name])
+
 
 @then('the latest authorization by IDPay Code fails because {reason_ko}')
 def step_check_latest_auth_fails(context, reason_ko):

@@ -9,6 +9,7 @@ from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
 from api.onboarding_io import accept_terms_and_conditions
 from api.onboarding_io import check_prerequisites
+from bdd.steps.idpay_code_steps import step_citizen_enroll_correctly_idpay_code
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from bdd.steps.ranking_steps import step_check_absence_in_ranking
 from util.utility import detokenize_to_fc
@@ -70,12 +71,11 @@ def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
                  initiative_id=context.initiative_id, field='accrued', tries=10, delay=2)
 
 
-@given('the family members {citizens_names} enrolls correctly a new IDPay Code on the initiative')
+@given('the family members {citizens_names} enroll correctly a new IDPay Code on the initiative')
 def step_family_members_enrolls_idpay_code(context, citizens_names):
     citizens = citizens_names.split()
-    # TODO after merge with branch about IDPay code
-    # for citizen in citizens:
-    # step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
+    for citizen in citizens:
+      step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
     pass
 
 
@@ -84,3 +84,5 @@ def step_check_absence_in_ranking_families(context, citizens_names):
     citizens = citizens_names.split()
     for c in citizens:
         step_check_absence_in_ranking(context=context, citizen_name=c)
+    for citizen in citizens:
+        step_citizen_enroll_correctly_idpay_code(context=context, citizen_name=citizen)
