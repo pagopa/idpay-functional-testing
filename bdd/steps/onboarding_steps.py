@@ -334,12 +334,14 @@ def step_check_onboarding_status(context, citizen_name, status):
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
 
+
 @then('the onboards of {citizens_names} are {status}')
 @given('the onboards of {citizens_names} are {status}')
 def step_check_onboarding_citizens_status(context, citizens_names, status):
     citizens = citizens_names.split()
     for c in citizens:
         step_check_onboarding_status(context=context, citizen_name=c, status=status)
+
 
 @when('the citizen {citizen_name} inserts self-declared criteria')
 def step_insert_self_declared_criteria(context, citizen_name):
@@ -348,6 +350,15 @@ def step_insert_self_declared_criteria(context, citizen_name):
     context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
                                                                      initiative_id=context.initiative_id)
     assert context.pdnd_autocertification_response.status_code == 202
+
+
+@given('the citizen {citizen_name} saves PDND consent not correctly')
+def step_try_to_save_pdnd_consent(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
+                                                                     initiative_id=context.initiative_id,
+                                                                     pdnd_accept='false')
+    step_check_saving_consent(context=context, reason_ko='THE CONSENT WAS DENIED BY THE CITIZEN')
 
 
 @when('the citizen {citizen_name} tries to save PDND consent {correctness}')
