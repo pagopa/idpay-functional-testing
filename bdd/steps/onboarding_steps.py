@@ -387,13 +387,13 @@ def step_check_saving_consent(context, reason_ko):
     reason_ko = reason_ko.upper()
     if reason_ko == 'THE CITIZEN DID NOT ACCEPT T&C':
         assert context.latest_pdnd_autocertification_response.status_code == 403
-        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_USER_NOT_ONBOARDED"
+        assert context.latest_pdnd_autocertification_response.json()['code'] == 'ONBOARDING_USER_NOT_ONBOARDED'
     elif reason_ko == 'THE CONSENT WAS DENIED BY THE CITIZEN':
         assert context.latest_pdnd_autocertification_response.status_code == 403
-        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_PDND_CONSENT_DENIED"
+        assert context.latest_pdnd_autocertification_response.json()['code'] == 'ONBOARDING_PDND_CONSENT_DENIED'
     elif reason_ko == 'THE CITIZEN INSERTED THE WRONG VALUE':
         assert context.latest_pdnd_autocertification_response.status_code == 403
-        assert context.latest_pdnd_autocertification_response.json()['code'] == "ONBOARDING_SELF_DECLARATION_NOT_VALID"
+        assert context.latest_pdnd_autocertification_response.json()['code'] == 'ONBOARDING_SELF_DECLARATION_NOT_VALID'
 
 
 @given('the merchant {merchant_name} is {is_qualified}')
