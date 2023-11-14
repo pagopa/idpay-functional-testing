@@ -39,11 +39,11 @@ Feature: A citizen onboards an initiative with ranking
     And citizens <citizens> have ISEE 39999 of type "ordinario"
     And the citizen A onboards and waits for ranking
     And the citizen B accepts terms and conditions
-    When the citizen B insert self-declared criteria not correctly
-    Then the onboard of B is KO
+    And the citizen B saves PDND consent not correctly
     When the ranking period ends
     And the institution publishes the ranking
     Then the citizen B is not in rank
+    And the onboard of B is KO
 
     Examples: Citizens
       | citizens   |

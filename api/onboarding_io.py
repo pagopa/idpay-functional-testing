@@ -40,10 +40,12 @@ def check_prerequisites(token, initiative_id):
     )
 
 
-def pdnd_autocertification(token, initiative_id):
+def pdnd_autocertification(token, initiative_id, pdnd_accept='true', self_declaration_accepted='true'):
     """API to put autocertification
         :param token: token IO
         :param initiative_id: initiative on which onboard the user
+        :param pdnd_accept: citizen's PDND consent
+        :param self_declaration_accepted: citizen self-declaration consent
         :returns: the response of the call.
         :rtype: requests.Response
     """
@@ -53,12 +55,12 @@ def pdnd_autocertification(token, initiative_id):
                             'Authorization': f'Bearer {token}',
                         },
                         json={'initiativeId': initiative_id,
-                              'pdndAccept': 'true',
+                              'pdndAccept': pdnd_accept,
                               'selfDeclarationList': [
                                   {
                                       '_type': 'boolean',
                                       'code': '1',
-                                      'accepted': 'true'
+                                      'accepted': self_declaration_accepted
                                   }]
                               },
                         timeout=settings.default_timeout

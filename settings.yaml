@@ -127,8 +127,6 @@ PDV:
     tokenizer: '/tokenizer/v1/tokens'
 initiatives:
   not_started:
-    message: 'The initiative has not yet begun'
-    details: 'INITIATIVE_NOT_STARTED'
     id: 'NOT_STARTED'
     cashback_percentage: 30.22
     budget_per_citizen: 51.5
