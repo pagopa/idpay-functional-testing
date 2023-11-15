@@ -615,8 +615,9 @@ def create_initiative(initiative_name_in_settings: str,
                                       initiative_id=initiative_id,
                                       general_payload=creation_payloads.general)
     assert res.status_code == 204
+    print(creation_payloads.general['beneficiaryKnown'])
 
-    if creation_payloads.general['beneficiaryKnown'] is True:
+    if creation_payloads.general['beneficiaryKnown'] == 'true':
         res = upload_whitelist_file(selfcare_token=institution_selfcare_token,
                                     initiative_id=initiative_id,
                                     fiscal_codes=known_beneficiaries)
