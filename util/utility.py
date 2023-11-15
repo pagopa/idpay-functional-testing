@@ -883,7 +883,7 @@ def upload_whitelist_file(selfcare_token: str,
     with open(csv_file_path, 'w', newline='') as f:
         writer = csv.writer(f)
         for fc in fiscal_codes:
-            writer.writerow(fc)
+            writer.writerow([fc])
 
     whitelist_csv_upload_payload = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
 
