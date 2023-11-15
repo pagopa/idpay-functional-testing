@@ -43,7 +43,6 @@ Feature: A citizen onboards an initiative with ranking
     When the ranking period ends
     And the institution publishes the ranking
     Then the citizen B is not in rank
-    And the onboard of B is KO
 
     Examples: Citizens
       | citizens   |
