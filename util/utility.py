@@ -39,6 +39,7 @@ from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import unsubscribe
 from api.idpay import upload_merchant_csv
+from api.idpay import upload_whitelist_csv
 from api.idpay import wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_conditions
@@ -886,7 +887,7 @@ def upload_whitelist_file(selfcare_token: str,
 
     whitelist_csv_upload_payload = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
 
-    return upload_merchant_csv(selfcare_token=selfcare_token,
-                               initiative_id=initiative_id,
-                               merchants_payload=whitelist_csv_upload_payload
-                               )
+    return upload_whitelist_csv(selfcare_token=selfcare_token,
+                                initiative_id=initiative_id,
+                                whitelist_payload=whitelist_csv_upload_payload
+                                )
