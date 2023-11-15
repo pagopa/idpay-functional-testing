@@ -71,7 +71,7 @@ Feature: A family onboards on discount initiative
     And citizens <family members> are in the same family
     And citizens <family members> have ISEE 19999 of type "ordinario"
     And the citizen A accepts terms and conditions
-    When the citizen A insert self-declared criteria not correctly
+    When the citizen A inserts self-declared criteria not correctly
     Then the onboard of A is KO
 
     Examples: Family members
