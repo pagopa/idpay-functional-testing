@@ -386,7 +386,7 @@ def step_try_to_insert_self_declared_criteria(context, citizen_name):
 def step_check_saving_consent(context, reason_ko):
     reason_ko = reason_ko.upper()
     if reason_ko == 'THE CITIZEN DID NOT ACCEPT T&C':
-        assert context.pdnd_autocertification_response.status_code == 403
+        assert context.pdnd_autocertification_response.status_code == 404
         assert context.pdnd_autocertification_response.json()['code'] == 'ONBOARDING_USER_NOT_ONBOARDED'
     elif reason_ko == 'THE CONSENT WAS DENIED BY THE CITIZEN':
         assert context.pdnd_autocertification_response.status_code == 403

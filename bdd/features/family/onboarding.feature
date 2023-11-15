@@ -65,14 +65,15 @@ Feature: A family onboards on discount initiative
       | family members 1 | family members 2 | family members 3 |
       | A B              | C D              | E F              |
 
-  Scenario Outline: One member of a family with self-declared incorrect criteria tries onboarding unsuccessfully
+  Scenario Outline: One member of a family who denied PDND consent tries onboarding unsuccessfully
     Given the initiative is "family_initiative"
     And citizens <family members> have fiscal code random
     And citizens <family members> are in the same family
     And citizens <family members> have ISEE 19999 of type "ordinario"
     And the citizen A accepts terms and conditions
-    When the citizen A inserts self-declared criteria not correctly
-    Then the onboard of A is KO
+    When the citizen A tries to save PDND consent not correctly
+    Then the latest saving of consent failed because the consent was denied by the citizen
+    And the onboard of A is KO
 
     Examples: Family members
       | family members |

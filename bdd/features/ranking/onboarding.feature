@@ -34,7 +34,7 @@ Feature: A citizen onboards an initiative with ranking
       | citizens        | ordered citizens |
       | C B A           | C B A            |
 
-  Scenario Outline: User with incorrect self-declared criteria tries onboarding unsuccessfully
+  Scenario Outline: A citizen who denied PDND consent tries onboarding unsuccessfully
     Given citizens <citizens> have fiscal code random
     And citizens <citizens> have ISEE 39999 of type "ordinario"
     And the citizen A onboards and waits for ranking
