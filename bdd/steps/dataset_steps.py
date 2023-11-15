@@ -19,7 +19,11 @@ def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
 
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
-    context.citizens_fc[citizen_name] = citizen_fc
+
+    try:
+        context.citizens_fc[citizen_name] = citizen_fc
+    except AttributeError:
+        context.citizens_fc = {citizen_name: citizen_fc}
 
 
 @given('citizens {citizens_names} have fiscal code random')
@@ -80,10 +84,11 @@ def step_set_citizens_isee(context, citizens_names: str, isee: int, isee_type: s
 
 @given('citizens {citizens_names} are included in the whitelist')
 def step_citizens_in_whitelist(context, citizens_names: str):
-    citizens = citizens_names.split()
+    citizens_names = citizens_names.split()
     known_beneficiaries = []
-    for c in citizens:
-        known_beneficiaries.append(c)
+    for citizen_name in citizens_names:
+        citizen_fc = context.citizens_fc[citizen_name]
+        known_beneficiaries.append(citizen_fc)
 
     if 'known_beneficiaries' not in context:
         context.known_beneficiaries = []

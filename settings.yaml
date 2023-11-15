@@ -948,7 +948,7 @@ initiatives:
     budget_per_citizen: 200
     fruition_start: '2023-11-14T00:00:00.000+02:00'
     fruition_end: '2025-11-14T23:59:59.000+02:00'
-    initiative_startup_time_seconds: 120
+    initiative_startup_time_seconds: 0
     creation_payloads:
       general:
         budget: 1000
