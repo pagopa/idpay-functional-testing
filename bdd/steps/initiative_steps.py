@@ -107,7 +107,6 @@ def step_create_new_initiative(context, initiative_name):
 
 @when('a new whitelist initiative "{initiative_name}" is published')
 def step_create_new_initiative_with_whitelist(context, initiative_name):
-    print(context.known_beneficiaries)
     create_initiative_and_update_conf(initiative_name=initiative_name,
                                       known_beneficiaries=context.known_beneficiaries)
     step_given_initiative_name(context=context, initiative_name=initiative_name)
