@@ -344,6 +344,25 @@ def retry_institution_statistics(initiative_id: str,
     return res.json()
 
 
+def retry_publishing_initiative(selfcare_token: str,
+                                initiative_id: str,
+                                tries=10,
+                                delay=3):
+    count = 0
+    res = publish_approved_initiative(selfcare_token=selfcare_token,
+                                      initiative_id=initiative_id)
+
+    while res.status_code != 204:
+        count += 1
+        time.sleep(delay)
+        res = publish_approved_initiative(selfcare_token=selfcare_token,
+                                          initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 204
+
+
 def retry_merchant_statistics(initiative_id: str,
                               merchant_id: str,
                               tries=10,
@@ -621,7 +640,7 @@ def create_initiative(initiative_name_in_settings: str,
                                     initiative_id=initiative_id,
                                     fiscal_codes=known_beneficiaries)
         assert res.status_code == 200
-        time.sleep(20)
+        time.sleep(5)
     else:
         res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
                                               initiative_id=initiative_id,
@@ -646,9 +665,8 @@ def create_initiative(initiative_name_in_settings: str,
     assert res.status_code == 204
 
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    res = publish_approved_initiative(selfcare_token=institution_selfcare_token,
-                                      initiative_id=initiative_id)
-    assert res.status_code == 204
+
+    retry_publishing_initiative(selfcare_token=institution_selfcare_token, initiative_id=initiative_id)
 
     return initiative_id
 
