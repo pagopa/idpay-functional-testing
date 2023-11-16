@@ -11,8 +11,8 @@ Feature: A citizen onboards on initiative with whitelist
     Then the onboard of A is OK
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   Scenario Outline: An uninvited citizen tries to onboard unsuccessfully on whitelist initiative
     Given citizens <citizens> have fiscal code random
@@ -24,8 +24,8 @@ Feature: A citizen onboards on initiative with whitelist
     And the onboard of G is KO
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   Scenario Outline: An invited citizen tries to onboard when the budget is exhausted on whitelist initiative
     Given citizens <citizens> have fiscal code random
@@ -41,8 +41,8 @@ Feature: A citizen onboards on initiative with whitelist
     And the onboard of F is KO
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   #@Discount_whitelist_closed
   #Scenario: An invited citizen tries to onboard when the adhesion period ended on whitelist initiative

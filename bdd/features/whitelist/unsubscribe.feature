@@ -10,8 +10,8 @@ Feature: A citizen can unsubscribe from a whitelist initiative
     Then the latest suspension fails not finding the citizen
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   Scenario Outline: The Institution suspends a citizen on whitelist initiative
     Given citizens <citizens> have fiscal code random
@@ -22,5 +22,5 @@ Feature: A citizen can unsubscribe from a whitelist initiative
     Then the citizen A is suspended
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |

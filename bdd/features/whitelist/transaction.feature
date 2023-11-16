@@ -13,8 +13,8 @@ Feature: Transactions on a whitelist initiative
     Then the latest pre-authorization fails because the citizen is not onboard
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   @bar_code
   Scenario Outline: An invited citizen tries to create a transaction by Bar Code on whitelist initiative
@@ -25,8 +25,8 @@ Feature: Transactions on a whitelist initiative
     Then the latest transaction creation by citizen fails because the citizen is not onboarded
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   @idpay_code
   Scenario Outline: An invited citizen tries to enable the IDPay Code on whitelist initiative
@@ -37,8 +37,8 @@ Feature: Transactions on a whitelist initiative
     Then the latest IDPay Code enrollment fails because the citizen is not onboard
 
     Examples: Citizens in whitelist
-    | citizens    |
-    | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   @idpay_code
   Scenario Outline: An invited citizen tries to pay a transaction by IDPay Code on whitelist initiative
@@ -51,5 +51,5 @@ Feature: Transactions on a whitelist initiative
     Then the latest citizen reclaim fails because the citizen is not onboarded
 
     Examples: Citizens in whitelist
-    | citizens    |
-    | A B C D E F |
+      | citizens  |
+      | A B C D E |

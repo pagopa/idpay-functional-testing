@@ -11,8 +11,8 @@ Feature: A citizen can be suspended from a whitelist initiative
     Then the latest suspension fails because the citizen is not onboarded yet
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
 
   Scenario Outline: The Institution suspends a citizen on whitelist initiative
     Given citizens <citizens> have fiscal code random
@@ -23,5 +23,5 @@ Feature: A citizen can be suspended from a whitelist initiative
     Then the citizen A is suspended
 
     Examples: Citizens in whitelist
-      | citizens    |
-      | A B C D E F |
+      | citizens  |
+      | A B C D E |
