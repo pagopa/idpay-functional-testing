@@ -105,11 +105,13 @@ def step_create_new_initiative(context, initiative_name):
     step_given_initiative_name(context=context, initiative_name=initiative_name)
 
 
-@when('a new whitelist initiative "{initiative_name}" is published')
+@when('a new whitelist initiative "{initiative_name}"')
 def step_create_new_initiative_with_whitelist(context, initiative_name):
+    secrets.initiatives[initiative_name] = {}
     create_initiative_and_update_conf(initiative_name=initiative_name,
                                       known_beneficiaries=context.known_beneficiaries)
-    step_given_initiative_name(context=context, initiative_name=initiative_name)
+    context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.initiative_settings = settings.initiatives[initiative_name]
 
 
 @given('the initiative is in grace period')

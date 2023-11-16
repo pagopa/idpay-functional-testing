@@ -1,5 +1,4 @@
 import datetime
-import json
 import random
 import uuid
 
@@ -20,10 +19,10 @@ def step_citizen_fc_exact_or_random(context, citizen_name, citizen_fc):
     context.latest_citizen_fc = citizen_fc
     context.latest_token_io = get_io_token(citizen_fc)
 
-    try:
-        context.citizens_fc[citizen_name] = citizen_fc
-    except AttributeError:
-        context.citizens_fc = {citizen_name: citizen_fc}
+    if 'citizens_fc' not in context:
+        context.citizens_fc = {}
+
+    context.citizens_fc = {citizen_name: citizen_fc}
 
 
 @given('citizens {citizens_names} have fiscal code random')
