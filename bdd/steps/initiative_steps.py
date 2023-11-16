@@ -112,6 +112,7 @@ def step_create_new_initiative_with_whitelist(context, initiative_name):
                                       known_beneficiaries=context.known_beneficiaries)
     context.initiative_id = secrets.initiatives[initiative_name]['id']
     context.initiative_settings = settings.initiatives[initiative_name]
+    context.organization_id = secrets.organization_id
 
 
 @given('the initiative is in grace period')
