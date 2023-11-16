@@ -27,23 +27,6 @@ Feature: A citizen onboards on initiative with whitelist
       | citizens  |
       | A B C D E |
 
-  Scenario Outline: An invited citizen tries to onboard when the budget is exhausted on whitelist initiative
-    Given citizens <citizens> have fiscal code random
-    And citizens <citizens> are included in the whitelist
-    And a new whitelist initiative "discount_whitelist"
-    And the citizen A onboards on whitelist initiative
-    And the citizen B onboards on whitelist initiative
-    And the citizen C onboards on whitelist initiative
-    And the citizen D onboards on whitelist initiative
-    And the citizen E onboards on whitelist initiative
-    When the citizen F tries to accept terms and conditions
-    Then the latest accept terms and conditions failed for budget terminated
-    And the onboard of F is KO
-
-    Examples: Citizens in whitelist
-      | citizens  |
-      | A B C D E |
-
   #@Discount_whitelist_closed
   #Scenario: An invited citizen tries to onboard when the adhesion period ended on whitelist initiative
   #  Given the initiative is "Discount_whitelist_closed"

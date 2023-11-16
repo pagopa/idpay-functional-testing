@@ -18,6 +18,7 @@ Feature: A citizen can unsubscribe from a whitelist initiative
     And citizens <citizens> are included in the whitelist
     And a new whitelist initiative "discount_whitelist"
     And the citizen A onboards on whitelist initiative
+    And the onboard of A is OK
     When the institution suspends the citizen A
     Then the citizen A is suspended
 
