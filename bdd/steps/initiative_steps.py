@@ -105,7 +105,7 @@ def step_create_new_initiative(context, initiative_name):
     step_given_initiative_name(context=context, initiative_name=initiative_name)
 
 
-@when('a new whitelist initiative "{initiative_name}"')
+@given('a new whitelist initiative "{initiative_name}"')
 def step_create_new_initiative_with_whitelist(context, initiative_name):
     secrets.initiatives[initiative_name] = {}
     create_initiative_and_update_conf(initiative_name=initiative_name,
