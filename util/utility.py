@@ -621,7 +621,7 @@ def create_initiative(initiative_name_in_settings: str,
                                     initiative_id=initiative_id,
                                     fiscal_codes=known_beneficiaries)
         assert res.status_code == 200
-        time.sleep(10)
+        time.sleep(15)
     else:
         res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
                                               initiative_id=initiative_id,
