@@ -451,7 +451,7 @@ def step_iban_enroll(context, citizen_name):
                  initiative_id=context.initiative_id, field='status', tries=3, delay=3)
 
 
-@then('citizens {citizens_names} are invited on this initiative')
+@given('citizens {citizens_names} are invited on this initiative')
 def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
     citizens_names = citizens_names.split()
 
