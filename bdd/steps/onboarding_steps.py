@@ -480,6 +480,7 @@ def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
 
 
 @when('the citizen {citizen_name} onboards on whitelist initiative')
+@given('the citizen {citizen_name} onboards on whitelist initiative')
 def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -488,6 +489,8 @@ def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
 
     check_prerequisites_response = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
     assert check_prerequisites_response.status_code == 202
+
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 
 @when('the citizen {citizen_name} tries to onboard on whitelist initiative')
@@ -507,3 +510,11 @@ def step_check_latest_prerequisites_failed(context, reason_ko):
     if reason_ko == 'THE CITIZEN IS NOT IN WHITELIST':
         assert context.latest_check_prerequisites.status_code == 403
         assert context.latest_check_prerequisites.json()['code'] == 'ONBOARDING_USER_NOT_IN_WHITELIST'
+
+
+@when('the invited citizen tries to onboard on whitelist initiative')
+def step_invited_citizen_tries_to_onboard(context):
+    fc_citizen_whitelist = secrets.fc_citizen_whitelist
+    token_io = get_io_token(fc_citizen_whitelist)
+
+    context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)

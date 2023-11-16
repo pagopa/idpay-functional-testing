@@ -33,6 +33,7 @@ def step_institution_suspends_correctly_citizen(context, citizen_name):
 
 
 @then('the latest suspension fails not finding the citizen')
+@then('the latest suspension fails because the citizen is not onboarded yet')
 def step_check_latest_suspension(context):
     assert context.latest_suspension_response.status_code == 404
     assert context.latest_suspension_response.json()['code'] == 404
