@@ -13,7 +13,7 @@ Feature: A citizen onboards on initiative with whitelist
     Then the onboard of A is OK
 
   Scenario: A citizen who was not invited on initiative tries to onboard unsuccessfully
-    Given citizen F has fiscal code random
+    Given the citizen F has fiscal code random
     When the citizen F tries to onboard on whitelist initiative
     Then the latest check of prerequisites failed because the citizen is not in whitelist
     And the onboard of F is KO
