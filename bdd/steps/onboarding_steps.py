@@ -487,7 +487,7 @@ def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
     assert accept_tc_response.status_code == 204
 
     check_prerequisites_response = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
-    assert check_prerequisites_response.status_code == 200
+    assert check_prerequisites_response.status_code == 202
 
 
 @when('the citizen {citizen_name} tries to onboard on whitelist initiative')
