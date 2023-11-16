@@ -121,6 +121,7 @@ def step_create_new_initiative_with_whitelist(context, initiative_name):
     context.base_merchants_statistics = {}
     context.associated_merchant = {}
     context.transactions = {}
+    context.associated_citizen = {}
 
 
 @given('the initiative is in grace period')
