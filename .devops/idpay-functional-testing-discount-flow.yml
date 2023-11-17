@@ -42,6 +42,11 @@ stages:
     dependsOn: [ ]
     pool:
       name: $(selfHostedAgentPool)
+    strategy:
+      matrix:
+        tag:
+          - 'onboarding'
+          - 'transaction'
     jobs:
       - job: "Run_functional_tests"
         steps:
@@ -62,11 +67,11 @@ stages:
               secureFile: '.secrets.yaml'
           - script: |
               if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
-                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags ~@skip
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "~skip"
               elif [ "${{ parameters.tag }}" = "all" ]; then
                 python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
               else
-                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@${{ parameters.tag }}"
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ parameters.tag }}"
               fi
             displayName: 'Run tests with Behave'
             env:
