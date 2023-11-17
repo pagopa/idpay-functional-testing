@@ -43,7 +43,8 @@ stages:
     pool:
       name: $(selfHostedAgentPool)
     jobs:
-      - job: "Run_functional_tests"
+      - job: "Run_scheduled_functional_tests"
+        condition: eq('${{ parameters.tag }}', '')
         strategy:
           maxParallel: 2
           matrix:
@@ -74,6 +75,45 @@ stages:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
               TAGS: '$(current_tag)'
+            continueOnError: true
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'tests/reports/behave/*.xml'
+              testRunTitle: 'Behave Results'
+              searchFolder: $(Build.SourcesDirectory)
+              failTaskOnFailedTests: true
+            continueOnError: true
+      - job: "Run_manual_functional_tests"
+        condition: not(eq('${{ parameters.tag }}', ''))
+        steps:
+          - checkout: self
+          - script: |
+              python3 --version
+              pip3 --version
+            displayName: "Display Python version"
+          - script: |
+              python3 --version
+              python3 -m pip install --user pipenv
+              python3 -m pipenv sync
+            displayName: "Install requirements"
+          - task: DownloadSecureFile@1
+            name: idpay_secrets
+            displayName: 'Download IDPay secrets'
+            inputs:
+              secureFile: '.secrets.yaml'
+          - script: |
+              if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "~skip"
+              elif [ "${{ parameters.tag }}" = "all" ]; then
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
+              else
+                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ parameters.tag }}"
+              fi
+            displayName: 'Run tests with Behave'
+            env:
+              IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
+              IDPAY_TARGET_ENV: ${{ parameters.env }}
             continueOnError: true
           - task: PublishTestResults@2
             inputs:
