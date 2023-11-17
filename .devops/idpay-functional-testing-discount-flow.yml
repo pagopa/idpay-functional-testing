@@ -49,6 +49,13 @@ stages:
       name: $(selfHostedAgentPool)
     jobs:
       - job: "Run_functional_tests"
+        strategy:
+          maxParallel: 2
+          matrix:
+            onboarding:
+              tag: 'onboarding'
+            transaction:
+              tag: 'transaction'
         steps:
           - checkout: self
           - script: |
@@ -66,13 +73,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              if [ -z "${{ parameters.tag }}" ] || [ "${{ parameters.tag }}" = "all_skip" ]; then
-                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "~skip"
-              elif [ "${{ parameters.tag }}" = "all" ]; then
-                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave"
-              else
-                python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ parameters.tag }}"
-              fi
+              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ variables.tag }}"
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
