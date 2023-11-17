@@ -23,6 +23,11 @@ variables:
 
 pool:
   vmImage: 'ubuntu-22.04'
+  strategy:
+    matrix:
+      tag:
+        - 'onboarding'
+        - 'transaction'
 
 parameters:
   - name: env
@@ -42,11 +47,6 @@ stages:
     dependsOn: [ ]
     pool:
       name: $(selfHostedAgentPool)
-    strategy:
-      matrix:
-        tag:
-          - 'onboarding'
-          - 'transaction'
     jobs:
       - job: "Run_functional_tests"
         steps:
