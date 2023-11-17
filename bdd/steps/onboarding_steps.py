@@ -106,6 +106,7 @@ def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
+@given('the citizen {citizen_name} tries to onboard')
 @when('the citizen {citizen_name} tries to onboard')
 def step_citizen_tries_to_onboard(context, citizen_name):
     step_citizen_accept_terms_and_conditions(context=context, citizen_name=citizen_name)
@@ -145,7 +146,9 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
     step_insert_self_declared_criteria(context=context, citizen_name=citizen_name)
 
 
+@given('the citizen {citizen_name} tries to accept terms and conditions')
 @when('the citizen {citizen_name} tries to accept terms and conditions')
+@when('the citizen {citizen_name} tries to accept terms and conditions again')
 def step_citizen_tries_to_accept_terms_and_conditions(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
@@ -158,6 +161,7 @@ def step_citizen_tries_to_accept_terms_and_conditions_nonexistent_initiative(con
     context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=initiative_id_non_existent)
 
 
+@given('the latest accept terms and conditions failed for {reason_ko}')
 @then('the latest accept terms and conditions failed for {reason_ko}')
 def step_check_latest_accept_tc_failed(context, reason_ko):
     reason = reason_ko.upper()
@@ -170,6 +174,9 @@ def step_check_latest_accept_tc_failed(context, reason_ko):
     elif reason == 'ONBOARDING PERIOD ENDED':
         assert context.accept_tc_response.status_code == 403
         assert context.accept_tc_response.json()['code'] == 'ONBOARDING_INITIATIVE_ENDED'
+    elif reason == 'UNSATISFIED REQUIREMENTS':
+        assert context.accept_tc_response.status_code == 403
+        assert context.accept_tc_response.json()['code'] == 'ONBOARDING_UNSATISFIED_REQUIREMENTS'
     elif reason == 'INITIATIVE NOT FOUND':
         assert context.accept_tc_response.status_code == 404
         assert context.accept_tc_response.json()['code'] == 'ONBOARDING_INITIATIVE_NOT_FOUND'

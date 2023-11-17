@@ -80,3 +80,11 @@ Feature: Onboarding
     Given the citizen A is 21 years old exactly
     When the citizen A tries to accept terms and conditions on a nonexistent initiative
     Then the latest accept terms and conditions failed for initiative not found
+
+  @testing
+  Scenario: A citizen over the maximum age tries to onboard again after being already KO for unsatisfied requirements
+    Given the citizen A is 36 years old at most
+    And the citizen A tries to onboard
+    And the onboard of A is KO
+    When the citizen A tries to accept terms and conditions again
+    Then the latest accept terms and conditions failed for unsatisfied requirements
