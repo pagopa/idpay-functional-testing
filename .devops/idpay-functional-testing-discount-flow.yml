@@ -70,7 +70,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ behave_tag }}"
+              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ variables.current_tag }}"
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
