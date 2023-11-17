@@ -28,3 +28,12 @@ Feature: A citizen onboards the pilot initiative with ISEE criteria
     And the citizen A has ISEE 20001 of type "minorenne"
     When the citizen A tries to onboard
     Then the onboard of A is KO
+
+  @testing
+  Scenario: Citizen under the minimum ISEE tries to onboard again after being already KO for unsatisfied requirements
+    Given the citizen A has fiscal code random
+    And the citizen A has ISEE 19999.99 of type "ordinario"
+    And the citizen A tries to onboard
+    And the onboard of A is KO
+    When the citizen A tries to accept terms and conditions again
+    Then the latest accept terms and conditions failed for unsatisfied requirements
