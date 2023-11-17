@@ -57,7 +57,9 @@ def base_context_initialization(context):
     context.transactions = {}
 
     context.num_new_onboards = 0
-    context.citizens_fc = {}
+
+    if 'citizens_fc' not in context:
+        context.citizens_fc = {}
 
     context.num_new_trxs = 0
     context.organization_id = secrets.organization_id
@@ -105,23 +107,12 @@ def step_create_new_initiative(context, initiative_name):
     step_given_initiative_name(context=context, initiative_name=initiative_name)
 
 
-@given('a new whitelist initiative "{initiative_name}"')
+@given('the initiative with whitelist "{initiative_name}" is published')
 def step_create_new_initiative_with_whitelist(context, initiative_name):
     secrets.initiatives[initiative_name] = {}
     create_initiative_and_update_conf(initiative_name=initiative_name,
                                       known_beneficiaries=context.known_beneficiaries)
-
-    context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.initiative_settings = settings.initiatives[initiative_name]
-    context.organization_id = secrets.organization_id
-
-    context.base_statistics = retry_institution_statistics(initiative_id=context.initiative_id)
-
-    context.merchants = {}
-    context.base_merchants_statistics = {}
-    context.associated_merchant = {}
-    context.transactions = {}
-    context.associated_citizen = {}
+    step_given_initiative_name(context=context, initiative_name=initiative_name)
 
 
 @given('the initiative is in grace period')

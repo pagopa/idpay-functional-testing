@@ -81,7 +81,7 @@ def step_set_citizens_isee(context, citizens_names: str, isee: int, isee_type: s
         step_set_citizen_isee(context=context, citizen_name=c, isee=isee, isee_type=isee_type)
 
 
-@given('citizens {citizens_names} are included in the whitelist')
+@given('citizens {citizens_names} are selected for the initiative with whitelist')
 def step_citizens_in_whitelist(context, citizens_names: str):
     citizens_names = citizens_names.split()
     known_beneficiaries = []

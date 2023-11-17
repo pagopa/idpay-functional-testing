@@ -28,7 +28,8 @@ def step_check_latest_cancellation_failed(context, status):
         assert context.latest_unsubscribe_response.status_code == 204
     elif status == 'KO':
         assert context.latest_unsubscribe_response.status_code == 400
-    elif status == 'KO because the initiative has not started yet'.upper():
+    elif (status == 'KO because the initiative has not started yet'.upper() or
+          status == 'KO because the citizen is not onboarded'.upper()):
         assert context.latest_unsubscribe_response.status_code == 404
         assert context.latest_unsubscribe_response.json()['code'] == 404
         assert context.latest_unsubscribe_response.json()[
@@ -38,6 +39,7 @@ def step_check_latest_cancellation_failed(context, status):
 
 
 @given('the citizen {citizen_name} is unsubscribed')
+@when('the citizen {citizen_name} unsubscribes')
 def step_citizen_unsubscribes(context, citizen_name):
     citizen_unsubscribe_from_initiative(initiative_id=context.initiative_id,
                                         fiscal_code=context.citizens_fc[citizen_name])

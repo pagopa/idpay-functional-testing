@@ -451,7 +451,7 @@ def step_iban_enroll(context, citizen_name):
                  initiative_id=context.initiative_id, field='status', tries=3, delay=3)
 
 
-@given('citizens {citizens_names} are invited on this initiative')
+@given('citizens {citizens_names} are invited on the initiative with whitelist')
 def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
     citizens_names = citizens_names.split()
 
@@ -479,8 +479,8 @@ def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
                                      status='INVITED')
 
 
-@when('the citizen {citizen_name} onboards on whitelist initiative')
-@given('the citizen {citizen_name} onboards on whitelist initiative')
+@when('the citizen {citizen_name} onboards on initiative with whitelist')
+@given('the citizen {citizen_name} onboards on initiative with whitelist')
 def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -491,7 +491,7 @@ def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
     assert check_prerequisites_response.status_code == 202
 
 
-@when('the citizen {citizen_name} tries to onboard on whitelist initiative')
+@when('the citizen {citizen_name} tries to onboard on initiative with whitelist')
 def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -510,7 +510,7 @@ def step_check_latest_prerequisites_failed(context, reason_ko):
         assert context.latest_check_prerequisites.json()['code'] == 'ONBOARDING_USER_NOT_IN_WHITELIST'
 
 
-@when('the invited citizen tries to onboard on whitelist initiative')
+@when('the invited citizen tries to onboard on initiative with whitelist')
 def step_invited_citizen_tries_to_onboard(context):
     fc_citizen_whitelist = secrets.fc_citizen_whitelist
     token_io = get_io_token(fc_citizen_whitelist)
