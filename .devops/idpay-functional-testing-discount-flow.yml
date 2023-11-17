@@ -48,12 +48,12 @@ stages:
           maxParallel: 2
           matrix:
             onboarding:
-              tag: 'onboarding'
+              current_tag: 'onboarding'
             transaction:
-              tag: 'transaction'
+              current_tag: 'transaction'
         steps:
-          - script: echo "##vso[task.setvariable variable=tag]$(tag)"
-            displayName: Set tag variable
+          - script: echo "##vso[task.setvariable variable=current_tag]$(current_tag)"
+            displayName: Set current_tag variable
           - checkout: self
           - script: |
               python3 --version
@@ -70,7 +70,7 @@ stages:
             inputs:
               secureFile: '.secrets.yaml'
           - script: |
-              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ variables.tag }}"
+              python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "${{ variables.current_tag }}"
             displayName: 'Run tests with Behave'
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
