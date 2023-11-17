@@ -11,7 +11,6 @@ Feature: Onboarding on an adhesion-closed initiative
     Then the latest accept terms and conditions failed for onboarding period ended
     And the onboard of A is KO
 
-  @testing
   Scenario: The citizen tries to onboard again after being already KO for onboarding period ended
     Given the citizen A has fiscal code random
     And the citizen A tries to accept terms and conditions
