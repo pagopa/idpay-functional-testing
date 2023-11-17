@@ -52,8 +52,6 @@ stages:
             transaction:
               current_tag: 'transaction'
         steps:
-          - script: echo "##vso[task.setvariable variable=behave_tag]$(current_tag)"
-            displayName: Set current_tag variable
           - checkout: self
           - script: |
               python3 --version
@@ -75,7 +73,7 @@ stages:
             env:
               IDPAY_SECRET_PATH: $(idpay_secrets.secureFilePath)
               IDPAY_TARGET_ENV: ${{ parameters.env }}
-              TAGS: '$(behave_tag)'
+              TAGS: '$(current_tag)'
             continueOnError: true
           - task: PublishTestResults@2
             inputs:
