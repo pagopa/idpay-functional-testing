@@ -52,6 +52,24 @@ stages:
               current_tag: 'onboarding'
             transaction:
               current_tag: 'transaction'
+            cancellation:
+              current_tag: 'cancellation'
+            readmission:
+              current_tag: 'readmission,suspension'
+            refunds:
+              current_tag: 'refunds'
+            unsubscribe:
+              current_tag: 'unsubscribe'
+            family:
+              current_tag: 'family'
+            bar_code:
+              current_tag: 'bar_code'
+            idpay_code:
+              current_tag: 'idpay_code'
+            ranking:
+              current_tag: 'ranking'
+
+        #            AGGIUNGI TAG
         steps:
           - checkout: self
           - script: |
