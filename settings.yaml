@@ -942,3 +942,38 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  discount_whitelist:
+    id: 'DISCOUNT_WHITELIST'
+    cashback_percentage: 100
+    budget_per_citizen: 200
+    fruition_start: '2023-11-14T00:00:00.000+02:00'
+    fruition_end: '2025-11-14T23:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
+    creation_payloads:
+      general:
+        budget: 1000
+        beneficiaryType: 'PF'
+        beneficiaryKnown: true
+        rankingEnabled: false
+        beneficiaryBudget: 200
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Discount whitelist'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 100
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  Discount_whitelist_closed:
+    id: 'Discount_whitelist_closed'
+    cashback_percentage: 100
+    budget_per_citizen: 1000
+    fruition_start: '2023-11-18T00:00:00.000+02:00'
+    fruition_end: '2026-11-30:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
