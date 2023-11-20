@@ -970,3 +970,10 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  Discount_whitelist_closed:
+    id: 'Discount_whitelist_closed'
+    cashback_percentage: 100
+    budget_per_citizen: 1000
+    fruition_start: '2023-11-18T00:00:00.000+02:00'
+    fruition_end: '2026-11-30:59:59.000+02:00'
+    initiative_startup_time_seconds: 0
