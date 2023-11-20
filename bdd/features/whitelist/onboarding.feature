@@ -27,8 +27,8 @@ Feature: A citizen onboards on initiative with whitelist
       | citizens  |
       | A B C D E |
 
-  #@Discount_whitelist_closed
-  #Scenario: An invited citizen tries to onboard when the adhesion period ended on initiative with whitelist
-  #  Given the initiative is "Discount_whitelist_closed"
-  #  When the invited citizen tries to onboard on initiative with whitelist
-  #  Then the latest accept terms and conditions failed for onboarding period ended
+  @Discount_whitelist_closed
+  Scenario: An invited citizen tries to onboard when the adhesion period ended on initiative with whitelist
+    Given the initiative is "Discount_whitelist_closed"
+    When the invited citizen tries to onboard on initiative with whitelist
+    Then the latest accept terms and conditions failed for onboarding period ended
