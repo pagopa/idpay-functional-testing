@@ -68,8 +68,6 @@ stages:
               current_tag: 'idpay_code'
             ranking:
               current_tag: 'ranking'
-
-        #            AGGIUNGI TAG
         steps:
           - checkout: self
           - script: |
