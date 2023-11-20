@@ -39,6 +39,7 @@ from api.idpay import remove_payment_instrument
 from api.idpay import timeline
 from api.idpay import unsubscribe
 from api.idpay import upload_merchant_csv
+from api.idpay import upload_whitelist_csv
 from api.idpay import wallet
 from api.issuer import enroll
 from api.onboarding_io import accept_terms_and_conditions
@@ -343,6 +344,25 @@ def retry_institution_statistics(initiative_id: str,
     return res.json()
 
 
+def retry_publishing_initiative(selfcare_token: str,
+                                initiative_id: str,
+                                tries=10,
+                                delay=3):
+    count = 0
+    res = publish_approved_initiative(selfcare_token=selfcare_token,
+                                      initiative_id=initiative_id)
+
+    while res.status_code != 204:
+        count += 1
+        time.sleep(delay)
+        res = publish_approved_initiative(selfcare_token=selfcare_token,
+                                          initiative_id=initiative_id)
+        if count == tries:
+            break
+
+    assert res.status_code == 204
+
+
 def retry_merchant_statistics(initiative_id: str,
                               merchant_id: str,
                               tries=10,
@@ -593,7 +613,8 @@ def natural_language_to_date_converter(natural_language_date: str):
     return actual_date
 
 
-def create_initiative(initiative_name_in_settings: str):
+def create_initiative(initiative_name_in_settings: str,
+                      known_beneficiaries: list = None):
     creation_payloads = settings.initiatives[initiative_name_in_settings].creation_payloads
 
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
@@ -614,10 +635,17 @@ def create_initiative(initiative_name_in_settings: str):
                                       general_payload=creation_payloads.general)
     assert res.status_code == 204
 
-    res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
-                                          initiative_id=initiative_id,
-                                          beneficiary_payload=creation_payloads.beneficiary)
-    assert res.status_code == 204
+    if creation_payloads.general['beneficiaryKnown'] is True:
+        res = upload_whitelist_file(selfcare_token=institution_selfcare_token,
+                                    initiative_id=initiative_id,
+                                    fiscal_codes=known_beneficiaries)
+        assert res.status_code == 200
+        time.sleep(5)
+    else:
+        res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
+                                              initiative_id=initiative_id,
+                                              beneficiary_payload=creation_payloads.beneficiary)
+        assert res.status_code == 204
 
     res = put_initiative_reward_info(selfcare_token=institution_selfcare_token,
                                      initiative_id=initiative_id,
@@ -637,15 +665,16 @@ def create_initiative(initiative_name_in_settings: str):
     assert res.status_code == 204
 
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    res = publish_approved_initiative(selfcare_token=institution_selfcare_token,
-                                      initiative_id=initiative_id)
-    assert res.status_code == 204
+
+    retry_publishing_initiative(selfcare_token=institution_selfcare_token, initiative_id=initiative_id)
 
     return initiative_id
 
 
-def create_initiative_and_update_conf(initiative_name: str):
-    secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
+def create_initiative_and_update_conf(initiative_name: str,
+                                      known_beneficiaries: list = None):
+    secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name,
+                                                                   known_beneficiaries=known_beneficiaries)
     print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
     secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])
 
@@ -863,3 +892,21 @@ def check_ranking_status_institution_portal(initiative_id: str,
         content = res.json()['content']
         i += 1
     return False
+
+
+def upload_whitelist_file(selfcare_token: str,
+                          initiative_id: str,
+                          fiscal_codes: list):
+    csv_file_path = f'fiscal_codes_{datetime.datetime.now().strftime("%Y%m%d.%H%M%S")}.csv'
+
+    with open(csv_file_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        for fc in fiscal_codes:
+            writer.writerow([fc])
+
+    whitelist_csv_upload_payload = {'file': (csv_file_path, open(csv_file_path, 'rb'), 'text/csv')}
+
+    return upload_whitelist_csv(selfcare_token=selfcare_token,
+                                initiative_id=initiative_id,
+                                whitelist_payload=whitelist_csv_upload_payload
+                                )

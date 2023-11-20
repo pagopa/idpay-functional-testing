@@ -1,17 +1,16 @@
-import json
-import uuid
 from hashlib import sha256
 
-import requests
 from behave import given
 from behave import then
 from behave import when
 
 from api.idpay import get_initiative_statistics
+from api.idpay import get_onboardings_list
 from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_conditions
+from api.onboarding_io import check_prerequisites
 from api.onboarding_io import pdnd_autocertification
 from api.onboarding_io import status_onboarding
 from conf.configuration import secrets
@@ -328,6 +327,15 @@ def step_check_onboarding_status(context, citizen_name, status):
 
         curr_onboarded_citizen_count_increment = 0
 
+    elif status == 'INVITED':
+        expected_status = status
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        curr_onboarded_citizen_count_increment = 0
+
     else:
         assert False, 'Unexpected status'
 
@@ -449,3 +457,70 @@ def step_iban_enroll(context, citizen_name):
     iban_enroll(fc=context.citizens_fc[citizen_name], iban=context.iban, initiative_id=context.initiative_id)
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                  initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+
+
+@given('citizens {citizens_names} are invited on the initiative with whitelist')
+def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
+    citizens_names = citizens_names.split()
+
+    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    response = get_onboardings_list(selfcare_token=institution_selfcare_token,
+                                    initiative_id=context.initiative_id)
+
+    assert response.status_code == 200
+    assert len(citizens_names) == response.json()['totalElements']
+
+    invited_citizens = response.json()['content']
+
+    for citizen_name in citizens_names:
+        citizen_fc = context.citizens_fc[citizen_name]
+
+        is_present = False
+        for invited_citizen in invited_citizens:
+            if citizen_fc == invited_citizen['beneficiary']:
+                is_present = True
+
+        assert is_present
+
+        step_check_onboarding_status(context=context,
+                                     citizen_name=citizen_name,
+                                     status='INVITED')
+
+
+@when('the citizen {citizen_name} onboards on initiative with whitelist')
+@given('the citizen {citizen_name} onboards on initiative with whitelist')
+def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
+    assert accept_tc_response.status_code == 204
+
+    check_prerequisites_response = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
+    assert check_prerequisites_response.status_code == 202
+
+
+@when('the citizen {citizen_name} tries to onboard on initiative with whitelist')
+def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
+    assert accept_tc_response.status_code == 204
+
+    context.latest_check_prerequisites = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
+
+
+@then('the latest check of prerequisites failed because {reason_ko}')
+def step_check_latest_prerequisites_failed(context, reason_ko):
+    reason_ko = reason_ko.upper()
+
+    if reason_ko == 'THE CITIZEN IS NOT IN WHITELIST':
+        assert context.latest_check_prerequisites.status_code == 403
+        assert context.latest_check_prerequisites.json()['code'] == 'ONBOARDING_USER_NOT_IN_WHITELIST'
+
+
+@when('the invited citizen tries to onboard on initiative with whitelist')
+def step_invited_citizen_tries_to_onboard(context):
+    fc_citizen_whitelist = secrets.fc_citizen_whitelist
+    token_io = get_io_token(fc_citizen_whitelist)
+
+    context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)

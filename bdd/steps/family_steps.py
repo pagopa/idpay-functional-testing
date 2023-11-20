@@ -35,11 +35,11 @@ def step_given_same_family_id(context, citizens_names: str):
 def step_demanded_family_member_onboards(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    context.accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
-    assert context.accept_tc_response.status_code == 204
+    accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
+    assert accept_tc_response.status_code == 204
 
-    res = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
-    assert res.status_code == 200
+    check_prerequisites_response = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
+    assert check_prerequisites_response.status_code == 200
 
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK AFTER DEMANDED')
 
