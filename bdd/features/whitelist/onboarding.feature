@@ -1,5 +1,6 @@
 @whitelist
 @onboarding
+@Discount_whitelist_closed
 Feature: A citizen onboards on initiative with whitelist
 
   Scenario Outline: An invited citizen tries to onboard successfully on initiative with whitelist
