@@ -482,8 +482,6 @@ def check_rewards(initiative_id: str,
                   tries=10):
     success = False
     count = 0
-    total_merchant_rewards = 0
-    is_present = False
 
     while not success:
         for export_id in export_ids:
@@ -492,16 +490,14 @@ def check_rewards(initiative_id: str,
             for expected_reward in expected_rewards:
                 is_rewarded = False
                 for r in actual_rewards:
-                    if r['iban'] == expected_reward.iban and r['status'] == exptected_status:
-                        total_merchant_rewards += r['amount']
-                        is_present = True
+                    if (r['iban'] == expected_reward.iban and r['status'] == exptected_status
+                            and r['amount'] == expected_reward.amount):
+                        is_rewarded = True
 
-                if total_merchant_rewards == expected_reward.amount:
-                    is_rewarded = True
                 if check_absence:
-                    success = not is_present
+                    success = not is_rewarded
                 else:
-                    success = is_rewarded and is_present
+                    success = is_rewarded
         if not success:
             time.sleep(delay)
             count += 1
