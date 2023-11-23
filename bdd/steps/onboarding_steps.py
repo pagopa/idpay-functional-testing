@@ -5,8 +5,8 @@ from behave import then
 from behave import when
 
 from api.idpay import get_initiative_statistics
-from api.idpay import get_onboardings_list
 from api.idpay import get_initiative_statistics_merchant_portal
+from api.idpay import get_onboardings_list
 from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import accept_terms_and_conditions
