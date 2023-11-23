@@ -4,6 +4,7 @@ import math
 import pytz
 from behave import given
 from behave import then
+from behave import when
 
 from api.idpay import get_initiative_info
 from api.idpay import get_initiative_statistics
@@ -56,7 +57,9 @@ def base_context_initialization(context):
     context.transactions = {}
 
     context.num_new_onboards = 0
-    context.citizens_fc = {}
+
+    if 'citizens_fc' not in context:
+        context.citizens_fc = {}
 
     context.num_new_trxs = 0
     context.organization_id = secrets.organization_id
@@ -101,6 +104,14 @@ def step_allocate_initiative_budget(context, precision):
 @given('a new initiative "{initiative_name}"')
 def step_create_new_initiative(context, initiative_name):
     create_initiative_and_update_conf(initiative_name=initiative_name)
+    step_given_initiative_name(context=context, initiative_name=initiative_name)
+
+
+@given('the initiative with whitelist "{initiative_name}" is published')
+def step_create_new_initiative_with_whitelist(context, initiative_name):
+    secrets.initiatives[initiative_name] = {}
+    create_initiative_and_update_conf(initiative_name=initiative_name,
+                                      known_beneficiaries=context.known_beneficiaries)
     step_given_initiative_name(context=context, initiative_name=initiative_name)
 
 

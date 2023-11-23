@@ -377,6 +377,9 @@ def step_check_latest_association_with_citizen_by_minint(context, reason_ko):
     elif reason_ko == 'UNSUBSCRIBED':
         assert context.latest_minint_association.status_code == 403
         assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
+    elif reason_ko == 'NOT ONBOARDED':
+        assert context.latest_minint_association.status_code == 403
+        assert context.latest_minint_association.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
 
 
 @then('the latest citizen reclaim fails because the transaction {trx_name} is {reason_ko}')
