@@ -492,6 +492,7 @@ def check_rewards(initiative_id: str,
                 for r in actual_rewards:
                     if (r['iban'] == expected_reward.iban and r['status'] == exptected_status
                             and r['amount'] == expected_reward.amount):
+                        assert not is_rewarded
                         is_rewarded = True
 
                 if check_absence:
