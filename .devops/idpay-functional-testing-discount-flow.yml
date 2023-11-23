@@ -19,7 +19,6 @@ variables:
   # Project root folder
   projectRoot: $(System.DefaultWorkingDirectory)/$(working-dir)
   selfHostedAgentPool: 'cstar-uat-linux'
-  TIME_OUT: 10
 
 pool:
   vmImage: 'ubuntu-22.04'
