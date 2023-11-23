@@ -672,3 +672,30 @@ def put_minint_associate_user_and_payment(fiscal_code: str,
         }
     )
     return response
+
+
+def upload_whitelist_csv(selfcare_token: str,
+                         initiative_id: str,
+                         whitelist_payload: dict):
+    res = requests.put(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/group/initiative/{initiative_id}/upload',
+        files=whitelist_payload,
+        headers={
+            'Authorization': f'Bearer {selfcare_token}'
+        },
+        timeout=settings.default_timeout
+    )
+
+    return res
+
+
+def get_onboardings_list(selfcare_token: str,
+                         initiative_id: str,
+                         page: int = 0):
+    return requests.get(
+        url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/onboardings?page={page}&size=10',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
