@@ -71,6 +71,7 @@ IDPAY:
         reversal: 'REVERSAL'
         suspended: 'SUSPENDED'
         readmitted: 'READMITTED'
+        unsubscribed: 'UNSUBSCRIBED'
         rejected_add_instrument: 'REJECTED_ADD_INSTRUMENT'
         rejected_delete_instrument: 'REJECTED_DELETE_INSTRUMENT'
     rewards:

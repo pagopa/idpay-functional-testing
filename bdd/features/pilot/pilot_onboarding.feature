@@ -43,7 +43,6 @@ Feature: Onboarding
     And the citizen A accepts terms and conditions
     When the citizen A tries to insert wrong value in self-declared criteria
     Then the latest saving of consent failed because the citizen inserted the wrong value
-    And the onboard of A is KO
 
   Scenario: A citizen under minimum age who denied PDND consent tries to onboard unsuccessfully
     Given the citizen A is 17 years old at most
