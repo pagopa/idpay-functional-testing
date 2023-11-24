@@ -262,10 +262,12 @@ def step_check_onboarding_status(context, citizen_name, status):
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
                             initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
-                            message=f'Citizen not {status}'
-                            )
+                            message=f'Citizen not {status}')
         retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+        retry_timeline(expected=timeline_operations.unsubscribed, request=timeline, num_required=1, token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
+                       message='Not unsubscribed')
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'ON_EVALUATION':

@@ -762,6 +762,9 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
+    retry_timeline(expected=timeline_operations.unsubscribed, request=timeline, num_required=1, token=token,
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
+                   message='Not unsubscribed')
 
 
 def retry_payment_instrument(expected_type, expected_status, request, token, initiative_id, field_type, field_status,
