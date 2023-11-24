@@ -212,6 +212,7 @@ def step_check_onboarding_status(context, citizen_name, status):
         assert res.status_code == 404
         res = timeline(initiative_id=context.initiative_id, token=token_io)
         assert res.status_code == 404
+        assert res.json()['code'] == 'TIMELINE_USER_NOT_FOUND'
 
     elif status == 'SUSPENDED':
         expected_status = status

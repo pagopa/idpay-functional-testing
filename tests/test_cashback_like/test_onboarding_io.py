@@ -125,7 +125,6 @@ def test_onboard_too_long_fc():
 
 @pytest.mark.IO
 @pytest.mark.onboard
-@pytest.mark.need_fix
 def test_timeline_without_ever_onboard():
     """The timeline and wallet of an ever onboarded citizen are not found
     """
@@ -136,6 +135,7 @@ def test_timeline_without_ever_onboard():
     assert res.status_code == 404
     res = timeline(initiative_id=initiative_id, token=token_io)
     assert res.status_code == 404
+    assert res.json()['code'] == 'TIMELINE_USER_NOT_FOUND'
 
 
 @pytest.mark.IO
