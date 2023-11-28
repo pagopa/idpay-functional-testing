@@ -45,7 +45,7 @@ stages:
       - job: "Run_functional_tests_by_tag"
         condition: or(eq('${{ parameters.tag }}', ''), eq('${{ parameters.tag }}', 'all'))
         strategy:
-          maxParallel: 2
+          maxParallel: 3
           matrix:
             onboarding:
               current_tag: 'onboarding'
