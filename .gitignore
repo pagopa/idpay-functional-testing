@@ -138,3 +138,7 @@ conf/.secrets.yaml
 *.pem
 *.pgp
 *.asc
+
+# Exclude MKDocs files
+/docs/features/
+/docs/index.md
