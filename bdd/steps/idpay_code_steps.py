@@ -132,8 +132,7 @@ def step_check_latest_idpay_code_enabling_failed(context, cause_ko):
 
     if cause_ko == 'THE CODE IS MISSING':
         assert context.latest_idpay_code_enabling_response.status_code == 403
-        assert context.latest_idpay_code_enabling_response.json()['code'] == 403
-        assert context.latest_idpay_code_enabling_response.json()['message'] == 'IdpayCode must be generated'
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_INSTRUMENT_IDPAYCODE_NOT_FOUND'
 
 
 @when('the citizen {citizen_name} tries to enroll a new IDPay Code on the initiative')
@@ -150,14 +149,10 @@ def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
 
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
         assert context.latest_idpay_code_enabling_response.status_code == 404
-        assert context.latest_idpay_code_enabling_response.json()['code'] == 404
-        assert context.latest_idpay_code_enabling_response.json()[
-                   'message'] == 'The requested initiative is not active for the current user!'
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
         assert context.latest_idpay_code_enabling_response.status_code == 400
-        assert context.latest_idpay_code_enabling_response.json()['code'] == 400
-        assert context.latest_idpay_code_enabling_response.json()[
-                   'message'] == 'You are unsubscribed at this initiative!'
+        assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_UNSUBSCRIBED'
 
 
 @given('the citizen {citizen_name} disables the IDPay Code from the initiative')
@@ -211,9 +206,7 @@ def step_check_latest_response_idpay_code_deactivation(context, cause_ko):
 
     if cause_ko == 'THE INSTRUMENT IS NOT ACTIVE':
         assert context.latest_response_idpay_code_deactivation.status_code == 404
-        assert context.latest_response_idpay_code_deactivation.json()['code'] == 404
-        assert context.latest_response_idpay_code_deactivation.json()[
-                   'message'] == 'The selected payment instrument is not active for such user and initiative.'
+        assert context.latest_response_idpay_code_deactivation.json()['code'] == 'WALLET_INSTRUMENT_NOT_FOUND'
 
 
 @given('the instrument IDPay Code is in {status} status for citizen {citizen_name} on initiative')

@@ -31,9 +31,7 @@ def step_check_latest_cancellation_failed(context, status):
     elif (status == 'KO because the initiative has not started yet'.upper() or
           status == 'KO because the citizen is not onboarded'.upper()):
         assert context.latest_unsubscribe_response.status_code == 404
-        assert context.latest_unsubscribe_response.json()['code'] == 404
-        assert context.latest_unsubscribe_response.json()[
-                   'message'] == 'The requested initiative is not active for the current user!'
+        assert context.latest_unsubscribe_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
     else:
         assert False, f'Uncovered case {status}'
 

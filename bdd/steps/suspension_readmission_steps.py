@@ -36,9 +36,7 @@ def step_institution_suspends_correctly_citizen(context, citizen_name):
 @then('the latest suspension fails because the citizen is not onboarded')
 def step_check_latest_suspension(context):
     assert context.latest_suspension_response.status_code == 404
-    assert context.latest_suspension_response.json()['code'] == 404
-    assert context.latest_suspension_response.json()[
-               'message'] == 'The requested initiative is not active for the current user!'
+    assert context.latest_suspension_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
 
 
 @when('the institution tries to readmit the citizen {citizen_name}')
@@ -59,6 +57,4 @@ def step_institution_suspends_correctly_citizen(context, citizen_name):
 @then('the latest readmission fails not finding the citizen')
 def step_check_latest_readmission(context):
     assert context.latest_readmission_response.status_code == 404
-    assert context.latest_readmission_response.json()['code'] == 404
-    assert context.latest_readmission_response.json()[
-               'message'] == 'The requested initiative is not active for the current user!'
+    assert context.latest_readmission_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'

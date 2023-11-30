@@ -30,6 +30,7 @@ def test_fail_onboarding_issuer_citizen_not_onboard():
                  }
                  )
     assert res.status_code == 404
+    assert res.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
 
 
 @pytest.mark.enroll
@@ -52,3 +53,4 @@ def test_fail_onboarding_issuer_malformed_pgp():
                  })
 
     assert res.status_code == 500
+    assert res.json()['code'] == 'WALLET_GENERIC_ERROR'

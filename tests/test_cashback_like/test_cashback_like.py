@@ -1038,8 +1038,7 @@ def test_onboarding_after_unsubscribe():
                  )
     # 1.24.2
     assert res.status_code == 400
-    assert res.json()['code'] == 400
-    assert settings.IDPAY.endpoints.onboarding.enrollment.unsubscribed_message == res.json()['message']
+    assert res.json()['code'] == 'WALLET_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 
