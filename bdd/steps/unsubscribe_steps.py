@@ -26,8 +26,6 @@ def step_check_latest_cancellation_failed(context, status):
     status = status.upper()
     if status == 'OK':
         assert context.latest_unsubscribe_response.status_code == 204
-    elif status == 'KO':
-        assert context.latest_unsubscribe_response.status_code == 400
     elif (status == 'KO because the initiative has not started yet'.upper() or
           status == 'KO because the citizen is not onboarded'.upper()):
         assert context.latest_unsubscribe_response.status_code == 404

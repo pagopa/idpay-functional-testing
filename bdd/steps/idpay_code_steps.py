@@ -131,7 +131,7 @@ def step_check_latest_idpay_code_enabling_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
     if cause_ko == 'THE CODE IS MISSING':
-        assert context.latest_idpay_code_enabling_response.status_code == 403
+        assert context.latest_idpay_code_enabling_response.status_code == 404
         assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_INSTRUMENT_IDPAYCODE_NOT_FOUND'
 
 
@@ -151,7 +151,7 @@ def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
         assert context.latest_idpay_code_enabling_response.status_code == 404
         assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
-        assert context.latest_idpay_code_enabling_response.status_code == 400
+        assert context.latest_idpay_code_enabling_response.status_code == 403
         assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_UNSUBSCRIBED'
 
 

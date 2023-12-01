@@ -88,6 +88,7 @@ def test_remove_payment_instrument_of_another_citizen():
 
     res = remove_payment_instrument(initiative_id=initiative_id, token=token2, instrument_id=instrument_id)
     assert res.status_code == 404
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_NOT_FOUND'
 
 
 @pytest.mark.IO
