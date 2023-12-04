@@ -43,7 +43,7 @@ stages:
       name: $(selfHostedAgentPool)
     jobs:
       - job: "Run_functional_tests_by_tag"
-        condition: or(eq('${{ parameters.tag }}', ''), eq('${{ parameters.tag }}', 'all'))
+        condition: and(succeeded(), or(eq('${{ parameters.tag }}', ''), eq('${{ parameters.tag }}', 'all')))
         strategy:
           maxParallel: 3
           matrix:
@@ -100,7 +100,7 @@ stages:
               failTaskOnFailedTests: true
             continueOnError: true
       - job: "Run_manual_functional_tests"
-        condition: and( not(eq('${{ parameters.tag }}', '')), not(eq('${{ parameters.tag }}', 'all')))
+        condition: and(succeeded(), and( not(eq('${{ parameters.tag }}', '')), not(eq('${{ parameters.tag }}', 'all'))))
         steps:
           - checkout: self
           - script: |
