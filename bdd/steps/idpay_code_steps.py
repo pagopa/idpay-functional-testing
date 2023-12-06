@@ -140,21 +140,19 @@ def step_citizen_try_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io, body={'initiativeId': context.initiative_id})
 
-    context.latest_idpay_code_enabling_response = res
+    context.latest_idpay_code_enroll_response = res
 
 
 @then('the latest IDPay Code enrollment fails because {cause_ko}')
 def step_check_latest_idpay_code_enrollment_failed(context, cause_ko):
     cause_ko = cause_ko.upper()
 
-    print(context.latest_idpay_code_enabling_response.json())
-
     if cause_ko == 'THE CITIZEN IS NOT ONBOARD':
-        assert context.latest_idpay_code_enabling_response.status_code == 404
-        assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
+        assert context.latest_idpay_code_enroll_response.status_code == 404
+        assert context.latest_idpay_code_enroll_response.json()['code'] == 'PAYMENT_INSTRUMENT_USER_NOT_ONBOARDED'
     elif cause_ko == 'THE CITIZEN IS UNSUBSCRIBED':
-        assert context.latest_idpay_code_enabling_response.status_code == 403
-        assert context.latest_idpay_code_enabling_response.json()['code'] == 'WALLET_USER_UNSUBSCRIBED'
+        assert context.latest_idpay_code_enroll_response.status_code == 403
+        assert context.latest_idpay_code_enroll_response.json()['code'] == 'PAYMENT_INSTRUMENT_USER_UNSUBSCRIBED'
 
 
 @given('the citizen {citizen_name} disables the IDPay Code from the initiative')
