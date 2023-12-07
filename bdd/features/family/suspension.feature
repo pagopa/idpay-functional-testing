@@ -13,7 +13,6 @@ Feature: A family member can be suspended from an initiative
         And the onboard of A is OK
 
     @bar_code
-    @need_fix
     Scenario: A suspended family member cannot pay a transaction by Bar Code
         Given the demanded family member B onboards
         And the institution suspends correctly the citizen B
