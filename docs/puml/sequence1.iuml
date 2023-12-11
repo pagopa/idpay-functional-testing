@@ -1,0 +1,11 @@
+@startuml sequence1
+title "Example Sequence Diagram"
+
+actor act as "Actor"
+participant s1 as "System"
+
+act -> s1 : first message 
+s1 --> act : return message
+
+
+@enduml
