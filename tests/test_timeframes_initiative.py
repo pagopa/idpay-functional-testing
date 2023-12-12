@@ -1146,7 +1146,7 @@ def test_ko_card_enroll_already_associated_to_the_same_initiative():
                  )
 
     assert res.status_code == 403
-    assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_ALREADY_ASSOCIATED'
 
 
 @pytest.mark.IO
@@ -1218,7 +1218,7 @@ def test_ko_card_enroll_already_associated_to_another_initiative():
                  )
 
     assert res.status_code == 403
-    assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+    assert res.json()['message'] == 'WALLET_INSTRUMENT_ALREADY_ASSOCIATED'
 
 
 @pytest.mark.IO

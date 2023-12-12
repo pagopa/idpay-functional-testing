@@ -60,6 +60,7 @@ def test_fail_enrollment_issuer_not_onboard():
                  }
                  )
     assert res.status_code == 404
+    assert res.json()['code'] == 'WALLET_USER_NOT_ONBOARDED'
 
 
 @pytest.mark.IO
@@ -87,6 +88,7 @@ def test_remove_payment_instrument_of_another_citizen():
 
     res = remove_payment_instrument(initiative_id=initiative_id, token=token2, instrument_id=instrument_id)
     assert res.status_code == 404
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_NOT_FOUND'
 
 
 @pytest.mark.IO
@@ -118,7 +120,7 @@ def test_enroll_same_payment_instrument_of_another_citizen():
                  )
 
     assert res.status_code == 403
-    assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_ALREADY_ASSOCIATED'
 
 
 @pytest.mark.IO
@@ -145,8 +147,8 @@ def test_enroll_blank_pan():
                  }
                  )
 
-    assert res.status_code == 400
-    assert res.reason == 'ErrorPM'
+    assert res.status_code == 500
+    assert res.json()['code'] == 'WALLET_GENERIC_ERROR'
 
 
 @pytest.mark.IO
@@ -173,8 +175,8 @@ def test_enroll_incorrect_length_pan_too_short():
                          'holder': 'TEST'
                      }
                      )
-        assert res.status_code == 400
-        assert res.reason == 'ErrorPM'
+        assert res.status_code == 500
+        assert res.json()['code'] == 'WALLET_GENERIC_ERROR'
 
 
 @pytest.mark.IO
@@ -201,8 +203,8 @@ def test_enroll_incorrect_length_pan_too_long():
                          'holder': 'TEST'
                      }
                      )
-        assert res.status_code == 400
-        assert res.reason == 'ErrorPM'
+        assert res.status_code == 500
+        assert res.json()['code'] == 'WALLET_GENERIC_ERROR'
 
 
 @pytest.mark.IO
@@ -240,8 +242,8 @@ def test_fail_enrollment_card_expired():
                      'holder': 'TEST'
                  }
                  )
-    assert res.status_code == 400
-    assert res.reason == 'ErrorPM'
+    assert res.status_code == 500
+    assert res.json()['code'] == 'WALLET_GENERIC_ERROR'
 
 
 @pytest.mark.IO
@@ -281,7 +283,7 @@ def test_cannot_enroll_same_payment_instrument_of_another_unsubscribed_citizen()
                  )
 
     assert res.status_code == 403
-    assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_ALREADY_ASSOCIATED'
 
 
 @pytest.mark.IO
@@ -314,7 +316,7 @@ def test_cannot_enroll_same_payment_instrument_of_another_citizen_that_removed_i
                  }
                  )
     assert res.status_code == 403
-    assert res.json()['message'] == 'Payment instrument already associated to another citizen'
+    assert res.json()['code'] == 'WALLET_INSTRUMENT_ALREADY_ASSOCIATED'
 
 
 @pytest.mark.IO

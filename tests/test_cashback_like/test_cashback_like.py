@@ -461,7 +461,8 @@ def test_send_transaction_ko_card_enroll():
                  }
                  )
     # 1.7.2
-    assert res.status_code != 200
+    assert res.status_code == 500
+    assert res.json()['code'] == 'WALLET_GENERIC_ERROR'
     retry_wallet(expected=wallet_statuses.not_refundable, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
     retry_timeline(expected=timeline_operations.ADD_INSTRUMENT, request=timeline, token=token,
@@ -661,7 +662,8 @@ def test_ko_iban_enroll():
                           'description': 'TEST Bank account'
                       }
                       )
-    assert res.status_code != 200
+    assert res.status_code == 400
+    assert res.json()['code'] == 'WALLET_INVALID_REQUEST'
 
     time.sleep(random.randint(10, 15))
 
@@ -1017,10 +1019,8 @@ def test_onboarding_after_unsubscribe():
 
     # 1.24.1
     res = accept_terms_and_conditions(token, initiative_id)
-    assert res.status_code == 400
-    assert res.json()['code'] == 400
-    assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
-    assert settings.IDPAY.endpoints.onboarding.unsubscribed_error_details == res.json()['details']
+    assert res.status_code == 403
+    assert res.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 
@@ -1037,9 +1037,8 @@ def test_onboarding_after_unsubscribe():
                  }
                  )
     # 1.24.2
-    assert res.status_code == 400
-    assert res.json()['code'] == 400
-    assert settings.IDPAY.endpoints.onboarding.enrollment.unsubscribed_message == res.json()['message']
+    assert res.status_code == 403
+    assert res.json()['code'] == 'WALLET_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 
@@ -1164,10 +1163,8 @@ def test_onboarding_after_unsubscribe():
 
     # 1.28.9
     res = accept_terms_and_conditions(token_a, initiative_id)
-    assert res.status_code == 400
-    assert res.json()['code'] == 400
-    assert settings.IDPAY.endpoints.onboarding.unsubscribed_message == res.json()['message']
-    assert settings.IDPAY.endpoints.onboarding.unsubscribed_error_details == res.json()['details']
+    assert res.status_code == 403
+    assert res.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_a,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 

@@ -52,6 +52,7 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
                                             initiative_id=context.initiative_id)
 
     context.latest_citizen_creation_bar_code = response
+    context.transactions[trx_name] = response.json()
 
 
 @then('the latest transaction creation by citizen fails because {reason_ko}')
@@ -86,7 +87,8 @@ def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_ce
     step_check_detail_transaction_bar_code(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
 
 
-@when('the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
+@when(
+    'the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
 def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, amount_cents):
     curr_merchant_id = context.merchants[merchant_name]['id']
     trx_code = context.transactions[trx_name]['trxCode']
