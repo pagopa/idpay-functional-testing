@@ -2,11 +2,11 @@ behave==1.2.6
 crypto==1.4.1
 cryptography==41.0.7
 dynaconf==3.2.4
-faker==20.1.0
-numpy==1.26.2
-pandas==2.1.4
-pycryptodomex==3.19.0
-python-gnupg==0.5.1
+faker==22.5.1
+numpy==1.26.3
+pandas==2.2.0
+pycryptodomex==3.20.0
+python-gnupg==0.5.2
 rsa==4.9
-schwifty==2023.11.2
+schwifty==2024.1.1.post0
 virtualenv-clone==0.5.7
