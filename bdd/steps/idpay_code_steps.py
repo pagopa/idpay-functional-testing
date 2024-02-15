@@ -455,7 +455,8 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
         key_encrypted: str
             The key that encrypts the data block which is in turn encrypted with IDPay public key
     """
-    pin_bytes = codecs.decode(pin + 'F' * (16 - len(pin)), 'hex')
+    pin_data = '0' + str(len(pin)) + pin
+    pin_bytes = codecs.decode(pin_data + 'F' * (16 - len(pin_data)), 'hex')
     second_factor_bytes = codecs.decode(second_factor, 'hex')
 
     data_block_bytes = bytes(a ^ b for a, b in zip(pin_bytes, second_factor_bytes))
