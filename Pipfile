@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 behave = "==1.2.6"
 crypto = "==1.4.1"
-cryptography = "==42.0.0"
+cryptography = "==42.0.2"
 dynaconf = "==3.2.4"
 faker = "==22.5.1"
 pandas = "==2.2.0"
