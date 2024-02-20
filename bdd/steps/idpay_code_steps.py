@@ -4,6 +4,7 @@ from base64 import b64encode
 from base64 import urlsafe_b64decode
 from hashlib import sha256
 
+from Cryptodome.Hash import SHA256
 from behave import given
 from behave import then
 from behave import when
@@ -470,7 +471,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     n = int.from_bytes(urlsafe_b64decode(rsa_key['n'] + '=='), 'big')
     pubkey = RSA.construct((n, e))
 
-    cipher = PKCS1_OAEP.new(RSA.import_key(pubkey.publickey().export_key()))
+    cipher = PKCS1_OAEP.new(RSA.import_key(pubkey.publickey().export_key()), hashAlgo=SHA256)
     key_encrypted_bytes = cipher.encrypt(KEY.encode())
     key_encrypted = b64encode(key_encrypted_bytes).decode('utf-8')
 
