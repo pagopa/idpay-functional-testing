@@ -9,6 +9,7 @@ from behave import then
 from behave import when
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.Hash import SHA256
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Util.Padding import pad
 
@@ -461,7 +462,8 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
 
     data_block_bytes = bytes(a ^ b for a, b in zip(pin_bytes, second_factor_bytes))
 
-    cipher = AES.new(codecs.decode(KEY, 'hex'), AES.MODE_CBC, IV)
+    key_bytes = codecs.decode(KEY, 'hex')
+    cipher = AES.new(key_bytes, AES.MODE_CBC, IV)
     pin_block_bytes = cipher.encrypt(pad(data_block_bytes, AES.block_size))
     pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')
 
@@ -470,8 +472,8 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
     n = int.from_bytes(urlsafe_b64decode(rsa_key['n'] + '=='), 'big')
     pubkey = RSA.construct((n, e))
 
-    cipher = PKCS1_OAEP.new(RSA.import_key(pubkey.publickey().export_key()))
-    key_encrypted_bytes = cipher.encrypt(KEY.encode())
+    cipher = PKCS1_OAEP.new(RSA.import_key(pubkey.publickey().export_key()), hashAlgo=SHA256)
+    key_encrypted_bytes = cipher.encrypt(key_bytes)
     key_encrypted = b64encode(key_encrypted_bytes).decode('utf-8')
 
     return pin_block, key_encrypted
