@@ -4,12 +4,12 @@ from base64 import b64encode
 from base64 import urlsafe_b64decode
 from hashlib import sha256
 
-from Cryptodome.Hash import SHA256
 from behave import given
 from behave import then
 from behave import when
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.Hash import SHA256
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Util.Padding import pad
 
