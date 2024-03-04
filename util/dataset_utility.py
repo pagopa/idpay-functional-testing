@@ -62,13 +62,14 @@ def fake_fc(age: int = None, custom_month: int = None, custom_day: int = None, s
 
     if age is not None:
         custom_year = (datetime.datetime.now() - datetime.timedelta(days=int(age) * 365))
-        valid_date = False
-        while not valid_date:  # in case the day is Feb 29 and is not a leap year
-            try:
-                datetime.datetime(custom_year.year, custom_month, custom_day)
-                valid_date = True
-            except ValueError:
-                custom_day = custom_day - 1
+        if custom_month is not None and custom_day is not None:
+            valid_date = False
+            while not valid_date:  # in case the day is Feb 29 and is not a leap year
+                try:
+                    datetime.datetime(custom_year.year, custom_month, custom_day)
+                    valid_date = True
+                except ValueError:
+                    custom_day = custom_day - 1
 
         year = custom_year.strftime('%Y')[2:]
 
