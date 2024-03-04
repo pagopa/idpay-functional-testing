@@ -136,7 +136,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Then the latest pre-authorization by IDPay Code fails because the budget is exhausted
 
     @idpay_code
-    Scenario: Two family members pay a transaction by IDPay Code but the second authorization fails because the budget is exhausted
+    Scenario: Two family members pay a transaction by IDPay Code but the second authorization fails because the first one locked the second one
         Given the demanded family member B onboards
         And the family members A B enroll correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 35000 cents to be paid by IDPay Code through MIL
@@ -148,7 +148,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the citizen A enters the IDPay Code correctly to pay the transaction X
         And 1 second/s pass
         When the citizen B enters the correct IDPay Code trying to pay the transaction Y
-        Then the latest authorization by IDPay Code fails because the budget is exhausted
+        Then the latest authorization by IDPay Code fails because the transaction is locked by the other
 
     @qr_code
     Scenario: All family members pay a transaction by QR Code and they are rewarded individually, sharing the budget

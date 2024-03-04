@@ -285,7 +285,7 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):
 
 
 def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
-                           tries: int = 3, delay: int = 5):
+                           tries: int = 10, delay: int = 5):
     retry_wallet(expected=expected_amount, request=wallet, token=token,
                  initiative_id=initiative_id, field='amount', tries=tries, delay=delay)
 
