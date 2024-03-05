@@ -511,7 +511,6 @@ def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expect
     unique_ids = []
     total_amount = 0
     for disposition in payment_dispositions:
-        print(disposition)
         if str(disposition[2]) == str(fiscal_code) and str(disposition[4]) == expected_reward.iban:
             unique_ids.append(disposition[1])
             total_amount += float(disposition[5])
