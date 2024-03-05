@@ -25,8 +25,7 @@ Feature: A family member can pay a transaction
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
-        When the batch process confirms the transaction X
-        Then the family member A is rewarded with 200 euros
+        And the family member A is rewarded with 200 euros
         And the family member A has budget of 100 euros left
         When the demanded family member B onboards
         Then the family member B has budget of 100 euros left

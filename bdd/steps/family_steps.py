@@ -61,6 +61,7 @@ def step_check_family_members_budget_left(context, citizens_names, amount_left):
 
 
 @then('the family member {citizen_name} is rewarded with {expected_accrued} euros')
+@given('the family member {citizen_name} is rewarded with {expected_accrued} euros')
 def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
     expected_accrued = float(expected_accrued)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])

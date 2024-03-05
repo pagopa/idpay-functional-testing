@@ -12,6 +12,7 @@ Feature: Merchant refund
     Given the merchant 1 generates the transaction X of amount 20001 cents
     And the citizen A confirms the transaction X
     And the batch process confirms the transaction X
+    And 1 second/s pass
     When the institution refunds the merchant 1 of 200.01 euros successfully
     Then the merchant 1 is refunded 200.01 euros
 
@@ -26,6 +27,7 @@ Feature: Merchant refund
     When the batch process confirms the transaction Y
     Given the citizen A confirms the transaction K
     When the batch process confirms the transaction K
+    And 1 second/s pass
     When the institution refunds the merchant 1 of 80 euros successfully
     Then the citizen A is rewarded with 80 euros
     And the merchant 1 is refunded 80 euros
@@ -47,9 +49,10 @@ Feature: Merchant refund
     And the citizen A confirms the transaction X
     And 1 second/s pass
     And the citizen A confirms the transaction Y
+    And the citizen A is rewarded with 30 euros
     And the batch process confirms the transaction X
+    And 1 second/s pass
     When the institution refunds the merchant 1 of 10 euros successfully
-    Then the citizen A is rewarded with 30 euros
     And the merchant 1 is refunded 10 euros
 
   Scenario: Citizen makes 3 transactions, then only 2 are confirmed
@@ -59,10 +62,10 @@ Feature: Merchant refund
     And the citizen A confirms the transaction X
     And 1 second/s pass
     And the citizen A confirms the transaction Y
+    And the citizen A is rewarded with 30 euros
     And the batch process confirms the transaction X
     And the batch process confirms the transaction Y
     When the institution refunds the merchant 1 of 30 euros successfully
-    Then the citizen A is rewarded with 30 euros
     And the merchant 1 is refunded 30 euros
 
   Scenario: Citizen makes 3 transactions, then all 3 are confirmed
@@ -100,6 +103,7 @@ Feature: Merchant refund
     Given the merchant 1 generates the transaction X of amount 30001 cents
     And the citizen A confirms the transaction X
     And the batch process confirms the transaction X
+    And 1 second/s pass
     When the institution refunds the merchant 1 of 300 euros successfully
     Then the citizen A is rewarded with 300 euros
     And the merchant 1 is refunded 300 euros
