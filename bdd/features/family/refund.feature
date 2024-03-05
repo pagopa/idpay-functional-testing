@@ -96,7 +96,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         Then the merchant 1 is refunded 225.50 euros
 
     @idpay_code
-    Scenario: Two family members pay a transaction by IDPay Code and the second one exhausts the budget
+    Scenario: Two family members pay a transaction at the same time by IDPay Code but one authorization fails and then retries with a new one
         Given the demanded family member B onboards
         And the family members A B enroll correctly a new IDPay Code on the initiative
         And the merchant 1 generates the transaction X of amount 10000 cents to be paid by IDPay Code through MIL
@@ -108,13 +108,18 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         When the citizen A enters the IDPay Code correctly to pay the transaction X
         Then the family member A is rewarded with 100 euros
         And the family members A B have budget of 200 euros left
-        Given 1 second/s pass
-        And the batch process confirms the transaction X
-        When the citizen B enters the IDPay Code correctly to pay the transaction Y
+        When the citizen B enters the correct IDPay Code trying to pay the transaction Y
+        Then the latest authorization by IDPay Code fails because the transaction is locked by the other
+        Given the merchant 1 generates the transaction Z of amount 25000 cents to be paid by IDPay Code through MIL
+        And the citizen B presents the ID card, reclaiming the transaction Z
+        And the payment by IDPay Code of transaction Z is pre-authorized
+        When the citizen B enters the IDPay Code correctly to pay the transaction Z
         Then the family member B is rewarded with 200 euros
         And the family members A B have budget of 0 euros left
         Given 1 second/s pass
-        And the batch process confirms the transaction Y
+        And the batch process confirms the transaction X
+        Given 1 second/s pass
+        And the batch process confirms the transaction Z
         When the institution refunds the merchant 1 of 300 euros successfully
         Then the merchant 1 is refunded 300 euros
 

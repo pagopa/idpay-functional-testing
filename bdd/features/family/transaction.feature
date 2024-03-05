@@ -26,9 +26,9 @@ Feature: A family member can pay a transaction
         And the merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
         And with Bar Code the transaction X is authorized
         And the family member A is rewarded with 200 euros
-        And the family member A has budget of 100 euros left
         When the demanded family member B onboards
         Then the family member B has budget of 100 euros left
+        And the family member A has budget of 100 euros left
 
     @idpay_code
     Scenario: A family member cannot pay a transaction by IDPay Code of another family member

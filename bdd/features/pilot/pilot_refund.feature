@@ -53,7 +53,7 @@ Feature: Merchant refund
     And the batch process confirms the transaction X
     And 1 second/s pass
     When the institution refunds the merchant 1 of 10 euros successfully
-    And the merchant 1 is refunded 10 euros
+    Then the merchant 1 is refunded 10 euros
 
   Scenario: Citizen makes 3 transactions, then only 2 are confirmed
     Given the merchant 1 generates the transaction X of amount 1000 cents
@@ -66,7 +66,7 @@ Feature: Merchant refund
     And the batch process confirms the transaction X
     And the batch process confirms the transaction Y
     When the institution refunds the merchant 1 of 30 euros successfully
-    And the merchant 1 is refunded 30 euros
+    Then the merchant 1 is refunded 30 euros
 
   Scenario: Citizen makes 3 transactions, then all 3 are confirmed
     Given the merchant 1 generates the transaction X of amount 1000 cents

@@ -704,6 +704,7 @@ def onboard_one_random_merchant(initiative_id: str,
                               )
     assert res.status_code == 200
 
+    time.sleep(2)
     curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
                                            desired_fc=fc)
     assert curr_merchant_id is not None
