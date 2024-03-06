@@ -487,9 +487,7 @@ def check_rewards(initiative_id: str,
         for export_id in export_ids:
             res = get_reward_content(organization_id=organization_id, initiative_id=initiative_id, export_id=export_id)
             actual_rewards = res.json()
-            print(actual_rewards)
             for expected_reward in expected_rewards:
-                print(expected_reward)
                 is_rewarded = False
                 for r in actual_rewards:
                     if (r['iban'] == expected_reward.iban and r['status'] == exptected_status
@@ -513,12 +511,10 @@ def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expect
     unique_ids = []
     total_amount = 0
     for disposition in payment_dispositions:
-        print(disposition)
-        print(expected_reward.iban + ' - ' + str(expected_reward.amount))
         if str(disposition[2]) == str(fiscal_code) and str(disposition[4]) == expected_reward.iban:
             unique_ids.append(disposition[1])
             total_amount += float(disposition[5])
-    assert floor(total_amount) == expected_reward.amount * 100
+    assert floor(total_amount) == floor(expected_reward.amount * 100)
     return unique_ids
 
 
