@@ -80,17 +80,14 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         When the citizen A enters the IDPay Code correctly to pay the transaction X
         Then the family member A is rewarded with 100 euros
         And the family members A B C have budget of 200 euros left
-        Given 1 second/s pass
-        And the batch process confirms the transaction X
         When the citizen B enters the IDPay Code correctly to pay the transaction Y
         Then the family member B is rewarded with 50 euros
         And the family members A B C have budget of 150 euros left
-        Given 1 second/s pass
-        And the batch process confirms the transaction Y
         When the citizen C enters the IDPay Code correctly to pay the transaction Z
         Then the family member C is rewarded with 75.50 euros
         And the family members A B C have budget of 74.50 euros left
-        Given 1 second/s pass
+        Given the batch process confirms the transaction X
+        And the batch process confirms the transaction Y
         And the batch process confirms the transaction Z
         And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
