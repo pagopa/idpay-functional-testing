@@ -28,8 +28,8 @@ Feature: Merchant refund
     Given the citizen A confirms the transaction K
     When the batch process confirms the transaction K
     And 1 second/s pass
-    When the institution refunds the merchant 1 of 80 euros successfully
     Then the citizen A is rewarded with 80 euros
+    When the institution refunds the merchant 1 of 80 euros successfully
     And the merchant 1 is refunded 80 euros
 
   Scenario: Citizen makes 1 transaction, then the transaction is confirmed
@@ -37,9 +37,9 @@ Feature: Merchant refund
     And the merchant 1 generates the transaction Y of amount 2000 cents
     And the merchant 1 generates the transaction Z of amount 4000 cents
     And the citizen A confirms the transaction X
+    And the citizen A is rewarded with 10 euros
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 10 euros successfully
-    Then the citizen A is rewarded with 10 euros
     And the merchant 1 is refunded 10 euros
 
   Scenario: Citizen makes 2 transactions, then only 1 is confirmed
@@ -94,23 +94,24 @@ Feature: Merchant refund
     And the citizen A confirms the transaction Z
     And 1 second/s pass
     And the citizen A confirms the transaction K
+    And the citizen A is rewarded with 120 euros
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 10 euros successfully
-    Then the citizen A is rewarded with 120 euros
     And the merchant 1 is refunded 10 euros
 
   Scenario: Merchant receives max refund for discounted transaction exceeding the citizen's budget
     Given the merchant 1 generates the transaction X of amount 30001 cents
     And the citizen A confirms the transaction X
+    And the citizen A is rewarded with 300 euros
     And the batch process confirms the transaction X
     And 1 second/s pass
     When the institution refunds the merchant 1 of 300 euros successfully
-    Then the citizen A is rewarded with 300 euros
     And the merchant 1 is refunded 300 euros
 
   Scenario: After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
     Given the merchant 1 generated 10 transactions of amount 1500 cents each
     And the citizen A confirms each transaction
+    And the citizen A is rewarded with 150 euros
     When the batch process confirms all the transactions
     And the institution refunds the merchant 1 of 150 euros successfully
     Then the merchant 1 is refunded 150.0 euros
@@ -118,6 +119,7 @@ Feature: Merchant refund
   Scenario: Merchant receives discount transaction refund for 1 cents transaction
     Given the merchant 1 generates the transaction X of amount 1 cents
     And the citizen A confirms the transaction X
+    And the citizen A is rewarded with 0.01 euros
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 0.01 euros successfully
     Then the merchant 1 is refunded 0.01 euros
@@ -125,6 +127,7 @@ Feature: Merchant refund
   Scenario: Merchant do not receives refund if the institution payment fails
     Given the merchant 1 generates the transaction X of amount 20001 cents
     And the citizen A confirms the transaction X
+    And the citizen A is rewarded with 200.01 euros
     And the batch process confirms the transaction X
     When the institution refunds the merchant 1 of 200.01 euros unsuccessfully
     Then the merchant 1 is not refunded 200.01 euros

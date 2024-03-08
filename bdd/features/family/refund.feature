@@ -92,6 +92,7 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the family members A B C have budget of 74.50 euros left
         Given 1 second/s pass
         And the batch process confirms the transaction Z
+        And 1 second/s pass
         When the institution refunds the merchant 1 of 225.50 euros successfully
         Then the merchant 1 is refunded 225.50 euros
 
