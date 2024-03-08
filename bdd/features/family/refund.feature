@@ -143,7 +143,6 @@ Feature: A merchant is refunded and a family member is rewarded for a transactio
         And the payment by IDPay Code of transaction X is pre-authorized
         And the payment by IDPay Code of transaction Y is pre-authorized
         And the citizen A enters the IDPay Code correctly to pay the transaction X
-        And 1 second/s pass
         When the citizen B enters the correct IDPay Code trying to pay the transaction Y
         Then the latest authorization by IDPay Code fails because the transaction is locked by the other
 
