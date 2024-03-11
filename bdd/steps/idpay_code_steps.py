@@ -538,3 +538,13 @@ def step_check_latest_auth_fails(context, reason_ko):
     elif reason_ko == 'THE BUDGET IS EXHAUSTED':
         assert context.latest_merchant_authorize_transaction_mil.status_code == 403
         assert context.latest_merchant_authorize_transaction_mil.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
+
+    elif reason_ko == 'THE TRANSACTION IS LOCKED BY THE OTHER':
+        assert context.latest_merchant_authorize_transaction_mil.status_code == 429
+        assert context.latest_merchant_authorize_transaction_mil.json()['code'] == 'PAYMENT_TRANSACTION_VERSION_PENDING'
+
+    elif reason_ko == 'THE REWARD CANNOT BE GUARANTEED':
+        assert context.latest_merchant_authorize_transaction_mil.status_code == 200
+        assert context.latest_merchant_authorize_transaction_mil.json()['status'] == 'REJECTED'
+        assert ('PAYMENT_CANNOT_GUARANTEE_REWARD' in
+                context.latest_merchant_authorize_transaction_mil.json()['rejectionReasons'])

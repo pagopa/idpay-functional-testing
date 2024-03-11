@@ -248,7 +248,7 @@ def step_check_onboarding_status(context, citizen_name, status):
                             message=f'Citizen onboard not {status}'
                             )
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                     initiative_id=context.initiative_id, field='status', tries=3, delay=3)
+                     initiative_id=context.initiative_id, field='status', tries=10, delay=3)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
                        initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                        message='Not onboard')

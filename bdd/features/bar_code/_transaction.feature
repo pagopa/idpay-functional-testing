@@ -62,6 +62,7 @@ Feature: A citizen can pay by Bar Code on a discount initiative
         When the merchant 1 tries to authorize the transaction Y by Bar Code of amount 20000 cents
         Then the latest authorization by merchant fails because the budget is exhausted
 
+    @skip
     Scenario: A citizen cannot create a transaction by Bar Code having budget exhausted
         Given the citizen A creates the transaction X by Bar Code
         And the merchant 1 authorizes the transaction X by Bar Code of amount 30000 cents

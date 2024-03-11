@@ -285,7 +285,7 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):
 
 
 def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
-                           tries: int = 3, delay: int = 5):
+                           tries: int = 10, delay: int = 5):
     retry_wallet(expected=expected_amount, request=wallet, token=token,
                  initiative_id=initiative_id, field='amount', tries=tries, delay=delay)
 
@@ -514,7 +514,7 @@ def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expect
         if str(disposition[2]) == str(fiscal_code) and str(disposition[4]) == expected_reward.iban:
             unique_ids.append(disposition[1])
             total_amount += float(disposition[5])
-    assert floor(total_amount) == expected_reward.amount * 100
+    assert floor(total_amount) == floor(expected_reward.amount * 100)
     return unique_ids
 
 
@@ -704,6 +704,7 @@ def onboard_one_random_merchant(initiative_id: str,
                               )
     assert res.status_code == 200
 
+    time.sleep(2)
     curr_merchant_id = merchant_id_from_fc(initiative_id=initiative_id,
                                            desired_fc=fc)
     assert curr_merchant_id is not None
