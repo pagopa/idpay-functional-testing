@@ -186,13 +186,14 @@ def post_merchant_create_transaction_acquirer(initiative_id,
     response = requests.post(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/',
         headers={
+            'Content-Type': 'application/json',
             'x-merchant-id': merchant_id,
             'x-acquirer-id': acquirer_id,
             'x-apim-request-id': apim_request_id
         },
         json={
-            'amountCents': amount_cents,
-            'idTrxAcquirer': uuid.uuid4().int,
+            'amountCents': int(amount_cents),
+            'idTrxAcquirer': str(uuid.uuid4()),
             'initiativeId': initiative_id,
             'mcc': mcc
         },
@@ -315,6 +316,7 @@ def post_initiative_info(selfcare_token: str,
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/info',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json'
         },
         json={
             'serviceIO': True,
@@ -341,6 +343,7 @@ def put_initiative_general_info(selfcare_token: str,
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/general',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json'
         },
         json=general_payload,
         timeout=settings.default_timeout
@@ -355,6 +358,7 @@ def put_initiative_beneficiary_info(selfcare_token: str,
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/beneficiary',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json'
         },
         json=beneficiary_payload,
         timeout=settings.default_timeout
@@ -369,6 +373,7 @@ def put_initiative_reward_info(selfcare_token: str,
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json'
         },
         json=reward_payload,
         timeout=settings.default_timeout
@@ -383,6 +388,7 @@ def put_initiative_refund_info(selfcare_token: str,
         url=f'{settings.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/refund',
         headers={
             'Authorization': f'Bearer {selfcare_token}',
+            'Content-Type': 'application/json'
         },
         json=refund_payload,
         timeout=settings.default_timeout
@@ -635,12 +641,13 @@ def put_authorize_bar_code_merchant(merchant_id: str,
     return requests.put(
         f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
         headers={
+            'Content-Type': 'application/json',
             'x-merchant-id': merchant_id,
             'x-acquirer-id': acquirer_id
         },
         json={
             'amountCents': amount_cents,
-            'idTrxAcquirer': uuid.uuid4().int
+            'idTrxAcquirer': str(uuid.uuid4())
         }
     )
 

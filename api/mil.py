@@ -19,12 +19,13 @@ def post_merchant_create_transaction_mil(initiative_id,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_MIL_PRODUCT,
             'x-merchant-fiscalcode': merchant_fiscal_code,
-            'x-acquirer-id': acquirer_id
+            'x-acquirer-id': acquirer_id,
+            'Content-Type': 'application/json'
         },
         json={
             'initiativeId': initiative_id,
-            'idTrxAcquirer': uuid.uuid4().int,
-            'amountCents': amount_cents,
+            'idTrxAcquirer': str(uuid.uuid4()),
+            'amountCents': int(amount_cents),
             'mcc': mcc
         }
     )
