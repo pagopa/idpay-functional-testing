@@ -217,3 +217,8 @@ def fake_merchant_file(acquirer_id: str,
             f'{acquirer_id};Esercente di test {datetime.datetime.now().strftime("%Y%m%d - %H%M%S")} {str(uuid.uuid4())[:4]};Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;email1@prova.it;{merchant_info.fc};{merchant_info.vat};a;v;c;s;w;d;f;e;{merchant_info.iban}')
 
     return merchants_csv
+
+
+def euros_to_cents(amount):
+    amount = round(amount, 2)
+    return int(amount * 100)

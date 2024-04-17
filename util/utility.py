@@ -54,6 +54,7 @@ from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_iban
+from util.dataset_utility import euros_to_cents
 from util.dataset_utility import fake_merchant_file
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan
@@ -286,11 +287,11 @@ def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):
 
 def expect_wallet_counters(expected_amount: float, expected_accrued: float, token: str, initiative_id: str,
                            tries: int = 10, delay: int = 5):
-    retry_wallet(expected=expected_amount, request=wallet, token=token,
-                 initiative_id=initiative_id, field='amount', tries=tries, delay=delay)
+    retry_wallet(expected=euros_to_cents(expected_amount), request=wallet, token=token,
+                 initiative_id=initiative_id, field='amountCents', tries=tries, delay=delay)
 
-    retry_wallet(expected=expected_accrued, request=wallet, token=token,
-                 initiative_id=initiative_id, field='accrued', tries=tries, delay=delay)
+    retry_wallet(expected=euros_to_cents(expected_accrued), request=wallet, token=token,
+                 initiative_id=initiative_id, field='accruedCents', tries=tries, delay=delay)
 
 
 def transactions_hash(transactions: str):
@@ -405,8 +406,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (float(current_statistics['accruedRewards']) == round(float(
-            old_statistics['accruedRewards']) + accrued_rewards_increment, 2))
+        are_accrued_rewards_incremented = (current_statistics['accruedRewardsCents'] ==
+            old_statistics['accruedRewardsCents'] + euros_to_cents(accrued_rewards_increment))
 
         if not skip_trx_check:
             are_trxs_incremented = (
@@ -436,10 +437,10 @@ def check_merchant_statistics(merchant_id: str,
     while not success:
         current_merchant_statistics = get_initiative_statistics_merchant_portal(merchant_id=merchant_id,
                                                                                 initiative_id=initiative_id).json()
-        are_accrued_rewards_incremented = (current_merchant_statistics['accrued'] == old_statistics[
-            'accrued'] + accrued_rewards_increment)
-        are_refunded_incremented = (current_merchant_statistics['refunded'] == old_statistics[
-            'refunded'] + refunded_increment)
+        are_accrued_rewards_incremented = (current_merchant_statistics['accruedCents'] == old_statistics[
+            'accruedCents'] + euros_to_cents(accrued_rewards_increment))
+        are_refunded_incremented = (current_merchant_statistics['refundedCents'] == old_statistics[
+            'refundedCents'] + euros_to_cents(refunded_increment))
         success = are_accrued_rewards_incremented and are_refunded_incremented
         time.sleep(delay)
         count += 1
@@ -491,7 +492,7 @@ def check_rewards(initiative_id: str,
                 is_rewarded = False
                 for r in actual_rewards:
                     if (r['iban'] == expected_reward.iban and r['status'] == exptected_status
-                            and r['amount'] == expected_reward.amount):
+                            and r['amountCents'] == euros_to_cents(expected_reward.amount)):
                         assert not is_rewarded
                         is_rewarded = True
 
@@ -514,7 +515,7 @@ def get_payment_disposition_unique_ids(payment_dispositions, fiscal_code, expect
         if str(disposition[2]) == str(fiscal_code) and str(disposition[4]) == expected_reward.iban:
             unique_ids.append(disposition[1])
             total_amount += float(disposition[5])
-    assert floor(total_amount) == floor(expected_reward.amount * 100)
+    assert floor(total_amount) == floor(euros_to_cents(expected_reward.amount))
     return unique_ids
 
 
@@ -532,8 +533,8 @@ def check_unprocessed_transactions(initiative_id,
     processed_trxs = res.json()['content']
     for trx in processed_trxs:
         if trx['trxId'].strip() == expected_trx_id.strip():
-            if trx['effectiveAmount'] == expected_effective_amount:
-                if trx['rewardAmount'] == expected_reward_amount:
+            if trx['effectiveAmountCents'] == expected_effective_amount:
+                if trx['rewardAmountCents'] == expected_reward_amount:
                     if trx['status'] == expected_status:
                         if expected_status == 'CREATED':
                             return
@@ -557,7 +558,7 @@ def check_processed_transactions(initiative_id,
     for trx in processed_trxs:
         if trx['trxId'].strip() == expected_trx_id.strip():
             if trx['fiscalCode'] == expected_fiscal_code:
-                if trx['rewardAmount'] == expected_reward:
+                if trx['rewardAmountCents'] == expected_reward:
                     if trx['status'] == 'REWARDED':
                         return
     if check_absence:

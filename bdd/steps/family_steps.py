@@ -10,6 +10,7 @@ from api.onboarding_io import check_prerequisites
 from bdd.steps.idpay_code_steps import step_citizen_enroll_correctly_idpay_code
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from bdd.steps.ranking_steps import step_check_absence_in_ranking
+from util.dataset_utility import euros_to_cents
 from util.utility import detokenize_to_fc
 from util.utility import get_io_token
 from util.utility import retry_wallet
@@ -46,11 +47,11 @@ def step_demanded_family_member_onboards(context, citizen_name):
 
 @then('the family member {citizen_name} has budget of {amount_left} euros left')
 def step_check_family_member_budget_left(context, citizen_name, amount_left):
-    expected_amount_left = float(amount_left)
+    expected_amount_left = euros_to_cents(amount_left)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
 
     retry_wallet(expected=expected_amount_left, request=wallet, token=curr_token_io,
-                 initiative_id=context.initiative_id, field='amount', tries=10, delay=2)
+                 initiative_id=context.initiative_id, field='amountCents', tries=10, delay=2)
 
 
 @then('the family members {citizens_names} have budget of {amount_left} euros left')
@@ -63,11 +64,11 @@ def step_check_family_members_budget_left(context, citizens_names, amount_left):
 @then('the family member {citizen_name} is rewarded with {expected_accrued} euros')
 @given('the family member {citizen_name} is rewarded with {expected_accrued} euros')
 def step_check_rewards_of_citizen(context, citizen_name, expected_accrued):
-    expected_accrued = float(expected_accrued)
+    expected_accrued = euros_to_cents(expected_accrued)
     curr_token_io = get_io_token(context.citizens_fc[citizen_name])
 
     retry_wallet(expected=expected_accrued, request=wallet, token=curr_token_io,
-                 initiative_id=context.initiative_id, field='accrued', tries=10, delay=2)
+                 initiative_id=context.initiative_id, field='accruedCents', tries=10, delay=2)
 
 
 @given('the family members {citizens_names} enroll correctly a new IDPay Code on the initiative')

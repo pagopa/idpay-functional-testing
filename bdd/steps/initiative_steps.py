@@ -4,7 +4,6 @@ import math
 import pytz
 from behave import given
 from behave import then
-from behave import when
 
 from api.idpay import get_initiative_info
 from api.idpay import get_initiative_statistics
