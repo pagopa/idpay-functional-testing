@@ -574,7 +574,7 @@ def put_publish_ranking(selfcare_token: str, initiative_id: str):
     return res
 
 
-def post_idpay_code_generate(token: str, initiative_id: str = None):
+def post_idpay_code_generate(token: str, initiative_id: str = ''):
     return requests.post(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_generate}',
         headers={
