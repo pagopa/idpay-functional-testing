@@ -574,14 +574,16 @@ def put_publish_ranking(selfcare_token: str, initiative_id: str):
     return res
 
 
-def post_idpay_code_generate(token: str, body: dict = None):
+def post_idpay_code_generate(token: str, initiative_id: str = None):
     return requests.post(
         f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_generate}',
         headers={
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         },
-        json=body,
+        json={
+            'initiativeId': initiative_id
+        },
         timeout=settings.default_timeout)
 
 
