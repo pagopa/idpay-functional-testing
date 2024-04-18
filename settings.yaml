@@ -126,7 +126,7 @@ initiatives:
   not_started:
     id: 'NOT_STARTED'
     cashback_percentage: 30.22
-    budget_per_citizen: 51.5
+    budget_per_citizen: 5150
     fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
     creation_payloads:
@@ -134,8 +134,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 99999999999999
-        beneficiaryBudget: 51.5
+        budgetCents: 9999999999999900
+        beneficiaryBudgetCents: 5150
         startDate: 'future'
         endDate: 'future_tomorrow'
         descriptionMap:
@@ -160,7 +160,7 @@ initiatives:
   cashback_like:
     id: 'CASHBACK_LIKE'
     cashback_percentage: 30.22
-    budget_per_citizen: 51.5
+    budget_per_citizen: 5150
     fruition_start: '2023-03-13T00:00:00.000+01:00'
     fruition_end: '2099-03-13T22:59:59.000Z'
     creation_payloads:
@@ -168,8 +168,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 99999999999999
-        beneficiaryBudget: 51.5
+        budgetCents: 9999999999999900
+        beneficiaryBudgetCents: 5150
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -196,18 +196,18 @@ initiatives:
     cashback_percentage: 100
     min_trx_number: 2
     max_trx_number: 3
-    min_trx_amount: 1
-    max_trx_amount: 2000
-    daily_budget: 5000
-    budget_per_citizen: 100
+    min_trx_amount: 100
+    max_trx_amount: 200000
+    daily_budget: 500000
+    budget_per_citizen: 10000
     fruition_end: '2099-03-31T22:59:59.000Z'
     creation_payloads:
       general:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 99999999999999
-        beneficiaryBudget: 100
+        budgetCents: 9999999999999900
+        beneficiaryBudgetCents: 10000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -237,11 +237,11 @@ initiatives:
               - "1353"
           rewardLimits:
             - frequency: "DAILY"
-              rewardLimit: 5000
+              rewardLimitCents: 500000
           threshold:
-            from: 1
+            fromCents: 100
             fromIncluded: true
-            to: 2000
+            toCents: 200000
             toIncluded: true
           trxCount:
             from: 2
@@ -253,13 +253,13 @@ initiatives:
           timeType: 'DAILY'
   timeframes:
     id: 'TIMEFRAMES'
-    flat_cashback_amount: 5.01
+    flat_cashback_amount: 501
     min_trx_number: 2
     max_trx_number: 3
     min_trx_amount: 501
     max_trx_amount: 200001
     daily_budget: 400002
-    budget_per_citizen: 100
+    budget_per_citizen: 10000
     fruition_start: '2023-04-17T00:00:00.000+01:00'
     fruition_end: '2099-04-17T22:59:59.000Z'
     creation_payloads:
@@ -267,8 +267,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 99999999999999
-        beneficiaryBudget: 100
+        budgetCents: 9999999999999900
+        beneficiaryBudgetCents: 10000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -284,16 +284,16 @@ initiatives:
         initiativeRewardType: 'REFUND'
         rewardRule:
           _type: 'rewardValue'
-          rewardValue: 5.01
+          rewardValue: 501
           rewardValueType: 'ABSOLUTE'
         trxRule:
           rewardLimits:
             - frequency: "DAILY"
-              rewardLimit: 4000.02
+              rewardLimitCents: 400002
           threshold:
-            from: 5.01
+            fromCents: 501
             fromIncluded: true
-            to: 2000.01
+            toCents: 200001
             toIncluded: true
           daysOfWeek:
             - daysOfWeek:
@@ -327,7 +327,7 @@ initiatives:
   Scontoditipo1:
     id: 'PILOT'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     min_age: 18
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
@@ -337,8 +337,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 300
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 30000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -369,7 +369,7 @@ initiatives:
   Scontoditipo1_not_started:
     id: 'PILOT_NOT_STARTED'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     min_age: 18
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
@@ -380,8 +380,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 300
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 30000
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -414,8 +414,8 @@ initiatives:
   Scontoditipo1_allocated:
     id: 'PILOT_ALLOCATED'
     cashback_percentage: 100
-    budget_per_citizen: 200000
-    total_budget: 1000000
+    budget_per_citizen: 20000000
+    total_budget: 100000000
     min_age: 18
     max_age: 35
     fruition_start: '2023-05-22T00:00:00.000+02:00'
@@ -425,8 +425,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 1000000
-        beneficiaryBudget: 200000
+        budgetCents: 100000000
+        beneficiaryBudgetCents: 20000000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -451,17 +451,17 @@ initiatives:
   discount_idpay_code:
     id: 'DISCOUNT_IDPAY_CODE'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     initiative_startup_time_seconds: 120
     creation_payloads:
       general:
-        budget: 999999999
+        budgetCents: 99999999900
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        beneficiaryBudget: 300
+        beneficiaryBudgetCents: 30000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -486,17 +486,17 @@ initiatives:
   discount_bar_code:
     id: 'DISCOUNT_BAR_CODE'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     initiative_startup_time_seconds: 60
     creation_payloads:
       general:
-        budget: 999999999
+        budgetCents: 99999999900
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        beneficiaryBudget: 300
+        beneficiaryBudgetCents: 30000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -521,7 +521,7 @@ initiatives:
   Scontoditipo6:
     id: 'SCONTOTIPO6'
     cashback_percentage: 87.12
-    budget_per_citizen: 99.9
+    budget_per_citizen: 9990
     min_age: 19
     max_trx_number: 1
     fruition_start: '2023-06-30T00:00:00.000+02:00'
@@ -531,8 +531,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 99.9
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 9990
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -562,10 +562,10 @@ initiatives:
   Scontoditipo8:
     id: 'SCONTOTIPO8'
     cashback_percentage: 100
-    budget_per_citizen: 300
-    min_trx_amount: 11.15
-    max_trx_amount: 100
-    daily_budget: 50
+    budget_per_citizen: 30000
+    min_trx_amount: 1115
+    max_trx_amount: 10000
+    daily_budget: 5000
     max_age: 30
     fruition_start: '2023-07-20T00:00:00.000+02:00'
     fruition_end: '2024-05-30T23:59:59.000+02:00'
@@ -574,8 +574,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 300
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 30000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -595,24 +595,23 @@ initiatives:
           rewardValueType: 'PERCENTAGE'
         trxRule:
           threshold:
-            from: 11.15
+            fromCents: 1115
             fromIncluded: true
-            to: 100
+            toCents: 10000
             toIncluded: true
           rewardLimits:
             - frequency: 'DAILY'
-              rewardLimit: 50
+              rewardLimitCents: 5000
       refund:
         timeParameter:
           timeType: 'DAILY'
-          rewardLimit: 50
   Scontoditipo3:
     id: 'SCONTOTIPO3'
     flat_cashback_amount: 10.13
-    total_budget: 1000000
-    budget_per_citizen: 200000
-    min_trx_amount: 10.13
-    max_trx_amount: 100000000
+    total_budget: 100000000
+    budget_per_citizen: 20000000
+    min_trx_amount: 1013
+    max_trx_amount: 10000000000
     fruition_start: '2023-07-25T00:00:00.000+02:00'
     fruition_end: '2033-05-29T23:59:59.000+02:00'
     creation_payloads:
@@ -620,8 +619,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 1000000
-        beneficiaryBudget: 200000
+        budgetCents: 100000000
+        beneficiaryBudgetCents: 20000000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -646,21 +645,21 @@ initiatives:
   Scontoditipo4:
     id: 'SCONTOTIPO4'
     cashback_percentage: 100
-    budget_per_citizen: 1
+    budget_per_citizen: 100
     fruition_start: '2023-09-06T00:00:00.000+02:00'
     fruition_end: '2023-09-07:59:59.000+02:00'
     initiative_startup_time_seconds: 0
   Scontoditipo5:
     id: 'SCONTOTIPO5'
     cashback_percentage: 100
-    budget_per_citizen: 1
+    budget_per_citizen: 100
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
   ScontoditipoB:
     id: 'SCONTOTIPOB'
     cashback_percentage: 100
-    budget_per_citizen: 10
+    budget_per_citizen: 1000
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -669,8 +668,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 10
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 1000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -696,7 +695,7 @@ initiatives:
   ranking_initiative:
     id: 'ranking_initiative'
     cashback_percentage: 100
-    budget_per_citizen: 10
+    budget_per_citizen: 1000
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -705,8 +704,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: true
-        budget: 50
-        beneficiaryBudget: 10
+        budgetCents: 5000
+        beneficiaryBudgetCents: 1000
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -735,7 +734,7 @@ initiatives:
   Ranking_in_grace_period:
     id: 'ranking_grace_period'
     cashback_percentage: 100
-    budget_per_citizen: 99999999999
+    budget_per_citizen: 9999999999900
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -744,8 +743,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: true
-        budget: 99999999999
-        beneficiaryBudget: 99999999998
+        budgetCents: 9999999999900
+        beneficiaryBudgetCents: 9999999999800
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -774,7 +773,7 @@ initiatives:
   Ranking_fruition_open:
     id: 'ranking_grace_period'
     cashback_percentage: 100
-    budget_per_citizen: 99999999999
+    budget_per_citizen: 9999999999900
     fruition_start: '2023-09-07T00:00:00.000+02:00'
     fruition_end: '2099-09-05:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -783,8 +782,8 @@ initiatives:
         beneficiaryType: 'PF'
         beneficiaryKnown: false
         rankingEnabled: true
-        budget: 99999999999
-        beneficiaryBudget: 99999999998
+        budgetCents: 9999999999900
+        beneficiaryBudgetCents: 9999999999800
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'ten_days_from_tomorrow'
@@ -813,7 +812,7 @@ initiatives:
   family_initiative:
     id: 'family_initiative'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     initiative_startup_time_seconds: 120
@@ -823,8 +822,8 @@ initiatives:
         familyUnitComposition: 'INPS'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 999999999
-        beneficiaryBudget: 300
+        budgetCents: 99999999900
+        beneficiaryBudgetCents: 30000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -855,7 +854,7 @@ initiatives:
   family_allocated_initiative:
     id: 'family_allocated_initiative'
     cashback_percentage: 100
-    budget_per_citizen: 10000
+    budget_per_citizen: 1000000
     fruition_start: '2023-05-22T00:00:00.000+02:00'
     fruition_end: '2024-05-22T23:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -865,8 +864,8 @@ initiatives:
         familyUnitComposition: 'INPS'
         beneficiaryKnown: false
         rankingEnabled: false
-        budget: 20000
-        beneficiaryBudget: 10000
+        budgetCents: 2000000
+        beneficiaryBudgetCents: 1000000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -897,7 +896,7 @@ initiatives:
   family_ranking_initiative:
     id: 'family_ranking_initiative'
     cashback_percentage: 100
-    budget_per_citizen: 300
+    budget_per_citizen: 30000
     fruition_start: '2023-10-31T00:00:00.000+02:00'
     fruition_end: '2024-10-31T23:59:59.000+02:00'
     initiative_startup_time_seconds: 0
@@ -907,8 +906,8 @@ initiatives:
         familyUnitComposition: 'INPS'
         beneficiaryKnown: false
         rankingEnabled: true
-        budget: 900
-        beneficiaryBudget: 300
+        budgetCents: 90000
+        beneficiaryBudgetCents: 30000
         rankingStartDate: 'today'
         rankingEndDate: 'tomorrow'
         startDate: 'future'
@@ -942,17 +941,17 @@ initiatives:
   discount_whitelist:
     id: 'DISCOUNT_WHITELIST'
     cashback_percentage: 100
-    budget_per_citizen: 200
+    budget_per_citizen: 20000
     fruition_start: '2023-11-14T00:00:00.000+02:00'
     fruition_end: '2025-11-14T23:59:59.000+02:00'
     initiative_startup_time_seconds: 0
     creation_payloads:
       general:
-        budget: 1000
+        budgetCents: 100000
         beneficiaryType: 'PF'
         beneficiaryKnown: true
         rankingEnabled: false
-        beneficiaryBudget: 200
+        beneficiaryBudgetCents: 20000
         startDate: 'today'
         endDate: 'future'
         descriptionMap:
@@ -970,7 +969,7 @@ initiatives:
   Discount_whitelist_closed:
     id: 'Discount_whitelist_closed'
     cashback_percentage: 100
-    budget_per_citizen: 1000
+    budget_per_citizen: 100000
     fruition_start: '2023-11-18T00:00:00.000+02:00'
     fruition_end: '2026-11-30:59:59.000+02:00'
     initiative_startup_time_seconds: 0
