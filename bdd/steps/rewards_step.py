@@ -68,9 +68,9 @@ def step_check_transaction_cancellation_on_citizen(context, citizen_name):
 def step_set_expected_accrued(context):
     context.cashback_percentage = context.initiative_settings['cashback_percentage']
     context.budget_per_citizen = context.initiative_settings['budget_per_citizen']
-    if round(floor(context.amount_cents * context.cashback_percentage) / 100, 2) > context.budget_per_citizen:
-        expected_accrued = round(context.budget_per_citizen / 100, 2)
-        expected_accrued_cents = context.budget_per_citizen
+    if round(floor(context.amount_cents * context.cashback_percentage) / 10000, 2) > context.budget_per_citizen:
+        expected_accrued = context.budget_per_citizen
+        expected_accrued_cents = floor(context.budget_per_citizen * 100)
     else:
         expected_accrued = round(floor(context.amount_cents * context.cashback_percentage) / 10000, 2)
         expected_accrued_cents = round(floor(context.amount_cents * context.cashback_percentage) / 100, 2)
@@ -81,8 +81,7 @@ def step_set_expected_accrued(context):
 
 @given('an expected amount left')
 def step_set_expected_amount_left(context):
-    budget_per_citizen_euros = round(context.budget_per_citizen / 100, 2)
-    context.expected_amount_left = round(float(budget_per_citizen_euros - context.expected_accrued), 2)
+    context.expected_amount_left = round(float(context.budget_per_citizen - context.expected_accrued), 2)
 
 
 @when('the institution refunds the merchant {merchant_name} of {expected_refund} euros {result}')
