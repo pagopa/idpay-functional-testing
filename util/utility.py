@@ -406,8 +406,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (current_statistics['accruedRewardsCents'] ==
-            old_statistics['accruedRewardsCents'] + euros_to_cents(accrued_rewards_increment))
+        are_accrued_rewards_incremented = (current_statistics['accruedRewards'] ==
+                                           old_statistics['accruedRewards'] + accrued_rewards_increment)
 
         if not skip_trx_check:
             are_trxs_incremented = (
