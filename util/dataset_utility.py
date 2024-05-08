@@ -220,5 +220,5 @@ def fake_merchant_file(acquirer_id: str,
 
 
 def euros_to_cents(amount):
-    amount = round(amount, 2)
+    amount = round(float(amount), 2)
     return int(amount * 100)
