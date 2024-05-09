@@ -90,7 +90,7 @@ def step_check_idpay_code_status(context, status, citizen_name):
 def step_citizen_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = post_idpay_code_generate(token=token_io,
-                                   body={'initiativeId': context.initiative_id})
+                                   initiative_id=context.initiative_id)
 
     assert res.status_code == 200
     context.idpay_code[citizen_name] = res.json()['idpayCode']
@@ -139,7 +139,7 @@ def step_check_latest_idpay_code_enabling_failed(context, cause_ko):
 @when('the citizen {citizen_name} tries to enroll a new IDPay Code on the initiative')
 def step_citizen_try_enroll_idpay_code(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
-    res = post_idpay_code_generate(token=token_io, body={'initiativeId': context.initiative_id})
+    res = post_idpay_code_generate(token=token_io, initiative_id=context.initiative_id)
 
     context.latest_idpay_code_enroll_response = res
 

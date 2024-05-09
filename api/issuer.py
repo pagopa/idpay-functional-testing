@@ -23,7 +23,8 @@ def enroll(initiative_id, tax_code, body):
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_APP_ISSUER_PRODUCT,
             'Accept-Language': 'it_IT',
-            'Fiscal-Code': tax_code
+            'Fiscal-Code': tax_code,
+            'Content-Type': 'application/json'
         },
         json=body,
         timeout=settings.default_timeout

@@ -375,7 +375,7 @@ def step_save_pdnd_consent_not_correctly(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
                                                                      initiative_id=context.initiative_id,
-                                                                     pdnd_accept='false')
+                                                                     pdnd_accept=False)
     step_check_saving_consent(context=context, reason_ko='THE CONSENT WAS DENIED BY THE CITIZEN')
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='KO')
 
@@ -384,9 +384,9 @@ def step_save_pdnd_consent_not_correctly(context, citizen_name):
 def step_try_to_save_pdnd_consent(context, citizen_name, correctness):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     if correctness == 'not correctly':
-        pdnd_accept = 'false'
+        pdnd_accept = False
     else:
-        pdnd_accept = 'true'
+        pdnd_accept = True
 
     context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
                                                                      initiative_id=context.initiative_id,
@@ -398,7 +398,7 @@ def step_try_to_insert_self_declared_criteria(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     context.pdnd_autocertification_response = pdnd_autocertification(token=token_io,
                                                                      initiative_id=context.initiative_id,
-                                                                     self_declaration_accepted='false')
+                                                                     self_declaration_accepted=False)
 
 
 @then('the latest saving of consent failed because {reason_ko}')
