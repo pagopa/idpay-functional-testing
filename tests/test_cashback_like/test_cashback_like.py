@@ -19,7 +19,7 @@ from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
-from util.dataset_utility import Reward
+from util.dataset_utility import reward
 from util.encrypt_utilities import pgp_string_routine
 from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
@@ -95,7 +95,7 @@ def test_send_single_transaction():
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
                      rewarded_trxs_increment=1)
     # 1.2.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -153,7 +153,7 @@ def test_send_50_transaction_erode_budget_max_award():
                      skip_trx_check=True)
 
     # 1.3.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -208,7 +208,7 @@ def test_send_single_200e_transaction_erode_budget_max_award():
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
                      rewarded_trxs_increment=1)
 
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -260,7 +260,7 @@ def test_not_award_after_budget_erosion():
     # 1.5.4
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     # 1.5.5
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
@@ -348,7 +348,7 @@ def test_award_again_after_reversal():
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
                      rewarded_trxs_increment=num_trx)
 
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -368,7 +368,7 @@ def test_award_again_after_reversal():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.6.9
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     reversal_transaction = custom_transaction(pan=pan, amount=curr_amount, correlation_id=latest_trx_correlation_id,
@@ -391,7 +391,7 @@ def test_award_again_after_reversal():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.6.12
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, 0 - expected_reversal)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, 0 - expected_reversal)])
     # 1.6.12
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
@@ -420,7 +420,7 @@ def test_award_again_after_reversal():
 
     # 1.6.15
     check_rewards(initiative_id=initiative_id,
-                  expected_rewards=[Reward(curr_iban, least_accrued)])
+                  expected_rewards=[reward(curr_iban, least_accrued)])
 
     # 1.6.16
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
@@ -504,7 +504,7 @@ def test_send_transaction_ko_card_enroll():
                      rewarded_trxs_increment=0)
 
     # 1.7.7
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -556,7 +556,7 @@ def test_remove_card_and_enroll_again():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.8.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     # 1.8.7
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
@@ -593,7 +593,7 @@ def test_remove_card_and_enroll_again():
                      rewarded_trxs_increment=1)
 
     # 1.8.11
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
     # 1.8.12
     card_enroll(test_fc, pan, initiative_id, num_required=2)
@@ -628,7 +628,7 @@ def test_remove_card_and_enroll_again():
     expect_wallet_counters(expected_amount=expected_amount_left, expected_accrued=expected_accrued, token=token,
                            initiative_id=initiative_id)
     # 1.8.15
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, least_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, least_accrued)])
 
 
 @pytest.mark.IO
@@ -698,7 +698,7 @@ def test_ko_iban_enroll():
                      rewarded_trxs_increment=1)
 
     # 1.9.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -709,7 +709,7 @@ def test_ko_iban_enroll():
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
 
     # 1.9.7
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
 
 @pytest.mark.IO
@@ -764,7 +764,7 @@ def test_small_amount_no_award():
                      rewarded_trxs_increment=0)
 
     # 1.10.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -814,7 +814,7 @@ def test_send_minimum_awardable_amount():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.11.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     # 1.11.7
     check_statistics(organization_id=organization_id, initiative_id=initiative_id, old_statistics=old_statistics,
@@ -876,7 +876,7 @@ def test_send_transaction_after_fruition_period():
                      rewarded_trxs_increment=0)
 
     # 1.12.7
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -976,7 +976,7 @@ def test_send_transaction_after_unsubscribe():
     expect_wallet_counters(expected_amount_left, expected_accrued, token=token, initiative_id=initiative_id)
 
     # 1.22.8
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -1103,7 +1103,7 @@ def test_get_pending_reward_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     # 1.25.8
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -1191,7 +1191,7 @@ def test_onboarding_after_unsubscribe():
                      rewarded_trxs_increment=1)
 
     # 1.28.11
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -1305,7 +1305,7 @@ def test_no_reward_transaction_1sec_before_card_enrollment():
                      rewarded_trxs_increment=0)
 
     # 1.29.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -1363,7 +1363,7 @@ def test_award_correct_amount_after_partial_reversal():
                      rewarded_trxs_increment=1)
 
     # 1.31.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -1400,7 +1400,7 @@ def test_award_correct_amount_after_partial_reversal():
                      rewarded_trxs_increment=1)
 
     # 1.31.11
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, 0 - expected_reversal)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, 0 - expected_reversal)])
 
     clean_trx_files(curr_file_name)
 
@@ -1485,7 +1485,7 @@ def test_no_reward_after_complete_reversal():
     expect_wallet_counters(expected_amount_left, expected_accrued, token, initiative_id)
 
     # 1.32.8
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)],
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)],
                   check_absence=True)
 
     clean_trx_files(curr_file_name)
@@ -1542,7 +1542,7 @@ def test_reward_transaction_after_complete_reversal():
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
                      rewarded_trxs_increment=1)
     # 1.33.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -1579,7 +1579,7 @@ def test_reward_transaction_after_complete_reversal():
                      rewarded_trxs_increment=0)
 
     # 1.33.11
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, 0 - expected_reversal)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, 0 - expected_reversal)])
 
     clean_trx_files(curr_file_name)
 
@@ -1635,7 +1635,7 @@ def test_reward_transaction_after_partial_reversal():
                      onboarded_citizen_count_increment=1, accrued_rewards_increment=expected_accrued,
                      rewarded_trxs_increment=1)
     # 1.34.6
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, expected_accrued)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, expected_accrued)])
 
     clean_trx_files(curr_file_name)
 
@@ -1697,6 +1697,6 @@ def test_reward_transaction_after_partial_reversal():
                      rewarded_trxs_increment=2)
 
     # 1.34.13
-    check_rewards(initiative_id=initiative_id, expected_rewards=[Reward(curr_iban, newly_accrued - expected_reversal)])
+    check_rewards(initiative_id=initiative_id, expected_rewards=[reward(curr_iban, newly_accrued - expected_reversal)])
 
     clean_trx_files(curr_file_name)

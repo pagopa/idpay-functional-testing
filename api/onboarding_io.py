@@ -40,7 +40,7 @@ def check_prerequisites(token, initiative_id):
     )
 
 
-def pdnd_autocertification(token, initiative_id, pdnd_accept='true', self_declaration_accepted='true'):
+def pdnd_autocertification(token, initiative_id, pdnd_accept=True, self_declaration_accepted=True):
     """API to put autocertification
         :param token: token IO
         :param initiative_id: initiative on which onboard the user

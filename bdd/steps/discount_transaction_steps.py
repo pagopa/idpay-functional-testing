@@ -296,7 +296,7 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
 
     step_check_named_transaction_status(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
 
-    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['reward'])
+    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['rewardCents'])
 
     retry_timeline(expected=timeline_operations.transaction, request=timeline,
                    num_required=context.trxs_per_citizen[citizen_name], token=curr_token_io,
@@ -306,7 +306,7 @@ def step_when_citizen_confirms_transaction(context, citizen_name, trx_name):
     check_unprocessed_transactions(initiative_id=context.initiative_id,
                                    expected_trx_id=context.transactions[trx_name]['id'],
                                    expected_effective_amount=context.transactions[trx_name]['amountCents'],
-                                   expected_reward_amount=context.latest_trx_details.json()['reward'],
+                                   expected_reward_amount=context.latest_trx_details.json()['rewardCents'],
                                    expected_fiscal_code=context.citizens_fc[citizen_name],
                                    merchant_id=associated_merchant_id,
                                    expected_status='AUTHORIZED'
@@ -322,7 +322,7 @@ def step_when_citizen_rapidly_confirms_the_transactions(context, citizen_name, t
     trx_name = context.transactions[trx_name]['trxCode']
 
     res = complete_transaction_confirmation(context=context, trx_code=trx_name, token_io=curr_token_io)
-    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['reward'])
+    update_user_counters(context=context, citizen_name=citizen_name, reward=res.json()['rewardCents'])
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
