@@ -1,6 +1,6 @@
 behave==1.2.6
 crypto==1.4.1
-cryptography==42.0.4
+cryptography==43.0.1
 dynaconf==3.2.4
 faker==22.5.1
 numpy==1.26.3
