@@ -128,3 +128,7 @@ mkdocs_config = {
 mkdocs_yaml_path = 'mkdocs.yml'
 with open(mkdocs_yaml_path, 'w') as mkdocs_yaml:
     yaml.dump(mkdocs_config, mkdocs_yaml)
+
+all_scenarios_file = os.path.join('docs', 'all_scenarios.txt')
+with open(all_scenarios_file, 'w') as all_scenarios_file:
+    all_scenarios_file.write('\n'.join(sorted(all_scenarios)))
