@@ -7,9 +7,9 @@ import time
 import uuid
 import zipfile
 from hashlib import sha256
-from math import floor
 
 import pandas as pd
+from math import floor
 
 from api.idpay import delete_initiative
 from api.idpay import enroll_iban
@@ -53,8 +53,8 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
 from util.certs_loader import load_pm_public_key
-from util.dataset_utility import fake_iban
 from util.dataset_utility import euros_to_cents
+from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_merchant_file
 from util.dataset_utility import fake_vat
 from util.dataset_utility import hash_pan

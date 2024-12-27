@@ -1,11 +1,11 @@
 import datetime
-import math
 import os
 import random
 import uuid
 from dataclasses import dataclass
 from hashlib import sha256
 
+import math
 import pandas as pd
 import pytz
 from faker import Faker
@@ -74,7 +74,7 @@ def fake_fc(age: int = None, custom_month: int = None, custom_day: int = None, s
         year = custom_year.strftime('%Y')[2:]
 
     if custom_month is not None and 1 <= custom_month <= 12:
-        month_letter = moth_number_to_fc_letter(custom_month)
+        month_letter = month_number_to_fc_letter(custom_month)
     else:
         month_letter = fake_cf[8]
 
@@ -191,7 +191,7 @@ def yesterday_date(is_iso: bool = False):
         tomorrow_date_format)
 
 
-def moth_number_to_fc_letter(month_num):
+def month_number_to_fc_letter(month_num):
     months = ['A', 'B', 'C', 'D', 'E', 'H', 'L', 'M', 'P', 'R', 'S', 'T']
     if 1 <= int(month_num) <= 12:
         return months[int(month_num) - 1]
