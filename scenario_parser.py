@@ -1,9 +1,22 @@
+import argparse
 import os
 
 import yaml
 from behave.model import Scenario
 from behave.model import ScenarioOutline
 from behave.parser import Parser
+
+CLI = argparse.ArgumentParser()
+CLI.add_argument(
+    '--exclude-tags',
+    nargs='*',
+    type=str,
+    default=['skip', 'need_fix'],  # default if nothing is provided
+)
+
+args = CLI.parse_args()
+
+excluded_tags = args.exclude_tags
 
 
 def parse_feature_files(feat_files):
@@ -23,9 +36,11 @@ def parse_feature_files(feat_files):
                     # Extract only scenario name and description
                     scenario_name = element.name
                     scenario_description = element.description
+                    scenario_tags = element.tags
                     scenarios.append({
                         'name': scenario_name,
                         'description': scenario_description,
+                        'tags': scenario_tags + feature.tags
                     })
 
             if scenarios:
@@ -39,14 +54,14 @@ def parse_feature_files(feat_files):
     return feature_scenarios
 
 
-root_directory = 'bdd/features/pilot'
-
+root_directory = 'bdd/features'
 feature_files = []
 for root, dirs, files in os.walk(root_directory):
     for file in files:
         if file.endswith('.feature'):
             feature_files.append(os.path.join(root, file))
 
+all_scenarios = []
 scenarios_by_feature = parse_feature_files(feature_files)
 
 output_directory = 'docs/features'  # Save feature-specific MD files under 'docs/features'
@@ -74,7 +89,9 @@ for curr_feature_file_name, data in scenarios_by_feature.items():
     with open(feature_file_path, 'w') as feature_file:
         feature_file.write(f'# Feature: {feature_name}\n\n')
         for scenario in data['scenarios']:
-            feature_file.write(f'* {scenario["name"]}\n')
+            if not set(excluded_tags).intersection(set(scenario['tags'])):
+                all_scenarios.append(scenario['name'])
+                feature_file.write(f'* {scenario["name"]}\n')
 
 # Save index.md in 'docs' directory
 index_file_path = os.path.join('docs', 'index.md')
