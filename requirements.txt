@@ -1,7 +1,7 @@
 behave==1.2.6
 crypto==1.4.1
 cryptography==43.0.1
-dynaconf==3.2.4
+dynaconf==3.2.13
 faker==22.5.1
 numpy==1.26.3
 pandas==2.2.0
