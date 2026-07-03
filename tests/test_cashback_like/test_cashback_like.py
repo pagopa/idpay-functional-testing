@@ -12,7 +12,7 @@ from api.idpay import timeline
 from api.idpay import unsubscribe
 from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_conditions
+from api.onboarding_io import save_onboarding
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.certs_loader import load_pm_public_key
@@ -21,6 +21,7 @@ from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.dataset_utility import reward
 from util.encrypt_utilities import pgp_string_routine
+from util.onboarding_utilities import onboard_io
 from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
 from util.utility import card_removal
@@ -31,7 +32,6 @@ from util.utility import custom_transaction
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import iban_enroll
-from util.utility import onboard_io
 from util.utility import retry_timeline
 from util.utility import retry_wallet
 from util.utility import transactions_hash
@@ -1018,7 +1018,7 @@ def test_onboarding_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token).json()['instrumentList']
 
     # 1.24.1
-    res = accept_terms_and_conditions(token, initiative_id)
+    res = save_onboarding(token, initiative_id)
     assert res.status_code == 403
     assert res.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
@@ -1162,7 +1162,7 @@ def test_onboarding_after_unsubscribe():
     assert [] == get_payment_instruments(initiative_id=initiative_id, token=token_a).json()['instrumentList']
 
     # 1.28.9
-    res = accept_terms_and_conditions(token_a, initiative_id)
+    res = save_onboarding(token_a, initiative_id)
     assert res.status_code == 403
     assert res.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_a,
@@ -1243,7 +1243,7 @@ def test_homocode_onboarding():
     clean_trx_files(curr_file_name)
 
     token1 = get_io_token(test_fc)
-    res = accept_terms_and_conditions(token1, initiative_id)
+    res = save_onboarding(token1, initiative_id)
     # 1.27.7
     assert res.status_code != 204
 

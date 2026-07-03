@@ -1,6 +1,6 @@
-SECRET_PATH: "conf/.secrets.yaml"
+SECRET_PATH: "conf/pari_feature_secrets.yaml"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
-TARGET_ENV: "uat"
+TARGET_ENV: "dev"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
@@ -9,14 +9,14 @@ KEEP_INITIATIVES_AFTER_TEST: false
 KEEP_INITIATIVES_AFTER_FAILED_TEST: false
 INITIATIVE_STARTUP_TIME_SECONDS: 120
 base_path:
-  IO: "https://api-io.uat.cstar.pagopa.it"
-  CSTAR: "https://api.uat.cstar.pagopa.it"
-  RTD: "https://api.uat.cstar.pagopa.it"
+  IO: "https://api-io.dev.cstar.pagopa.it"
+  CSTAR: "https://api.dev.cstar.pagopa.it"
+  RTD: "https://api.dev.cstar.pagopa.it"
   IDPAY:
-    internal: "https://uat01.idpay.internal.uat.cstar.pagopa.it"
-  PDV: "https://api.uat.tokenizer.pdv.pagopa.it"
+    internal: "https://idpay.itn.internal.dev.cstar.pagopa.it"
+  PDV: "https://api.dev.tokenizer.pdv.pagopa.it"
 IDPAY:
-  domain: "/idpay"
+  domain: "/idpay-itn"
   MIL:
     domain: "/mil"
   MININT:
@@ -123,6 +123,44 @@ PDV:
   endpoints:
     tokenizer: '/tokenizer/v1/tokens'
 initiatives:
+  bonus_elettrodomestici:
+    it: 'bonus_elettrodomestici'
+    cashback_percentage: 30
+    budget_per_citizen: 200
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
+    fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 4800000000
+        beneficiaryBudget: 200
+        startDate: 'future'
+        endDate: 'future_tomorrow'
+        descriptionMap:
+          it: '123123213123123'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'MULTI_CONSENT'
+          - description: 'Hai un ISEE 2025 in corso di validità?'
+          - value: 1
+          - code: '1'
+          - _type: 'boolean'
+            description: 'Dichiaro che userò il bonus per l’acquisto di un elettrodomestico di classe energetica superiore destinato a sostituire un altro della stessa tipologia'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   not_started:
     id: 'NOT_STARTED'
     cashback_percentage: 30.22

@@ -42,13 +42,8 @@ from api.idpay import upload_merchant_csv
 from api.idpay import upload_whitelist_csv
 from api.idpay import wallet
 from api.issuer import enroll
-from api.onboarding_io import accept_terms_and_conditions
-from api.onboarding_io import check_prerequisites
-from api.onboarding_io import pdnd_autocertification
-from api.onboarding_io import status_onboarding
 from api.pdv import detokenize_pdv_token
 from api.pdv import get_pdv_token
-from api.token_io import login
 from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
@@ -62,6 +57,7 @@ from util.dataset_utility import merchantInfo
 from util.dataset_utility import reward
 from util.dataset_utility import serialize
 from util.encrypt_utilities import pgp_string_routine
+from util.onboarding_utilities import get_io_token
 
 PAYMENT_OK = 'OK - ORDINE ESEGUITO'
 PAYMENT_KO = 'KO'
@@ -78,47 +74,11 @@ timeline_operations = settings.IDPAY.endpoints.timeline.operations
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 
 
-def get_io_token(fc):
-    """Login through IO
-    :param fc: fiscal code to log in.
-    """
-    return login(fc).content.decode('utf-8')
-
-
 def get_selfcare_token(institution_info: str):
     """Login through Self Care mock
     :param institution_info: Information of the institute to log in.
     """
     return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
-
-
-def onboard_io(fc, initiative_id):
-    """Onboarding process through IO
-    :param fc: fiscal code to onboard
-    :param initiative_id: ID of the initiative of interest.
-    """
-    token = get_io_token(fc)
-
-    res = accept_terms_and_conditions(token, initiative_id)
-    assert res.status_code == 204
-
-    retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
-                        initiative_id=initiative_id, field='status', tries=50, delay=1,
-                        message='Citizen not ACCEPTED_TC')
-
-    res = check_prerequisites(token, initiative_id)
-    assert res.status_code == 200
-
-    res = pdnd_autocertification(token, initiative_id)
-    assert res.status_code == 202
-
-    res = status_onboarding(token, initiative_id)
-    assert res.status_code == 200
-
-    res = retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                              initiative_id=initiative_id, field='status', tries=50, delay=1,
-                              message='Citizen onboard not OK')
-    return res
 
 
 def iban_enroll(fc, iban, initiative_id):
@@ -199,21 +159,6 @@ def card_removal(fc, initiative_id, card_position: int = 1):
                          message='Card not deleted')
     return res
 
-
-def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5,
-                        message='Test failed'):
-    count = 0
-    res = request(token, initiative_id)
-    success = (expected == res.json()[field])
-    while not success:
-        count += 1
-        if count == tries:
-            break
-        time.sleep(delay)
-        res = request(token, initiative_id)
-        success = (expected == res.json()[field])
-    assert expected == res.json()[field]
-    return res
 
 
 def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5,
