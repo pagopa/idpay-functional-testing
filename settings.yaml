@@ -14,7 +14,6 @@ base_path:
   RTD: "https://api.dev.cstar.pagopa.it"
   IDPAY:
     internal: "https://idpay.itn.internal.dev.cstar.pagopa.it"
-  PDV: "https://api.dev.tokenizer.pdv.pagopa.it"
 IDPAY:
   domain: "/idpay-itn"
   MIL:
@@ -25,6 +24,7 @@ IDPAY:
     onboarding:
       path: "/onboarding"
       initiative: "/onboarding/initiative"
+      disable: "/disable"
       enrollment:
         start_path: "/hb/wallet"
         end_path: "/instruments"
@@ -95,7 +95,8 @@ IDPAY:
       path: '/merchant'
       internal_path: '/idpaymerchant/idpay'
     mock:
-      isee: '/mock/citizen/isee'
+      internal_path: '/idpaymock/idpay'
+      isee: '/mock/isee'
       family: '/mock/family'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
@@ -103,6 +104,9 @@ IDPAY:
         path: '/beneficiary'
         suspend: '/suspend'
         readmit: '/readmit'
+    mcshared_data_vault:
+      internal_path: '/mcshareddatavault/tokens'
+      detokenize: '/pii'
   acquirer_id: 'PAGOPA'
 RTD:
   domain: "/rtd"
@@ -119,9 +123,6 @@ RTD:
     mock_io:
       login: "/mock-io/login"
       user: "/mock-io/user"
-PDV:
-  endpoints:
-    tokenizer: '/tokenizer/v1/tokens'
 initiatives:
   bonus_elettrodomestici:
     it: 'bonus_elettrodomestici'

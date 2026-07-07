@@ -42,8 +42,6 @@ from api.idpay import upload_merchant_csv
 from api.idpay import upload_whitelist_csv
 from api.idpay import wallet
 from api.issuer import enroll
-from api.pdv import detokenize_pdv_token
-from api.pdv import get_pdv_token
 from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
@@ -662,26 +660,6 @@ def onboard_one_random_merchant(initiative_id: str,
         'iban': iban,
         'fiscal_code': fc
     }
-
-
-def tokenize_fc(fiscal_code: str):
-    res = get_pdv_token(fiscal_code=fiscal_code)
-    assert res.status_code == 200
-    token = res.json()['token']
-    res = detokenize_pdv_token(token=token)
-    assert res.json()['pii'] == fiscal_code
-    return token
-
-
-def detokenize_to_fc(token: str):
-    res = detokenize_pdv_token(token=token)
-    assert res.status_code == 200
-    fiscal_code = res.json()['pii']
-    res = get_pdv_token(fiscal_code=fiscal_code)
-    assert res.status_code == 200
-    assert res.json()['token'] == token
-    return fiscal_code
-
 
 def suspend_citizen_from_initiative(initiative_id: str,
                                     fiscal_code: str):
