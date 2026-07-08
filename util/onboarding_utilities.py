@@ -46,13 +46,7 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
         success = (expected == res.json()[field])
     actual = res.json()[field]
 
-    assert expected == actual, (
-        f"{message}\n"
-        f"{request}\n"
-        f"Expected: {expected}\n"
-        f"Actual:   {actual}\n"
-        f"Response: {res.json()}"
-    )
+    assert expected == actual
 
     return res
 
@@ -75,7 +69,14 @@ def build_bonus_decoder_self_declaration_list_payload(multi_consent_isee_value:s
             "value": multi_consent_isee_value
         }]
 
-def check_initiative_to_build_self_declaration_list_payload(
+def build_boolean_self_declaration_list_payload(self_declaration_accepted=True):
+    return [{
+            "_type": "boolean",
+            "accepted": self_declaration_accepted,
+            "code": "1"
+        }]
+
+def build_self_declaration_list_payload_by_initiative(
     initiative_name: str,
     multi_consent_isee_value: str,
     self_declaration_accepted=True,

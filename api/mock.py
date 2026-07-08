@@ -1,8 +1,6 @@
 import json
 
 import requests
-
-from conf.configuration import secrets
 from conf.configuration import settings
 
 
@@ -22,10 +20,10 @@ def control_mocked_isee(fc: str,
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.post(f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.isee}',
+    return requests.post(f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.isee}',
                          headers={
                              'Content-Type': 'application/json',
-                             settings.API_KEY_HEADER: secrets.api_key.RTD_Mock_API_Product,
+
                              'Fiscal-Code': fc,
                          },
                          json={
@@ -37,29 +35,32 @@ def control_mocked_isee(fc: str,
                          )
 
 
-def put_mocked_family(family: list):
+def put_mocked_family(citizens_cf: list):
     """API to mock a family grouping citizens in one family
-        :param family: Fiscal code of the family members
+        :param citizens_cf: Citizen CF's of the family members
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.put(
-        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}',
         headers={
             'Content-Type': 'application/json'
         },
-        data=json.dumps(family),
+        data=json.dumps(citizens_cf),
         timeout=settings.default_timeout
     )
 
 
 def get_family_from_user_id(user_id: str):
-    """API to get user ID of members given user ID
-        :param user_id: User ID of interest
+    """API to get family id of members
+        :param user_id: user ID of a family member
         :returns: the response of the call.
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}/idpaymock{settings.IDPAY.domain}{settings.IDPAY.endpoints.mock.family}/user/{user_id}',
+        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}/user/{user_id}',
+        headers={
+            'Content-Type': 'application/json'
+        },
         timeout=settings.default_timeout
     )

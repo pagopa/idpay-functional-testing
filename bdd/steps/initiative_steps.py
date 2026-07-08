@@ -20,6 +20,7 @@ from util.utility import retry_institution_statistics
 
 @given('the initiative is "{initiative_name}"')
 def step_given_initiative_name(context, initiative_name):
+    context.initiative_name = initiative_name
     context.initiative_id = secrets.initiatives[initiative_name]['id']
     context.initiative_settings = settings.initiatives[initiative_name]
     base_context_initialization(context)
