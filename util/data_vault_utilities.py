@@ -1,4 +1,4 @@
-from api.tokenizer import data_vault_tokenize, data_vault_detokenize
+from api.data_vault import data_vault_tokenize, data_vault_detokenize
 
 def tokenize_fc(fiscal_code: str):
     res = data_vault_tokenize(pii=fiscal_code)

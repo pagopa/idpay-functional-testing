@@ -10,7 +10,7 @@ from bdd.steps.idpay_code_steps import step_citizen_enroll_correctly_idpay_code
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from bdd.steps.ranking_steps import step_check_absence_in_ranking
 from util.dataset_utility import euros_to_cents
-from util.tokenizer_utilities import tokenize_fc
+from util.data_vault_utilities import tokenize_fc
 from util.utility import get_io_token
 from util.utility import retry_wallet
 
