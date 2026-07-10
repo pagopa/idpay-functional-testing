@@ -39,6 +39,7 @@ def wallet(initiative_id, token):
         headers={
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
+            'Accept-Language': 'it-IT'
         },
         timeout=settings.default_timeout)
 

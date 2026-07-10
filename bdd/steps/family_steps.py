@@ -5,42 +5,46 @@ from behave import when
 from api.idpay import wallet
 from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
-from api.onboarding_io import accept_terms_and_conditions
-from api.onboarding_io import check_prerequisites
+from api.onboarding_io import save_onboarding
 from bdd.steps.idpay_code_steps import step_citizen_enroll_correctly_idpay_code
 from bdd.steps.onboarding_steps import step_check_onboarding_status
 from bdd.steps.ranking_steps import step_check_absence_in_ranking
 from util.dataset_utility import euros_to_cents
-from util.utility import detokenize_to_fc
+from util.data_vault_utilities import tokenize_fc
 from util.utility import get_io_token
 from util.utility import retry_wallet
-from util.utility import tokenize_fc
 
 
 @given('citizens {citizens_names} are in the same family')
-def step_given_same_family_id(context, citizens_names: str):
+def step_given_same_family_id(context, citizens_names):
     citizens = citizens_names.split()
-    citizens_fc = list(context.citizens_fc[name] for name in citizens)
-    res = put_mocked_family(family=citizens_fc)
-    assert res.status_code == 200
-    family_id = res.json()['familyId']
 
-    res = get_family_from_user_id(user_id=tokenize_fc(citizens_fc[0]))
+    user_ids = [
+        tokenize_fc(fiscal_code= context.citizens_fc[name])
+        for name in citizens
+    ]
+    citizens_fc = [
+        context.citizens_fc[name]
+        for name in citizens
+    ]
+    res = put_mocked_family(citizens_cf = citizens_fc)
     assert res.status_code == 200
-    assert res.json()['familyId'] == family_id
-    assert set(detokenize_to_fc(x) for x in res.json()['memberIds']) == set(citizens_fc)
 
+    family_id = res.json()["familyId"]
+
+    res = get_family_from_user_id(user_id=user_ids[0])
+    assert res.status_code == 200
+
+    assert res.json()["familyId"] == family_id
+    assert set(res.json()["memberIds"]) == set(user_ids)
 
 @given('the demanded family member {citizen_name} onboards')
 @when('the demanded family member {citizen_name} onboards')
 def step_demanded_family_member_onboards(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    accept_tc_response = accept_terms_and_conditions(token=token_io, initiative_id=context.initiative_id)
+    accept_tc_response = save_onboarding(token=token_io, initiative_id=context.initiative_id)
     assert accept_tc_response.status_code == 204
-
-    check_prerequisites_response = check_prerequisites(token=token_io, initiative_id=context.initiative_id)
-    assert check_prerequisites_response.status_code == 200
 
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK AFTER DEMANDED')
 
