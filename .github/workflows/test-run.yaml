@@ -5,9 +5,10 @@ permissions:
   contents: read
 
 on:
+  pull_request:
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch: # Allows manual run
     inputs:
       feature:
@@ -108,3 +109,15 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Sanitize allure results
+        if: always()
+        run: |
+          python scripts/sanitize-allure-results.py allure-results
+
+      - name: Save BDD test results
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        id: upload_bdd_test_results
+        with:
+          name: allure-results-bdd
+          path: allure-results
