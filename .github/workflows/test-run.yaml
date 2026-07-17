@@ -42,10 +42,10 @@ on:
 jobs:
   run-bdd-feature-tests:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
     env:
-      TARGET_ENV: ${{ inputs.environment }}
-      FEATURE_TAG: ${{ inputs.feature }}
+      TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
+      FEATURE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
 
     steps:
       - name: Checkout repository
@@ -101,18 +101,18 @@ jobs:
         env:
           ENV_FOR_DYNACONF: ${{ env.TARGET_ENV }}
         run: |
-          echo "Running env=$ENV_FOR_DYNACONF tag=$FEATURE_TAG"
+          echo "Running env=$TARGET_ENV tag=$FEATURE_TAG"
           if [ "$FEATURE_TAG" = "all" ]; then
-            ENV_FOR_DYNACONF="$ENV_FOR_DYNACONF" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
+            ENV_FOR_DYNACONF="$TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
           else
-            ENV_FOR_DYNACONF="$EFFECTIVE_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
+            ENV_FOR_DYNACONF="$TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
           fi
         continue-on-error: true
 
       - name: Sanitize allure results
         if: always()
         run: |
-          python scripts/sanitize-allure-results.py allure-results
+          python util/sanitize-allure-results.py allure-results
 
       - name: Save BDD test results
         if: always()
