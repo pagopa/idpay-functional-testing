@@ -7,9 +7,9 @@ from api.idpay import wallet
 from conf.configuration import secrets
 from conf.configuration import settings
 from util import dataset_utility
+from util.onboarding_utilities import onboard_io
 from util.utility import get_io_token
 from util.utility import iban_enroll
-from util.utility import onboard_io
 from util.utility import retry_wallet
 
 initiative_id = secrets.initiatives.cashback_like.id

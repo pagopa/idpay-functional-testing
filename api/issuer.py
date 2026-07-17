@@ -18,7 +18,7 @@ def enroll(initiative_id, tax_code, body):
 
     cert = load_certificates()
     return requests.put(
-        f'{settings.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
+        f'{secrets.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.enrollment.start_path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.enrollment.end_path}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.IDPAY_APP_ISSUER_PRODUCT,

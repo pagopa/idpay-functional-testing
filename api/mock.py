@@ -1,6 +1,7 @@
 import json
 
 import requests
+from conf.configuration import secrets
 from conf.configuration import settings
 
 
@@ -20,7 +21,7 @@ def control_mocked_isee(fc: str,
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.post(f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.isee}',
+    return requests.post(f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.isee}',
                          headers={
                              'Content-Type': 'application/json',
 
@@ -42,7 +43,7 @@ def put_mocked_family(citizens_cf: list):
         :rtype: requests.Response
     """
     return requests.put(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}',
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}',
         headers={
             'Content-Type': 'application/json'
         },
@@ -58,7 +59,7 @@ def get_family_from_user_id(user_id: str):
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}/user/{user_id}',
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.family}/user/{user_id}',
         headers={
             'Content-Type': 'application/json'
         },

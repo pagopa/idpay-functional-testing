@@ -1,0 +1,110 @@
+name: test-run
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual run
+    inputs:
+      feature:
+        type: choice
+        description: Run functional tests by tag
+        required: false
+        default: all
+        options:
+          - all
+          - bonus_elettrodomestici
+          - onboarding
+          - transaction
+          - cancellation
+          - readmission
+          - refunds
+          - unsubscribe
+          - family
+          - bar_code
+          - idpay_code
+          - ranking
+
+      environment:
+        description: Environment
+        required: false
+        default: uat
+        type: choice
+        options:
+          - dev
+          - uat
+
+jobs:
+  run-bdd-feature-tests:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      TARGET_ENV: ${{ inputs.environment }}
+      FEATURE_TAG: ${{ inputs.feature }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Azure Login
+        uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a #v2.1.1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Retrieve Key Vault secret as JSON file
+        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd #v2.1.0
+        with:
+          inlineScript: |
+            echo "🔐 Fetching secret from Key Vault..."
+
+            mkdir -p $GITHUB_WORKSPACE/secrets
+
+            az keyvault secret show \
+              --name "${{ secrets.SECRET_NAME }}" \
+              --vault-name "${{ secrets.KEYVAULT_NAME }}" \
+              --query value -o tsv \
+              > $GITHUB_WORKSPACE/secrets/pari_feature_secrets.json
+
+            echo "📦 Validating JSON..."
+
+            jq empty $GITHUB_WORKSPACE/secrets/pari_feature_secrets.json
+
+            echo "✅ Secret ready"
+
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 #v5.2.0
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pipenv
+          python3 -m pipenv sync
+          pipenv install allure-behave
+
+      - name: Display Python and Pip versions
+        run: |
+          python3 --version
+          pip3 --version
+          pipenv --version
+          allure-behave --version
+
+      - name: Run tests with Behave
+        env:
+          ENV_FOR_DYNACONF: ${{ env.TARGET_ENV }}
+        run: |
+          echo "Running env=$ENV_FOR_DYNACONF tag=$FEATURE_TAG"
+          if [ "$FEATURE_TAG" = "all" ]; then
+            ENV_FOR_DYNACONF="$ENV_FOR_DYNACONF" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
+          else
+            ENV_FOR_DYNACONF="$EFFECTIVE_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
+          fi
+        continue-on-error: true
+
