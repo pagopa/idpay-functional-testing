@@ -2,7 +2,7 @@ name: test-run
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 on:
   pull_request:
