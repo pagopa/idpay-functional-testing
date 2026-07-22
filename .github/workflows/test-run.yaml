@@ -87,8 +87,8 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
+          pipenv sync
           pipenv install allure-behave
-          python3 -m pipenv sync
 
       - name: Display Python and Pip versions
         run: |
