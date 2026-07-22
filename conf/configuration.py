@@ -12,7 +12,7 @@ settings = Dynaconf(
 )
 
 # Load the secrets for the specified environment
-secrets = {}
+secrets = Dynaconf()
 
 all_secrets = Dynaconf(settings_files=settings.SECRET_PATH)
 
