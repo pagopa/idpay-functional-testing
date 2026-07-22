@@ -2,12 +2,12 @@
 """
 from dynaconf import Dynaconf
 
-IDPAY_ENV_VAR_PREFIX = 'IDPAY'
+PARI_ENV_VAR_PREFIX = 'PARI'
 
 # `envvar_prefix` = export envvars with IDPAY_ENV_VAR_PREFIX as prefix.
 # `settings_files` = Load settings files in the order.
 settings = Dynaconf(
-    envvar_prefix=IDPAY_ENV_VAR_PREFIX,
+    envvar_prefix=PARI_ENV_VAR_PREFIX,
     settings_files=['settings.yaml'],
 )
 

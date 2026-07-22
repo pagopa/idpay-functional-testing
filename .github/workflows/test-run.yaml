@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     env:
-      TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+      PARI_TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
       FEATURE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
 
     steps:
@@ -87,8 +87,8 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
-          python3 -m pipenv sync
           pipenv install allure-behave
+          python3 -m pipenv sync
 
       - name: Display Python and Pip versions
         run: |
@@ -99,13 +99,13 @@ jobs:
 
       - name: Run tests with Behave
         env:
-          ENV_FOR_DYNACONF: ${{ env.TARGET_ENV }}
+          ENV_FOR_DYNACONF: ${{ env.PARI_TARGET_ENV }}
         run: |
-          echo "Running env=$TARGET_ENV tag=$FEATURE_TAG"
+          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
           if [ "$FEATURE_TAG" = "all" ]; then
-            ENV_FOR_DYNACONF="$TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
+            ENV_FOR_DYNACONF="$PARI_TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
           else
-            ENV_FOR_DYNACONF="$TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
+            ENV_FOR_DYNACONF="$PARI_TARGET_ENV" python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
           fi
         continue-on-error: true
 
