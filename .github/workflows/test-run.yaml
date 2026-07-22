@@ -95,7 +95,7 @@ jobs:
           python3 --version
           pip3 --version
           pipenv --version
-          allure-behave --version
+          pipenv run allure-behave --version
 
       - name: Run tests with Behave
         env:
