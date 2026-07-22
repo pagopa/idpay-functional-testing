@@ -87,7 +87,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
-          pipenv sync
+          python3 -m pipenv sync
           pipenv install allure-behave
 
       - name: Display Python and Pip versions
@@ -95,7 +95,7 @@ jobs:
           python3 --version
           pip3 --version
           pipenv --version
-          pipenv run allure-behave --version
+          pipenv run pip show allure-behave
 
       - name: Run tests with Behave
         env:
