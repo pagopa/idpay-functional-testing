@@ -90,17 +90,9 @@ jobs:
               exit 1
             fi
             
-            echo "secretFilePath=$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" >> "$GITHUB_ENV"
+            echo "PARI_SECRET_PATH=$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" >> "$GITHUB_ENV"
             
             echo "✅ Secret ready"
-
-      - name: Debug secrets structure
-        run: |
-          echo "🔍 Top-level keys:"
-          jq 'keys' $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
-
-          echo "🔍 Keys inside environment '$PARI_TARGET_ENV':"
-          jq --arg env "$PARI_TARGET_ENV" '.[$env] | keys' $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
 
       - name: Setup Python
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 #v5.2.0
@@ -122,10 +114,8 @@ jobs:
           pipenv run pip show allure-behave
 
       - name: Run tests with Behave
-        env:
-          ENV_FOR_DYNACONF: ${{ env.PARI_TARGET_ENV }}
         run: |
-          echo "Running env=$ENV_FOR_DYNACONF tag=$FEATURE_TAG"
+          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
           if [ "$FEATURE_TAG" = "all" ]; then
             python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
           else
