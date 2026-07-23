@@ -15,7 +15,7 @@ on:
         type: choice
         description: Run functional tests by tag
         required: false
-        default: all
+        default: bonus_elettrodomestici
         options:
           - all
           - bonus_elettrodomestici
@@ -45,7 +45,7 @@ jobs:
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     env:
       PARI_TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
-      FEATURE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
+      FEATURE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'bonus_elettrodomestici' }}
 
     steps:
       - name: Checkout repository
