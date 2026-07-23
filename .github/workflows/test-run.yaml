@@ -63,19 +63,35 @@ jobs:
         with:
           inlineScript: |
             echo "🔐 Fetching secret from Key Vault..."
-
+            
             mkdir -p $GITHUB_WORKSPACE/secrets
-
+            
             az keyvault secret show \
               --name "${{ secrets.SECRET_NAME }}" \
               --vault-name "${{ secrets.KEYVAULT_NAME }}" \
-              --query value -o tsv \
-              > $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
-
+              --query 'value' -o json | jq -r '.' > $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
+            
+            if [ ${PIPESTATUS[0]} -ne 0 ]; then
+              echo "::error::Failed to fetch secret from Key Vault"
+              exit 1
+            fi
+            
+            if [ ! -s $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json ]; then
+              echo "::error::Secret file is empty"
+              exit 1
+            fi
+            
             echo "📦 Validating JSON..."
-
-            jq empty $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
-
+            
+            if ! jq empty $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json 2>/dev/null; then
+              echo "::error::Invalid JSON format in secrets file"
+              echo "File size: $(wc -c < $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json) bytes"
+              echo "Line count: $(wc -l < $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json)"
+              exit 1
+            fi
+            
+            echo "secretFilePath=$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" >> "$GITHUB_ENV"
+            
             echo "✅ Secret ready"
 
       - name: Debug secrets structure
