@@ -99,8 +99,8 @@ jobs:
           echo "🔍 Top-level keys:"
           jq 'keys' $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
       
-          echo "🔍 Keys inside environment '$TARGET_ENV':"
-          jq --arg env "$TARGET_ENV" '.[$env] | keys' $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
+          echo "🔍 Keys inside environment 'PARI_TARGET_ENV':"
+          jq --arg env "PARI_TARGET_ENV" '.[$env] | keys' $GITHUB_WORKSPACE/secrets/pari-feature-secrets.json
 
       - name: Setup Python
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 #v5.2.0

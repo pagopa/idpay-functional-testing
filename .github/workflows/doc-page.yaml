@@ -27,7 +27,7 @@ jobs:
 
       - name: Build Docs
         run: |
-          python3 scenarios_parser.py --repo-name idpay-functional-testing --page-name "IDPAY FUNCTIONAL TESTING" --root-dir bdd-tests
+          python3 scenario_parser.py
           mkdocs build
 
       - name: Upload to GitHub pages
