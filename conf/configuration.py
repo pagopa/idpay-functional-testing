@@ -18,8 +18,3 @@ all_secrets = Dynaconf(settings_files=settings.SECRET_PATH)
 
 if settings.TARGET_ENV in all_secrets:
     secrets = all_secrets[settings.TARGET_ENV]
-else:
-    raise RuntimeError(
-        f"TARGET_ENV='{settings.TARGET_ENV}' not found in the secrets file. "
-        f"Available keys: {list(all_secrets.keys())}"
-    )
