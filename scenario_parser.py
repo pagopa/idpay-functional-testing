@@ -64,7 +64,8 @@ for root, dirs, files in os.walk(root_directory):
 all_scenarios = []
 scenarios_by_feature = parse_feature_files(feature_files)
 
-output_directory = 'docs/features'  # Save feature-specific MD files under 'docs/features'
+output_directory = 'docs/bdd'
+output_directory_name = os.path.basename(output_directory)
 os.makedirs(output_directory, exist_ok=True)
 
 # Create index.md to list features and link to respective pages
@@ -77,15 +78,12 @@ for curr_feature_file_name, data in scenarios_by_feature.items():
     output_file_name = f'{curr_feature_file_name}.md'
     feature_file_path = os.path.join(output_directory, output_file_name)
 
-    # Create a link to the feature's page
-    index_content += f"- [{feature_name}]({os.path.join('features', output_file_name)})\n"
+    index_content += f"- [{feature_name}]({os.path.join(output_directory_name, output_file_name)})\n"
 
-    # Append a navigation link for the feature
     nav_links.append(
-        {feature_name: f'features/{curr_feature_file_name}.md'}
+        {feature_name: f'{output_directory_name}/{curr_feature_file_name}.md'}
     )
 
-    # Save the feature-specific MD file in 'docs/features' subdirectory
     with open(feature_file_path, 'w') as feature_file:
         feature_file.write(f'# Feature: {feature_name}\n\n')
         for scenario in data['scenarios']:
