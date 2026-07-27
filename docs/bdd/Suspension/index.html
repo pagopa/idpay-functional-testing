@@ -10,26 +10,28 @@
         <meta name="author" content="PagoPA">
       
       
-        <link rel="canonical" href="https://pagopa.github.io/idpay-functional-testing/">
+        <link rel="canonical" href="https://pagopa.github.io/idpay-functional-testing/bdd/Suspension/">
       
       
+        <link rel="prev" href="../Transaction/">
       
-        <link rel="next" href="bdd/A%20family%20member%20can%20pay%20a%20transaction/">
+      
+        <link rel="next" href="../A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%201/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>IDPay Functional Testing</title>
+        <title>Suspension - IDPay Functional Testing</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
       
 
@@ -48,7 +50,7 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -66,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#features" class="md-skip">
+        <a href="#feature-suspension" class="md-skip">
           Skip to content
         </a>
       
@@ -82,7 +84,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="IDPay Functional Testing" class="md-header__button md-logo" aria-label="IDPay Functional Testing" data-md-component="logo">
+    <a href="../.." title="IDPay Functional Testing" class="md-header__button md-logo" aria-label="IDPay Functional Testing" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +104,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Suspension
             
           </span>
         </div>
@@ -192,7 +194,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="IDPay Functional Testing" class="md-nav__button md-logo" aria-label="IDPay Functional Testing" data-md-component="logo">
+    <a href="../.." title="IDPay Functional Testing" class="md-nav__button md-logo" aria-label="IDPay Functional Testing" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -219,19 +221,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -247,7 +240,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -256,18 +248,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -288,7 +282,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -306,7 +300,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20family%20member%20can%20pay%20a%20transaction/" class="md-nav__link">
+      <a href="../A%20family%20member%20can%20pay%20a%20transaction/" class="md-nav__link">
         
   
   
@@ -334,7 +328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20merchant%20is%20refunded%20and%20a%20family%20member%20is%20rewarded%20for%20a%20transaction%20on%20initiative%20for%20family/" class="md-nav__link">
+      <a href="../A%20merchant%20is%20refunded%20and%20a%20family%20member%20is%20rewarded%20for%20a%20transaction%20on%20initiative%20for%20family/" class="md-nav__link">
         
   
   
@@ -362,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20family%20member%20can%20be%20suspended%20from%20an%20initiative/" class="md-nav__link">
+      <a href="../A%20family%20member%20can%20be%20suspended%20from%20an%20initiative/" class="md-nav__link">
         
   
   
@@ -390,7 +384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20family%20member%20can%20unsubscribe%20from%20an%20initiative/" class="md-nav__link">
+      <a href="../A%20family%20member%20can%20unsubscribe%20from%20an%20initiative/" class="md-nav__link">
         
   
   
@@ -418,7 +412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%20on%20initiative%20for%20family/" class="md-nav__link">
+      <a href="../A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%20on%20initiative%20for%20family/" class="md-nav__link">
         
   
   
@@ -446,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20family%20onboards%20on%20discount%20initiative/" class="md-nav__link">
+      <a href="../A%20family%20onboards%20on%20discount%20initiative/" class="md-nav__link">
         
   
   
@@ -474,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20transaction%20is%20generated%2C%20authorized%20and%20confirmed/" class="md-nav__link">
+      <a href="../A%20transaction%20is%20generated%2C%20authorized%20and%20confirmed/" class="md-nav__link">
         
   
   
@@ -502,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20A%20onboards%20the%20pilot%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20A%20onboards%20the%20pilot%20initiative/" class="md-nav__link">
         
   
   
@@ -530,7 +524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Transaction%20on%20an%20adhesion-closed%20initiative/" class="md-nav__link">
+      <a href="../Transaction%20on%20an%20adhesion-closed%20initiative/" class="md-nav__link">
         
   
   
@@ -558,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Onboarding%20on%20an%20adhesion-closed%20initiative/" class="md-nav__link">
+      <a href="../Onboarding%20on%20an%20adhesion-closed%20initiative/" class="md-nav__link">
         
   
   
@@ -586,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Onboarding%20Bonus%20Elettrodomestici/" class="md-nav__link">
+      <a href="../Onboarding%20Bonus%20Elettrodomestici/" class="md-nav__link">
         
   
   
@@ -614,7 +608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20pay%20by%20Bar%20Code%20on%20a%20discount%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20pay%20by%20Bar%20Code%20on%20a%20discount%20initiative/" class="md-nav__link">
         
   
   
@@ -642,7 +636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20merchant%20gets%20refunded%20if%20a%20transaction%20by%20Bar%20Code%20is%20discounted/" class="md-nav__link">
+      <a href="../A%20merchant%20gets%20refunded%20if%20a%20transaction%20by%20Bar%20Code%20is%20discounted/" class="md-nav__link">
         
   
   
@@ -670,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20transaction%20by%20Bar%20Code%20can%20be%20cancelled%20by%20the%20merchant/" class="md-nav__link">
+      <a href="../A%20transaction%20by%20Bar%20Code%20can%20be%20cancelled%20by%20the%20merchant/" class="md-nav__link">
         
   
   
@@ -698,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Transactions%20on%20initiative%20with%20whitelist/" class="md-nav__link">
+      <a href="../Transactions%20on%20initiative%20with%20whitelist/" class="md-nav__link">
         
   
   
@@ -726,7 +720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20be%20suspended%20from%20an%20initiative%20with%20whitelist/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20be%20suspended%20from%20an%20initiative%20with%20whitelist/" class="md-nav__link">
         
   
   
@@ -754,7 +748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20unsubscribe%20from%20an%20initiative%20with%20whitelist/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20unsubscribe%20from%20an%20initiative%20with%20whitelist/" class="md-nav__link">
         
   
   
@@ -782,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20onboards%20on%20initiative%20with%20whitelist/" class="md-nav__link">
+      <a href="../A%20citizen%20onboards%20on%20initiative%20with%20whitelist/" class="md-nav__link">
         
   
   
@@ -810,7 +804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/For%20a%20refund%2C%20there%20is%20a%20return%20flow/" class="md-nav__link">
+      <a href="../For%20a%20refund%2C%20there%20is%20a%20return%20flow/" class="md-nav__link">
         
   
   
@@ -838,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20merchant%20gets%20refunded%20if%20a%20transaction%20is%20discounted/" class="md-nav__link">
+      <a href="../A%20merchant%20gets%20refunded%20if%20a%20transaction%20is%20discounted/" class="md-nav__link">
         
   
   
@@ -866,7 +860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20onboards%20the%20pilot%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20onboards%20the%20pilot%20initiative/" class="md-nav__link">
         
   
   
@@ -894,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20generate%20the%20IDPay%20Code/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20generate%20the%20IDPay%20Code/" class="md-nav__link">
         
   
   
@@ -922,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20enroll%20an%20IDPay%20Code%20to%20an%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20enroll%20an%20IDPay%20Code%20to%20an%20initiative/" class="md-nav__link">
         
   
   
@@ -950,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20pay%20by%20IDPay%20Code%20on%20a%20discount%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20pay%20by%20IDPay%20Code%20on%20a%20discount%20initiative/" class="md-nav__link">
         
   
   
@@ -978,7 +972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20be%20rewarded%20and%20the%20merchant%20can%20be%20refunded%20about%20a%20transaction%20by%20IDPay%20Code/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20be%20rewarded%20and%20the%20merchant%20can%20be%20refunded%20about%20a%20transaction%20by%20IDPay%20Code/" class="md-nav__link">
         
   
   
@@ -1006,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20transaction%20paid%20by%20IDPay%20Code%20can%20be%20cancelled%20by%20the%20merchant/" class="md-nav__link">
+      <a href="../A%20transaction%20paid%20by%20IDPay%20Code%20can%20be%20cancelled%20by%20the%20merchant/" class="md-nav__link">
         
   
   
@@ -1034,7 +1028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Transaction%20in%20a%20closed%20initiative/" class="md-nav__link">
+      <a href="../Transaction%20in%20a%20closed%20initiative/" class="md-nav__link">
         
   
   
@@ -1062,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Onboarding%20on%20a%20closed%20initiative/" class="md-nav__link">
+      <a href="../Onboarding%20on%20a%20closed%20initiative/" class="md-nav__link">
         
   
   
@@ -1090,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20onboards%20the%20pilot%20initiative%20with%20ISEE%20criteria/" class="md-nav__link">
+      <a href="../A%20citizen%20onboards%20the%20pilot%20initiative%20with%20ISEE%20criteria/" class="md-nav__link">
         
   
   
@@ -1118,7 +1112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20merchant%20creates%20a%20transaction%20and%20a%20citizen%20tries%20to%20confirm%20it%20during%20grace%20period%20on%20an%20initiative%20with%20ranking/" class="md-nav__link">
+      <a href="../A%20merchant%20creates%20a%20transaction%20and%20a%20citizen%20tries%20to%20confirm%20it%20during%20grace%20period%20on%20an%20initiative%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1146,7 +1140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20onboards%20an%20initiative%20with%20ranking/" class="md-nav__link">
+      <a href="../A%20citizen%20onboards%20an%20initiative%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1174,7 +1168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Transactions%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
+      <a href="../Transactions%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1202,7 +1196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Suspension%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
+      <a href="../Suspension%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1230,7 +1224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20family%20onboards%20an%20initiative%20with%20ranking/" class="md-nav__link">
+      <a href="../A%20family%20onboards%20an%20initiative%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1258,7 +1252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Unsubscription%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
+      <a href="../Unsubscription%20on%20an%20initiative%20for%20families%20with%20ranking/" class="md-nav__link">
         
   
   
@@ -1286,7 +1280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Onboarding/" class="md-nav__link">
+      <a href="../Onboarding/" class="md-nav__link">
         
   
   
@@ -1314,7 +1308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Merchant%20refund/" class="md-nav__link">
+      <a href="../Merchant%20refund/" class="md-nav__link">
         
   
   
@@ -1342,7 +1336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Cancellation/" class="md-nav__link">
+      <a href="../Cancellation/" class="md-nav__link">
         
   
   
@@ -1370,7 +1364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Readmission/" class="md-nav__link">
+      <a href="../Readmission/" class="md-nav__link">
         
   
   
@@ -1398,7 +1392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20citizen%20can%20unsubscribe%20from%20an%20initiative/" class="md-nav__link">
+      <a href="../A%20citizen%20can%20unsubscribe%20from%20an%20initiative/" class="md-nav__link">
         
   
   
@@ -1426,7 +1420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/Transaction/" class="md-nav__link">
+      <a href="../Transaction/" class="md-nav__link">
         
   
   
@@ -1451,10 +1445,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="bdd/Suspension/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1470,6 +1473,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1482,7 +1486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="bdd/A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%201/" class="md-nav__link">
+      <a href="../A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%201/" class="md-nav__link">
         
   
   
@@ -1575,54 +1579,18 @@
   
 
 
-<h1 id="features">Features</h1>
+<h1 id="feature-suspension">Feature: Suspension</h1>
 <ul>
-<li><a href="bdd/A%20family%20member%20can%20pay%20a%20transaction/">A family member can pay a transaction</a></li>
-<li><a href="bdd/A%20merchant%20is%20refunded%20and%20a%20family%20member%20is%20rewarded%20for%20a%20transaction%20on%20initiative%20for%20family/">A merchant is refunded and a family member is rewarded for a transaction on initiative for family</a></li>
-<li><a href="bdd/A%20family%20member%20can%20be%20suspended%20from%20an%20initiative/">A family member can be suspended from an initiative</a></li>
-<li><a href="bdd/A%20family%20member%20can%20unsubscribe%20from%20an%20initiative/">A family member can unsubscribe from an initiative</a></li>
-<li><a href="bdd/A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%20on%20initiative%20for%20family/">A transaction can be cancelled by the merchant on initiative for family</a></li>
-<li><a href="bdd/A%20family%20onboards%20on%20discount%20initiative/">A family onboards on discount initiative</a></li>
-<li><a href="bdd/A%20transaction%20is%20generated%2C%20authorized%20and%20confirmed/">A transaction is generated, authorized and confirmed</a></li>
-<li><a href="bdd/A%20citizen%20A%20onboards%20the%20pilot%20initiative/">A citizen A onboards the pilot initiative</a></li>
-<li><a href="bdd/Transaction%20on%20an%20adhesion-closed%20initiative/">Transaction on an adhesion-closed initiative</a></li>
-<li><a href="bdd/Onboarding%20on%20an%20adhesion-closed%20initiative/">Onboarding on an adhesion-closed initiative</a></li>
-<li><a href="bdd/Onboarding%20Bonus%20Elettrodomestici/">Onboarding Bonus Elettrodomestici</a></li>
-<li><a href="bdd/A%20citizen%20can%20pay%20by%20Bar%20Code%20on%20a%20discount%20initiative/">A citizen can pay by Bar Code on a discount initiative</a></li>
-<li><a href="bdd/A%20merchant%20gets%20refunded%20if%20a%20transaction%20by%20Bar%20Code%20is%20discounted/">A merchant gets refunded if a transaction by Bar Code is discounted</a></li>
-<li><a href="bdd/A%20transaction%20by%20Bar%20Code%20can%20be%20cancelled%20by%20the%20merchant/">A transaction by Bar Code can be cancelled by the merchant</a></li>
-<li><a href="bdd/Transactions%20on%20initiative%20with%20whitelist/">Transactions on initiative with whitelist</a></li>
-<li><a href="bdd/A%20citizen%20can%20be%20suspended%20from%20an%20initiative%20with%20whitelist/">A citizen can be suspended from an initiative with whitelist</a></li>
-<li><a href="bdd/A%20citizen%20can%20unsubscribe%20from%20an%20initiative%20with%20whitelist/">A citizen can unsubscribe from an initiative with whitelist</a></li>
-<li><a href="bdd/A%20citizen%20onboards%20on%20initiative%20with%20whitelist/">A citizen onboards on initiative with whitelist</a></li>
-<li><a href="bdd/For%20a%20refund%2C%20there%20is%20a%20return%20flow/">For a refund, there is a return flow</a></li>
-<li><a href="bdd/A%20merchant%20gets%20refunded%20if%20a%20transaction%20is%20discounted/">A merchant gets refunded if a transaction is discounted</a></li>
-<li><a href="bdd/A%20citizen%20onboards%20the%20pilot%20initiative/">A citizen onboards the pilot initiative</a></li>
-<li><a href="bdd/A%20citizen%20can%20generate%20the%20IDPay%20Code/">A citizen can generate the IDPay Code</a></li>
-<li><a href="bdd/A%20citizen%20can%20enroll%20an%20IDPay%20Code%20to%20an%20initiative/">A citizen can enroll an IDPay Code to an initiative</a></li>
-<li><a href="bdd/A%20citizen%20can%20pay%20by%20IDPay%20Code%20on%20a%20discount%20initiative/">A citizen can pay by IDPay Code on a discount initiative</a></li>
-<li><a href="bdd/A%20citizen%20can%20be%20rewarded%20and%20the%20merchant%20can%20be%20refunded%20about%20a%20transaction%20by%20IDPay%20Code/">A citizen can be rewarded and the merchant can be refunded about a transaction by IDPay Code</a></li>
-<li><a href="bdd/A%20transaction%20paid%20by%20IDPay%20Code%20can%20be%20cancelled%20by%20the%20merchant/">A transaction paid by IDPay Code can be cancelled by the merchant</a></li>
-<li><a href="bdd/Transaction%20in%20a%20closed%20initiative/">Transaction in a closed initiative</a></li>
-<li><a href="bdd/Onboarding%20on%20a%20closed%20initiative/">Onboarding on a closed initiative</a></li>
-<li><a href="bdd/A%20citizen%20onboards%20the%20pilot%20initiative%20with%20ISEE%20criteria/">A citizen onboards the pilot initiative with ISEE criteria</a></li>
-<li><a href="bdd/A%20merchant%20creates%20a%20transaction%20and%20a%20citizen%20tries%20to%20confirm%20it%20during%20grace%20period%20on%20an%20initiative%20with%20ranking/">A merchant creates a transaction and a citizen tries to confirm it during grace period on an initiative with ranking</a></li>
-<li><a href="bdd/A%20citizen%20onboards%20an%20initiative%20with%20ranking/">A citizen onboards an initiative with ranking</a></li>
-<li><a href="bdd/Transactions%20on%20an%20initiative%20for%20families%20with%20ranking/">Transactions on an initiative for families with ranking</a></li>
-<li><a href="bdd/Suspension%20on%20an%20initiative%20for%20families%20with%20ranking/">Suspension on an initiative for families with ranking</a></li>
-<li><a href="bdd/A%20family%20onboards%20an%20initiative%20with%20ranking/">A family onboards an initiative with ranking</a></li>
-<li><a href="bdd/Unsubscription%20on%20an%20initiative%20for%20families%20with%20ranking/">Unsubscription on an initiative for families with ranking</a></li>
-<li><a href="bdd/Onboarding/">Onboarding</a></li>
-<li><a href="bdd/Merchant%20refund/">Merchant refund</a></li>
-<li><a href="bdd/Cancellation/">Cancellation</a></li>
-<li><a href="bdd/Readmission/">Readmission</a></li>
-<li><a href="bdd/A%20citizen%20can%20unsubscribe%20from%20an%20initiative/">A citizen can unsubscribe from an initiative</a></li>
-<li><a href="bdd/Transaction/">Transaction</a></li>
-<li><a href="bdd/Suspension/">Suspension</a></li>
-<li><a href="bdd/A%20transaction%20can%20be%20cancelled%20by%20the%20merchant%201/">A transaction can be cancelled by the merchant 1</a></li>
+<li>The Institution tries to suspend an onboard citizen during the fruition period and receives an OK result</li>
+<li>The Institution tries to suspend a citizen not registered in the initiative and receives a KO</li>
+<li>A suspended citizen who tries to onboard remains in the "suspended" state</li>
+<li>A suspended citizen who tries to pre-authorize a transaction receives a KO result</li>
+<li>A citizen who tries to authorize a transaction, being suspended after pre-authorization, receives a KO result</li>
+<li>A citizen is correctly awarded for a transaction confirmed before its suspension</li>
+<li>If a transaction is correctly authorized by the citizen, if the latter is suspended, the payment mandate is correctly generated</li>
+<li>Suspending a citizen does not free up the budget of an initiative with a fully allocated budget</li>
+<li>A transaction can still be authorized even if a suspended citizen tried to pre-authorize it</li>
 </ul>
-<p><strong><a href="https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_test/analytics?definitionId=1385&amp;contextType=build">Azure DevOps pipeline analytics</a></strong></p>
-<p><a href="https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_build/latest?definitionId=1385&amp;branchName=main"><img alt="Build Status" src="https://dev.azure.com/pagopaspa/cstar-platform-app-projects/_apis/build/status%2Fidpay%2Fidpay-functional-testing%2Fidpay-functional-testing.discount-flow?branchName=main&amp;jobName=Run_functional_tests" /></a></p>
 
 
 
@@ -1672,10 +1640,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": [], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
