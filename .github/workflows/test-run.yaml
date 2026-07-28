@@ -155,12 +155,8 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
-      - name: Install system dependencies for Allure
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y findutils
-
       - name: Build test report
+        if: always()
         uses: simple-elf/allure-report-action@53ebb757a2097edc77c53ecef4d454fc2f2f774c
         continue-on-error: true
         with:
@@ -172,10 +168,12 @@ jobs:
           keep_reports: 30
 
       - name: Sanitize allure history
+        if: always()
         run: |
           python3 util/sanitize-allure-results.py allure-history
 
       - name: Publish test report
+        if: always()
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e
         continue-on-error: true
         with:
