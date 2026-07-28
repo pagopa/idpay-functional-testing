@@ -27,7 +27,10 @@ jobs:
 
       - name: Build Docs
         run: |
-          python3 scenario_parser.py
+          python3 scenario_parser.py \
+            --page-name "PARI Functional Testing" \
+            --repo-name ${{ github.event.repository.name }} \
+            --root-dir bdd/features
           mkdocs build
 
       - name: Upload to GitHub pages
