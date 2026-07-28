@@ -41,7 +41,7 @@ on:
 
 jobs:
   run-bdd-feature-tests:
-    runs-on: ubuntu-latest
+    runs-on: [ self-hosted-job, "${{ inputs.environment || 'dev' }}" ]
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     env:
       PARI_TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
