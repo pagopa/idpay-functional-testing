@@ -155,6 +155,11 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+      - name: Install system dependencies for Allure
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y findutils
+
       - name: Build test report
         uses: simple-elf/allure-report-action@53ebb757a2097edc77c53ecef4d454fc2f2f774c
         continue-on-error: true
@@ -165,7 +170,6 @@ jobs:
           allure_history: allure-history
           subfolder: bdd
           keep_reports: 30
-          packages: findutils
 
       - name: Sanitize allure history
         run: |
