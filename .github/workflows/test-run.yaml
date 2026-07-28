@@ -51,13 +51,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
 
-      - name: Debug Docker socket access
-        run: |
-          echo "🔎 Checking Docker socket availability..."
-          ls -la /var/run/docker.sock || echo "⚠️ Socket non trovato"
-          id
-          docker version || echo "⚠️ Impossibile comunicare con il demone Docker"
-
       - name: Azure Login
         uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a #v2.1.1
         with:
@@ -133,7 +126,7 @@ jobs:
       - name: Sanitize allure results
         if: always()
         run: |
-          python util/sanitize-allure-results.py allure-results
+          python3 util/sanitize-allure-results.py allure-results
 
       - name: Save BDD test results
         if: always()
@@ -151,22 +144,45 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+      - name: Set up Node.js
+        if: always()
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b #v4.0.3
+        with:
+          node-version: "24.11.0"
+
+      - name: Install Allure CLI
+        if: always()
+        run: npm install -g allure-commandline@2.30.0 --save-dev
+
+      - name: Restore history into allure-results
+        if: always()
+        run: |
+          mkdir -p allure-results/history
+          if [ -d "gh-pages/bdd/history" ]; then
+            echo "📜 Restoring previous Allure history..."
+            cp -r gh-pages/bdd/history/* allure-results/history/ 2>/dev/null || true
+          else
+            echo "ℹ️ No previous history found, starting fresh."
+          fi
+
       - name: Build test report
-        uses: simple-elf/allure-report-action@53ebb757a2097edc77c53ecef4d454fc2f2f774c
         if: always()
         continue-on-error: true
-        with:
-          gh_pages: gh-pages
-          allure_results: allure-results
-          allure_report: allure-report
-          allure_history: allure-history
-          subfolder: bdd
-          keep_reports: 30
+        run: |
+          allure generate allure-results --clean -o allure-report
+
+      - name: Prepare allure-history output
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p allure-history/bdd
+          cp -r allure-report/* allure-history/bdd/
+          echo "✅ Allure report pronto in allure-history/bdd"
 
       - name: Sanitize allure history
         if: always()
         run: |
-          python util/sanitize-allure-results.py allure-history
+          python3 util/sanitize-allure-results.py allure-history
 
       - name: Publish test report
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e
