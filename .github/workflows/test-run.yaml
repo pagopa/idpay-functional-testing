@@ -40,21 +40,8 @@ on:
           - uat
 
 jobs:
-  setup-docker:
-    runs-on: [ self-hosted-job, "${{ inputs.environment || 'dev' }}" ]
-    outputs:
-      runner_name: ${{ steps.capture.outputs.name }}
-    steps:
-      - name: Set up Docker
-        uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 #v5.4.0
-
-      - name: Capture runner name
-        id: capture
-        run: echo "name=${{ runner.name }}" >> "$GITHUB_OUTPUT"
-
   run-bdd-feature-tests:
-    needs: setup-docker
-    runs-on: ${{ needs.setup-docker.outputs.runner_name }}
+    runs-on: [ self-hosted-job, "${{ inputs.environment || 'dev' }}" ]
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     env:
       PARI_TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
@@ -63,6 +50,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Debug Docker socket access
+        run: |
+          echo "🔎 Checking Docker socket availability..."
+          ls -la /var/run/docker.sock || echo "⚠️ Socket non trovato"
+          id
+          docker version || echo "⚠️ Impossibile comunicare con il demone Docker"
 
       - name: Azure Login
         uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a #v2.1.1
