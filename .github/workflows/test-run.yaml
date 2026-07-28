@@ -40,17 +40,27 @@ on:
           - uat
 
 jobs:
-  run-bdd-feature-tests:
+  setup-docker:
     runs-on: [ self-hosted-job, "${{ inputs.environment || 'dev' }}" ]
+    outputs:
+      runner_name: ${{ steps.capture.outputs.name }}
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 #v5.4.0
+
+      - name: Capture runner name
+        id: capture
+        run: echo "name=${{ runner.name }}" >> "$GITHUB_OUTPUT"
+
+  run-bdd-feature-tests:
+    needs: setup-docker
+    runs-on: ${{ needs.setup-docker.outputs.runner_name }}
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     env:
       PARI_TARGET_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
       FEATURE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'bonus_elettrodomestici' }}
 
     steps:
-      - name: Set up Docker
-        uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 #v5.4.0
-
       - name: Checkout repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
 
