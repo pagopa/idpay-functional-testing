@@ -165,6 +165,7 @@ jobs:
           allure_history: allure-history
           subfolder: bdd
           keep_reports: 30
+          packages: findutils
 
       - name: Sanitize allure history
         run: |
