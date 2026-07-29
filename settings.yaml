@@ -104,8 +104,8 @@ IDPAY:
     asset_register:
       internal_path: '/register'
   acquirer_id: 'PAGOPA'
-RTD:
-  domain: "/rtd"
+SHARED:
+  domain: "/shared"
   endpoints:
     transactions:
       path: "/csv-transaction"

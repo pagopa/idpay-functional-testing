@@ -14,7 +14,7 @@ def pm_salt():
     """
     cert = load_certificates()
     response = requests.get(
-        f'{secrets.base_path.RTD}{settings.RTD.domain}{settings.RTD.endpoints.payment_instrument_manager.path}{settings.RTD.endpoints.payment_instrument_manager.version}{settings.RTD.endpoints.payment_instrument_manager.salt}',
+        f'{secrets.base_path.RTD}{settings.SHARED.domain}{settings.SHARED.endpoints.payment_instrument_manager.path}{settings.SHARED.endpoints.payment_instrument_manager.version}{settings.SHARED.endpoints.payment_instrument_manager.salt}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
@@ -31,7 +31,7 @@ def public_key():
     """
     cert = load_certificates()
     return requests.get(
-        f'{secrets.base_path.RTD}{settings.RTD.domain}{settings.RTD.endpoints.transactions.path}{settings.RTD.endpoints.transactions.public_key}',
+        f'{secrets.base_path.RTD}{settings.SHARED.domain}{settings.SHARED.endpoints.transactions.path}{settings.SHARED.endpoints.transactions.public_key}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
@@ -48,7 +48,7 @@ def sas_token():
     """
     cert = load_certificates()
     return requests.post(
-        f'{secrets.base_path.RTD}{settings.RTD.domain}{settings.RTD.endpoints.transactions.path}{settings.RTD.endpoints.transactions.SAS_token}',
+        f'{secrets.base_path.RTD}{settings.SHARED.domain}{settings.SHARED.endpoints.transactions.path}{settings.SHARED.endpoints.transactions.SAS_token}',
         cert=cert,
         headers={
             settings.API_KEY_HEADER: secrets.api_key.RTD_API_Product,
@@ -71,7 +71,7 @@ def upload_file(authorized_container, encrypted_file_path, sas):
     cert = load_certificates()
     with open(encrypted_file_path, 'rb') as f:
         response = requests.put(
-            f'{secrets.base_path.RTD}{settings.RTD.endpoints.pagopastorage}/{authorized_container}/{os.path.basename(encrypted_file_path)}?{sas}',
+            f'{secrets.base_path.RTD}{settings.SHARED.endpoints.pagopastorage}/{authorized_container}/{os.path.basename(encrypted_file_path)}?{sas}',
             cert=cert,
             data=f,
             headers={
