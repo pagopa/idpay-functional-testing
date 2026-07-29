@@ -171,12 +171,10 @@ jobs:
         run: |
           python3 util/sanitize-allure-results.py gh-pages
 
-      - name: Publish test report
+      - name: Git Commit and Push
+        uses: mgrybyk-org/git-commit-pull-push-action@v1
         if: always()
-        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e
-        continue-on-error: true
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
-          keep_files: true
+          repository: gh-pages
+          branch: gh-pages
+          pull_args: --rebase -X ours
