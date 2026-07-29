@@ -15,19 +15,6 @@ on:
         type: string
         required: true
         description: 'Behave tag to run'
-    secrets:
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_SUBSCRIPTION_ID:
-        required: true
-      SECRET_NAME:
-        required: true
-      KEYVAULT_NAME:
-        required: true
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   run-bdd-feature-tests:
@@ -180,7 +167,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e #v4.0.0
         if: always()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
           publish_branch: gh-pages
           publish_dir: allure-report-bdd
           destination_dir: bdd
