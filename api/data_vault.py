@@ -9,7 +9,7 @@ def data_vault_tokenize(pii:str):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.put(f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mcshared_data_vault.internal_path}',
+    return requests.put(f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mcshared_data_vault.internal_path}',
                         headers={
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
@@ -27,7 +27,7 @@ def data_vault_detokenize(token):
         :returns: the response of the call.
         :rtype: requests.Response
     """
-    return requests.get(f'{settings.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mcshared_data_vault.internal_path}/{token}{settings.IDPAY.endpoints.mcshared_data_vault.detokenize}',
+    return requests.get(f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mcshared_data_vault.internal_path}/{token}{settings.IDPAY.endpoints.mcshared_data_vault.detokenize}',
                         headers={
                             'Content-Type': 'application/json',
                             'x-api-key': secrets.api_key.MCSHARED_DATA_VAULT

@@ -131,7 +131,7 @@ dmypy.json
 .idea/
 
 # Ignore dynaconf secret files
-conf/pari_feature_secrets.yaml
+conf/pari-feature-secrets.json
 
 # Exclude cryptography files
 *.key

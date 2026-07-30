@@ -18,9 +18,9 @@ from conf.configuration import settings
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_temporary_fc
 from util.dataset_utility import get_random_unicode
+from util.onboarding_utilities import onboard_io
 from util.utility import check_statistics
 from util.utility import get_io_token
-from util.utility import onboard_io
 
 initiative_id = secrets.initiatives.cashback_like.id
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses

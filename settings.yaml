@@ -1,6 +1,6 @@
-SECRET_PATH: "conf/pari_feature_secrets.yaml"
+SECRET_PATH: "conf/pari-feature-secrets.json"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
-TARGET_ENV: "dev"
+TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
@@ -8,12 +8,6 @@ iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 KEEP_INITIATIVES_AFTER_TEST: false
 KEEP_INITIATIVES_AFTER_FAILED_TEST: false
 INITIATIVE_STARTUP_TIME_SECONDS: 120
-base_path:
-  IO: "https://api-io.dev.cstar.pagopa.it"
-  CSTAR: "https://api.dev.cstar.pagopa.it"
-  RTD: "https://api.dev.cstar.pagopa.it"
-  IDPAY:
-    internal: "https://idpay.itn.internal.dev.cstar.pagopa.it"
 IDPAY:
   domain: "/idpay-itn"
   MIL:
@@ -107,9 +101,11 @@ IDPAY:
     mcshared_data_vault:
       internal_path: '/mcshareddatavault/tokens'
       detokenize: '/pii'
+    asset_register:
+      internal_path: '/register'
   acquirer_id: 'PAGOPA'
-RTD:
-  domain: "/rtd"
+SHARED:
+  domain: "/shared"
   endpoints:
     transactions:
       path: "/csv-transaction"

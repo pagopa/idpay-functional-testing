@@ -191,7 +191,8 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                     operations.append(operation)
         success = len(operations) == num_required
 
-    assert success
+    assert success, (
+        f'result retry timeline {res.json()[field]} does not match expected {expected} for field {field}')
     return res
 
 
@@ -206,7 +207,9 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
         time.sleep(delay)
         res = request(initiative_id, token)
         success = (res.status_code == 200 and expected == res.json()[field])
-    assert success
+    assert success, (
+        f'result retry wallet {res.json()[field]} does not match expected {expected} for field {field}'
+    )
     return res
 
 
@@ -574,36 +577,54 @@ def create_initiative(initiative_name_in_settings: str,
     res = put_initiative_general_info(selfcare_token=institution_selfcare_token,
                                       initiative_id=initiative_id,
                                       general_payload=creation_payloads.general)
-    assert res.status_code == 204
+    assert res.status_code == 204, (
+        f'put_initiative_general_info failed for initiative "{initiative_name_in_settings}" '
+        f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+    )
 
     if creation_payloads.general['beneficiaryKnown'] is True:
         res = upload_whitelist_file(selfcare_token=institution_selfcare_token,
                                     initiative_id=initiative_id,
                                     fiscal_codes=known_beneficiaries)
-        assert res.status_code == 200
+        assert res.status_code == 200, (
+            f'upload_whitelist_file failed for initiative "{initiative_name_in_settings}" '
+            f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+        )
         time.sleep(5)
     else:
         res = put_initiative_beneficiary_info(selfcare_token=institution_selfcare_token,
                                               initiative_id=initiative_id,
                                               beneficiary_payload=creation_payloads.beneficiary)
-        assert res.status_code == 204
+        assert res.status_code == 204, (
+            f'put_initiative_beneficiary_info failed for initiative "{initiative_name_in_settings}" '
+            f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+        )
 
     res = put_initiative_reward_info(selfcare_token=institution_selfcare_token,
                                      initiative_id=initiative_id,
                                      reward_payload=creation_payloads.reward
                                      )
-    assert res.status_code == 204
+    assert res.status_code == 204, (
+        f'put_initiative_reward_info failed for initiative "{initiative_name_in_settings}" '
+        f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+    )
 
     res = put_initiative_refund_info(selfcare_token=institution_selfcare_token,
                                      initiative_id=initiative_id,
                                      refund_payload=creation_payloads.refund
                                      )
-    assert res.status_code == 204
+    assert res.status_code == 204, (
+        f'put_initiative_refund_info failed for initiative "{initiative_name_in_settings}" '
+        f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+    )
 
     pagopa_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.PagoPA)
     res = put_initiative_approval(selfcare_token=pagopa_selfcare_token,
                                   initiative_id=initiative_id)
-    assert res.status_code == 204
+    assert res.status_code == 204, (
+        f'put_initiative_approval failed for initiative "{initiative_name_in_settings}" '
+        f'(id={initiative_id}): status={res.status_code}, body={res.text}'
+    )
 
     institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 

@@ -2,6 +2,7 @@
 """
 import requests
 
+from conf.configuration import secrets
 from conf.configuration import settings
 
 
@@ -19,7 +20,7 @@ def save_onboarding(token, initiative_id, confirmedTos = True, pdnd_accept=True,
     if self_declaration_list is None:
         self_declaration_list = []
 
-    return requests.put(f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}',
+    return requests.put(f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}',
                         headers={
                             'Content-Type': 'application/json',
                             'Authorization': f'Bearer {token}',
@@ -43,7 +44,7 @@ def status_onboarding(token, initiative_id):
         :rtype: requests.Response
     """
     return requests.get(
-        f'{settings.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.status}',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.status}',
         headers={
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {token}',

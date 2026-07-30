@@ -17,10 +17,10 @@ from util.certs_loader import load_pm_public_key
 from util.dataset_utility import fake_fc
 from util.dataset_utility import fake_pan
 from util.encrypt_utilities import pgp_string_routine
+from util.onboarding_utilities import onboard_io
 from util.utility import card_enroll
 from util.utility import card_removal
 from util.utility import get_io_token
-from util.utility import onboard_io
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses

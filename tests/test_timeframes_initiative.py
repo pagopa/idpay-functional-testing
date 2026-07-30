@@ -16,6 +16,7 @@ from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
 from util.dataset_utility import get_random_time
 from util.encrypt_utilities import pgp_string_routine
+from util.onboarding_utilities import onboard_io
 from util.transaction_upload import encrypt_and_upload
 from util.utility import card_enroll
 from util.utility import card_removal
@@ -24,7 +25,6 @@ from util.utility import custom_transaction
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
 from util.utility import iban_enroll
-from util.utility import onboard_io
 from util.utility import retry_timeline
 from util.utility import retry_wallet
 from util.utility import transactions_hash
