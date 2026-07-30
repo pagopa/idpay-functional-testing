@@ -1,1 +1,1 @@
-{"reportName":"Allure Report","testRuns":[],"statistic":{"failed":4,"broken":0,"skipped":0,"passed":6,"unknown":0,"total":10},"time":{"start":1785408918188,"stop":1785408959434,"duration":41246,"minDuration":608,"maxDuration":14376,"sumDuration":41237}}
+{"reportName":"BDD Report #42","testRuns":[],"statistic":{"failed":3,"broken":0,"skipped":0,"passed":7,"unknown":0,"total":10},"time":{"start":1785417239639,"stop":1785417284178,"duration":44539,"minDuration":580,"maxDuration":16124,"sumDuration":44531}}
