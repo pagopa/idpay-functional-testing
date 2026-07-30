@@ -123,6 +123,22 @@ jobs:
         with:
           name: allure-results-bdd
           path: allure-results
+      
+      - name: Add Allure executor metadata
+        if: always()
+        run: |
+          cat > allure-results/executor.json <<EOF
+          {
+            "name": "GitHub Actions",
+            "type": "github",
+            "url": "https://github.com/${{ github.repository }}/actions",
+            "buildOrder": ${{ github.run_number }},
+            "buildName": "${{ github.workflow }} #${{ github.run_number }}",
+            "buildUrl": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "reportName": "BDD Report #${{ github.run_number }}",
+            "reportUrl": "https://pagopa.github.io/${{ github.event.repository.name }}/bdd"
+          }
+          EOF
 
       - name: Load test report history
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
