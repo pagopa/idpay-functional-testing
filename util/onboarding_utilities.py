@@ -46,7 +46,9 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
         success = (expected == res.json()[field])
     actual = res.json()[field]
 
-    assert expected == actual
+    assert expected == actual, (
+        f'result retry io onboarding {res.json()[field]} does not match expected {expected} for field {field}'
+    )
 
     return res
 
