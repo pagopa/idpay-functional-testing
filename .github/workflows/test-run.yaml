@@ -15,7 +15,7 @@ on:
         type: choice
         description: Run functional tests by tag
         required: false
-        default: bonus_elettrodomestici
+        default: all
         options:
           - all
           - bonus_elettrodomestici
@@ -33,7 +33,7 @@ on:
       environment:
         description: Environment
         required: false
-        default: dev
+        default: uat
         type: choice
         options:
           - dev
@@ -54,8 +54,8 @@ jobs:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'all' || inputs.test_type == 'bdd' }}
     uses: ./.github/workflows/test-run-bdd.yaml
     with:
-      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
-      feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'bonus_elettrodomestici' }}
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
+      feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
     secrets: inherit
 
   run-functional-tests:
@@ -63,5 +63,5 @@ jobs:
     if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.test_type == 'all' || inputs.test_type == 'functional') }}
     uses: ./.github/workflows/test-run-functional-test.yaml
     with:
-      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
     secrets: inherit

@@ -1,6 +1,6 @@
 SECRET_PATH: "conf/pari-feature-secrets.json"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
-TARGET_ENV: "dev"
+TARGET_ENV: "uat"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
