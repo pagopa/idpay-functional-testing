@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - LPBD-16-create-github-action
 
 permissions:
   contents: write

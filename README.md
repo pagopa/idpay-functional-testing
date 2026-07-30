@@ -5,6 +5,7 @@ Repository containing BDD and functional tests for the PARI platform.
 ## Reports and documentation
 
 - GitHub Pages (docs + report): https://pagopa.github.io/idpay-functional-testing/docs
+- Public Allure reports are published from `uat` runs only.
 
 ## Test execution
 
@@ -17,7 +18,7 @@ Manual execution:
 2. Select the **test-run** workflow.
 3. Click **Run workflow**.
 4. Set the parameters:
-   - `environment`: `dev` or `uat`
+   - `environment`: `uat`
    - `test_type`: `all`, `bdd`, `functional`
    - `feature`: BDD tag to run
 5. Start the run.

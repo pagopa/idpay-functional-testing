@@ -103,7 +103,7 @@ jobs:
 
   publish-functional-test-report:
     needs: run-functional-tests
-    if: always()
+    if: ${{ always() && inputs.target_env == 'uat' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
