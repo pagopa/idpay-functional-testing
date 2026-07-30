@@ -109,6 +109,7 @@ for component, files in component_features.items():
         if args.component_test_report:
             component_file.write("<hr>\n")
             component_file.write(f"## [Allure BDD Test report](https://pagopa.github.io/{args.repo_name[0]}/bdd)")
+            component_file.write(f"## [Allure FUNCTIONAL Test report](https://pagopa.github.io/{args.repo_name[0]}/functional)")
 
     nav_links.append({component: f"components/{component}.md"})
 
@@ -128,7 +129,8 @@ mkdocs_config = {
         {"Components": nav_links},
         {
             "Allure Reports": [
-                {"BDD": f"https://pagopa.github.io/{args.repo_name[0]}/bdd"}
+                {"BDD": f"https://pagopa.github.io/{args.repo_name[0]}/bdd"},
+                {"FUNCTIONAL": f"https://pagopa.github.io/{args.repo_name[0]}/functional"},
             ]
         },
     ],

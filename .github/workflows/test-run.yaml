@@ -47,7 +47,7 @@ on:
         options:
           - all
           - bdd
-          - pytest
+          - functional
 
 jobs:
   run-bdd:
@@ -56,4 +56,12 @@ jobs:
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'bonus_elettrodomestici' }}
+    secrets: inherit
+
+  run-functional-tests:
+    needs: run-bdd
+    if: ${{ always() && (github.event_name != 'workflow_dispatch' || inputs.test_type == 'all' || inputs.test_type == 'functional') }}
+    uses: ./.github/workflows/test-run-functional-test.yaml
+    with:
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'dev' }}
     secrets: inherit
