@@ -170,5 +170,5 @@ jobs:
           github_token: ${{ github.token }}
           publish_branch: gh-pages
           publish_dir: allure-report-bdd
-          destination_dir: bdd/${{ github.run_number }}
+          destination_dir: bdd
           keep_files: true
