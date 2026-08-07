@@ -102,7 +102,35 @@ IDPAY:
       internal_path: '/mcshareddatavault/tokens'
       detokenize: '/pii'
     asset_register:
-      internal_path: '/register'
+      internal_path: "/register"
+      token_test: "/token/test"
+      initiatives: "/initiatives"
+      producers: "/producers"
+      email: "/email"
+      products:
+        path: "/products"
+        update_status:
+          approved: "/products/update-status/approved"
+          wait_approved: "/products/update-status/wait-approved"
+          supervised: "/products/update-status/supervised"
+          rejected: "/products/update-status/rejected"
+          restored: "/products/update-status/restored"
+      product_files:
+        path: "/product-files"
+        verify: "/product-files/verify"
+        report: "/product-files/{}/report"
+        batch_list: "/product-files/batch-list"
+      institutions:
+        by_id: "/institutions/{}"
+      clean:
+        products: "/clean/products"
+        products_file: "/clean/products-file"
+        products_file_report: "/clean/products-file/report"
+        products_file_formal: "/clean/products-file/formal"
+      authorization:
+        path: "/permissions"
+      consent:
+        path: "/consent"
   acquirer_id: 'PAGOPA'
 SHARED:
   domain: "/shared"
