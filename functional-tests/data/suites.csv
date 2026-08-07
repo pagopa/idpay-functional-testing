@@ -1,132 +1,132 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","802","test_no_reward_transaction_1sec_before_card_enrollment","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","468","test_send_five_transactions_award_decimal","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","514","test_no_reward_on_first_transaction_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","654","test_get_pending_reward_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","484","test_no_award_insufficient_amount_and_transactions","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","491","test_not_award_transaction_wrong_day","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"IO login is emulated by a stub which allows to get a token from a tax code
+and then introspect the token
+","260","test_login_io","tests.test_not_started","2026-08-07","passed","2026-08-07","","test_login_io","",""
+"","464","test_not_award_transaction_after_allowed_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","610","test_award_again_after_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","455","test_award_transaction_exact_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","472","test_erode_budget_with_one_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","461","test_no_award_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","524","test_send_transaction_after_fruition_period","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","476","test_not_award_transaction_1_sec_before_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","470","test_send_five_transactions_award_second_and_third","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","475","test_not_award_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","506","test_reward_transaction_after_partial_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"This test tries to enroll cards that have not the correct length (exceeds the allowed size of 20).
+    ","366","test_enroll_incorrect_length_pan_too_long","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","490","test_no_reward_exceed_max_trx_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"This test tries to enroll a card enrolled by another citizen that unsubscribed the initiative.
+    ","463","test_cannot_enroll_same_payment_instrument_of_another_unsubscribed_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","482","test_homocode_onboarding","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"This test tries to enroll a card enrolled by another citizen that removed it.
+    ","333","test_cannot_enroll_same_payment_instrument_of_another_citizen_that_removed_it","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","488","test_no_award_wrong_mcc_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","468","test_award_transaction","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"Card enrollment process through Issuer API.
+    ","326","test_enroll_blank_pan","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","473","test_abnormal_of_card_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","539","test_send_single_200e_transaction_erode_budget_max_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","504","test_not_award_transaction_wrong_day_sunday","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"Onboarding process through IO with a temporary fiscal code
+    ","329","test_onboard_io_temporary_fc","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
+"Onboarding process through IO
+    ","347","test_onboard_io","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
+"","469","test_award_transaction_exact_timeframe_end","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","506","test_no_award_insufficient_amount_and_transactions","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","518","test_ko_iban_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","515","test_award_new_transaction_after_reversal_on_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"Card enrollment process through Issuer API.
+    ","337","test_enrollment_api_issuer","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","567","test_no_reward_after_complete_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"The timeline and wallet of an ever onboarded citizen are not found
+    ","322","test_timeline_without_ever_onboard","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
+"","491","test_partial_reversal_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"This test tries to remove a card enrolled by another citizen.
+    ","591","test_remove_payment_instrument_of_another_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","474","test_not_award_transaction_1ms_before_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","470","test_no_award_wrong_mcc","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"Onboarding process through IO of a blank test Fiscal Code
+    ","142","test_onboard_space_fc","tests.test_cashback_like","2026-08-07","broken","2026-08-07","","test_onboarding_io","",""
+"","738","test_enroll_same_iban_2","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","466","test_no_reward_on_first_transaction_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","459","test_no_award_transaction_after_card_removal","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"Issuer enroll of a non-onboard citizen. The expected result is a 404 obtained from IDPay.
+This is due to the missing onboard of a citizen.
+","1","test_fail_onboarding_issuer_malformed_pgp","tests.test_not_started","2026-08-07","broken","2026-08-07","","test_fail_onboard_api_issuer","",""
+"","459","test_not_award_transaction_1_sec_after_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","469","test_not_award_transaction_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","533","test_send_minimum_awardable_amount","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","456","test_send_one_transactions_no_award","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"This test tries to enroll a card enrolled by another citizen.
+    ","344","test_enroll_same_payment_instrument_of_another_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
 "Issuer enroll of a non-onboard citizen. The expected result is a 404 obtained from IDPay.
 This is due to the missing onboard of a citizen.
 ","1","test_fail_onboarding_issuer_citizen_not_onboard","tests.test_not_started","2026-08-07","broken","2026-08-07","","test_fail_onboard_api_issuer","",""
-"","485","test_not_award_exceeds_max_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","466","test_not_award_transaction_1_sec_before_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","1223","test_send_one_transactions_no_award","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","604","test_ko_card_enroll_already_associated_to_the_same_initiative","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","456","test_award_new_transaction_after_reversal_on_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","515","test_get_pending_reward_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","605","test_ko_card_enroll_already_associated_to_the_same_initiative","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
 "IO login is emulated by a stub which allows to get a token from a tax code
 and then introspect the token
-","358","test_fail_onboarding","tests.test_not_started","2026-08-07","failed","2026-08-07","","test_fail_onboard_io","",""
-"","494","test_not_award_transaction_1ms_before_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","511","test_not_award_transaction_1ms_after_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+","335","test_fail_onboarding","tests.test_not_started","2026-08-07","failed","2026-08-07","","test_fail_onboard_io","",""
+"","495","test_send_five_transactions_award_second_and_third_not_erode","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"IBAN enrollment process through IO API
+    ","1068","test_enrollment_iban","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
+"","515","test_small_amount_no_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","505","test_no_reward_one_cent","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"Onboarding process through IO of a test Fiscal Code longer than maximum length of the URL
+    ","141","test_onboard_too_long_fc","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
+"","486","test_not_award_transaction_exceeds_max_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","464","test_enroll_iban_more_times","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
+"","461","test_partial_reversal_on_first_transaction_making_it_unacceptable","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","454","test_not_award_transactions_after_unsubscribe","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","485","test_erode_budget","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"Onboarding process through IO of a blank test Fiscal Code
+    ","133","test_onboard_blank_fc","tests.test_cashback_like","2026-08-07","broken","2026-08-07","","test_onboarding_io","",""
+"","513","test_no_reward_transaction_1sec_before_card_enrollment","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","513","test_unsubscribe_after_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","465","test_wrong_reward_reverting_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","480","test_not_award_exceeds_max_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","456","test_not_award_out_of_amount_range","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","648","test_ko_card_enroll_already_associated_to_another_initiative","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","469","test_award_max_budget","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"IBAN enrollment process through IO API
+    ","472","test_enroll_same_iban_on_different_citizens","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
+"Onboarding process through IO of a test Fiscal Code made of random Unicode characters
+    ","553","test_onboard_unicode","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
+"","470","test_no_award_new_transaction_after_reversal_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","732","test_enroll_same_iban_1","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","454","test_no_reward_zero_cent","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","506","test_award_correct_amount_after_partial_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","542","test_remove_card_and_enroll_again","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","453","test_not_award_transaction_1ms_after_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","488","test_send_five_transactions_award_decimal","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"Fail IBAN enrollment process through IO API, citizen not onboard
+    ","247","test_fail_enrollment_iban_citizen_not_onboard","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
 "IO login is emulated by a stub which allows to get a token from a tax code
 and then introspect the token
 ","384","test_fail_onboarding_wrong_token","tests.test_not_started","2026-08-07","passed","2026-08-07","","test_fail_onboard_io","",""
-"","569","test_award_correct_amount_after_partial_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","490","test_not_award_transaction_wrong_day_sunday","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","484","test_no_reward_zero_cent","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","547","test_send_transaction_after_fruition_period","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","1520","test_ko_card_enroll_already_associated_to_another_initiative","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","484","test_no_reward_exceed_max_trx_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","480","test_not_award_out_of_amount_range","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"Card enrollment process through Issuer API.
-    ","345","test_enrollment_api_issuer","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","730","test_enroll_same_iban_2","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","589","test_send_minimum_awardable_amount","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","500","test_award_transaction_exact_timeframe_end","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"This test tries to enroll cards that have not the correct length (less than the minimum size of 12).
-    ","343","test_enroll_incorrect_length_pan_too_short","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","547","test_homocode_onboarding","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","646","test_send_transaction_ko_card_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"This test tries to enroll cards that have not the correct length (exceeds the allowed size of 20).
-    ","371","test_enroll_incorrect_length_pan_too_long","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","491","test_erode_budget","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","494","test_no_award_transaction_after_card_removal","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","531","test_remove_card_and_enroll_again","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","476","test_erode_budget_with_one_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"This test tries to enroll a card enrolled by another citizen.
-    ","337","test_enroll_same_payment_instrument_of_another_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","502","test_award_max_budget","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"Onboarding process through IO of a test Fiscal Code made of random Unicode characters
-    ","534","test_onboard_unicode","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
-"","496","test_no_award_wrong_mcc","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"This test tries to enroll a card enrolled by another citizen that unsubscribed the initiative.
-    ","477","test_cannot_enroll_same_payment_instrument_of_another_unsubscribed_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","457","test_not_award_transaction_wrong_day","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","629","test_abnormal_of_card_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","643","test_ok_card_enroll_already_associated_to_another_initiative_same_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","513","test_reward_transaction_after_partial_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","651","test_onboarding_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"Card enrollment process through Issuer API.
-    ","356","test_enroll_blank_pan","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","473","test_not_award_transactions_after_unsubscribe","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","1235","test_enroll_iban_more_times","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
-"","490","test_no_reward_one_cent","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","509","test_award_transaction_exact_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","476","test_award_transaction","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","495","test_partial_reversal_on_first_transaction_making_it_unacceptable","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","469","test_send_five_transactions_award_second_and_third_not_erode","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"This test tries to enroll a card enrolled by another citizen that removed it.
-    ","517","test_cannot_enroll_same_payment_instrument_of_another_citizen_that_removed_it","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"Onboarding process through IO of a test Fiscal Code longer than maximum length of the URL
-    ","140","test_onboard_too_long_fc","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
-"Onboarding process through IO of a test Fiscal Code longer than normal
-    ","1410","test_onboard_long_fc","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
-"","1038","test_no_reward_after_complete_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","531","test_award_again_after_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"Repeat the onboarding of the same citizen and check if the counters change
-    ","452","test_onboard_two_times","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
-"","525","test_no_reward_on_reverted_not_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"This test tries to enroll an expired cards.
-    ","349","test_fail_enrollment_card_expired","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","469","test_not_award_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"Issuer enroll of a non-onboard citizen. The expected result is a 404 obtained from IDPay.
-This is due to the missing onboard of a citizen.
-","0","test_fail_onboarding_issuer_malformed_pgp","tests.test_not_started","2026-08-07","broken","2026-08-07","","test_fail_onboard_api_issuer","",""
-"","487","test_not_award_transaction_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"","506","test_not_award_after_budget_erosion","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","495","test_no_reward_on_reverted_not_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","503","test_update_reward_on_reverted_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
+"","657","test_onboarding_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
 "This test tries to enroll a card without being onboard.
     ","0","test_fail_enrollment_issuer_not_onboard","tests.test_cashback_like","2026-08-07","broken","2026-08-07","","test_enrollment_issuer","",""
-"","546","test_not_award_after_budget_erosion","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","512","test_no_award_new_transaction_after_reversal_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","809","test_send_50_transaction_erode_budget_max_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"IO login is emulated by a stub which allows to get a token from a tax code
-and then introspect the token
-","266","test_login_io","tests.test_not_started","2026-08-07","passed","2026-08-07","","test_login_io","",""
-"Onboarding process through IO
-    ","389","test_onboard_io","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
+"","490","test_ok_card_enroll_already_associated_to_another_initiative_same_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"This test tries to enroll an expired cards.
+    ","333","test_fail_enrollment_card_expired","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","565","test_send_50_transaction_erode_budget_max_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","609","test_send_single_transaction","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","509","test_send_transaction_ko_card_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"This test tries to enroll cards that have not the correct length (less than the minimum size of 12).
+    ","330","test_enroll_incorrect_length_pan_too_short","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","562","test_correct_statistic_of_onboard_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","517","test_award_transactions_done_with_two_payment_methods","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
 "This test tries to enroll cards that have alphabetic characters.
-    ","383","test_enroll_alphabetic_characters_pan","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","915","test_send_single_transaction","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","500","test_no_award_insufficient_amount","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"Onboarding process through IO of a blank test Fiscal Code
-    ","136","test_onboard_space_fc","tests.test_cashback_like","2026-08-07","broken","2026-08-07","","test_onboarding_io","",""
-"","532","test_wrong_reward_reverting_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"Fail IBAN enrollment process through IO API, citizen not onboard
-    ","240","test_fail_enrollment_iban_citizen_not_onboard","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
-"The timeline and wallet of an ever onboarded citizen are not found
-    ","359","test_timeline_without_ever_onboard","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
-"Onboarding process through IO of a blank test Fiscal Code
-    ","126","test_onboard_blank_fc","tests.test_cashback_like","2026-08-07","broken","2026-08-07","","test_onboarding_io","",""
-"","475","test_send_five_transactions_award_second_and_third","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"Onboarding process through IO with a temporary fiscal code
-    ","343","test_onboard_io_temporary_fc","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
-"","560","test_send_single_200e_transaction_erode_budget_max_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","562","test_small_amount_no_award","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","497","test_award_transaction_1_sec_before_timeframe_end","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","1447","test_unsubscribe_after_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","566","test_reward_transaction_after_complete_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","538","test_not_award_transaction_after_allowed_timeframe","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"IBAN enrollment process through IO API
-    ","489","test_enrollment_iban","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
-"","459","test_update_reward_on_reverted_awarded_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","479","test_no_award_wrong_mcc_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","1114","test_ko_iban_enroll","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"","487","test_not_award_transaction_exceeds_max_amount","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","466","test_not_award_transaction_1_sec_after_timeframe_start","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"This test tries to remove a card enrolled by another citizen.
-    ","618","test_remove_payment_instrument_of_another_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
-"","503","test_award_transactions_done_with_two_payment_methods","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","751","test_enroll_same_iban_1","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
-"","466","test_partial_reversal_on_first_transaction","tests","2026-08-07","failed","2026-08-07","","test_complex_initiative","",""
-"","569","test_send_transaction_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
-"IBAN enrollment process through IO API
-    ","457","test_enroll_same_iban_on_different_citizens","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_iban","",""
-"","577","test_correct_statistic_of_onboard_citizen","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+    ","334","test_enroll_alphabetic_characters_pan","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_enrollment_issuer","",""
+"","532","test_send_transaction_after_unsubscribe","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
+"","480","test_award_transaction_1_sec_before_timeframe_end","tests","2026-08-07","failed","2026-08-07","","test_timeframes_initiative","",""
+"Onboarding process through IO of a test Fiscal Code longer than normal
+    ","572","test_onboard_long_fc","tests.test_cashback_like","2026-08-07","passed","2026-08-07","","test_onboarding_io","",""
+"Repeat the onboarding of the same citizen and check if the counters change
+    ","445","test_onboard_two_times","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_onboarding_io","",""
+"","505","test_reward_transaction_after_complete_reversal","tests.test_cashback_like","2026-08-07","failed","2026-08-07","","test_cashback_like","",""
