@@ -15,6 +15,9 @@ IDPAY:
   MININT:
     domain: "/minint"
   endpoints:
+    ecommerce:
+      path: "/merchant-ecommerce"
+      barcode: "/transactions/bar-code"
     onboarding:
       path: "/onboarding"
       initiative: "/onboarding/initiative"

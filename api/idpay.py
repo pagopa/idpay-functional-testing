@@ -651,7 +651,7 @@ def put_authorize_bar_code_merchant(merchant_id: str,
         headers['Authorization'] = f'Bearer {access_token}'
 
     return requests.put(
-        f'{secrets.base_path.MERCHANT_ECOMMERCE}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}/authorize',
         headers=headers,
         json={
             'amountCents': amount_cents,
