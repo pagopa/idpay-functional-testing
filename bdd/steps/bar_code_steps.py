@@ -177,6 +177,30 @@ def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_na
     )
 
 
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
+def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    trx_code = context.transactions[trx_name]['trxCode']
+    client_credentials = secrets.merchants[f'merchant_{merchant_name}'].points_of_sale[
+        point_of_sale_name
+    ].client_credentials
+    token_response = get_client_credentials_token(
+        token_url=client_credentials.token_url,
+        client_id=client_credentials.client_id,
+        client_secret=client_credentials.client_secret,
+        scope=client_credentials.get('scope')
+    )
+
+    assert token_response.status_code == 200
+    access_token = token_response.json().get('access_token')
+    assert access_token
+
+    context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(merchant_id=curr_merchant_id,
+                                                                                     trx_code=trx_code,
+                                                                                     amount_cents=amount_cents,
+                                                                                     access_token=access_token)
+
+
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
 @given('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
