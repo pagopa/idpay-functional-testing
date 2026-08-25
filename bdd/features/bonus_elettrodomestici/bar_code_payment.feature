@@ -14,5 +14,5 @@ Feature: Barcode payments for Bonus Elettrodomestici
 
   Scenario: An onboarded citizen creates a barcode payment accepted by a merchant
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents
+    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     Then with Bar Code the transaction X is authorized
