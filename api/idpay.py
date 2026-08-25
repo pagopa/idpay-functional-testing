@@ -639,15 +639,20 @@ def post_create_payment_bar_code(token, initiative_id: str):
 def put_authorize_bar_code_merchant(merchant_id: str,
                                     trx_code: str,
                                     amount_cents: int,
+                                    access_token: str = None,
                                     acquirer_id: str = settings.idpay.acquirer_id
                                     ):
+    headers = {
+        'Content-Type': 'application/json',
+        'x-merchant-id': merchant_id,
+        'x-acquirer-id': acquirer_id
+    }
+    if access_token:
+        headers['Authorization'] = f'Bearer {access_token}'
+
     return requests.put(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
-        headers={
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id
-        },
+        f'{secrets.base_path.MERCHANT_ECOMMERCE}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
+        headers=headers,
         json={
             'amountCents': amount_cents,
             'idTrxAcquirer': str(uuid.uuid4())

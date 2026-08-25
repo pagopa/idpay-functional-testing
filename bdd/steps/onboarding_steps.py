@@ -15,8 +15,8 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util.dataset_utility import fake_iban
 from util.dataset_utility import fake_pan
-from util.onboarding_utilities import build_self_declaration_list_payload_by_initiative, \
-    build_boolean_self_declaration_list_payload
+from util.onboarding_utilities import build_boolean_self_declaration_list_payload
+from util.onboarding_utilities import build_self_declaration_list_payload_by_initiative
 from util.onboarding_utilities import retry_io_onboarding
 from util.utility import card_enroll
 from util.utility import check_statistics
@@ -102,6 +102,23 @@ def step_named_citizen_suspension(context, citizen_name):
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
+@given('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
+@then('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
+def step_wait_for_onboarding_ok(context, citizen_name, timeout_seconds):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    retry_io_onboarding(
+        expected='ONBOARDING_OK',
+        request=status_onboarding,
+        token=token_io,
+        initiative_id=context.initiative_id,
+        field='status',
+        tries=int(timeout_seconds) * 2,
+        delay=0.5,
+        message=f'Citizen onboard not OK within {timeout_seconds} seconds'
+    )
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
+
+
 @given('the citizen {citizen_name} tries to onboard')
 @when('the citizen {citizen_name} tries to onboard')
 def step_citizen_tries_to_onboard(context, citizen_name):
@@ -129,6 +146,7 @@ def step_check_onboard_not_found(context, citizen_name):
     res = status_onboarding(token_io, context.initiative_id)
     assert res.status_code == 404
 
+@given('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
 def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initiative_name):
     context.initiative_id = secrets.initiatives[initiative_name]['id']
@@ -136,7 +154,7 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
                                                         initiative_id=context.initiative_id).json()
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    multi_consent_isee_value = getattr(context, "multi_consent_isee_value", "1")
+    multi_consent_isee_value = getattr(context, 'multi_consent_isee_value', '1')
 
     self_declaration_list = build_self_declaration_list_payload_by_initiative(
         initiative_name,
@@ -533,9 +551,9 @@ def step_invited_citizen_tries_to_onboard(context):
 @given('the citizen {citizen_name} selects ISEE type "{isee_type}"')
 def step_select_isee_type(context, citizen_name, isee_type):
     mapping = {
-        "under_25000": "1",
-        "over_25000": "2",
-        "not_declared": "3",
+        'under_25000': '1',
+        'over_25000': '2',
+        'not_declared': '3',
     }
 
     context.multi_consent_isee_value = mapping[isee_type]
@@ -543,7 +561,7 @@ def step_select_isee_type(context, citizen_name, isee_type):
 def perform_full_onboarding(context, citizen_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
-    multi_consent_isee_value = getattr(context, "multi_consent_isee_value", "1")
+    multi_consent_isee_value = getattr(context, 'multi_consent_isee_value', '1')
 
     self_declaration_list = build_self_declaration_list_payload_by_initiative(
         context.initiative_name,
@@ -567,5 +585,5 @@ def step_try_to_insert_mismatch_email(context, citizen_name):
     context.save_onboarding_response = save_onboarding(
         token=token_io,
         initiative_id=context.initiative_id,
-        user_mail_confirmation="mismatched_email@email.com"
+        user_mail_confirmation='mismatched_email@email.com'
     )

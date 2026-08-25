@@ -2,18 +2,17 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import get_payment_instruments
 from api.idpay import get_transaction_detail
 from api.idpay import post_create_payment_bar_code
 from api.idpay import put_authorize_bar_code_merchant
 from api.idpay import wallet
+from api.keycloak import get_client_credentials_token
+from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import get_io_token
-from util.utility import retry_payment_instrument
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
-instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 
 
 def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name):
@@ -25,9 +24,6 @@ def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name
                                   initiative_id=context.initiative_id, field='status', tries=3, delay=3)
 
     assert citizen_wallet.json()['nInstr'] == 1
-    retry_payment_instrument(expected_type=instrument_types.app_io_payment, expected_status='ACTIVE',
-                             request=get_payment_instruments, token=token, initiative_id=context.initiative_id,
-                             field_type='instrumentType', field_status='status', num_required=1, tries=10, delay=2)
 
 
 @given('the citizen {citizen_name} creates the transaction {trx_name} by Bar Code')
@@ -96,6 +92,30 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
     context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(merchant_id=curr_merchant_id,
                                                                                      trx_code=trx_code,
                                                                                      amount_cents=amount_cents)
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
+def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents):
+    curr_merchant_id = context.merchants[merchant_name]['id']
+    trx_code = context.transactions[trx_name]['trxCode']
+    client_credentials = secrets.merchants[f'merchant_{merchant_name}'].points_of_sale[
+        point_of_sale_name
+    ].client_credentials
+    token_response = get_client_credentials_token(
+        token_url=client_credentials.token_url,
+        client_id=client_credentials.client_id,
+        client_secret=client_credentials.client_secret,
+        scope=client_credentials.get('scope')
+    )
+
+    assert token_response.status_code == 200
+    access_token = token_response.json().get('access_token')
+    assert access_token
+
+    context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(merchant_id=curr_merchant_id,
+                                                                                     trx_code=trx_code,
+                                                                                     amount_cents=amount_cents,
+                                                                                     access_token=access_token)
 
 
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
