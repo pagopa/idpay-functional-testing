@@ -239,6 +239,28 @@ def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_na
     assert context.latest_merchant_capture_bar_code.json()['status'] == 'CAPTURED'
 
 
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} invoices the transaction {trx_name} by Bar Code')
+def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_name, trx_name):
+    transaction_id = context.transactions[trx_name]['id']
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+
+    context.latest_merchant_invoice_bar_code = post_invoice_bar_code_merchant(
+        transaction_id=transaction_id,
+        access_token=access_token,
+        invoice_content=INVOICE_CONTENT,
+        doc_number=INVOICE_DOC_NUMBER
+    )
+
+    assert context.latest_merchant_invoice_bar_code.status_code == 204, (
+        f'POS barcode invoice failed: '
+        f'{context.latest_merchant_invoice_bar_code.status_code} '
+        f'{context.latest_merchant_invoice_bar_code.text}'
+    )
+
+
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
 @given('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
