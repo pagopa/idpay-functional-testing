@@ -27,6 +27,8 @@
 4. Obtain a token for the merchant's selected POS.
 5. Authorize the barcode payment as that POS and assert the transaction is
    `AUTHORIZED`.
+6. Capture the authorized barcode payment as that POS and assert the
+   transaction is `CAPTURED`.
 
 The Bonus authorization payload requires
 `additionalProperties.productGtin`. The approved test value is

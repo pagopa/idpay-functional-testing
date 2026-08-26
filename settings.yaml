@@ -18,6 +18,8 @@ IDPAY:
     ecommerce:
       path: "/merchant-ecommerce"
       barcode: "/transactions/bar-code"
+      authorize: "/authorize"
+      capture: "/capture"
     onboarding:
       path: "/onboarding"
       initiative: "/onboarding/initiative"
