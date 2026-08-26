@@ -194,6 +194,17 @@ def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_
     assert token_response.status_code == 200
     access_token = token_response.json().get('access_token')
     assert access_token
+    return access_token
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
+def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
+                                          product_gtin):
+    trx_code = context.transactions[trx_name]['trxCode']
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
 
     context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(trx_code=trx_code,
                                                                                      amount_cents=amount_cents,
@@ -205,6 +216,27 @@ def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_
         f'{context.latest_merchant_authorization_bar_code.text}'
     )
     context.associated_merchant[trx_name] = merchant_name
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} captures the transaction {trx_name} by Bar Code')
+def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_name, trx_name):
+    trx_code = context.transactions[trx_name]['trxCode']
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+
+    context.latest_merchant_capture_bar_code = put_capture_bar_code_merchant(
+        trx_code=trx_code,
+        access_token=access_token
+    )
+
+    assert context.latest_merchant_capture_bar_code.status_code == 200, (
+        f'POS barcode capture failed: '
+        f'{context.latest_merchant_capture_bar_code.status_code} '
+        f'{context.latest_merchant_capture_bar_code.text}'
+    )
+    assert context.latest_merchant_capture_bar_code.json()['status'] == 'CAPTURED'
 
 
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
