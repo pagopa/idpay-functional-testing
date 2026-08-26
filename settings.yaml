@@ -20,6 +20,7 @@ IDPAY:
       barcode: "/transactions/bar-code"
       authorize: "/authorize"
       capture: "/capture"
+      invoice: "/invoice"
     onboarding:
       path: "/onboarding"
       initiative: "/onboarding/initiative"

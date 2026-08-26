@@ -4,6 +4,7 @@ from behave import when
 
 from api.idpay import get_transaction_detail
 from api.idpay import post_create_payment_bar_code
+from api.idpay import post_invoice_bar_code_merchant
 from api.idpay import put_authorize_bar_code_merchant
 from api.idpay import put_capture_bar_code_merchant
 from api.idpay import wallet
@@ -14,6 +15,8 @@ from util.utility import get_io_token
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
+INVOICE_CONTENT = b'%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n'
+INVOICE_DOC_NUMBER = 'INV-0001'
 
 
 def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name):
@@ -150,6 +153,28 @@ def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_na
         f'{context.latest_merchant_capture_bar_code.text}'
     )
     assert context.latest_merchant_capture_bar_code.json()['status'] == 'CAPTURED'
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} invoices the transaction {trx_name} by Bar Code')
+def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_name, trx_name):
+    transaction_id = context.transactions[trx_name]['id']
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+
+    context.latest_merchant_invoice_bar_code = post_invoice_bar_code_merchant(
+        transaction_id=transaction_id,
+        access_token=access_token,
+        invoice_content=INVOICE_CONTENT,
+        doc_number=INVOICE_DOC_NUMBER
+    )
+
+    assert context.latest_merchant_invoice_bar_code.status_code == 204, (
+        f'POS barcode invoice failed: '
+        f'{context.latest_merchant_invoice_bar_code.status_code} '
+        f'{context.latest_merchant_invoice_bar_code.text}'
+    )
 
 
 @then('with Bar Code the transaction {trx_name} is {expected_status}')

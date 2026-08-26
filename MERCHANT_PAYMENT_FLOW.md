@@ -29,6 +29,10 @@
    `AUTHORIZED`.
 6. Capture the authorized barcode payment as that POS and assert the
    transaction is `CAPTURED`.
+7. Upload an invoice file and document number for the captured payment as that
+   POS.
+8. Upload an invoice file and document number for an already invoiced payment
+   as that POS.
 
 The Bonus authorization payload requires
 `additionalProperties.productGtin`. The approved test value is
