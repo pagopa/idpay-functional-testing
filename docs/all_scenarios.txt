@@ -33,6 +33,7 @@ A merchant cannot generate a transaction during the grace period
 A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
+A merchant reverses an invoiced barcode payment
 A readmitted citizen confirms successfully a transaction and is rewarded
 A suspended citizen can unsubscribe
 A suspended citizen who tries to onboard remains in the "suspended" state
@@ -92,6 +93,7 @@ An authorized and cancelled transaction X cannot be pre-authorized through MIL
 An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
+An invoiced payment is associated with a reward batch
 An onboarded citizen creates a barcode payment accepted by a merchant
 An onboarded citizen enables the IDPay Code on an initiative having already generated the IDPay Code
 An onboarded citizen enrolls the IDPay Code for the first time on an initiative
@@ -178,6 +180,7 @@ Onboarding result depends on citizens' ISEE
 Onboarding result depends on citizens' ISEE
 Onboarding result depends on citizens' ISEE
 Onboarding result depends on citizens' ISEE
+Reversing an invoiced payment removes it from its reward batch
 Suspending a citizen does not free up the budget of an initiative with a fully allocated budget
 The Institution cannot suspend a citizen before onboarding period end
 The Institution cannot suspend a citizen before onboarding period end
