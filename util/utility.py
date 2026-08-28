@@ -7,9 +7,9 @@ import time
 import uuid
 import zipfile
 from hashlib import sha256
+from math import floor
 
 import pandas as pd
-from math import floor
 
 from api.idpay import delete_initiative
 from api.idpay import enroll_iban
@@ -23,6 +23,7 @@ from api.idpay import get_merchant_unprocessed_transactions
 from api.idpay import get_payment_dispositions_export_content
 from api.idpay import get_payment_instruments
 from api.idpay import get_ranking_page
+from api.idpay import get_reward_batch_eligibility
 from api.idpay import get_reward_content
 from api.idpay import obtain_selfcare_test_token
 from api.idpay import post_initiative_info
@@ -511,6 +512,37 @@ def check_processed_transactions(initiative_id,
         assert True
     else:
         assert False
+
+
+def retry_reward_batch_eligibility(transaction_id: str,
+                                   merchant_id: str,
+                                   access_token: str,
+                                   expected_associated: bool,
+                                   tries: int = 20,
+                                   delay: int = 3):
+    latest_response = None
+    for attempt in range(tries):
+        latest_response = get_reward_batch_eligibility(
+            transaction_id=transaction_id,
+            merchant_id=merchant_id,
+            access_token=access_token
+        )
+        assert latest_response.status_code in {200, 204}, (
+            f'Reward batch eligibility request failed: '
+            f'{latest_response.status_code} {latest_response.text}'
+        )
+        associated = latest_response.status_code == 200
+        if associated == expected_associated:
+            return latest_response.json() if associated else None
+
+        if attempt < tries - 1:
+            time.sleep(delay)
+
+    assert False, (
+        f'Transaction {transaction_id} eligibility association did not become '
+        f'{expected_associated}. Last response: '
+        f'{latest_response.status_code} {latest_response.text}'
+    )
 
 
 def merchant_id_from_fc(initiative_id: str,

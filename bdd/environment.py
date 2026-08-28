@@ -8,6 +8,8 @@ def before_all(context):
     """Initialize initiatives' IDs map
     """
     secrets['newly_created'] = set()
+    if 'organization_id' not in secrets and 'selfcare_info' in secrets:
+        secrets.organization_id = secrets.selfcare_info.test_institution.orgId
 
 
 def before_feature(context, feature):
@@ -15,7 +17,7 @@ def before_feature(context, feature):
     """
 
     # Create an initiative for each proper tag on feature file (if not created yet in this run)
-    if not secrets.initiatives:
+    if 'initiatives' not in secrets or not secrets.initiatives:
         secrets.initiatives = {}
     for curr_initiative_name in feature.tags:
         if curr_initiative_name in settings.initiatives:

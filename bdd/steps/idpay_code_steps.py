@@ -40,7 +40,6 @@ instrument_types = settings.IDPAY.endpoints.wallet.instrument_type
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 
 IV = bytes([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-KEY = secrets.idpay_code.encrypt_key_test
 
 
 @given('the citizen {citizen_name} generates the IDPay Code')
@@ -462,7 +461,7 @@ def step_create_authorize_request_trx_request_by_pos(pin: str, second_factor: st
 
     data_block_bytes = bytes(a ^ b for a, b in zip(pin_bytes, second_factor_bytes))
 
-    key_bytes = codecs.decode(KEY, 'hex')
+    key_bytes = codecs.decode(secrets.idpay_code.encrypt_key_test, 'hex')
     cipher = AES.new(key_bytes, AES.MODE_CBC, IV)
     pin_block_bytes = cipher.encrypt(pad(data_block_bytes, AES.block_size))
     pin_block = codecs.encode(pin_block_bytes, 'hex').decode('utf-8')

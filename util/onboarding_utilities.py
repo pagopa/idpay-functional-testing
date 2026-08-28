@@ -36,6 +36,9 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
                         message='Test failed'):
     count = 0
     res = request(token, initiative_id)
+    assert res.status_code == 200, (
+        f'Onboarding status request failed: {res.status_code} {res.text}'
+    )
     success = (expected == res.json()[field])
     while not success:
         count += 1
@@ -43,6 +46,9 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
             break
         time.sleep(delay)
         res = request(token, initiative_id)
+        assert res.status_code == 200, (
+            f'Onboarding status request failed: {res.status_code} {res.text}'
+        )
         success = (expected == res.json()[field])
     actual = res.json()[field]
 
@@ -52,30 +58,30 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
 
     return res
 
-def build_bonus_elettrodomestici_self_declaration_list_payload(multi_consent_isee_value:str="1", self_declaration_accepted=True):
+def build_bonus_elettrodomestici_self_declaration_list_payload(multi_consent_isee_value:str='1', self_declaration_accepted=True):
     return [{
-            "_type": "multi_consent",
-            "code": "isee",
-            "value": multi_consent_isee_value
+            '_type': 'multi_consent',
+            'code': 'isee',
+            'value': multi_consent_isee_value
         },
         {
-            "_type": "boolean",
-            "accepted": self_declaration_accepted,
-            "code": "1"
+            '_type': 'boolean',
+            'accepted': self_declaration_accepted,
+            'code': '1'
         }]
 
-def build_bonus_decoder_self_declaration_list_payload(multi_consent_isee_value:str="1"):
+def build_bonus_decoder_self_declaration_list_payload(multi_consent_isee_value:str='1'):
     return [{
-            "_type": "multi_consent",
-            "code": "isee",
-            "value": multi_consent_isee_value
+            '_type': 'multi_consent',
+            'code': 'isee',
+            'value': multi_consent_isee_value
         }]
 
 def build_boolean_self_declaration_list_payload(self_declaration_accepted=True):
     return [{
-            "_type": "boolean",
-            "accepted": self_declaration_accepted,
-            "code": "1"
+            '_type': 'boolean',
+            'accepted': self_declaration_accepted,
+            'code': '1'
         }]
 
 def build_self_declaration_list_payload_by_initiative(
@@ -84,18 +90,14 @@ def build_self_declaration_list_payload_by_initiative(
     self_declaration_accepted=True,
 ):
     match initiative_name:
-        case "bonus_elettrodomestici":
+        case 'bonus_elettrodomestici':
             return build_bonus_elettrodomestici_self_declaration_list_payload(
                 multi_consent_isee_value=multi_consent_isee_value,
                 self_declaration_accepted=self_declaration_accepted,
             )
-        case "bonus_decoder":
+        case 'bonus_decoder':
             return build_bonus_decoder_self_declaration_list_payload(
                 multi_consent_isee_value=multi_consent_isee_value,
             )
         case _:
             return None
-
-
-
-

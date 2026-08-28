@@ -21,6 +21,7 @@ IDPAY:
       authorize: "/authorize"
       capture: "/capture"
       invoice: "/invoice"
+      reversal: "/reversal"
     onboarding:
       path: "/onboarding"
       initiative: "/onboarding/initiative"
@@ -91,6 +92,7 @@ IDPAY:
       portal: '/portal/initiatives'
       processed: '/transactions/processed'
       unprocessed: '/transactions'
+      reward_batch_eligibility: '/reward-batch/eligibility'
     merchant:
       path: '/merchant'
       internal_path: '/idpaymerchant/idpay'

@@ -5,6 +5,7 @@ from behave import when
 from api.idpay import get_transaction_detail
 from api.idpay import post_create_payment_bar_code
 from api.idpay import post_invoice_bar_code_merchant
+from api.idpay import post_reversal_bar_code_merchant
 from api.idpay import put_authorize_bar_code_merchant
 from api.idpay import put_capture_bar_code_merchant
 from api.idpay import wallet
@@ -12,11 +13,14 @@ from api.keycloak import get_client_credentials_token
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.utility import get_io_token
+from util.utility import retry_reward_batch_eligibility
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 INVOICE_CONTENT = b'%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n'
 INVOICE_DOC_NUMBER = 'INV-0001'
+REVERSAL_CONTENT = b'%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF\n'
+REVERSAL_DOC_NUMBER = 'REV-0001'
 
 
 def step_check_citizen_is_enabled_to_app_io_payment_method(context, citizen_name):
@@ -174,6 +178,59 @@ def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_na
         f'POS barcode invoice failed: '
         f'{context.latest_merchant_invoice_bar_code.status_code} '
         f'{context.latest_merchant_invoice_bar_code.text}'
+    )
+    if not hasattr(context, 'transaction_pos_access_tokens'):
+        context.transaction_pos_access_tokens = {}
+    context.transaction_pos_access_tokens[trx_name] = access_token
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} reverses the transaction {trx_name} by Bar Code')
+def step_point_of_sale_reversal_bar_code(context, point_of_sale_name, merchant_name, trx_name):
+    transaction_id = context.transactions[trx_name]['id']
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+
+    context.latest_merchant_reversal_bar_code = post_reversal_bar_code_merchant(
+        initiative_id=context.initiative_id,
+        transaction_id=transaction_id,
+        access_token=access_token,
+        reversal_content=REVERSAL_CONTENT,
+        doc_number=REVERSAL_DOC_NUMBER
+    )
+
+    assert context.latest_merchant_reversal_bar_code.status_code == 204, (
+        f'POS barcode reversal failed: '
+        f'{context.latest_merchant_reversal_bar_code.status_code} '
+        f'{context.latest_merchant_reversal_bar_code.text}'
+    )
+    context.transaction_pos_access_tokens[trx_name] = access_token
+
+
+@then('the transaction {trx_name} is associated with a reward batch')
+def step_transaction_is_associated_with_reward_batch(context, trx_name):
+    merchant_name = context.associated_merchant[trx_name]
+    eligibility = retry_reward_batch_eligibility(
+        transaction_id=context.transactions[trx_name]['id'],
+        merchant_id=context.merchants[merchant_name]['id'],
+        access_token=context.transaction_pos_access_tokens[trx_name],
+        expected_associated=True
+    )
+    assert eligibility['transactionId'] == context.transactions[trx_name]['id']
+    assert eligibility['initiativeId'] == context.initiative_id
+    assert eligibility['merchantId'] == context.merchants[merchant_name]['id']
+    assert eligibility['rewardBatchId']
+
+
+@then('the transaction {trx_name} is not associated with a reward batch')
+def step_transaction_is_not_associated_with_reward_batch(context, trx_name):
+    merchant_name = context.associated_merchant[trx_name]
+    retry_reward_batch_eligibility(
+        transaction_id=context.transactions[trx_name]['id'],
+        merchant_id=context.merchants[merchant_name]['id'],
+        access_token=context.transaction_pos_access_tokens[trx_name],
+        expected_associated=False
     )
 
 
