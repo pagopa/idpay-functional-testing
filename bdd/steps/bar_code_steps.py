@@ -152,6 +152,36 @@ def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_na
     assert context.latest_merchant_capture_bar_code.json()['status'] == 'CAPTURED'
 
 
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
+def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
+                                          product_gtin):
+    trx_code = context.transactions[trx_name]['trxCode']
+    client_credentials = secrets.merchants[f'merchant_{merchant_name}'].points_of_sale[
+        point_of_sale_name
+    ].client_credentials
+    token_response = get_client_credentials_token(
+        token_url=client_credentials.token_url,
+        client_id=client_credentials.client_id,
+        client_secret=client_credentials.client_secret,
+        scope=client_credentials.get('scope')
+    )
+
+    assert token_response.status_code == 200
+    access_token = token_response.json().get('access_token')
+    assert access_token
+
+    context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(trx_code=trx_code,
+                                                                                     amount_cents=amount_cents,
+                                                                                     access_token=access_token,
+                                                                                     additional_properties={'productGtin': product_gtin})
+    assert context.latest_merchant_authorization_bar_code.status_code == 200, (
+        f'POS barcode authorization failed: '
+        f'{context.latest_merchant_authorization_bar_code.status_code} '
+        f'{context.latest_merchant_authorization_bar_code.text}'
+    )
+    context.associated_merchant[trx_name] = merchant_name
+
+
 @then('with Bar Code the transaction {trx_name} is {expected_status}')
 @given('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
