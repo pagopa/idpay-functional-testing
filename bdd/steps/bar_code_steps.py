@@ -11,10 +11,12 @@ from api.idpay import post_invoice_bar_code_merchant
 from api.idpay import post_reversal_bar_code_merchant
 from api.idpay import put_authorize_bar_code_merchant
 from api.idpay import put_capture_bar_code_merchant
+from api.idpay import put_invoice_bar_code_as_merchant
 from api.idpay import wallet
 from api.keycloak import get_client_credentials_token
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.utility import get_merchant_access_token
 from util.utility import get_io_token
 from util.utility import retry_wallet
 
@@ -257,6 +259,30 @@ def step_point_of_sale_update_invoice_bar_code(context, point_of_sale_name, merc
         context.invoice_update_months = {}
     context.invoice_update_months[trx_name] = expected_months
     context.transaction_pos_access_tokens[trx_name] = access_token
+
+
+@when('the merchant {merchant_name} updates the invoice of transaction {trx_name} by Bar Code')
+def step_merchant_update_invoice_bar_code(context, merchant_name, trx_name):
+    expected_months = {
+        datetime.datetime.now(ZoneInfo('Europe/Rome')).strftime('%Y-%m')
+    }
+    response = put_invoice_bar_code_as_merchant(
+        initiative_id=context.initiative_id,
+        transaction_id=context.transactions[trx_name]['id'],
+        access_token=get_merchant_access_token(merchant_name),
+        invoice_content=UPDATED_INVOICE_CONTENT,
+        doc_number=UPDATED_INVOICE_DOC_NUMBER,
+        filename='updated-invoice.pdf'
+    )
+    expected_months.add(
+        datetime.datetime.now(ZoneInfo('Europe/Rome')).strftime('%Y-%m')
+    )
+    assert response.status_code == 204, (
+        f'Merchant barcode invoice update failed: {response.status_code} {response.text}'
+    )
+    if not hasattr(context, 'invoice_update_months'):
+        context.invoice_update_months = {}
+    context.invoice_update_months[trx_name] = expected_months
 
 
 @then('with Bar Code the transaction {trx_name} is {expected_status}')

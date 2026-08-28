@@ -10,6 +10,7 @@ KEEP_INITIATIVES_AFTER_FAILED_TEST: false
 INITIATIVE_STARTUP_TIME_SECONDS: 120
 IDPAY:
   domain: "/idpay-itn"
+  merchant_test_token_issuer: "https://api-io.dev.cstar.pagopa.it"
   MIL:
     domain: "/mil"
   MININT:
@@ -17,6 +18,7 @@ IDPAY:
   endpoints:
     ecommerce:
       path: "/merchant-ecommerce"
+      merchant_portal: "/merchant/portal"
       barcode: "/transactions/bar-code"
       authorize: "/authorize"
       capture: "/capture"

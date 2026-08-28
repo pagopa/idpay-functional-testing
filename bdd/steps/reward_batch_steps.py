@@ -5,6 +5,7 @@ from api.idpay import get_reward_batch_detail
 from api.idpay import post_evaluate_sent_reward_batches
 from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
+from util.utility import get_merchant_access_token
 from util.utility import retry_reward_batch_eligibility
 from util.utility import retry_reward_batch_lifecycle
 from util.utility import retry_reward_batch_reassignment
@@ -76,7 +77,7 @@ def step_prepare_and_send_reward_batch(context, trx_name):
     send_response = post_send_reward_batch(
         initiative_id=context.initiative_id,
         reward_batch_id=source_reward_batch_id,
-        merchant_id=merchant_id
+        access_token=get_merchant_access_token(merchant_name)
     )
     assert send_response.status_code == 204, (
         f'Reward batch send failed: {send_response.status_code} {send_response.text}'
@@ -97,11 +98,11 @@ def step_prepare_and_send_reward_batch(context, trx_name):
     context.source_reward_batches[trx_name] = sent_batch
 
 
-@then('the invoice update of transaction {trx_name} is rejected while its reward batch is SENT')
-def step_invoice_update_is_rejected_while_reward_batch_sent(context, trx_name):
+@then('the invoice update of transaction {trx_name} is rejected while its reward batch is {batch_status}')
+def step_invoice_update_is_rejected_for_reward_batch_status(context, trx_name, batch_status):
     response = context.latest_merchant_invoice_update_bar_code
     assert response.status_code == 403, (
-        f'Expected invoice update to be rejected while the reward batch is SENT, '
+        f'Expected invoice update to be rejected while the reward batch is {batch_status}, '
         f'got {response.status_code} {response.text}'
     )
     assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
@@ -113,7 +114,7 @@ def step_invoice_update_is_rejected_while_reward_batch_sent(context, trx_name):
         merchant_id=context.merchants[merchant_name]['id'],
         access_token=context.transaction_pos_access_tokens[trx_name],
         reward_batch_id=source_batch['id'],
-        expected_batch_status='SENT',
+        expected_batch_status=batch_status,
         expected_transaction_status='INVOICED',
         expected_batch_transaction_status='CONSULTABLE'
     )
@@ -128,7 +129,7 @@ def step_evaluate_specific_sent_reward_batch(context, trx_name):
         initiative_id=context.initiative_id,
         reward_batch_ids=[source_batch['id']]
     )
-    assert response.status_code == 204, (
+    assert response.status_code == 200, (
         f'SENT reward batch evaluation failed: {response.status_code} {response.text}'
     )
 
@@ -141,8 +142,8 @@ def step_evaluate_specific_sent_reward_batch(context, trx_name):
     assert source_response.json()['status'] == 'EVALUATING'
 
 
-@then('the transaction {trx_name} belongs to a different current-month reward batch as SUSPENDED')
-def step_transaction_is_reassigned_after_invoice_update(context, trx_name):
+@then('the transaction {trx_name} belongs to a different current-month reward batch as {batch_transaction_status}')
+def step_transaction_is_reassigned_after_invoice_update(context, trx_name, batch_transaction_status):
     merchant_name = context.associated_merchant[trx_name]
     merchant_id = context.merchants[merchant_name]['id']
     source_batch = context.source_reward_batches[trx_name]
@@ -150,7 +151,8 @@ def step_transaction_is_reassigned_after_invoice_update(context, trx_name):
         transaction_id=context.transactions[trx_name]['id'],
         merchant_id=merchant_id,
         access_token=context.transaction_pos_access_tokens[trx_name],
-        original_reward_batch_id=source_batch['id']
+        original_reward_batch_id=source_batch['id'],
+        expected_batch_transaction_status=batch_transaction_status
     )
 
     destination_response = get_reward_batch_detail(

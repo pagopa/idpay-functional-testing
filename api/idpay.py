@@ -330,13 +330,14 @@ def post_prepare_reward_batch_for_send(initiative_id: str,
 
 def post_send_reward_batch(initiative_id: str,
                            reward_batch_id: str,
-                           merchant_id: str):
+                           access_token: str):
     return requests.post(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
-        f'{settings.IDPAY.endpoints.transactions.reward_batches}/{initiative_id}'
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.transactions.merchant}'
+        f'{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}'
         f'/reward-batches/{reward_batch_id}/send',
         headers={
-            'x-merchant-id': merchant_id
+            'Authorization': 'Bearer ' + access_token
         },
         timeout=settings.default_timeout
     )
@@ -372,6 +373,14 @@ def obtain_selfcare_test_token(institution_info: str):
     return requests.post(
         url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
         json=institution_info,
+        timeout=settings.default_timeout
+    )
+
+
+def obtain_merchant_test_token(merchant_info: dict):
+    return requests.post(
+        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/merchant/token/test',
+        json=merchant_info,
         timeout=settings.default_timeout
     )
 
@@ -747,6 +756,30 @@ def post_invoice_bar_code_merchant(initiative_id: str,
         f'{settings.IDPAY.endpoints.ecommerce.invoice}',
         headers={
             'Authorization': f'Bearer {access_token}'
+        },
+        data={
+            'docNumber': doc_number
+        },
+        files={
+            'file': (filename, invoice_content, 'application/pdf')
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def put_invoice_bar_code_as_merchant(initiative_id: str,
+                                     transaction_id: str,
+                                     access_token: str,
+                                     invoice_content: bytes,
+                                     doc_number: str,
+                                     filename: str = 'invoice.pdf'):
+    return requests.put(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.ecommerce.merchant_portal}'
+        f'/initiatives/{initiative_id}/transactions/{transaction_id}'
+        f'{settings.IDPAY.endpoints.ecommerce.invoice}/update',
+        headers={
+            'Authorization': 'Bearer ' + access_token
         },
         data={
             'docNumber': doc_number

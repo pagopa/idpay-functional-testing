@@ -25,6 +25,7 @@ from api.idpay import get_payment_instruments
 from api.idpay import get_ranking_page
 from api.idpay import get_reward_batch_eligibility
 from api.idpay import get_reward_content
+from api.idpay import obtain_merchant_test_token
 from api.idpay import obtain_selfcare_test_token
 from api.idpay import post_initiative_info
 from api.idpay import publish_approved_initiative
@@ -78,6 +79,32 @@ def get_selfcare_token(institution_info: str):
     :param institution_info: Information of the institute to log in.
     """
     return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
+
+
+def get_merchant_access_token(merchant_name: str):
+    merchant = secrets.merchants[f'merchant_{merchant_name}']
+    response = obtain_merchant_test_token({
+        'aud': 'idpay.merchant.welfare.pagopa.it',
+        'iss': settings.IDPAY.merchant_test_token_issuer,
+        'uid': merchant['id'],
+        'name': 'esercente',
+        'familyName': 'test',
+        'email': 'esercente_test@test.email.it',
+        'acquirerId': settings.idpay.acquirer_id,
+        'merchantId': merchant['id'],
+        'orgId': secrets.organization_id,
+        'orgVAT': merchant['fiscal_code'],
+        'orgName': 'Esercente di test IdPay',
+        'orgPartyRole': 'MANAGER',
+        'orgRole': 'admin',
+        'pointOfSaleId': '1234'
+    })
+    assert response.status_code == 200, (
+        f'Merchant test token failed: {response.status_code} {response.text}'
+    )
+    access_token = response.text
+    assert access_token
+    return access_token
 
 
 def iban_enroll(fc, iban, initiative_id):
@@ -549,6 +576,7 @@ def retry_reward_batch_reassignment(transaction_id: str,
                                     merchant_id: str,
                                     access_token: str,
                                     original_reward_batch_id: str,
+                                    expected_batch_transaction_status: str = 'SUSPENDED',
                                     tries: int = 20,
                                     delay: int = 3):
     latest_eligibility = None
@@ -569,7 +597,7 @@ def retry_reward_batch_reassignment(transaction_id: str,
                 f'Invoice replacement impact moved transaction {transaction_id}, but left '
                 f'transactionStatus={latest_eligibility["transactionStatus"]}'
             )
-            assert latest_eligibility['batchTransactionStatus'] == 'SUSPENDED', (
+            assert latest_eligibility['batchTransactionStatus'] == expected_batch_transaction_status, (
                 f'Invoice replacement impact moved transaction {transaction_id}, but left '
                 f'batchTransactionStatus={latest_eligibility["batchTransactionStatus"]}'
             )
