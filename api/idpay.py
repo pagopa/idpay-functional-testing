@@ -655,9 +655,18 @@ def put_authorize_bar_code_merchant(trx_code: str,
         payload['additionalProperties'] = additional_properties
 
     return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}/authorize',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}{settings.IDPAY.endpoints.ecommerce.authorize}',
         headers=headers,
         json=payload
+    )
+
+
+def put_capture_bar_code_merchant(trx_code: str, access_token: str):
+    return requests.put(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}{settings.IDPAY.endpoints.ecommerce.capture}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
     )
 
 
