@@ -332,7 +332,7 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
         merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
     )
 
-    if status in {'AUTHORIZED', 'CAPTURED'}:
+    if status in {'AUTHORIZED', 'CAPTURED', 'INVOICED', 'REFUNDED'}:
         assert res.status_code == 200
         assert res.json()['status'] == status
         return

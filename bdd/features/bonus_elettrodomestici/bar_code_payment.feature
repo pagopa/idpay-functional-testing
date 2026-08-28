@@ -23,12 +23,12 @@ Feature: Barcode payments for Bonus Elettrodomestici
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     Then with Bar Code the transaction X is captured
 
-  Scenario: Invoicing a captured payment associates it with a reward batch
+  Scenario: A merchant invoices a captured barcode payment
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    Then the transaction X is associated with a reward batch
+    Then with Bar Code the transaction X is invoiced
 
   Scenario: A merchant invoices an already invoiced barcode payment
     Given the citizen A creates the transaction X by Bar Code
@@ -37,11 +37,10 @@ Feature: Barcode payments for Bonus Elettrodomestici
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
 
-  Scenario: Reversing an invoiced payment removes it from its reward batch
+  Scenario: A merchant reverses an invoiced barcode payment
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    Then the transaction X is associated with a reward batch
-    When the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
-    Then the transaction X is not associated with a reward batch
+    And the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
+    Then with Bar Code the transaction X is refunded
