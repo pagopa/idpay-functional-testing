@@ -30,6 +30,7 @@ A merchant cannot generate a transaction during the grace period
 A merchant cannot generate a transaction during the grace period
 A merchant cannot generate a transaction during the grace period
 A merchant cannot generate a transaction during the grace period
+A merchant captures an authorized barcode payment
 A readmitted citizen confirms successfully a transaction and is rewarded
 A suspended citizen can unsubscribe
 A suspended citizen who tries to onboard remains in the "suspended" state
