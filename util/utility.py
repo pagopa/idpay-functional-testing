@@ -545,6 +545,88 @@ def retry_reward_batch_eligibility(transaction_id: str,
     )
 
 
+def retry_reward_batch_reassignment(transaction_id: str,
+                                    merchant_id: str,
+                                    access_token: str,
+                                    original_reward_batch_id: str,
+                                    tries: int = 20,
+                                    delay: int = 3):
+    latest_eligibility = None
+    for attempt in range(tries):
+        response = get_reward_batch_eligibility(
+            transaction_id=transaction_id,
+            merchant_id=merchant_id,
+            access_token=access_token
+        )
+        assert response.status_code == 200, (
+            f'Reward batch eligibility request failed while waiting for reassignment: '
+            f'{response.status_code} {response.text}'
+        )
+        latest_eligibility = response.json()
+
+        if latest_eligibility['rewardBatchId'] != original_reward_batch_id:
+            assert latest_eligibility['transactionStatus'] == 'INVOICED', (
+                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'transactionStatus={latest_eligibility["transactionStatus"]}'
+            )
+            assert latest_eligibility['batchTransactionStatus'] == 'SUSPENDED', (
+                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'batchTransactionStatus={latest_eligibility["batchTransactionStatus"]}'
+            )
+            return latest_eligibility
+
+        if attempt < tries - 1:
+            time.sleep(delay)
+
+    assert False, (
+        f'Invoice replacement impact was not observed for transaction {transaction_id}. '
+        f'The transaction remained in reward batch {original_reward_batch_id}. '
+        f'Last eligibility: {latest_eligibility}'
+    )
+
+
+def retry_reward_batch_lifecycle(transaction_id: str,
+                                 merchant_id: str,
+                                 access_token: str,
+                                 reward_batch_id: str,
+                                 expected_batch_status: str,
+                                 expected_transaction_status: str,
+                                 expected_batch_transaction_status: str,
+                                 tries: int = 20,
+                                 delay: int = 3):
+    latest_eligibility = None
+    for attempt in range(tries):
+        response = get_reward_batch_eligibility(
+            transaction_id=transaction_id,
+            merchant_id=merchant_id,
+            access_token=access_token
+        )
+        assert response.status_code == 200, (
+            f'Reward batch eligibility request failed while waiting for lifecycle state: '
+            f'{response.status_code} {response.text}'
+        )
+        latest_eligibility = response.json()
+        expected_state = (
+            latest_eligibility['rewardBatchId'] == reward_batch_id
+            and latest_eligibility['batchStatus'] == expected_batch_status
+            and latest_eligibility['transactionStatus'] == expected_transaction_status
+            and latest_eligibility['batchTransactionStatus'] == expected_batch_transaction_status
+        )
+        if expected_state:
+            return latest_eligibility
+
+        if attempt < tries - 1:
+            time.sleep(delay)
+
+    assert False, (
+        f'Transaction {transaction_id} did not reach reward batch lifecycle state '
+        f'batch={reward_batch_id}, batchStatus={expected_batch_status}, '
+        f'transactionStatus={expected_transaction_status}, '
+        f'batchTransactionStatus={expected_batch_transaction_status}. '
+        f'Last eligibility: {latest_eligibility}'
+    )
+
+
 def merchant_id_from_fc(initiative_id: str,
                         desired_fc: str,
                         tries=20,

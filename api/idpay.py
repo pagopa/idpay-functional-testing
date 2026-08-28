@@ -318,6 +318,56 @@ def get_reward_batch_eligibility(transaction_id: str,
     )
 
 
+def post_prepare_reward_batch_for_send(initiative_id: str,
+                                       reward_batch_id: str):
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batch_test_support}/{initiative_id}'
+        f'/reward-batches/{reward_batch_id}/prepare-for-send',
+        timeout=settings.default_timeout
+    )
+
+
+def post_send_reward_batch(initiative_id: str,
+                           reward_batch_id: str,
+                           merchant_id: str):
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batches}/{initiative_id}'
+        f'/reward-batches/{reward_batch_id}/send',
+        headers={
+            'x-merchant-id': merchant_id
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def post_evaluate_sent_reward_batches(initiative_id: str,
+                                      reward_batch_ids: list[str] | None = None):
+    payload = {} if reward_batch_ids is None else {'rewardBatchIds': reward_batch_ids}
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batches}/{initiative_id}'
+        f'/reward-batches/evaluate',
+        json=payload,
+        timeout=settings.default_timeout
+    )
+
+
+def get_reward_batch_detail(initiative_id: str,
+                            reward_batch_id: str,
+                            merchant_id: str):
+    return requests.get(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batches}/{initiative_id}'
+        f'/reward-batches/{reward_batch_id}',
+        headers={
+            'x-merchant-id': merchant_id
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def obtain_selfcare_test_token(institution_info: str):
     return requests.post(
         url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
@@ -685,12 +735,16 @@ def put_capture_bar_code_merchant(trx_code: str, access_token: str):
     )
 
 
-def post_invoice_bar_code_merchant(transaction_id: str,
+def post_invoice_bar_code_merchant(initiative_id: str,
+                                   transaction_id: str,
                                    access_token: str,
                                    invoice_content: bytes,
-                                   doc_number: str):
+                                   doc_number: str,
+                                   filename: str = 'invoice.pdf'):
     return requests.post(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}/transactions/{transaction_id}{settings.IDPAY.endpoints.ecommerce.invoice}',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}'
+        f'/initiatives/{initiative_id}/transactions/{transaction_id}'
+        f'{settings.IDPAY.endpoints.ecommerce.invoice}',
         headers={
             'Authorization': f'Bearer {access_token}'
         },
@@ -698,7 +752,7 @@ def post_invoice_bar_code_merchant(transaction_id: str,
             'docNumber': doc_number
         },
         files={
-            'file': ('invoice.pdf', invoice_content, 'application/pdf')
+            'file': (filename, invoice_content, 'application/pdf')
         },
         timeout=settings.default_timeout
     )

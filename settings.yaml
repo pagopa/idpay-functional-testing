@@ -93,6 +93,8 @@ IDPAY:
       processed: '/transactions/processed'
       unprocessed: '/transactions'
       reward_batch_eligibility: '/reward-batch/eligibility'
+      reward_batches: '/idpay/merchant/portal/initiatives'
+      reward_batch_test_support: '/idpay/internal/test-support/initiatives'
     merchant:
       path: '/merchant'
       internal_path: '/idpaymerchant/idpay'
