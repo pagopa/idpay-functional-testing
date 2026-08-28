@@ -856,7 +856,8 @@
 <h1 id="reward-batches-for-bonus-elettrodomestici-barcode-payments">Reward batches for Bonus Elettrodomestici barcode payments</h1>
 <h2 id="scenarios">Scenarios:</h2>
 <ul>
-<li>Invoice updates are suspended while the reward batch is SENT</li>
+<li>Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING</li>
+<li>A merchant updates an invoice while the reward batch is EVALUATING</li>
 <li>An invoiced payment is associated with a reward batch</li>
 <li>Reversing an invoiced payment removes it from its reward batch</li>
 </ul>
