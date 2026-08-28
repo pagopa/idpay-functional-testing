@@ -15,49 +15,44 @@ A citizen over the maximum age who denied PDND consent tries to onboard unsucces
 A citizen tries to onboard a nonexistent initiative
 A citizen under minimum age who denied PDND consent tries to onboard unsuccessfully
 A citizen under the minimum age tries to onboard unsuccessfully
+A citizen who denied PDND consent tries onboarding unsuccessfully
+A citizen who denied PDND consent tries onboarding unsuccessfully
+A citizen who denied PDND consent tries onboarding unsuccessfully
+A citizen who denied PDND consent tries onboarding unsuccessfully
+A citizen who denied PDND consent tries onboarding unsuccessfully
 A citizen who denied PDND consent tries to onboard unsuccessfully
 A citizen who has not accepted the Terms and Conditions tries to onboard unsuccessfully
 A citizen who is just 18 tries to onboard
 A citizen who tries to authorize a transaction, being suspended after pre-authorization, receives a KO result
 A citizen will be 36 years old the day after onboarding
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
-A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-A family, with an higher ISEE than other families, is not in ranking for budget exhaustion even if it onboards first
-A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by IDPay Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during grace period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during onboarding period on an initiative for families with ranking
-A merchant cannot generate a transaction, to be paid by QR Code, during onboarding period on an initiative for families with ranking
+A merchant cannot generate a transaction during the grace period
+A merchant cannot generate a transaction during the grace period
+A merchant cannot generate a transaction during the grace period
+A merchant cannot generate a transaction during the grace period
 A readmitted citizen confirms successfully a transaction and is rewarded
 A suspended citizen can unsubscribe
 A suspended citizen who tries to onboard remains in the "suspended" state
 A suspended citizen who tries to pre-authorize a transaction receives a KO result
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
+A transaction can be generated after the end of the onboarding period
 A transaction can still be authorized even if a suspended citizen tried to pre-authorize it
 A transaction greater than the budget by 1 cent is authorized
 A transaction is not authorized if the budget is eroded
 A transaction of 1 cent is authorized
-A transaction of amount 1 cents is included in the payment order
-A transaction of amount 1 cents is included in the payment order
-A transaction of amount 1 cents is included in the payment order
-A transaction of amount 1 cents is included in the payment order
 A transaction, created through MIL, greater than the budget by 1 cent is authorized
 A transaction, created through MIL, is not authorized if the budget is eroded
 A transaction, created through MIL, of 1 cent is authorized
 After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
+After 5 transactions of amount 2000 cents each, the amount of rewards is equal to payment order
+After 5 transactions of amount 2000 cents each, the amount of rewards is equal to payment order
+After 5 transactions of amount 2000 cents each, the amount of rewards is equal to payment order
+After 5 transactions of amount 2000 cents each, the amount of rewards is equal to payment order
 After a cancellation by merchant a transaction before pre-authorization, if the citizen tries to confirm receives error
 After a cancellation by merchant a transaction before pre-authorization, if the citizen tries to confirm receives error
 After a cancellation by merchant a transaction before pre-authorization, if the citizen tries to confirm receives error
@@ -80,22 +75,12 @@ After a cancellation request the transaction is cancelled
 After a cancellation request the transaction is cancelled even if the transaction is confirmed
 After a cancellation request the transaction is cancelled even if the transaction is confirmed
 After a cancellation request the transaction is cancelled even if the transaction is confirmed
+After a transaction, the citizen is rewarded for the maximum allowed for a day
+After a transaction, the citizen is rewarded for the maximum allowed for a day
+After a transaction, the citizen is rewarded for the maximum allowed for a day
+After a transaction, the citizen is rewarded for the maximum allowed for a day
 After the eroded budget, if the merchant cancels the last transaction the citizen can make another transaction
 After the eroded budget, if the merchant through MIL cancels the last transaction the citizen can make another transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by the same merchant the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
-Against two transactions generated by two merchants the citizen, who confirms the first will receive error when confirming the second transaction
 All family members pay a transaction by Bar Code and they are rewarded individually, sharing the budget
 All family members pay a transaction by IDPay Code and they are rewarded individually, sharing the budget
 All family members pay a transaction by QR Code and they are rewarded individually, sharing the budget
@@ -104,12 +89,17 @@ An authorized and cancelled transaction X cannot be pre-authorized through MIL
 An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
+An onboarded citizen creates a barcode payment accepted by a merchant
 An onboarded citizen enables the IDPay Code on an initiative having already generated the IDPay Code
 An onboarded citizen enrolls the IDPay Code for the first time on an initiative
 An onboarded citizen tries to disable the IDPay Code, after enabling it
 An onboarded citizen tries to disable the IDPay Code, without enabling it
 An onboarded citizen tries to enable the IDPay Code on an initiative not having already generated the IDPay Code
 An onboarded citizen tries to enroll again the IDPay Code, after disabling it
+An unpaid transaction is not present in the refunds file
+An unpaid transaction is not present in the refunds file
+An unpaid transaction is not present in the refunds file
+An unpaid transaction is not present in the refunds file
 An unsubscribed citizen on an initiative tries to enroll the IDPay Code
 An unsubscribed citizen tries to authorize a transaction
 An unsubscribed citizen tries to onboard and fails
@@ -137,16 +127,21 @@ Citizen tries to pre-authorize a transaction already pre-authorized by another c
 Citizen tries to pre-authorize a transaction, created through MIL, already pre-authorized by another citizen
 Citizen's budget is completely eroded with 10 trx
 Citizen's budget is completely eroded with 10 trx, created through MIL
-Families are ranked correctly ordered by ISEE after ranking publication of initiative
-Families are ranked correctly ordered by ISEE after ranking publication of initiative
-Families are ranked correctly ordered by ISEE after ranking publication of initiative
-Families are ranked correctly ordered by ISEE after ranking publication of initiative
-Families are ranked correctly ordered by ISEE after ranking publication of initiative
-Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
+Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
+Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
+Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
+Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
+Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
+Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
+Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
+Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
+Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
+Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
+Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
+Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
+Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
+Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
+Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
 If a citizen cancels a pre-authorized transaction, can after authorizing the trx
 If a citizen cancels a pre-authorized transaction, can after authorizing the trx
 If a citizen cancels a pre-authorized transaction, can after authorizing the trx
@@ -175,21 +170,42 @@ Onboard citizen cannot unsubscribe during the grace period before ranking publis
 Onboard citizen cannot unsubscribe during the grace period before ranking publish
 Onboard family cannot unsubscribe before grace period end on a initiative with ranking
 Onboard family cannot unsubscribe before onboarding period end on a initiative with ranking
+Onboarding result depends on citizens' ISEE
+Onboarding result depends on citizens' ISEE
+Onboarding result depends on citizens' ISEE
+Onboarding result depends on citizens' ISEE
+Onboarding result depends on citizens' ISEE
 Suspending a citizen does not free up the budget of an initiative with a fully allocated budget
-The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before onboarding period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before onboarding period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before onboarding period end on a initiative for families with ranking
-The Institution cannot suspend a citizen before onboarding period end on a initiative for families with ranking
+The Institution cannot suspend a citizen before onboarding period end
+The Institution cannot suspend a citizen before onboarding period end
+The Institution cannot suspend a citizen before onboarding period end
+The Institution cannot suspend a citizen before onboarding period end
+The Institution cannot suspend a citizen during grace period before ranking publication
+The Institution cannot suspend a citizen during grace period before ranking publication
+The Institution cannot suspend a citizen during grace period before ranking publication
+The Institution cannot suspend a citizen during grace period before ranking publication
 The Institution tries to readmit a citizen not registered in the initiative and receives a KO
 The Institution tries to readmit a suspended citizen during the fruition period and receives an OK result
 The Institution tries to suspend a citizen not registered in the initiative and receives a KO
 The Institution tries to suspend an onboard citizen during the fruition period and receives an OK result
 The budget is completely eroded with one trx
 The budget is completely eroded with one trx through MIL
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard after the end of the onboarding period
+The citizen tries to onboard again after being already KO for onboarding period ended
+The citizen tries to onboard again after being already KO for onboarding period ended
+The citizen tries to onboard again after being already KO for onboarding period ended
+The citizen tries to onboard again after being already KO for onboarding period ended
+The citizen tries to onboard again after being already KO for onboarding period ended
+The citizen tries to onboard again after being already KO for onboarding period ended
+The merchant cannot generate a transaction during the onboarding period
+The merchant cannot generate a transaction during the onboarding period
+The merchant cannot generate a transaction during the onboarding period
+The merchant cannot generate a transaction during the onboarding period
 The merchant not qualified tries to generate the trx
 The merchant not qualified tries to generate the trx through MIL
 The merchant requests cancellation for 10 transactions of amount 1500 cents each
@@ -206,35 +222,11 @@ The transaction is not generated for an amount equal to -1 cents through MIL
 The transaction is not generated for an amount equal to 0 cents
 The transaction is not generated for an amount equal to 0 cents through MIL
 The transaction made before unsubscribing is present in the rewards file
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 1 cents confirmed by the citizen creates the transaction of amount 1 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
-The transaction of amount 10000 cents, confirmed by the citizen creates the transaction of amount 8712 cents
 The transaction, created through MIL, can still be authorized if an ever registered citizen tried to authorize it
 The transaction, created through MIL, is not authorized for ever registered citizen
 The transaction, created through MIL, is not authorized for onboarding citizen KO
 Transaction cancelled before the citizen’s authorization
 Transaction, created through MIL, cancelled before the citizen’s authorization
-Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-Two families tries to onboard on a ranking initiative but they don't meet the ISEE requirements
-Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
-Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
-Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
-Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
-Two families, with same ISEE, onboard to a ranking initiative but the second one is not in ranking for budget exhaustion
 Two family members pay a transaction by Bar Code and the second one exhausts the budget
 Two family members pay a transaction by Bar Code but the first one exhausted the budget
 Two family members pay a transaction by IDPay Code but for the second one the reward pre-calculated cannot be guaranteed
@@ -242,44 +234,5 @@ Two family members pay a transaction by IDPay Code but the second authorization 
 Two family members pay a transaction by IDPay Code but the second pre-authorization fails because the budget is exhausted
 Two family members pay a transaction by QR Code and the second one exhausts the budget
 Two family members pay a transaction by QR Code but the first one exhausted the budget
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User cannot confirm a second transaction because the initiative is one shot type
-User just 19 tries onboarding unsuccessfully
-User just 19 tries onboarding unsuccessfully
-User just 19 tries onboarding unsuccessfully
-User just 19 tries onboarding unsuccessfully
-User just 19 tries onboarding unsuccessfully
-User just 19 tries onboarding unsuccessfully
-User over the maximum age tries onboarding successfully
-User over the maximum age tries onboarding successfully
-User over the maximum age tries onboarding successfully
-User over the maximum age tries onboarding successfully
-User over the maximum age tries onboarding successfully
-User over the maximum age tries onboarding successfully
-User under the minimum age tries onboarding unsuccessfully
-User under the minimum age tries onboarding unsuccessfully
-User under the minimum age tries onboarding unsuccessfully
-User under the minimum age tries onboarding unsuccessfully
-User under the minimum age tries onboarding unsuccessfully
-User under the minimum age tries onboarding unsuccessfully
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-User, after not having authorized the first transaction, authorizes a second transaction
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
-With transaction of amount 20000 cents, the citizen confirms within the available budget with
 With two transactions generated by two merchants for the citizen to the confirmation of a transaction that erodes the budget to the second authorization receives error
 With two transactions generated by two merchants through MIL for the citizen to the confirmation of a transaction that erodes the budget to the second authorization receives error
