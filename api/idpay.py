@@ -636,22 +636,28 @@ def post_create_payment_bar_code(token, initiative_id: str):
     )
 
 
-def put_authorize_bar_code_merchant(merchant_id: str,
-                                    trx_code: str,
+def put_authorize_bar_code_merchant(trx_code: str,
                                     amount_cents: int,
-                                    acquirer_id: str = settings.idpay.acquirer_id
+                                    access_token: str = None,
+                                    additional_properties=None
                                     ):
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    if access_token:
+        headers['Authorization'] = f'Bearer {access_token}'
+
+    payload = {
+        'amountCents': amount_cents,
+        'idTrxAcquirer': str(uuid.uuid4())
+    }
+    if additional_properties:
+        payload['additionalProperties'] = additional_properties
+
     return requests.put(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.bar_code.path}/{trx_code}/authorize',
-        headers={
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id
-        },
-        json={
-            'amountCents': amount_cents,
-            'idTrxAcquirer': str(uuid.uuid4())
-        }
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}/authorize',
+        headers=headers,
+        json=payload
     )
 
 
