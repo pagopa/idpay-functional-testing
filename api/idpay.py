@@ -303,6 +303,21 @@ def get_merchant_processed_transactions(initiative_id,
     )
 
 
+def get_reward_batch_eligibility(transaction_id: str,
+                                 merchant_id: str,
+                                 access_token: str):
+    return requests.get(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}/idpay/transactions/{transaction_id}{settings.IDPAY.endpoints.transactions.reward_batch_eligibility}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        },
+        params={
+            'merchantId': merchant_id
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def obtain_selfcare_test_token(institution_info: str):
     return requests.post(
         url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/welfare/token/test',
@@ -684,6 +699,26 @@ def post_invoice_bar_code_merchant(transaction_id: str,
         },
         files={
             'file': ('invoice.pdf', invoice_content, 'application/pdf')
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def post_reversal_bar_code_merchant(initiative_id: str,
+                                    transaction_id: str,
+                                    access_token: str,
+                                    reversal_content: bytes,
+                                    doc_number: str):
+    return requests.post(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}/initiatives/{initiative_id}/transactions/{transaction_id}{settings.IDPAY.endpoints.ecommerce.reversal}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        },
+        data={
+            'docNumber': doc_number
+        },
+        files={
+            'file': ('reversal.pdf', reversal_content, 'application/pdf')
         },
         timeout=settings.default_timeout
     )

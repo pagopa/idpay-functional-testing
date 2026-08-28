@@ -30,9 +30,13 @@
 6. Capture the authorized barcode payment as that POS and assert the
    transaction is `CAPTURED`.
 7. Upload an invoice file and document number for the captured payment as that
-   POS.
-8. Upload an invoice file and document number for an already invoiced payment
+   POS and verify that the transaction is `INVOICED`.
+8. Independently verify that an invoiced transaction is asynchronously assigned
+   to a reward batch.
+9. Upload an invoice file and document number for an already invoiced payment
    as that POS.
+10. Reverse the payment through the supported `reversal` operation and verify
+   that the processed transaction no longer has a reward batch identifier.
 
 The Bonus authorization payload requires
 `additionalProperties.productGtin`. The approved test value is
