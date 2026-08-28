@@ -163,6 +163,7 @@ If citizen A pre-authorizes the transactions X and Y, and the transaction X is a
 If the merchant cancels the last transaction the citizen can make another transaction
 If the merchant cancels the last transaction the citizen can make another transaction
 If the merchant cancels the last transaction the citizen can make another transaction
+Invoice updates are suspended while the reward batch is SENT
 Merchant do not receives refund if the institution payment fails
 Merchant receives discount transaction refund
 Merchant receives discount transaction refund for 1 cents transaction
