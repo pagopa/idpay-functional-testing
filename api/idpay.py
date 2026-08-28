@@ -670,6 +670,25 @@ def put_capture_bar_code_merchant(trx_code: str, access_token: str):
     )
 
 
+def post_invoice_bar_code_merchant(transaction_id: str,
+                                   access_token: str,
+                                   invoice_content: bytes,
+                                   doc_number: str):
+    return requests.post(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}/transactions/{transaction_id}{settings.IDPAY.endpoints.ecommerce.invoice}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        },
+        data={
+            'docNumber': doc_number
+        },
+        files={
+            'file': ('invoice.pdf', invoice_content, 'application/pdf')
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def get_initiative_info(selfcare_token: str,
                         initiative_id: str):
     """API to get information related to an initiative.
