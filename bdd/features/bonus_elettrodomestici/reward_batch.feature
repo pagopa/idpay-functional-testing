@@ -21,10 +21,12 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     Then the transaction X belongs to a reward batch
     When the reward batch of transaction X is prepared and sent
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    Then the invoice update of transaction X is rejected while its reward batch is SENT
+    Then the invoice update of transaction X is rejected
+    And the reward batch of transaction X is SENT
     When the specific reward batch of transaction X is evaluated
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    Then the invoice update of transaction X is rejected while its reward batch is EVALUATING
+    Then the invoice update of transaction X is rejected
+    And the reward batch of transaction X is EVALUATING
 
   Scenario: A merchant updates an invoice while the reward batch is EVALUATING
     Given the citizen A creates the transaction X by Bar Code

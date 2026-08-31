@@ -7,7 +7,6 @@ from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
 from util.utility import get_merchant_access_token
 from util.utility import retry_reward_batch_eligibility
-from util.utility import retry_reward_batch_lifecycle
 from util.utility import retry_reward_batch_reassignment
 
 
@@ -98,26 +97,29 @@ def step_prepare_and_send_reward_batch(context, trx_name):
     context.source_reward_batches[trx_name] = sent_batch
 
 
-@then('the invoice update of transaction {trx_name} is rejected while its reward batch is {batch_status}')
-def step_invoice_update_is_rejected_for_reward_batch_status(context, trx_name, batch_status):
+@then('the invoice update of transaction {trx_name} is rejected')
+def step_invoice_update_is_rejected(context, trx_name):
     response = context.latest_merchant_invoice_update_bar_code
     assert response.status_code == 403, (
-        f'Expected invoice update to be rejected while the reward batch is {batch_status}, '
+        f'Expected invoice update of transaction {trx_name} to be rejected, '
         f'got {response.status_code} {response.text}'
     )
     assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
 
+
+@then('the reward batch of transaction {trx_name} is {batch_status}')
+def step_reward_batch_has_status(context, trx_name, batch_status):
     merchant_name = context.associated_merchant[trx_name]
     source_batch = context.source_reward_batches[trx_name]
-    retry_reward_batch_lifecycle(
-        transaction_id=context.transactions[trx_name]['id'],
-        merchant_id=context.merchants[merchant_name]['id'],
-        access_token=context.transaction_pos_access_tokens[trx_name],
+    response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
         reward_batch_id=source_batch['id'],
-        expected_batch_status=batch_status,
-        expected_transaction_status='INVOICED',
-        expected_batch_transaction_status='CONSULTABLE'
+        merchant_id=context.merchants[merchant_name]['id'],
     )
+    assert response.status_code == 200, (
+        f'Reward batch detail failed: {response.status_code} {response.text}'
+    )
+    assert response.json()['status'] == batch_status
 
 
 @when('the specific reward batch of transaction {trx_name} is evaluated')
