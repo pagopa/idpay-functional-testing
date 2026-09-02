@@ -37,7 +37,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     When the reward batch of transaction X is prepared and sent
     And the specific reward batch of transaction X is evaluated
     And the merchant 1 updates the invoice of transaction X by Bar Code
-    Then the transaction X belongs to a different current-month reward batch as TO_CHECK
+    Then the transaction X belongs to a different current-month reward batch as SUSPENDED
 
   Scenario: An invoiced payment is associated with a reward batch
     Given the citizen A creates the transaction X by Bar Code
