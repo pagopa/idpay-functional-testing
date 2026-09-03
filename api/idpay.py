@@ -744,6 +744,19 @@ def put_capture_bar_code_merchant(trx_code: str, access_token: str):
     )
 
 
+def delete_transaction_bar_code_merchant(initiative_id: str,
+                                        transaction_id: str,
+                                        access_token: str):
+    return requests.delete(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}'
+        f'/initiatives/{initiative_id}/transactions/{transaction_id}',
+        headers={
+            'Authorization': 'Bearer ' + access_token
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def post_invoice_bar_code_merchant(initiative_id: str,
                                    transaction_id: str,
                                    access_token: str,
