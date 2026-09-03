@@ -1,1 +1,1 @@
-{"reportName":"Functional Report #75","testRuns":[],"statistic":{"failed":88,"broken":5,"skipped":0,"passed":5,"unknown":0,"total":98},"time":{"start":1788425343414,"stop":1788425396291,"duration":52877,"minDuration":0,"maxDuration":1952,"sumDuration":48813}}
+{"reportName":"Functional Report #74","testRuns":[],"statistic":{"failed":89,"broken":5,"skipped":0,"passed":4,"unknown":0,"total":98},"time":{"start":1788425821293,"stop":1788425876965,"duration":55672,"minDuration":0,"maxDuration":1928,"sumDuration":51371}}
