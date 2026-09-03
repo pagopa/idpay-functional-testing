@@ -35,6 +35,8 @@ A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
 A merchant reverses an invoiced barcode payment
 A merchant updates an invoice while the reward batch is EVALUATING
+A point of sale cancels an authorized barcode payment
+A point of sale cannot cancel a captured barcode payment
 A readmitted citizen confirms successfully a transaction and is rewarded
 A suspended citizen can unsubscribe
 A suspended citizen who tries to onboard remains in the "suspended" state
