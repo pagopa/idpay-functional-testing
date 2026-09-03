@@ -12,6 +12,7 @@ from math import floor
 import pandas as pd
 
 from api.idpay import delete_initiative
+from api.idpay import delete_transaction_bar_code_merchant
 from api.idpay import enroll_iban
 from api.idpay import force_reward
 from api.idpay import get_iban_info
@@ -239,6 +240,34 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
         f'result retry wallet {res.json()[field]} does not match expected {expected} for field {field}'
     )
     return res
+
+
+def retry_bar_code_transaction_cancellation(initiative_id: str,
+                                            transaction_id: str,
+                                            access_token: str,
+                                            tries: int = 5,
+                                            delay: int = 1):
+    response = delete_transaction_bar_code_merchant(
+        initiative_id=initiative_id,
+        transaction_id=transaction_id,
+        access_token=access_token
+    )
+    count = 0
+
+    while (
+        response.status_code == 429
+        and response.json().get('code') == 'PAYMENT_TRANSACTION_VERSION_PENDING'
+        and count < tries
+    ):
+        count += 1
+        time.sleep(delay)
+        response = delete_transaction_bar_code_merchant(
+            initiative_id=initiative_id,
+            transaction_id=transaction_id,
+            access_token=access_token
+        )
+
+    return response
 
 
 def retry_iban_info(expected, iban, request, token, field, tries=3, delay=5):

@@ -16,8 +16,9 @@ from api.idpay import wallet
 from api.keycloak import get_client_credentials_token
 from conf.configuration import secrets
 from conf.configuration import settings
-from util.utility import get_merchant_access_token
 from util.utility import get_io_token
+from util.utility import get_merchant_access_token
+from util.utility import retry_bar_code_transaction_cancellation
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
@@ -165,6 +166,20 @@ def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_na
     assert context.latest_merchant_capture_bar_code.json()['status'] == 'CAPTURED'
 
 
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} requests cancellation of the transaction {trx_name} by Bar Code')
+def step_point_of_sale_request_cancel_bar_code(context, point_of_sale_name, merchant_name, trx_name):
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+
+    context.latest_cancellation_response = retry_bar_code_transaction_cancellation(
+        initiative_id=context.initiative_id,
+        transaction_id=context.transactions[trx_name]['id'],
+        access_token=access_token
+    )
+
+
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} invoices the transaction {trx_name} by Bar Code')
 def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_name, trx_name):
     transaction_id = context.transactions[trx_name]['id']
@@ -305,9 +320,44 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
         return
 
     elif status == 'CANCELLED':
-        assert context.latest_cancellation_response.status_code == 200
-        assert res.status_code == 404
+        assert context.latest_cancellation_response.status_code == 200, (
+            f'POS barcode cancellation failed: '
+            f'{context.latest_cancellation_response.status_code} '
+            f'{context.latest_cancellation_response.text}'
+        )
+        assert res.status_code == 404, (
+            f'Expected cancelled barcode transaction to be unavailable, '
+            f'got {res.status_code} {res.text}'
+        )
         return
+
+
+@then('the point of sale cancellation of transaction {trx_name} succeeds')
+def step_check_point_of_sale_cancellation(context, trx_name):
+    assert context.latest_cancellation_response.status_code == 200, (
+        f'POS barcode cancellation failed: '
+        f'{context.latest_cancellation_response.status_code} '
+        f'{context.latest_cancellation_response.text}'
+    )
+    response = get_transaction_detail(
+        context.transactions[trx_name]['id'],
+        merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
+    )
+    assert response.status_code == 200, (
+        f'Expected cancelled barcode transaction details, got '
+        f'{response.status_code} {response.text}'
+    )
+    assert response.json()['status'] == 'CANCELLED'
+
+
+@then('the point of sale cancellation is rejected because the transaction is captured')
+def step_point_of_sale_cancellation_is_rejected_for_captured_transaction(context):
+    response = context.latest_cancellation_response
+    assert response.status_code == 400, (
+        f'Expected POS barcode cancellation to be rejected, '
+        f'got {response.status_code} {response.text}'
+    )
+    assert response.json()['code'] == 'PAYMENT_DELETE_NOT_ALLOWED_FOR_TRX_STATUS'
 
 
 @then('the latest authorization by merchant fails because {reason_ko}')

@@ -23,6 +23,20 @@ Feature: Barcode payments for Bonus Elettrodomestici
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     Then with Bar Code the transaction X is captured
 
+  Scenario: A point of sale cancels an authorized barcode payment
+    Given the citizen A creates the transaction X by Bar Code
+    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the point of sale pos_1 of merchant 1 requests cancellation of the transaction X by Bar Code
+    Then the point of sale cancellation of transaction X succeeds
+
+  Scenario: A point of sale cannot cancel a captured barcode payment
+    Given the citizen A creates the transaction X by Bar Code
+    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
+    And the point of sale pos_1 of merchant 1 requests cancellation of the transaction X by Bar Code
+    Then the point of sale cancellation is rejected because the transaction is captured
+    And with Bar Code the transaction X is captured
+
   Scenario: A merchant invoices a captured barcode payment
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
