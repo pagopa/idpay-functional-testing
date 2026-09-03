@@ -1,3 +1,4 @@
+import time
 from hashlib import sha256
 
 from behave import given
@@ -105,6 +106,8 @@ def step_named_citizen_suspension(context, citizen_name):
 @given('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
 @then('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
 def step_wait_for_onboarding_ok(context, citizen_name, timeout_seconds):
+    timeout_seconds = int(timeout_seconds)
+    onboarding_deadline = time.monotonic() + timeout_seconds
     token_io = get_io_token(context.citizens_fc[citizen_name])
     retry_io_onboarding(
         expected='ONBOARDING_OK',
@@ -112,11 +115,16 @@ def step_wait_for_onboarding_ok(context, citizen_name, timeout_seconds):
         token=token_io,
         initiative_id=context.initiative_id,
         field='status',
-        tries=int(timeout_seconds) * 2,
+        tries=timeout_seconds * 2,
         delay=0.5,
         message=f'Citizen onboard not OK within {timeout_seconds} seconds'
     )
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
+    step_check_onboarding_status(
+        context=context,
+        citizen_name=citizen_name,
+        status='OK',
+        statistics_deadline=onboarding_deadline
+    )
 
 
 @given('the citizen {citizen_name} tries to onboard')
@@ -252,7 +260,7 @@ def step_check_save_onboarding_failed(context, reason_ko):
 
 @then('the onboard of {citizen_name} is {status}')
 @given('the onboard of {citizen_name} is {status}')
-def step_check_onboarding_status(context, citizen_name, status):
+def step_check_onboarding_status(context, citizen_name, status, statistics_deadline=None):
     skip_statistics_check = False
     curr_onboarded_citizen_count_increment = 0
 
@@ -408,7 +416,8 @@ def step_check_onboarding_status(context, citizen_name, status):
                          old_statistics=context.base_statistics,
                          onboarded_citizen_count_increment=curr_onboarded_citizen_count_increment,
                          accrued_rewards_increment=0,
-                         skip_trx_check=True)
+                         skip_trx_check=True,
+                         deadline=statistics_deadline)
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
 

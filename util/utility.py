@@ -369,11 +369,15 @@ def check_statistics(organization_id: str,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
                      tries=10,
-                     delay=1):
+                     delay=1,
+                     deadline=None):
     success = False
     count = 0
+    current_statistics = None
 
     while not success:
+        if deadline is not None and count > 0 and time.monotonic() >= deadline:
+            break
 
         current_statistics = get_initiative_statistics(organization_id=organization_id,
                                                        initiative_id=initiative_id).json()
@@ -390,12 +394,21 @@ def check_statistics(organization_id: str,
             are_trxs_incremented = True
 
         success = are_onboards_incremented and are_accrued_rewards_incremented and are_trxs_incremented
-        time.sleep(delay)
-        count += 1
-        if count == tries:
+        if success:
             break
 
-    assert success
+        count += 1
+        if deadline is None and count == tries:
+            break
+        sleep_duration = delay
+        if deadline is not None:
+            remaining_time = deadline - time.monotonic()
+            if remaining_time <= 0:
+                break
+            sleep_duration = min(delay, remaining_time)
+        time.sleep(sleep_duration)
+
+    assert success, f'Initiative statistics did not reach the expected values: {current_statistics}'
 
 
 def check_merchant_statistics(merchant_id: str,
