@@ -28,6 +28,20 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     Then the invoice update of transaction X is rejected
     And the reward batch of transaction X is EVALUATING
 
+  Scenario: Evaluating a sent reward batch rewards its invoiced transactions synchronously
+    Given the citizen A creates the transaction X by Bar Code
+    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
+    And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
+    Then with Bar Code the transaction X is invoiced
+    And the transaction X belongs to a reward batch
+    When the reward batch of transaction X is prepared and sent
+    Then the reward batch of transaction X is SENT
+    And with Bar Code the transaction X is invoiced
+    When the specific reward batch of transaction X is evaluated
+    Then the reward batch of transaction X is EVALUATING
+    And with Bar Code the transaction X is rewarded
+
   Scenario: A merchant updates an invoice while the reward batch is EVALUATING
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
