@@ -22,9 +22,9 @@ Feature: Barcode payments for Bonus Elettrodomestici
     And the citizen A creates the transaction Y by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And 1 second/s pass
+    And the point of sale pos_1 of merchant 1 tries to authorize the transaction Y by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     Then with Bar Code the transaction X is authorized
-    When the point of sale pos_1 of merchant 1 tries to authorize the transaction Y by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    Then with Bar Code the transaction Y is rejected
+    And with Bar Code the transaction Y is rejected
 
   Scenario: A merchant captures an authorized barcode payment
     Given the citizen A creates the transaction X by Bar Code
