@@ -15,7 +15,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
 
   Scenario: Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
@@ -30,7 +30,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
 
   Scenario: Evaluating a sent reward batch rewards its invoiced transactions synchronously
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then with Bar Code the transaction X is invoiced
@@ -44,7 +44,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
 
   Scenario: A merchant updates an invoice while the reward batch is EVALUATING
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
@@ -55,14 +55,14 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
 
   Scenario: An invoiced payment is associated with a reward batch
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
 
   Scenario: Reversing an invoiced payment removes it from its reward batch
     Given the citizen A creates the transaction X by Bar Code
-    When the point of sale pos_1 of merchant 1 authorizes the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
