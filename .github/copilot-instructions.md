@@ -53,6 +53,8 @@ Do not introduce parallel test execution unless each worker has isolated initiat
 
 - Add endpoint-specific request functions to the relevant `api/` module; use configuration values rather than literal hosts, credentials, paths, or timeouts.
 - Add a new initiative's payload and expected values under `settings.initiatives`. BDD features that need a provisioned initiative must tag the feature with that exact settings key. Feature steps store scenario state on `context`; initialize it through the existing initiative/setup steps and extend the matching step module.
+- In each `.feature` Scenario, use exactly one Given, one When, and one Then; use And for all additional steps.
+- Ensure each When step contains the phrase "tries to" or "trying to".
 - Functional tests use domain markers and `@pytest.mark.use_case("<id>")`; preserve these markers when modifying a covered flow so pytest exports the use-case metadata. They share the lifecycle-managed initiative IDs from `secrets.initiatives`.
 - Transaction tests generate and PGP-encrypt CSV inputs via `util.transaction_upload`; clean the plaintext and encrypted files with the corresponding utility after use.
 - `scenario_parser.py` generates the MkDocs feature pages from `bdd/features/`; generated `docs/index.md` and feature pages are ignored. Change Gherkin sources and step implementations, not generated documentation.
