@@ -304,7 +304,7 @@ def get_merchant_processed_transactions(initiative_id,
         params['rewardBatchId'] = reward_batch_id
 
     return requests.get(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}',
         headers={
             'x-merchant-id': merchant_id
         },
