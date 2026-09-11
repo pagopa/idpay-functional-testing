@@ -127,7 +127,8 @@ dmypy.json
 .pyre/
 
 # IDEs
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 
 # Ignore dynaconf secret files
