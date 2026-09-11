@@ -21,6 +21,7 @@ from util.utility import expect_wallet_counters
 from util.utility import force_rewards
 from util.utility import generate_payment_results
 from util.utility import get_io_token
+from util.utility import get_merchant_access_token
 from util.utility import get_payment_disposition_unique_ids
 from util.utility import get_refund_exported_content
 from util.utility import retry_timeline
@@ -186,7 +187,8 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                                  expected_trx_id=context.transactions[trx_name]['id'],
                                  expected_reward=context.transactions[trx_name]['rewardCents'],
                                  expected_fiscal_code=context.associated_citizen[trx_name],
-                                 merchant_id=curr_merchant_id
+                                 merchant_id=curr_merchant_id,
+                                 access_token=get_merchant_access_token(curr_merchant_name)
                                  )
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
