@@ -1,0 +1,3 @@
+https://api-io.uat.cstar.pagopa.it/idpay-itn/register/initiatives/68dd003ccce8c534d1da22bc/email
+status: 403
+raw body: 

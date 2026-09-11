@@ -1,0 +1,3 @@
+https://api-io.uat.cstar.pagopa.it/idpay-itn/register/consent
+status: 400
+raw body: {"code":"VERSION_NOT_MATCHED","message":"[CONSENTS] Received version id does not match the active one"}

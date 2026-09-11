@@ -1,0 +1,3 @@
+https://api-io.uat.cstar.pagopa.it/idpay-itn/register/initiatives/68dd003ccce8c534d1da22bc/producers?page=0&size=1
+status: 200
+raw body: {"content":[{"producerId":"999e1892-08e8-4d13-bec9-54814cd31b0c","producerName":"Produttore Matrix","createdAt":"2026-05-12T11:34:17.279","updatedAt":"2026-08-26T17:15:09.851"}],"pageNo":0,"pageSize":1,"totalElements":6,"totalPages":6}

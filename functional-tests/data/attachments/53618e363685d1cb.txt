@@ -1,0 +1,13 @@
+https://api-io.uat.cstar.pagopa.it/idpay-itn/register/institutions/762d5dc0-3ac6-4a61-b823-7e03e90ca52b
+status: 200
+raw body: {
+  "address": "Via Test 1",
+  "city": "Roma",
+  "county": "IT",
+  "country": "RM",
+  "zipCode": "81035",
+  "digitalAddress": "test@produttore.it",
+  "description": "Produttore di Elettrodomestici",
+  "fiscalCode": "13123784128",
+  "vatNumber": "-"
+}

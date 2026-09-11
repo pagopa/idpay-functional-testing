@@ -1,0 +1,3 @@
+https://api-io.uat.cstar.pagopa.it/idpay-itn/register/consent
+status: 200
+raw body: {}
