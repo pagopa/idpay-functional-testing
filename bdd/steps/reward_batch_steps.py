@@ -82,7 +82,8 @@ def _reverse_reward_batch_transactions(
     batch_transactions = _get_reward_batch_transactions(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
-        reward_batch_id=reward_batch_id
+        reward_batch_id=reward_batch_id,
+        access_token=get_merchant_access_token(merchant_name)
     )
 
     access_token = get_point_of_sale_access_token(
@@ -181,13 +182,14 @@ def _stored_reward_batch_transaction(context, batch_name):
     return context.reward_batch_aliases[batch_name]
 
 
-def _get_reward_batch_transactions(initiative_id, merchant_id, reward_batch_id):
+def _get_reward_batch_transactions(initiative_id, merchant_id, reward_batch_id, access_token):
     transactions = []
     page = 0
     while True:
         response = get_merchant_processed_transactions(
             initiative_id=initiative_id,
             merchant_id=merchant_id,
+            access_token=access_token,
             page=page,
             size=100,
             reward_batch_id=reward_batch_id
@@ -244,9 +246,14 @@ def _prepare_and_send_reward_batch(
         reward_batch_id=reward_batch_id,
         access_token=get_merchant_access_token(merchant_name)
     )
-    assert send_response.status_code == 204, (
-        f'Reward batch send failed: {send_response.status_code} {send_response.text}'
-    )
+    defer_send_outcome_assertion = expected_number_of_transactions == 0
+    if not defer_send_outcome_assertion:
+        assert send_response.status_code == 204, (
+            f'Reward batch send failed: {send_response.status_code} {send_response.text}'
+        )
+    if not hasattr(context, 'reward_batch_send_responses'):
+        context.reward_batch_send_responses = {}
+    context.reward_batch_send_responses[reward_batch_id] = send_response
 
     sent_batch_response = get_reward_batch_detail(
         initiative_id=context.initiative_id,
@@ -255,7 +262,8 @@ def _prepare_and_send_reward_batch(
     )
     assert sent_batch_response.status_code == 200
     sent_batch = sent_batch_response.json()
-    assert sent_batch['status'] == 'SENT'
+    if not defer_send_outcome_assertion:
+        assert sent_batch['status'] == 'SENT'
     assert sent_batch['month'] == prepared_batch['referenceMonth']
     if expected_number_of_transactions is not None:
         assert sent_batch['numberOfTransactions'] == expected_number_of_transactions, (
@@ -291,7 +299,17 @@ def step_reward_batch_has_status(context, trx_name, batch_status):
     assert response.status_code == 200, (
         f'Reward batch detail failed: {response.status_code} {response.text}'
     )
-    assert response.json()['status'] == batch_status
+    actual_status = response.json()['status']
+    send_response = getattr(context, 'reward_batch_send_responses', {}).get(source_batch['id'])
+    send_response_details = ''
+    if send_response is not None:
+        send_response_details = (
+            f' Send response: {send_response.status_code} {send_response.text}'
+        )
+    assert actual_status == batch_status, (
+        f'Expected reward batch {source_batch["id"]} to be {batch_status}, '
+        f'got {actual_status}.{send_response_details}'
+    )
 
 
 @then('the reward batch named {batch_name} is {batch_status}')

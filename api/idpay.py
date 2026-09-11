@@ -294,7 +294,9 @@ def get_merchant_processed_transactions(initiative_id,
                                         merchant_id: str = 'MERCHANTID',
                                         page: int = 0,
                                         size: int = 10,
-                                        reward_batch_id: str | None = None
+                                        reward_batch_id: str | None = None,
+                                        *,
+                                        access_token: str
                                         ):
     params = {
         'page': page,
@@ -306,6 +308,7 @@ def get_merchant_processed_transactions(initiative_id,
     return requests.get(
         f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}',
         headers={
+            'Authorization': f'Bearer {access_token}',
             'x-merchant-id': merchant_id
         },
         params=params,
