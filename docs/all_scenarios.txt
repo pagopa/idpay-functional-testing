@@ -46,6 +46,7 @@ A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
+A citizen's second barcode payment is rejected
 A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
 A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
 A merchant cannot generate a transaction, to be paid by IDPay Code, during grace period on an initiative for families with ranking
