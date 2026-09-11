@@ -118,15 +118,36 @@ def get_point_of_sale_access_token(merchant_name, point_of_sale_name):
         scope=client_credentials.get('scope')
     )
 
-    assert token_response.status_code == 200
+    assert token_response.status_code == 200, (
+        f'POS token request failed: '
+        f'{token_response.status_code} {token_response.text}'
+    )
     access_token = token_response.json().get('access_token')
-    assert access_token
+    assert access_token, 'POS token response does not contain an access_token'
     return access_token
 
 
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
 def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
                                           product_gtin):
+    step_point_of_sale_try_to_authorize_bar_code(
+        context=context,
+        point_of_sale_name=point_of_sale_name,
+        merchant_name=merchant_name,
+        trx_name=trx_name,
+        amount_cents=amount_cents,
+        product_gtin=product_gtin
+    )
+    assert context.latest_merchant_authorization_bar_code.status_code == 200, (
+        f'POS barcode authorization failed: '
+        f'{context.latest_merchant_authorization_bar_code.status_code} '
+        f'{context.latest_merchant_authorization_bar_code.text}'
+    )
+
+
+@when('the point of sale {point_of_sale_name} of merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
+def step_point_of_sale_try_to_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
+                                                 product_gtin):
     trx_code = context.transactions[trx_name]['trxCode']
     access_token = get_point_of_sale_access_token(
         merchant_name=merchant_name,
@@ -137,11 +158,6 @@ def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_
                                                                                      amount_cents=amount_cents,
                                                                                      access_token=access_token,
                                                                                      additional_properties={'productGtin': product_gtin})
-    assert context.latest_merchant_authorization_bar_code.status_code == 200, (
-        f'POS barcode authorization failed: '
-        f'{context.latest_merchant_authorization_bar_code.status_code} '
-        f'{context.latest_merchant_authorization_bar_code.text}'
-    )
     context.associated_merchant[trx_name] = merchant_name
 
 
@@ -214,20 +230,27 @@ def step_point_of_sale_reversal_bar_code(context, point_of_sale_name, merchant_n
         point_of_sale_name=point_of_sale_name
     )
 
-    context.latest_merchant_reversal_bar_code = post_reversal_bar_code_merchant(
+    context.latest_merchant_reversal_bar_code = reverse_bar_code_transaction(
         initiative_id=context.initiative_id,
+        transaction_id=transaction_id,
+        access_token=access_token
+    )
+
+    context.transaction_pos_access_tokens[trx_name] = access_token
+
+
+def reverse_bar_code_transaction(initiative_id, transaction_id, access_token):
+    response = post_reversal_bar_code_merchant(
+        initiative_id=initiative_id,
         transaction_id=transaction_id,
         access_token=access_token,
         reversal_content=REVERSAL_CONTENT,
         doc_number=REVERSAL_DOC_NUMBER
     )
-
-    assert context.latest_merchant_reversal_bar_code.status_code == 204, (
-        f'POS barcode reversal failed: '
-        f'{context.latest_merchant_reversal_bar_code.status_code} '
-        f'{context.latest_merchant_reversal_bar_code.text}'
+    assert response.status_code == 204, (
+        f'POS barcode reversal failed: {response.status_code} {response.text}'
     )
-    context.transaction_pos_access_tokens[trx_name] = access_token
+    return response
 
 
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} tries to update the invoice of transaction {trx_name} by Bar Code')
@@ -314,7 +337,7 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
         merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
     )
 
-    if status in {'AUTHORIZED', 'CAPTURED', 'INVOICED', 'REFUNDED', 'REWARDED'}:
+    if status in {'AUTHORIZED', 'CAPTURED', 'INVOICED', 'REFUNDED', 'REJECTED', 'REWARDED'}:
         assert res.status_code == 200
         assert res.json()['status'] == status
         return
