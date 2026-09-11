@@ -126,8 +126,8 @@ def step_when_merchant_generated_a_named_transaction_mil(context, merchant_name,
                                    )
 
 
-@given('the transaction {trx_name} is {expected_status}')
-@then('the transaction {trx_name} is {expected_status}')
+@given('the transaction {trx_name} is {expected_status:w}')
+@then('the transaction {trx_name} is {expected_status:w}')
 def step_check_named_transaction_status(context, trx_name, expected_status):
     status = expected_status.upper()
     if status == 'NOT CREATED':

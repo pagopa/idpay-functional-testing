@@ -19,6 +19,8 @@ on:
         options:
           - all
           - bonus_elettrodomestici
+          - portale_enti
+          - reward_batch
           - onboarding
           - transaction
           - cancellation

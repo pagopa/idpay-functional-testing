@@ -222,6 +222,17 @@ def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_na
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 
+@given('the citizen {citizen_name} fully performs the transaction {trx_name} by Bar Code at point of sale {point_of_sale_name} of merchant {merchant_name} of amount {amount_cents} cents with product GTIN {product_gtin}')
+def step_citizen_fully_performs_transaction_by_bar_code(context, citizen_name, trx_name, point_of_sale_name, merchant_name,
+                                                        amount_cents, product_gtin):
+    step_citizen_create_bar_code(context, citizen_name, trx_name)
+    step_point_of_sale_authorize_bar_code(
+        context, point_of_sale_name, merchant_name, trx_name, amount_cents, product_gtin
+    )
+    step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_name, trx_name)
+    step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_name, trx_name)
+
+
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} reverses the transaction {trx_name} by Bar Code')
 def step_point_of_sale_reversal_bar_code(context, point_of_sale_name, merchant_name, trx_name):
     transaction_id = context.transactions[trx_name]['id']
