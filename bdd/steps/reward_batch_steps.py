@@ -1,10 +1,13 @@
 from behave import then
 from behave import when
 
+from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
 from api.idpay import post_evaluate_sent_reward_batches
 from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
+from bdd.steps.bar_code_steps import get_point_of_sale_access_token
+from bdd.steps.bar_code_steps import reverse_bar_code_transaction
 from util.utility import get_merchant_access_token
 from util.utility import retry_reward_batch_eligibility
 from util.utility import retry_reward_batch_reassignment
@@ -12,17 +15,18 @@ from util.utility import retry_reward_batch_reassignment
 
 @then('the transaction {trx_name} belongs to a reward batch')
 def step_transaction_is_associated_with_reward_batch(context, trx_name):
-    merchant_name = context.associated_merchant[trx_name]
-    eligibility = retry_reward_batch_eligibility(
-        transaction_id=context.transactions[trx_name]['id'],
-        merchant_id=context.merchants[merchant_name]['id'],
-        access_token=context.transaction_pos_access_tokens[trx_name],
-        expected_associated=True
-    )
-    assert eligibility['transactionId'] == context.transactions[trx_name]['id']
-    assert eligibility['initiativeId'] == context.initiative_id
-    assert eligibility['merchantId'] == context.merchants[merchant_name]['id']
-    assert eligibility['rewardBatchId']
+    reward_batch_id = _get_associated_reward_batch_id(context, trx_name)
+    if not hasattr(context, 'reward_batch_ids'):
+        context.reward_batch_ids = {}
+    context.reward_batch_ids[trx_name] = reward_batch_id
+
+
+@then('the transaction {trx_name} belongs to the reward batch named {batch_name}')
+def step_transaction_is_associated_with_named_reward_batch(context, trx_name, batch_name):
+    step_transaction_is_associated_with_reward_batch(context, trx_name)
+    if not hasattr(context, 'reward_batch_aliases'):
+        context.reward_batch_aliases = {}
+    context.reward_batch_aliases[batch_name] = trx_name
 
 
 @then('the transaction {trx_name} does not belong to a reward batch')
@@ -38,20 +42,176 @@ def step_transaction_is_not_associated_with_reward_batch(context, trx_name):
 
 @when('the reward batch of transaction {trx_name} is prepared and sent')
 def step_prepare_and_send_reward_batch(context, trx_name):
-    merchant_name = context.associated_merchant[trx_name]
+    reward_batch_id = _get_associated_reward_batch_id(context, trx_name)
+    _prepare_and_send_reward_batch(
+        context=context,
+        trx_name=trx_name,
+        reward_batch_id=reward_batch_id
+    )
+
+
+@when('the merchant {merchant_name} prepares and sends the reward batch named {batch_name}')
+def step_prepare_and_send_named_reward_batch(context, merchant_name, batch_name):
+    _prepare_and_send_empty_reward_batch(
+        context=context,
+        merchant_name=merchant_name,
+        trx_name=_stored_reward_batch_transaction(context, batch_name)
+    )
+
+
+def _prepare_and_send_empty_reward_batch(context, merchant_name, trx_name):
+    assert context.associated_merchant[trx_name] == merchant_name, (
+        f'Transaction {trx_name} is not associated with merchant {merchant_name}'
+    )
+    _prepare_and_send_reward_batch(
+        context=context,
+        trx_name=trx_name,
+        reward_batch_id=_stored_reward_batch_id(context, trx_name),
+        expected_number_of_transactions=0
+    )
+
+
+def _reverse_reward_batch_transactions(
+        context, point_of_sale_name, merchant_name, trx_name
+):
+    assert context.associated_merchant[trx_name] == merchant_name, (
+        f'Transaction {trx_name} is not associated with merchant {merchant_name}'
+    )
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
     merchant_id = context.merchants[merchant_name]['id']
-    access_token = context.transaction_pos_access_tokens[trx_name]
+    batch_transactions = _get_reward_batch_transactions(
+        initiative_id=context.initiative_id,
+        merchant_id=merchant_id,
+        reward_batch_id=reward_batch_id
+    )
+
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name
+    )
+    for transaction in batch_transactions:
+        assert transaction['status'] == 'INVOICED', (
+            f'Transaction {transaction["trxId"]} in reward batch {reward_batch_id} '
+            f'has status {transaction["status"]} and cannot be reversed'
+        )
+        reverse_bar_code_transaction(
+            initiative_id=context.initiative_id,
+            transaction_id=transaction['trxId'],
+            access_token=access_token
+        )
+        retry_reward_batch_eligibility(
+            transaction_id=transaction['trxId'],
+            merchant_id=merchant_id,
+            access_token=access_token,
+            expected_associated=False
+        )
+
+
+@when(
+    'the point of sale {point_of_sale_name} of merchant {merchant_name} reverses all transactions '
+    'in the reward batch named {batch_name}'
+)
+def step_reverse_named_reward_batch_transactions(
+        context, point_of_sale_name, merchant_name, batch_name
+):
+    _reverse_reward_batch_transactions(
+        context=context,
+        point_of_sale_name=point_of_sale_name,
+        merchant_name=merchant_name,
+        trx_name=_stored_reward_batch_transaction(context, batch_name)
+    )
+
+
+def _reward_batch_has_transaction_count(context, trx_name, expected_number_of_transactions):
+    response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
+        reward_batch_id=_stored_reward_batch_id(context, trx_name),
+        merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
+    )
+    assert response.status_code == 200, (
+        f'Reward batch detail failed while checking transaction count: '
+        f'{response.status_code} {response.text}'
+    )
+    actual_number_of_transactions = response.json()['numberOfTransactions']
+    assert actual_number_of_transactions == int(expected_number_of_transactions), (
+        f'Expected reward batch to contain {expected_number_of_transactions} transactions, '
+        f'got {actual_number_of_transactions}'
+    )
+
+
+@then(
+    'the reward batch named {batch_name} contains {expected_number_of_transactions} transactions'
+)
+def step_named_reward_batch_has_transaction_count(
+        context, batch_name, expected_number_of_transactions
+):
+    _reward_batch_has_transaction_count(
+        context=context,
+        trx_name=_stored_reward_batch_transaction(context, batch_name),
+        expected_number_of_transactions=expected_number_of_transactions
+    )
+
+
+def _get_associated_reward_batch_id(context, trx_name):
+    merchant_name = context.associated_merchant[trx_name]
     eligibility = retry_reward_batch_eligibility(
         transaction_id=context.transactions[trx_name]['id'],
-        merchant_id=merchant_id,
-        access_token=access_token,
+        merchant_id=context.merchants[merchant_name]['id'],
+        access_token=context.transaction_pos_access_tokens[trx_name],
         expected_associated=True
     )
-    source_reward_batch_id = eligibility['rewardBatchId']
+    assert eligibility['transactionId'] == context.transactions[trx_name]['id']
+    assert eligibility['initiativeId'] == context.initiative_id
+    assert eligibility['merchantId'] == context.merchants[merchant_name]['id']
+    assert eligibility['rewardBatchId']
+    return eligibility['rewardBatchId']
+
+
+def _stored_reward_batch_id(context, trx_name):
+    assert hasattr(context, 'reward_batch_ids') and trx_name in context.reward_batch_ids, (
+        f'Reward batch ID for transaction {trx_name} was not captured before reversal'
+    )
+    return context.reward_batch_ids[trx_name]
+
+
+def _stored_reward_batch_transaction(context, batch_name):
+    assert hasattr(context, 'reward_batch_aliases') and batch_name in context.reward_batch_aliases, (
+        f'Reward batch alias {batch_name} was not captured before use'
+    )
+    return context.reward_batch_aliases[batch_name]
+
+
+def _get_reward_batch_transactions(initiative_id, merchant_id, reward_batch_id):
+    transactions = []
+    page = 0
+    while True:
+        response = get_merchant_processed_transactions(
+            initiative_id=initiative_id,
+            merchant_id=merchant_id,
+            page=page,
+            size=100,
+            reward_batch_id=reward_batch_id
+        )
+        assert response.status_code == 200, (
+            f'Reward batch transactions request failed: '
+            f'{response.status_code} {response.text}'
+        )
+        page_data = response.json()
+        transactions.extend(page_data['content'])
+        if page + 1 >= page_data['totalPages']:
+            return transactions
+        page += 1
+
+
+def _prepare_and_send_reward_batch(
+        context, trx_name, reward_batch_id, expected_number_of_transactions=None
+):
+    merchant_name = context.associated_merchant[trx_name]
+    merchant_id = context.merchants[merchant_name]['id']
 
     source_batch_response = get_reward_batch_detail(
         initiative_id=context.initiative_id,
-        reward_batch_id=source_reward_batch_id,
+        reward_batch_id=reward_batch_id,
         merchant_id=merchant_id
     )
     assert source_batch_response.status_code == 200, (
@@ -60,22 +220,28 @@ def step_prepare_and_send_reward_batch(context, trx_name):
     )
     source_batch = source_batch_response.json()
     assert source_batch['status'] == 'CREATED'
+    if expected_number_of_transactions is not None:
+        assert source_batch['numberOfTransactions'] == expected_number_of_transactions, (
+            f'Expected reward batch {reward_batch_id} to contain '
+            f'{expected_number_of_transactions} transactions before sending, '
+            f'got {source_batch["numberOfTransactions"]}'
+        )
 
     prepare_response = post_prepare_reward_batch_for_send(
         initiative_id=context.initiative_id,
-        reward_batch_id=source_reward_batch_id
+        reward_batch_id=reward_batch_id
     )
     assert prepare_response.status_code == 200, (
         f'Reward batch preparation failed: '
         f'{prepare_response.status_code} {prepare_response.text}'
     )
     prepared_batch = prepare_response.json()
-    assert prepared_batch['rewardBatchId'] == source_reward_batch_id
+    assert prepared_batch['rewardBatchId'] == reward_batch_id
     assert prepared_batch['previousMonth'] == source_batch['month']
 
     send_response = post_send_reward_batch(
         initiative_id=context.initiative_id,
-        reward_batch_id=source_reward_batch_id,
+        reward_batch_id=reward_batch_id,
         access_token=get_merchant_access_token(merchant_name)
     )
     assert send_response.status_code == 204, (
@@ -84,13 +250,19 @@ def step_prepare_and_send_reward_batch(context, trx_name):
 
     sent_batch_response = get_reward_batch_detail(
         initiative_id=context.initiative_id,
-        reward_batch_id=source_reward_batch_id,
+        reward_batch_id=reward_batch_id,
         merchant_id=merchant_id
     )
     assert sent_batch_response.status_code == 200
     sent_batch = sent_batch_response.json()
     assert sent_batch['status'] == 'SENT'
     assert sent_batch['month'] == prepared_batch['referenceMonth']
+    if expected_number_of_transactions is not None:
+        assert sent_batch['numberOfTransactions'] == expected_number_of_transactions, (
+            f'Expected sent reward batch {reward_batch_id} to contain '
+            f'{expected_number_of_transactions} transactions, '
+            f'got {sent_batch["numberOfTransactions"]}'
+        )
 
     if not hasattr(context, 'source_reward_batches'):
         context.source_reward_batches = {}
@@ -120,6 +292,15 @@ def step_reward_batch_has_status(context, trx_name, batch_status):
         f'Reward batch detail failed: {response.status_code} {response.text}'
     )
     assert response.json()['status'] == batch_status
+
+
+@then('the reward batch named {batch_name} is {batch_status}')
+def step_named_reward_batch_has_status(context, batch_name, batch_status):
+    step_reward_batch_has_status(
+        context=context,
+        trx_name=_stored_reward_batch_transaction(context, batch_name),
+        batch_status=batch_status
+    )
 
 
 @when('the specific reward batch of transaction {trx_name} is evaluated')

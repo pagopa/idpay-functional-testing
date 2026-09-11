@@ -68,3 +68,14 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     Then the transaction X belongs to a reward batch
     When the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
     Then the transaction X does not belong to a reward batch
+
+  Scenario: A merchant sends an empty reward batch
+    Given the citizen A creates the transaction X by Bar Code
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
+    And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
+    Then the transaction X belongs to the reward batch named B
+    When the point of sale pos_1 of merchant 1 reverses all transactions in the reward batch named B
+    Then the reward batch named B contains 0 transactions
+    When the merchant 1 prepares and sends the reward batch named B
+    Then the reward batch named B is SENT

@@ -292,13 +292,23 @@ def get_merchant_unprocessed_transactions(initiative_id,
 
 def get_merchant_processed_transactions(initiative_id,
                                         merchant_id: str = 'MERCHANTID',
-                                        page: int = 0
+                                        page: int = 0,
+                                        size: int = 10,
+                                        reward_batch_id: str | None = None
                                         ):
+    params = {
+        'page': page,
+        'size': size
+    }
+    if reward_batch_id is not None:
+        params['rewardBatchId'] = reward_batch_id
+
     return requests.get(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}?page={page}&size=10',
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}',
         headers={
             'x-merchant-id': merchant_id
         },
+        params=params,
         timeout=settings.default_timeout
     )
 

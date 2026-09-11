@@ -230,20 +230,27 @@ def step_point_of_sale_reversal_bar_code(context, point_of_sale_name, merchant_n
         point_of_sale_name=point_of_sale_name
     )
 
-    context.latest_merchant_reversal_bar_code = post_reversal_bar_code_merchant(
+    context.latest_merchant_reversal_bar_code = reverse_bar_code_transaction(
         initiative_id=context.initiative_id,
+        transaction_id=transaction_id,
+        access_token=access_token
+    )
+
+    context.transaction_pos_access_tokens[trx_name] = access_token
+
+
+def reverse_bar_code_transaction(initiative_id, transaction_id, access_token):
+    response = post_reversal_bar_code_merchant(
+        initiative_id=initiative_id,
         transaction_id=transaction_id,
         access_token=access_token,
         reversal_content=REVERSAL_CONTENT,
         doc_number=REVERSAL_DOC_NUMBER
     )
-
-    assert context.latest_merchant_reversal_bar_code.status_code == 204, (
-        f'POS barcode reversal failed: '
-        f'{context.latest_merchant_reversal_bar_code.status_code} '
-        f'{context.latest_merchant_reversal_bar_code.text}'
+    assert response.status_code == 204, (
+        f'POS barcode reversal failed: {response.status_code} {response.text}'
     )
-    context.transaction_pos_access_tokens[trx_name] = access_token
+    return response
 
 
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} tries to update the invoice of transaction {trx_name} by Bar Code')
