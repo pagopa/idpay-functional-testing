@@ -67,6 +67,7 @@ A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
 A merchant reverses an invoiced barcode payment
+A merchant sends an empty reward batch
 A merchant updates an invoice while the reward batch is EVALUATING
 A point of sale cancels an authorized barcode payment
 A point of sale cannot cancel a captured barcode payment
