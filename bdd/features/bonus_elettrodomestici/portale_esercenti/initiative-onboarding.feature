@@ -1,4 +1,5 @@
 @merchant
+@initiative-onboarding
 Feature: Merchant onboards an initiative
 
   # Note: these tests don't perform the actual login flow (SelfCare + token exchange),
