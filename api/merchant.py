@@ -48,6 +48,32 @@ def put_onboard_merchant_initiative(selfcare_token: str,
     )
 
 
+def exchange_selfcare_token_merchant_portal(selfcare_token: str):
+    return requests.post(
+        url=f'{secrets.base_path.IO}'
+        f'{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.merchant.path}'
+        "/token",
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
+def get_merchant_initiatives_merchant_portal(merchant_token: str, merchant_id: str):
+    return requests.get(
+        url=f'{secrets.base_path.IO}'
+        f'{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.ecommerce.merchant_portal}/initiatives',
+        headers={
+            'Authorization': f'Bearer {merchant_token}',
+            'x-merchant-id': merchant_id,
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def mock_merchant_ateco(fiscal_code: str, ateco: str):
     visura = VisuraImpresa(
         codice_fiscale=fiscal_code,

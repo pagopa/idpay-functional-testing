@@ -1,3 +1,5 @@
+@merchant
+@login
 Feature: Merchant login through Self-Care
 
   Scenario: Merchant successfully logs in Merchant Portal
