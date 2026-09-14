@@ -30,7 +30,7 @@ def _get_institution_token_profile(role: str) -> dict[str, str]:
     return payload
 
 
-def _build_merchant_token_body(role: str) -> dict[str, str]:
+def _build_institution_token_body(role: str) -> dict[str, str]:
     institution_profile = _get_institution_token_profile(role)
 
     return {
@@ -52,19 +52,19 @@ def _build_merchant_token_body(role: str) -> dict[str, str]:
 
 
 def build_l1_token_body() -> dict[str, str]:
-    return _build_merchant_token_body(role='l1')
+    return _build_institution_token_body(role='l1')
 
 
 def build_l2_token_body() -> dict[str, str]:
-    return _build_merchant_token_body(role='l2')
+    return _build_institution_token_body(role='l2')
 
 
 def build_l3_token_body() -> dict[str, str]:
-    return _build_merchant_token_body(role='l3')
+    return _build_institution_token_body(role='l3')
 
 
 def get_institutions_access_token(role: str = 'l1') -> str:
-    response = obtain_merchant_test_token(_build_merchant_token_body(role=role))
+    response = obtain_merchant_test_token(_build_institution_token_body(role=role))
     assert response.status_code == 200, (
         f"Instititution test token failed: {response.status_code} {response.text}"
     )
