@@ -67,8 +67,6 @@ A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
 A merchant reverses an invoiced barcode payment
-A merchant sends an empty reward batch
-A merchant updates an invoice while the reward batch is EVALUATING
 A point of sale cancels an authorized barcode payment
 A point of sale cannot cancel a captured barcode payment
 A producer cannot approve a product
@@ -139,7 +137,6 @@ An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
 An authorized and cancelled transaction cannot be pre-authorized
 An invalid product does not prevent valid products from being stored
-An invoiced payment is associated with a reward batch
 An onboarded citizen creates a barcode payment accepted by a merchant
 An onboarded citizen enables the IDPay Code on an initiative having already generated the IDPay Code
 An onboarded citizen enrolls the IDPay Code for the first time on an initiative
@@ -227,7 +224,6 @@ Do not store consent when OneTrust is unavailable
 Do not update a product through another initiative
 Download a formal validation report
 Download a processing report repeatedly
-Evaluating a sent reward batch rewards its invoiced transactions synchronously
 Exchange a valid SelfCare identity token
 Exclude a CSV with formal errors from history
 Filter products by a supported field
@@ -250,6 +246,14 @@ If the merchant cancels the last transaction the citizen can make another transa
 If the merchant cancels the last transaction the citizen can make another transaction
 Import valid producer associations
 Keep the first occurrence of a duplicated GTIN
+L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
+L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
+L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
+L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
+L2 Operator reject one transaction of reward batch and then approve the reward batch
+L2 Operator reject one transaction of reward batch and then approve the reward batch
+L3 Operator approves the reward batch
+L3 Operator approves the reward batch
 List only uploads belonging to the organization and initiative
 List the producers associated with the initiative
 Manage the same GTIN independently across initiatives
@@ -273,9 +277,15 @@ One member of a family onboards an initiative
 One member of a family onboards an initiative
 One member of a family onboards an initiative
 One member of a family onboards an initiative
+Operator downloads the approved reward batch report
+Operator downloads the approved reward batch report
+Operator downloads the generated CSV report correctly
+Operator downloads the generated USER_DETAILS CSV report correctly
+Operator requests the CSV report export correctly
+Operator requests the CSV report export with a range exceeding the maximum allowed
+Operator requests the USER_DETAILS CSV report export correctly
 Paginate the CSV upload history
 Perform an allowed product status transition
-Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
 Preserve a product that is already under review
 Preserve the status change when the email service fails
 Process a CSV when the operational email is missing
@@ -306,7 +316,6 @@ Restrict product visibility to the selected organization
 Retrieve a producer registered in SelfCare
 Return an empty result for a nonexistent GTIN
 Return exactly the initiatives visible to the current user
-Reversing an invoiced payment removes it from its reward batch
 Send separate rejection notifications to different producers
 Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
