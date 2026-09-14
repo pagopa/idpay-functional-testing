@@ -95,6 +95,14 @@ IDPAY:
       processed: '/transactions/processed'
       unprocessed: '/transactions'
       reward_batch_eligibility: '/reward-batch/eligibility'
+      reward_batch:
+        path: '/reward-batches'
+        approved: '/approved'
+        validated: '/validated'
+        transactions:
+          approved: '/transactions/approved'
+          rejected: '/transactions/rejected'
+          suspended: '/transactions/suspended'
       reward_batches: '/idpay/merchant/portal/initiatives'
       reward_batch_test_support: '/idpay/internal/test-support/initiatives'
     merchant:
