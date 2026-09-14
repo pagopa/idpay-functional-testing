@@ -14,33 +14,10 @@ from util.merchant_utilities import decode_jwt_payload
 from util.merchant_utilities import generate_merchant_name
 from util.merchant_utilities import generate_merchant_vat
 
-# Real SelfCare login can't be reproduced by tests, so a static token issued for
-# a known test institution on the SelfCare dev environment is used instead.
-MERCHANT_SELFCARE_TOKEN = (
-    'eyJhbGciOiJSUzI1NiIsImtpZCI6Imp3dF8wZDo4ZDoyODpjNTplOTo4YTo0ODo1MDo4NjplODow'
-    'OTplNzo1Nzo4NzpjZTpiYSIsInR5cCI6IkpXVCJ9.eyJmaXNjYWxfbnVtYmVyIjoiU1JUTkxNMDlU'
-    'MDZHNjM1UyIsIm5hbWUiOiJBbnNlbG1vIiwiZmFtaWx5X25hbWUiOiJTYXJ0b3JpIiwidWlkIjoi'
-    'NTA5NmU0YzYtMjVhMS00NWQ1LTliZGYtMmZiOTc0YTdjMWM4IiwidGVuYW50X2lkIjoiQVIiLCJz'
-    'cGlkX2xldmVsIjoiaHR0cHM6Ly93d3cuc3BpZC5nb3YuaXQvU3BpZEwyIiwiaXNzIjoiaHR0cHM6'
-    'Ly9kZXYuc2VsZmNhcmUucGFnb3BhLml0IiwiYXVkIjoiaWRwYXkubWVyY2hhbnQud2VsZmFyZS5w'
-    'YWdvcGEuaXQiLCJpYXQiOjE3ODgzMzkzMjMsImV4cCI6NTAwNzIwMzcyMywianRpIjoiYTk4ODNl'
-    'MWEtOWZiZi00MTVkLTlmODgtNTBjZWY3ZjhmYmFlIiwiZW1haWwiOiJlc2VyY2VudGVUZXN0QHRl'
-    'c3QuZW1haWwuaXQiLCJvcmdhbml6YXRpb24iOnsiaWQiOiIyYjQ4YmY5Ni1mZDc0LTQ3N2UtYTcw'
-    'YS0yODZiNDEwZjAyMGEiLCJuYW1lIjoiRXNlcmNlbnRlIGRpIHRlc3QgSWRQYXkiLCJyb2xlcyI6'
-    'W3sicGFydHlSb2xlIjoiTUFOQUdFUiIsInJvbGUiOiJhZG1pbiJ9XSwiZmlzY2FsX2NvZGUiOiIz'
-    'MzQ0NDQzMzQ4OCIsImlwYUNvZGUiOiJTRUxDXzMzNDQ0NDMzNDg4In0sImRlc2lyZWRfZXhwIjo1'
-    'MDA3MjAzNzIzLCJzdWIiOiIyZjlkOTcwZC0zMWZiLTQzOTMtODcyMS0yY2E5MjFiYjJiYmMiLCJ0'
-    'eXAiOiJJRCJ9.IpqEpdRPfx44ECuPi2_AJND5BGfchpRlE2p1UzBg5-FL_0pMZNKIo-Gy8fRUc2u'
-    '_ga8lbeJMcnUZXwBKxJrHjXfinZQCEAbVzm_k7s5utVzxuSwkgn47DBIhmveg8yk8mR2NGIWKbIR'
-    'v4xKTrH67jq86RsY9i6xNISZoidPuYJpV-Ms8hIjCMDnTzSDg55kxgeF5ZGEtM04WsHwBUyMhzj0'
-    'lbfFL_jGLI1VGeGgqKT7tV7d3FKf8rqDdVxXK3q1oDXrEBUoGPqn5VUK-KbC08GSfKbJ_6G4eyzv'
-    'Wjo41LZY6Yais5F4XdNFE-lHQqvb4su7QOHOgh3QbkWa10u11vQ'
-)
-
 
 @given('merchant successfully logged in SelfCare')
 def step_merchant_logged_in_selfcare(context):
-    context.merchant_selfcare_token = MERCHANT_SELFCARE_TOKEN
+    context.merchant_selfcare_token = secrets.merchant_portal.selfcare_token
 
 
 @when('merchant access Merchant Portal')
