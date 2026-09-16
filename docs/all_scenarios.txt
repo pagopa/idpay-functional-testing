@@ -131,6 +131,8 @@ All family members pay a transaction by IDPay Code and they are rewarded individ
 All family members pay a transaction by QR Code and they are rewarded individually, sharing the budget
 Allow an upload on another initiative
 An Invitalia operator cannot approve a product
+An approved reward batch keeps its suspended amount after removing suspended transactions
+An approved reward batch keeps its suspended amount after removing suspended transactions
 An authorized and cancelled transaction X cannot be pre-authorized
 An authorized and cancelled transaction X cannot be pre-authorized through MIL
 An authorized and cancelled transaction cannot be pre-authorized
@@ -321,6 +323,8 @@ Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
 Store every valid product
 Suspending a citizen does not free up the budget of an initiative with a fully allocated budget
+Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
+Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
 The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
 The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
 The Institution cannot suspend a citizen before grace period end on a initiative for families with ranking
