@@ -1,4 +1,5 @@
 import datetime
+import time
 from zoneinfo import ZoneInfo
 
 from behave import given
@@ -452,9 +453,9 @@ def step_reward_batch_has_status_and_assigned_level(context, trx_name, status, a
     response = step_reward_batch_has_status(context, trx_name, status)
     assert response['assigneeLevel'] == assigneeLevel.upper(), (f"status and level {response['status']} {response['assigneeLevel']} ")
 
+@when('the reward batch of transaction {trx_name} is sent for evaluation')
 def step_evaluate_specific_sent_reward_batch(context, trx_name):
     merchant_name = context.associated_merchant[trx_name]
-    merchant_id = context.merchants[merchant_name]['id']
     source_batch = context.source_reward_batches[trx_name]
     response = post_evaluate_sent_reward_batches(
         initiative_id=context.initiative_id,
@@ -464,13 +465,45 @@ def step_evaluate_specific_sent_reward_batch(context, trx_name):
         f'SENT reward batch evaluation failed: {response.status_code} {response.text}'
     )
 
-    source_response = get_reward_batch_detail(
-        initiative_id=context.initiative_id,
-        reward_batch_id=source_batch['id'],
-        merchant_id=merchant_id
+    _wait_for_reward_batch_status(
+        context=context,
+        trx_name=trx_name,
+        expected_status='EVALUATING'
     )
-    assert source_response.status_code == 200
-    assert source_response.json()['status'] == 'EVALUATING'
+
+
+def _wait_for_reward_batch_status(
+        context,
+        trx_name,
+        expected_status,
+        tries=20,
+        delay=3
+):
+    merchant_name = context.associated_merchant[trx_name]
+    reward_batch_id = context.source_reward_batches[trx_name]['id']
+    merchant_id = context.merchants[merchant_name]['id']
+    latest_batch = None
+
+    for attempt in range(tries):
+        response = get_reward_batch_detail(
+            initiative_id=context.initiative_id,
+            reward_batch_id=reward_batch_id,
+            merchant_id=merchant_id
+        )
+        assert response.status_code == 200, (
+            f'Reward batch detail failed while waiting for {expected_status}: '
+            f'{response.status_code} {response.text}'
+        )
+        latest_batch = response.json()
+        if latest_batch['status'] == expected_status:
+            return latest_batch
+        if attempt < tries - 1:
+            time.sleep(delay)
+
+    assert False, (
+        f'Expected reward batch {reward_batch_id} to become {expected_status}, '
+        f'got {latest_batch["status"]}: {latest_batch}'
+    )
 
 
 @then('the transaction {trx_name} belongs to a different current-month reward batch as {batch_transaction_status}')
@@ -705,5 +738,12 @@ def step_operator_validation_reward_batch_fails(context, role, trx_name, reason)
     )
 
     if reason == 'UNSATISFIED MINIMUM ELABORATION PERCENT':
-        assert validate_reward_batch.status_code == 400
-        assert validate_reward_batch.json()['code'] == 'BATCH_NOT_ELABORATED_15_PERCENT'
+        assert validate_reward_batch.status_code == 400, (
+            f'Expected reward batch validation to fail with HTTP 400, got '
+            f'{validate_reward_batch.status_code}: {validate_reward_batch.text}'
+        )
+        response_body = validate_reward_batch.json()
+        assert response_body.get('code') == 'BATCH_NOT_ELABORATED_15_PERCENT', (
+            f'Expected validation error code BATCH_NOT_ELABORATED_15_PERCENT, '
+            f'got {response_body}'
+        )
