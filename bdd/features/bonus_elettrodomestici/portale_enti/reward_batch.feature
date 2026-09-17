@@ -68,6 +68,27 @@ Feature: Reward batches for Bonus Elettrodomestici and Refund Approval Process
     When An operator with l3 role tries to approve the reward batch containing transaction X
     Then the reward batch of transaction X is APPROVED
 
+  Scenario: Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
+    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
+    When An operator with l1 role select transaction X from reward batch list and suspend it
+    Then the reward batch of transaction X has a positive suspended amount
+    And the reward batch of transaction X is EVALUATING
+
+  Scenario: An approved reward batch keeps its suspended amount after removing suspended transactions
+    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
+    And An operator with l1 role select transaction X from reward batch list and suspend it
+    And the reward batch of transaction X has a positive suspended amount
+    And An operator with l1 role validating the reward batch containing transaction X
+    And the reward batch of transaction X is EVALUATING and assigned to l2
+    And An operator with l2 role validating the reward batch containing transaction X
+    And the reward batch of transaction X is EVALUATING and assigned to l3
+    When An operator with l3 role tries to approve the reward batch containing transaction X
+    Then the reward batch of transaction X is APPROVED
+    And after approval, the transaction X belongs to a different current-month reward batch as SUSPENDED
+    And the approved reward batch of transaction X keeps its captured suspended amount after the suspended transaction is reassigned
+
   Scenario: Operator downloads the approved reward batch report
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING

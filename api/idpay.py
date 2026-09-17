@@ -295,6 +295,7 @@ def get_merchant_processed_transactions(initiative_id,
                                         page: int = 0,
                                         size: int = 10,
                                         reward_batch_id: str | None = None,
+                                        reward_batch_trx_status: str | None = None,
                                         *,
                                         access_token: str
                                         ):
@@ -304,6 +305,8 @@ def get_merchant_processed_transactions(initiative_id,
     }
     if reward_batch_id is not None:
         params['rewardBatchId'] = reward_batch_id
+    if reward_batch_trx_status is not None:
+        params['rewardBatchTrxStatus'] = reward_batch_trx_status
 
     return requests.get(
         f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.processed}',
