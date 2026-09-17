@@ -41,22 +41,6 @@ Feature: Reward batches for Bonus Elettrodomestici and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction Y
     Then the reward batch of transaction Y is EVALUATING and assigned to l3
 
-  Scenario: L2 Operator suspend one transaction of reward batch and then approve the reward batch
-    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    And the citizen B is 23 years old exactly
-    And the citizen B has ISEE 24000 of type "ordinario"
-    And the citizen B selects ISEE type "under_25000"
-    And the citizen B tries to onboard the initiative bonus_elettrodomestici
-    And the onboard of B becomes OK within 300 seconds
-    And the citizen B fully performs the transaction Y by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    And the transactions X and Y are prepared, sent and evaluated in the same reward batch status EVALUATING
-    When An operator with l1 role select transaction X from reward batch list and tries to approve it
-    And An operator with l1 role validating the reward batch containing transaction X
-    And the reward batch of transaction X is EVALUATING and assigned to l2
-    And An operator with l2 role select transaction Y from reward batch list and suspend it
-    And An operator with l2 role validating the reward batch containing transaction Y
-    Then the reward batch of transaction Y is EVALUATING and assigned to l3
-
   Scenario: L3 Operator approves the reward batch
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
