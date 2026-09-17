@@ -96,10 +96,9 @@ jobs:
             python3 -m pipenv run behave \
             bdd/features/bonus_elettrodomestici \
             --junit \
-            --junit-directory "tests/reports/behave" \ 
+            --junit-directory "tests/reports/behave" \
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
-        
           else
             python3 -m pipenv run behave \
             bdd/features/bonus_elettrodomestici \
