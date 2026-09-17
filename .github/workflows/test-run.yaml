@@ -48,7 +48,6 @@ on:
 jobs:
   run-bdd:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'all' || inputs.test_type == 'bdd' }}
-    timeout-minutes: 90
     uses: ./.github/workflows/test-run-bdd.yaml
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
