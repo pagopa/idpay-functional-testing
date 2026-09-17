@@ -23,7 +23,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
     Then the invoice update of transaction X is rejected
     And the reward batch of transaction X is SENT
-    When the specific reward batch of transaction X is evaluated
+    When the reward batch of transaction X is sent for evaluation
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
     Then the invoice update of transaction X is rejected
     And the reward batch of transaction X is EVALUATING
@@ -38,7 +38,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     When the reward batch of transaction X is prepared and sent
     Then the reward batch of transaction X is SENT
     And with Bar Code the transaction X is invoiced
-    When the specific reward batch of transaction X is evaluated
+    When the reward batch of transaction X is sent for evaluation
     Then the reward batch of transaction X is EVALUATING
     And with Bar Code the transaction X is rewarded
 
@@ -49,7 +49,7 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
     When the reward batch of transaction X is prepared and sent
-    And the specific reward batch of transaction X is evaluated
+    And the reward batch of transaction X is sent for evaluation
     And the merchant 1 updates the invoice of transaction X by Bar Code
     Then the transaction X belongs to a different current-month reward batch as SUSPENDED
 
