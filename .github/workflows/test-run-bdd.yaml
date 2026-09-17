@@ -97,14 +97,18 @@ jobs:
             bdd/features/bonus_elettrodomestici \
             --junit \
             --junit-directory "tests/reports/behave" \
-            --format pretty
+            --format pretty \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
           else
             python3 -m pipenv run behave \
             bdd/features/bonus_elettrodomestici \
             --tags "$FEATURE_TAG" \
             --junit \
             --junit-directory "tests/reports/behave" \
-            --format pretty
+            --format pretty \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
           fi
         continue-on-error: true
 
@@ -123,6 +127,7 @@ jobs:
         with:
           name: allure-results-bdd
           path: allure-results
+          if-no-files-found: ignore
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
