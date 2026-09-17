@@ -93,9 +93,18 @@ jobs:
         run: |
           echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
           if [ "$FEATURE_TAG" = "all" ]; then
-            python3 -m pipenv run behave bdd/features/bonus_elettrodomestici --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
+            python3 -m pipenv run behave \
+            bdd/features/bonus_elettrodomestici \
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format pretty
           else
-            python3 -m pipenv run behave bdd/features/bonus_elettrodomestici --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
+            python3 -m pipenv run behave \
+            bdd/features/bonus_elettrodomestici \
+            --tags "$FEATURE_TAG" \
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format pretty
           fi
         continue-on-error: true
 
