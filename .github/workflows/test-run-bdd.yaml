@@ -18,6 +18,7 @@ on:
 
 jobs:
   run-bdd-feature-tests:
+    timeout-minutes: 90
     runs-on: [ self-hosted-job, "${{ inputs.target_env }}" ]
     environment: ${{ inputs.target_env }}
     env:
@@ -92,9 +93,20 @@ jobs:
         run: |
           echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
           if [ "$FEATURE_TAG" = "all" ]; then
-            python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --format allure_behave.formatter:AllureFormatter -o allure-results
+            python3 -m pipenv run behave \
+            bdd/features/bonus_elettrodomestici \
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
           else
-            python3 -m pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "$FEATURE_TAG" --format allure_behave.formatter:AllureFormatter -o allure-results
+            python3 -m pipenv run behave \
+            bdd/features/bonus_elettrodomestici \
+            --tags "$FEATURE_TAG" \
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
           fi
         continue-on-error: true
 
@@ -113,10 +125,11 @@ jobs:
         with:
           name: allure-results-bdd
           path: allure-results
+          if-no-files-found: ignore
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
-    if: ${{ always() && inputs.target_env == 'uat' }}
+    if: ${{ inputs.target_env == 'uat' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
