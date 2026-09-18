@@ -3,7 +3,7 @@
 Feature: Merchant onboards an initiative
 
   # Note: these tests don't perform the actual login flow (SelfCare + token exchange),
-  # but emulate the login flow behaviour by directly creating the merchant in DB
+  # but emulate it by directly creating the merchant in DB
 
   Background:
     Given the initiative is "bonus_elettrodomestici"
