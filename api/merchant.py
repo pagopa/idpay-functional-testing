@@ -1,7 +1,7 @@
 import requests
 
 from api.mock import put_mocked_visura_impresa
-from api.model.visura_impresa import ClassificazioneAteco, InfoAttivita, VisuraImpresa
+from model.visura_impresa import ClassificazioneAteco, InfoAttivita, VisuraImpresa
 from conf.configuration import secrets
 from conf.configuration import settings
 

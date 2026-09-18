@@ -1,7 +1,7 @@
 import json
 
 import requests
-from api.model.visura_impresa import VisuraImpresa
+from model.visura_impresa import VisuraImpresa
 from conf.configuration import secrets
 from conf.configuration import settings
 
