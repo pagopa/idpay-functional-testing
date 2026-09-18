@@ -10,7 +10,7 @@ from api.merchant import put_merchant
 from api.merchant import put_onboard_merchant_initiative
 from api.merchant import mock_merchant_ateco
 from conf.configuration import secrets
-from util.merchant_utilities import decode_jwt_payload
+from util.jwt_utilities import decode_jwt_payload
 from util.merchant_utilities import generate_merchant_name
 from util.merchant_utilities import generate_merchant_vat
 
