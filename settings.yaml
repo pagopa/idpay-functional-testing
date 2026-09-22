@@ -112,6 +112,7 @@ IDPAY:
       internal_path: '/idpaymock/idpay'
       isee: '/mock/isee'
       family: '/mock/family'
+      pdnd: '/mock/pdnd'
     initiatives:
       portal: '/idpayportalwelfarebackendinitiative'
       beneficiary:
