@@ -23,6 +23,18 @@ on:
           - report_csv
           - reward_batch
           - reward_batch_counters
+          - counter_created
+          - counter_created_reversal
+          - counter_created_postpone
+          - counter_sent
+          - counter_sent_snapshot
+          - counter_sent_invoice_update
+          - counter_evaluating
+          - counter_evaluating_invoice_update
+          - counter_evaluating_actions
+          - counter_evaluating_rejected
+          - counter_approving
+          - counter_approving_snapshot
           - onboarding
           - transaction
           - bar_code
@@ -43,8 +55,27 @@ on:
         type: choice
         options:
           - bdd
+          - counter_unit
 
 jobs:
+  run-counter-unit:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'counter_unit' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 #v5.2.0
+        with:
+          python-version: 3.14.6
+          cache: pip
+
+      - name: Run reward batch counter unit tests
+        run: |
+          python -m pip install pytest
+          python -m pytest tests/test_reward_batch_counters.py -q
+
   run-bdd:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' }}
     uses: ./.github/workflows/test-run-bdd.yaml

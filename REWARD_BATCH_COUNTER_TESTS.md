@@ -16,7 +16,8 @@ implementate in `bdd/steps/reward_batch_counter_steps.py`.
 ## Cosa viene verificato
 
 - In `CREATED` i contatori cambiano seguendo le transazioni correnti; uno storno
-  rimuove quindi la transazione dai totali.
+  rimuove quindi la transazione dai totali e il postpone sposta lo stesso
+  contributo live al lotto del mese successivo.
 - Al passaggio a `SENT`, `initialAmountCents` rimane lo snapshot acquisito al
   momento dell'invio.
 - Da `APPROVING`, `suspendedAmountCents` rimane lo snapshot acquisito prima che
@@ -40,6 +41,13 @@ Scenari end-to-end mirati:
 ```shell
 behave --tags @reward_batch_counters
 ```
+
+Durante lo sviluppo, da GitHub Actions si puo selezionare `counter_unit` come
+tipo di test per eseguire solo le formule, senza onboarding e senza chiamate
+all'ambiente. Per un controllo end-to-end ristretto selezionare invece `bdd` e
+uno dei tag `counter_created`, `counter_sent`, `counter_evaluating` o
+`counter_approving`. Per avviare un solo scenario sono disponibili anche i tag
+piu specifici mostrati direttamente sopra ogni scenario nel file feature.
 
 Come indicato nel README del repository, l'esecuzione end-to-end ufficiale va
 lanciata dal workflow GitHub Actions `test-run`, scegliendo il tipo `bdd` e il

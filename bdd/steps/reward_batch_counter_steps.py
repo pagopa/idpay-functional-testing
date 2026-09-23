@@ -27,10 +27,23 @@ def _batch_id(context, transaction_name):
 
 
 def _batch_observation(context, batch_reference):
+    tracked_batches = getattr(context, 'tracked_counter_batches', {})
+    if batch_reference in tracked_batches:
+        tracked = tracked_batches[batch_reference]
+        return _batch_observation_by_id(
+            context=context,
+            merchant_name=tracked['merchant_name'],
+            reward_batch_id=tracked['id'],
+        )
+
     transaction_name = _transaction_for_batch_reference(context, batch_reference)
     merchant_name = context.associated_merchant[transaction_name]
-    merchant_id = context.merchants[merchant_name]['id']
     reward_batch_id = _batch_id(context, transaction_name)
+    return _batch_observation_by_id(context, merchant_name, reward_batch_id)
+
+
+def _batch_observation_by_id(context, merchant_name, reward_batch_id):
+    merchant_id = context.merchants[merchant_name]['id']
 
     detail_response = get_reward_batch_detail(
         initiative_id=context.initiative_id,
@@ -66,6 +79,17 @@ def _batch_observation(context, batch_reference):
     return detail_response.json(), transactions
 
 
+def _track_observed_batch(context, batch_reference, batch):
+    transaction_name = _transaction_for_batch_reference(context, batch_reference)
+    merchant_name = context.associated_merchant[transaction_name]
+    if not hasattr(context, 'tracked_counter_batches'):
+        context.tracked_counter_batches = {}
+    context.tracked_counter_batches[batch_reference] = {
+        'id': batch['id'],
+        'merchant_name': merchant_name,
+    }
+
+
 def _counter_differences(actual, expected):
     return {
         field: {'expected': value, 'actual': actual.get(field)}
@@ -82,12 +106,44 @@ def _counter_differences(actual, expected):
 )
 def step_capture_reward_batch_counters(context, batch_reference, baseline_name):
     batch, transactions = _batch_observation(context, batch_reference)
+    _track_observed_batch(context, batch_reference, batch)
     if not hasattr(context, 'reward_batch_counter_baselines'):
         context.reward_batch_counter_baselines = {}
     context.reward_batch_counter_baselines[baseline_name] = {
         'batch': batch,
         'transactions': transactions,
     }
+
+
+@then(
+    'the counters of reward batch {batch_reference} are unchanged from {baseline_name}'
+)
+def step_reward_batch_counters_are_unchanged(
+    context,
+    batch_reference,
+    baseline_name,
+):
+    batch, _ = _batch_observation(context, batch_reference)
+    baseline = context.reward_batch_counter_baselines[baseline_name]['batch']
+    counter_fields = {
+        'numberOfTransactions',
+        'numberOfTransactionsElaborated',
+        'numberOfTransactionsSuspended',
+        'numberOfTransactionsRejected',
+        'initialAmountCents',
+        'currentAmountCents',
+        'approvedAmountCents',
+        'suspendedAmountCents',
+        'excludedAmountCents',
+    }
+    differences = {
+        field: {'expected': baseline.get(field), 'actual': batch.get(field)}
+        for field in counter_fields
+        if batch.get(field) != baseline.get(field)
+    }
+    assert not differences, (
+        f'Reward batch counters changed unexpectedly: {differences}'
+    )
 
 
 @then(
@@ -109,6 +165,26 @@ def step_live_reward_batch_counters_match(context, batch_reference):
     raise AssertionError(
         f"Reward batch {batch['id']} counters do not match current transactions. "
         f'Differences: {differences}. Transactions: {transactions}'
+    )
+
+
+@then(
+    'the destination reward batch of transaction {transaction_name} has live counters '
+    'matching its current transactions'
+)
+def step_destination_reward_batch_counters_match(context, transaction_name):
+    destination = context.destination_reward_batches[transaction_name]
+    merchant_name = context.associated_merchant[transaction_name]
+    batch, transactions = _batch_observation_by_id(
+        context,
+        merchant_name,
+        destination['id'],
+    )
+    expected = derive_visible_live_counters(batch['status'], transactions)
+    differences = _counter_differences(batch, expected)
+    assert not differences, (
+        f'Destination reward batch {batch["id"]} counters do not match its '
+        f'current transactions: {differences}'
     )
 
 

@@ -306,3 +306,20 @@ def get_report_download(initiative_id: str,
         headers=headers,
         timeout=settings.default_timeout
     )
+
+
+def post_postpone_reward_batch_transaction(
+        initiative_id: str,
+        reward_batch_id: str,
+        transaction_id: str,
+        merchant_id: str,
+        access_token: str):
+    return requests.post(
+        f'{_reward_batch_base_path(initiative_id, reward_batch_id)}'
+        f'/transactions/{transaction_id}/postpone',
+        headers={
+            'Authorization': f'Bearer {access_token}',
+            'x-merchant-id': merchant_id,
+        },
+        timeout=settings.default_timeout
+    )

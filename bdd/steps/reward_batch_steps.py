@@ -13,6 +13,7 @@ from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
 from api.transaction import get_approved_reward_batch_download
 from api.transaction import post_approve_reward_batch
+from api.transaction import post_postpone_reward_batch_transaction
 from api.transaction import post_reward_batch_confirmation_batch
 from bdd.steps.bar_code_steps import get_point_of_sale_access_token
 from bdd.steps.bar_code_steps import reverse_bar_code_transaction
@@ -53,6 +54,67 @@ def step_transaction_is_not_associated_with_reward_batch(context, trx_name):
         access_token=context.transaction_pos_access_tokens[trx_name],
         expected_associated=False
     )
+
+
+@when(
+    'the merchant {merchant_name} postpones transaction {trx_name} to the next reward batch'
+)
+def step_postpone_transaction_to_next_reward_batch(
+    context,
+    merchant_name,
+    trx_name,
+):
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
+    merchant_id = context.merchants[merchant_name]['id']
+    assert context.associated_merchant[trx_name] == merchant_name
+
+    source_response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
+        reward_batch_id=reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert source_response.status_code == 200
+    source_batch = source_response.json()
+    assert source_batch['status'] == 'CREATED'
+
+    response = post_postpone_reward_batch_transaction(
+        initiative_id=context.initiative_id,
+        reward_batch_id=reward_batch_id,
+        transaction_id=context.transactions[trx_name]['id'],
+        merchant_id=merchant_id,
+        access_token=get_merchant_access_token(merchant_name),
+    )
+    assert response.status_code == 204, (
+        f'Postpone transaction failed: {response.status_code} {response.text}'
+    )
+
+    eligibility = retry_reward_batch_reassignment(
+        transaction_id=context.transactions[trx_name]['id'],
+        merchant_id=merchant_id,
+        access_token=context.transaction_pos_access_tokens[trx_name],
+        original_reward_batch_id=reward_batch_id,
+        expected_batch_transaction_status='CONSULTABLE',
+    )
+    destination_response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
+        reward_batch_id=eligibility['rewardBatchId'],
+        merchant_id=merchant_id,
+    )
+    assert destination_response.status_code == 200
+    destination_batch = destination_response.json()
+    assert destination_batch['status'] == 'CREATED'
+    assert destination_batch['id'] != source_batch['id']
+    source_year, source_month = map(int, source_batch['month'].split('-'))
+    expected_year = source_year + (1 if source_month == 12 else 0)
+    expected_month = 1 if source_month == 12 else source_month + 1
+    assert destination_batch['month'] == f'{expected_year:04d}-{expected_month:02d}'
+
+    if not hasattr(context, 'source_reward_batches'):
+        context.source_reward_batches = {}
+    if not hasattr(context, 'destination_reward_batches'):
+        context.destination_reward_batches = {}
+    context.source_reward_batches[trx_name] = source_batch
+    context.destination_reward_batches[trx_name] = destination_batch
 
 
 @when('the reward batch of transaction {trx_name} is prepared and sent')
@@ -409,6 +471,16 @@ def step_invoice_update_is_rejected(context, trx_name):
     )
     assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
 
+
+@then('the reversal of transaction {trx_name} is rejected by its reward batch')
+def step_reversal_is_rejected(context, trx_name):
+    response = context.latest_merchant_reversal_bar_code
+    assert response.status_code == 403, (
+        f'Expected reversal of transaction {trx_name} to be rejected, '
+        f'got {response.status_code} {response.text}'
+    )
+    assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
+
 @when('the reward batch of transaction {trx_name} is {batch_status:w}')
 @then('the reward batch of transaction {trx_name} is {batch_status:w}')
 def step_reward_batch_has_status(context, trx_name, batch_status):
@@ -567,6 +639,10 @@ def _assert_transaction_is_reassigned_to_reward_batch(
     assert destination_batch['posType'] == source_batch['posType']
     assert destination_batch['status'] == 'CREATED'
     assert destination_batch['month'] in expected_destination_months
+
+    if not hasattr(context, 'destination_reward_batches'):
+        context.destination_reward_batches = {}
+    context.destination_reward_batches[trx_name] = destination_batch
 
     source_response = get_reward_batch_detail(
         initiative_id=context.initiative_id,

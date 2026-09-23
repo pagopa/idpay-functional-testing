@@ -96,3 +96,23 @@ def test_reversal_is_equivalent_to_removing_the_transaction_from_membership():
     assert after['numberOfTransactionsRejected'] == 0
     assert after['currentAmountCents'] == 200
     assert after['excludedAmountCents'] == 0
+
+
+@pytest.mark.parametrize('transaction_status', ['CONSULTABLE', 'SUSPENDED'])
+def test_postpone_moves_the_same_live_contribution_between_created_batches(
+    transaction_status,
+):
+    moved_transaction = transaction(transaction_status, 200)
+    source_before = derive_visible_live_counters('CREATED', [moved_transaction])
+    source_after = derive_visible_live_counters('CREATED', [])
+    destination_before = derive_visible_live_counters('CREATED', [])
+    destination_after = derive_visible_live_counters(
+        'CREATED',
+        [moved_transaction],
+    )
+
+    assert source_after['numberOfTransactions'] == 0
+    assert source_after['currentAmountCents'] == 0
+    assert source_after['initialAmountCents'] == 0
+    assert destination_after == source_before
+    assert destination_before == source_after
