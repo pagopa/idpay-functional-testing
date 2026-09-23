@@ -37,6 +37,7 @@ def step_transaction_is_associated_with_reward_batch(context, trx_name):
     context.reward_batch_ids[trx_name] = reward_batch_id
 
 
+@given('the transaction {trx_name} belongs to the reward batch named {batch_name}')
 @then('the transaction {trx_name} belongs to the reward batch named {batch_name}')
 def step_transaction_is_associated_with_named_reward_batch(context, trx_name, batch_name):
     step_transaction_is_associated_with_reward_batch(context, trx_name)
