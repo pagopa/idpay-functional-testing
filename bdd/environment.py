@@ -33,11 +33,13 @@ def after_all(context):
 
 
 def after_feature(context, feature):
-    """Delete the feature's initiative only if no scenario in the feature failed
+    """Preserve run-created initiatives when the feature fails.
     """
     if settings.KEEP_INITIATIVES_AFTER_FAILED_TEST:
         if any(scenario.status == 'failed' for scenario in feature.scenarios):
             for curr_initiative_name in feature.tags:
-                if curr_initiative_name in secrets.initiatives.keys():
+                # Preserve only initiatives created in this run from the final cleanup.
+                initiative_id = secrets.get('initiatives', {}).get(curr_initiative_name, {}).get('id')
+                if initiative_id in secrets['newly_created']:
                     print(f'Tengo {curr_initiative_name}')
-                    secrets['newly_created'].remove(secrets.initiatives[curr_initiative_name]['id'])
+                    secrets['newly_created'].remove(initiative_id)

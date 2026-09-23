@@ -133,6 +133,7 @@ dmypy.json
 
 # Ignore dynaconf secret files
 conf/pari-feature-secrets.json
+/secrets/
 
 # Exclude cryptography files
 *.key
@@ -143,3 +144,4 @@ conf/pari-feature-secrets.json
 # Exclude MKDocs files
 /docs/features/
 /docs/index.md
+.vscode/settings.json

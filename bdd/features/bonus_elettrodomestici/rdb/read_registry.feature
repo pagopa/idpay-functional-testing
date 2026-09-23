@@ -18,7 +18,7 @@ Feature: Consult products, batches and producers in the RDB registry
 
   @rdb_fixture
   Scenario Outline: Filter products by a supported field
-    Given the RDB dataset is "product filters"
+    Given RDB products are prepared for filter "<filter>"
     When the RDB user filters products by "<filter>"
     Then only RDB products matching the selected filters are returned
 

@@ -19,6 +19,7 @@ on:
         options:
           - all
           - bonus_elettrodomestici
+          - rdb
           - portale_enti
           - report_csv
           - reward_batch

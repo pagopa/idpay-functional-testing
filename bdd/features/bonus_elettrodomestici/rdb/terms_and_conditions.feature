@@ -32,6 +32,7 @@ Feature: Accept the current version of the RDB terms and conditions
     And the RDB consent still requires first acceptance
 
   @rdb_fixture
+  @rdb_dependency_outage
   Scenario: Do not store consent when OneTrust is unavailable
     Given the RDB user knows the current consent version
     And the RDB dependency "OneTrust" is unavailable

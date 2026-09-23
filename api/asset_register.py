@@ -61,14 +61,14 @@ def save_portal_consent(token:str, version_id=None, first_acceptance=None):
         timeout=settings.default_timeout
     )
 
-def get_initiatives(token:str):
+def get_initiatives(token: str | None):
     """API to get enabled initiatives for an organization
         :param token: bearer token
     """
     return requests.get(f'{_REGISTER_BASE}{_AR.initiatives}',
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}'
+            **({'Authorization': f'Bearer {token}'} if token is not None else {}),
         },
         timeout=settings.default_timeout
     )
@@ -257,7 +257,8 @@ _UPDATE_STATUS_ENDPOINTS = {
     'wait_approved': _AR.products.update_status.wait_approved,
     'wait-approved': _AR.products.update_status.wait_approved,
     'supervised': _AR.products.update_status.supervised,
-    'rejected': _AR.products.update_status.rejected
+    'rejected': _AR.products.update_status.rejected,
+    'restored': _AR.products.update_status.restored,
 }
 
 def _build_products_update_body(gtin_codes, current_status, motivation=None, formal_motivation=None):
