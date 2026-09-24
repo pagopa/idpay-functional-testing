@@ -1,2 +1,2 @@
 "BROKEN","EPIC","FAILED","FEATURE","PASSED","SKIPPED","STORY","UNKNOWN"
-"1","","0","Reward batch counters are derived from current PostgreSQL transactions","0","0","","0"
+"0","","0","Reward batch counters are derived from current PostgreSQL transactions","1","0","","0"

@@ -1,1 +1,1 @@
-[{"uid":"bf2b62130638418b","name":"CREATED counters immediately exclude a reversed transaction and an empty batch freezes zero","time":{"start":1790176190224,"stop":1790176204046,"duration":13822},"status":"broken","severity":"normal"}]
+[{"uid":"238d9def8166abbb","name":"CREATED counters immediately exclude a reversed transaction and an empty batch freezes zero","time":{"start":1790254139401,"stop":1790254213674,"duration":74273},"status":"passed","severity":"normal"}]
