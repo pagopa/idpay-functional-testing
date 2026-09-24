@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","10045","REJECTED counters remain live and are not snapshots","","2026-09-24","passed","2026-09-24","","","",""
+"","11411","APPROVING freezes suspendedAmountCents before suspended transactions are reassigned","","2026-09-24","passed","2026-09-24","","","",""
