@@ -1,1 +1,1 @@
-{"name":"timeline","children":[{"name":"Rejected invoice and reversal operations in SENT leave every counter unchanged","uid":"16acd63873c6d64a","status":"passed","time":{"start":1790256335859,"stop":1790256346192,"duration":10333}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}
+{"name":"timeline","children":[{"name":"An invoice update in EVALUATING updates both source and destination counters","uid":"eb91e0b577aada9d","status":"passed","time":{"start":1790256676874,"stop":1790256690600,"duration":13726}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}

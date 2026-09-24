@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","10333","Rejected invoice and reversal operations in SENT leave every counter unchanged","","2026-09-24","passed","2026-09-24","","","",""
+"","13726","An invoice update in EVALUATING updates both source and destination counters","","2026-09-24","passed","2026-09-24","","","",""
