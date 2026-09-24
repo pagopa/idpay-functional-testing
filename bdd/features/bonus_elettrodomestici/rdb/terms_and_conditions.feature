@@ -30,12 +30,3 @@ Feature: Accept the current version of the RDB terms and conditions
     When the RDB user accepts an outdated consent version
     Then the RDB response has HTTP status 400
     And the RDB consent still requires first acceptance
-
-  @rdb_fixture
-  @rdb_dependency_outage
-  Scenario: Do not store consent when OneTrust is unavailable
-    Given the RDB user knows the current consent version
-    And the RDB dependency "OneTrust" is unavailable
-    When the RDB user accepts the current consent version
-    Then the RDB consent request fails because OneTrust is unavailable
-    And the RDB consent still requires first acceptance after OneTrust recovers

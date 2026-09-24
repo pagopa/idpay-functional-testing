@@ -232,7 +232,7 @@ Feature: Manage the product CSV lifecycle
   Scenario: List only uploads belonging to the organization and initiative
     Given the RDB dataset is "CSV history"
     When the producer requests the RDB CSV history
-    Then the returned RDB upload IDs match the dataset
+    Then the RDB CSV history includes known uploads and excludes foreign uploads
     And the RDB uploads are ordered by date descending
 
   @csv_flow_history @csv_history

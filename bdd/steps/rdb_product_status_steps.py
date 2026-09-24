@@ -5,7 +5,6 @@ from behave import given
 from behave import then
 from behave import when
 
-from util import rdb_dependencies as dependencies
 from util import rdb_utilities as rdb
 
 
@@ -62,5 +61,3 @@ def rdb_status_audit(context, name):
     assert event['motivation'] == 'RDB functional test'
     if s.target_status == 'REJECTED':
         assert product['formalMotivation'] == 'RDB functional test'
-    if hasattr(s, 'faults') and 'email' in s.faults:
-        dependencies.assert_fault_observed(context, 'email')

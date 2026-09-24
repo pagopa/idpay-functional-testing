@@ -1,100 +1,84 @@
-# RDB - run UAT dopo rimozione del teardown, 23 settembre 2026
+# RDB - report completo UAT, 24 settembre 2026
 
-**77 PASSATI | 23 FALLITI | 0 ERRORI | 0 SCENARI SALTATI**
+**92 PASSATI | 6 FALLITI | 0 ERRORI | 0 SCENARI SALTATI**
 
-Suite completa: **100 scenari**, senza esclusioni. Durata complessiva 8 min 28.8 s, timeout HTTP 30 s, exit code 1.
-Inizio UTC: 2026-09-23T15:34:28.1572709Z; fine UTC: 2026-09-23T15:42:56.9301136Z.
+Suite completa: **98 scenari**, senza filtri o esclusioni durante il lancio. Exit code 1.
+Durata complessiva 450.3 s; timeout HTTP 30 s.
+Inizio UTC: 2026-09-24T11:23:57.9392550Z; fine UTC: 2026-09-24T11:31:28.2758650Z.
 
-Step: **486 passati, 23 falliti, 0 in errore, 66 saltati**.
-I conteggi JSON, CSV e JUnit sono stati verificati e coincidono. Gli step saltati seguono il primo fallimento dello scenario.
+Step: **533 passati, 6 falliti, 0 in errore, 19 saltati**.
+I conteggi di scenari JSON, JUnit e CSV coincidono. Gli step saltati seguono un fallimento nello scenario.
 
-Confronto con il precedente run completo (77 passati, 23 falliti): **0 regressioni, 0 casi recuperati**.
+## Modifiche e confronto
 
-## Ripristino
+- Import e preparazione del produttore senza email usano ora la POST interna del backend, sul base_path.IDPAY.internal già configurato. Eliminati api/data_factory.py e il requisito producer_import_api_key.
+- Elenco produttori: le GET di iniziative e prodotti forniscono associazioni note da verificare nella GET /producers, insieme a paginazione, campi obbligatori e assenza di duplicati. Gli override producer_ids mantengono il confronto esatto; senza override non si certifica la completezza delle associazioni senza prodotti.
+- Conservata la correzione dei cinque test di lettura prodotti/storico/batch, verificata nel run mirato precedente.
+- Rimossi i due scenari di indisponibilità email/OneTrust (RDB-061 e RDB-107) e il supporto WireMock. Non sono conteggiati come passati o saltati.
+- I test con KO imposto restano utili come test di resilienza quando verificano il comportamento del backend, in un ambiente con dipendenze controllate. Non appartengono al presente run UAT contro servizi reali.
 
-Rimossi il modulo rdb_cleanup, i relativi test, gli hook, il tracciamento delle scritture e le modifiche al workflow. Pipfile, Pipfile.lock e requirements.txt sono tornati alla versione precedente al teardown. Le chiamate tornano direttamente alle API.
-Ripristinato anche deepcopy, ancora necessario ai filtri: un primo tentativo aveva rilevato 9 NameError. I conteggi sopra appartengono esclusivamente al successivo run completo.
-Il riordino della documentazione e le correzioni funzionali precedenti sono mantenuti.
+Rispetto al run completo del 23 settembre (77 passati, 23 falliti su 100): **15 casi recuperati, 0 regressioni, 2 scenari rimossi**.
+Rispetto alle cinque correzioni di lettura già verificate: **10 ulteriori casi recuperati**.
+Casi recuperati rispetto al precedente run completo: RDB-043, RDB-059, RDB-060, RDB-062, RDB-064, RDB-065, RDB-066, RDB-067, RDB-068, RDB-069, RDB-085, RDB-086, RDB-097, RDB-098, RDB-099.
 
 ## Esiti per feature
 
 | Feature | Passati | Falliti | Errori | Saltati |
 | --- | ---: | ---: | ---: | ---: |
 | Access and authorization to RDB | 6 | 1 | 0 | 0 |
-| Manage the product CSV lifecycle | 32 | 3 | 0 | 0 |
+| Manage the product CSV lifecycle | 33 | 2 | 0 | 0 |
 | Accept RDB notification payloads at the email service | 3 | 0 | 0 | 0 |
 | List the initiatives available to an RDB organization | 5 | 1 | 0 | 0 |
-| Preserve RDB processing when email is missing or unavailable | 0 | 3 | 0 | 0 |
-| Manage producer associations and operational email | 3 | 8 | 0 | 0 |
+| Preserve RDB processing when the operational email is missing | 2 | 0 | 0 | 0 |
+| Manage producer associations and operational email | 10 | 1 | 0 | 0 |
 | Change product status with role checks and atomic updates | 12 | 0 | 0 | 0 |
-| Consult products, batches and producers in the RDB registry | 12 | 5 | 0 | 0 |
-| Accept the current version of the RDB terms and conditions | 4 | 2 | 0 | 0 |
+| Consult products, batches and producers in the RDB registry | 17 | 0 | 0 | 0 |
+| Accept the current version of the RDB terms and conditions | 4 | 1 | 0 | 0 |
 
-## Cause dei fallimenti
+## Fallimenti residui
 
-| Gruppo | Casi | Intervento necessario |
-| --- | ---: | --- |
-| G1a - Accesso Data Factory | 15 | Configurare asset_register.producer_import_api_key con la subscription Data Factory valida. |
-| G1b - Dataset controllati | 5 | Predisporre il dataset indicato: upload in corso, associazione disabilitata, elenco produttori noto o consenso precedente. |
-| G3b - Guasti email / OneTrust | 2 | Collegare il backend a dipendenze isolate e configurare asset_register.dependencies. |
-| G4 - Token applicativo scaduto | 1 | Distribuire la policy che rispetta exp oppure configurare un JWT RDB firmato e realmente scaduto. |
-
-### G1a - Accesso Data Factory
-
-| ID | Scenario | Primo step fallito | Diagnostica |
+| ID | Scenario | Gruppo | Diagnostica |
 | --- | --- | --- | --- |
-| RDB-043 | [List only uploads belonging to the organization and initiative](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L232) | [Given the RDB dataset is "CSV history"](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L233) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-059 | [Process a CSV when the operational email is missing](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L11) | [Given the RDB dataset is "producer without email"](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L12) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-060 | [Reject a product when the operational email is missing](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L19) | [Given the RDB dataset is "producer without email"](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L20) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-062 | [Import valid producer associations](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L9) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L11) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-063 | [Reject an empty association payload](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L16) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L18) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-064 | [Count an association missing a mandatory field as failed -- @1.1](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L29) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L24) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-065 | [Count an association missing a mandatory field as failed -- @1.2](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L30) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L24) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-066 | [Count an association missing a mandatory field as failed -- @1.3](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L31) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L24) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-067 | [Normalize the producer email during import -- @1.1](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L42) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L36) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-068 | [Normalize the producer email during import -- @1.2](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L43) | [When the RDB producer associations are imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L36) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-069 | [Reimport an association without creating duplicates](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L46) | [And the RDB producer association has already been imported](../bdd/features/bonus_elettrodomestici/rdb/producer.feature#L48) | Missing secrets.asset_register.producer_import_api_key; POST /idpay-itn/df/producers requires the Data Factory subscription |
-| RDB-085 | [Restrict product visibility to the selected organization -- @1.1](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L16) | [Given the RDB dataset is "producer registry"](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L9) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-086 | [Restrict product visibility to the selected organization -- @1.2](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L17) | [Given the RDB dataset is "Invitalia registry"](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L9) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-097 | [Restrict batches to the selected organization -- @1.1](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L56) | [Given the RDB dataset is "organization CSV batches"](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L50) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
-| RDB-098 | [Restrict batches to the selected organization -- @1.2](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L57) | [Given the RDB dataset is "foreign CSV batches"](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L50) | Missing secrets.asset_register.producer_import_api_key; isolated RDB datasets require POST /idpay-itn/df/producers |
+| RDB-006 | Reject an expired application token | Prerequisito signer | Test signer did not preserve the requested expiration; deploy the exp override from jwt_register_token_test.xml.tpl or configure application_tokens.expired |
+| RDB-026 | Reject concurrent uploads for the same initiative and organization | Prerequisito concorrenza | Missing secrets.asset_register.datasets.upload in progress; see docs/rdb.md |
+| RDB-027 | Allow an upload on another initiative | Prerequisito concorrenza | Missing secrets.asset_register.datasets.upload in progress; see docs/rdb.md |
+| RDB-049 | Return exactly the initiatives visible to the current user -- @1.2 | Prerequisito associazione | Missing secrets.asset_register.datasets.producer disabled association; see docs/rdb.md |
+| RDB-063 | Reject an empty association payload | Difetto HTTP backend | Expected HTTP 400, got 500 (POST /idpayassetregisterbackend/idpay/register/producers) |
+| RDB-104 | Request acceptance after the terms and conditions change | Prerequisito versione consenso | Missing secrets.asset_register.datasets.previous consent version; see docs/rdb.md |
 
-### G1b - Dataset controllati
+- **RDB-006**: Il signer UAT non conserva exp. Serve distribuire la policy che rispetta la scadenza richiesta o fornire un JWT firmato già scaduto. Il controllo 401 su token scaduto non viene raggiunto.
+- **RDB-026**: Nessuna API applicativa per mantenere un CSV in UPLOADED/IN_PROCESS. Un upload ordinario non garantisce che resti in corso durante la seconda richiesta. Serve un consumer controllato in ambiente isolato.
+- **RDB-027**: Stesso prerequisito di RDB-026: la prima elaborazione deve essere ancora attiva mentre si carica il CSV sulla seconda iniziativa.
+- **RDB-049**: Nessuna API applicativa per disabilitare associazioni. Import e reimport impostano enabled=true; la GET delle iniziative nasconde quelle disabilitate.
+- **RDB-063**: POST interna /idpay/register/producers con {"producers":[]} restituisce 500 GENERIC_ERROR invece di 400. Correggere la gestione HTTP delle eccezioni nel backend; attesa del test invariata.
+- **RDB-104**: La POST consenso accetta solo la versione corrente e la GET non espone quella precedentemente salvata. Serve un utente con consenso storico e un cambio versione controllato, non un ID inventato.
 
-| ID | Scenario | Primo step fallito | Diagnostica |
-| --- | --- | --- | --- |
-| RDB-026 | [Reject concurrent uploads for the same initiative and organization](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L114) | [And the RDB dataset is "upload in progress"](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L116) | Missing secrets.asset_register.datasets.upload in progress; see docs/rdb.md |
-| RDB-027 | [Allow an upload on another initiative](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L123) | [And the RDB dataset is "upload in progress"](../bdd/features/bonus_elettrodomestici/rdb/csv.feature#L125) | Missing secrets.asset_register.datasets.upload in progress; see docs/rdb.md |
-| RDB-049 | [Return exactly the initiatives visible to the current user -- @1.2](../bdd/features/bonus_elettrodomestici/rdb/initiatives.feature#L13) | [Given the RDB dataset is "producer disabled association"](../bdd/features/bonus_elettrodomestici/rdb/initiatives.feature#L5) | Missing secrets.asset_register.datasets.producer disabled association; see docs/rdb.md |
-| RDB-099 | [List the producers associated with the initiative](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L60) | [Given the RDB dataset is "initiative producers"](../bdd/features/bonus_elettrodomestici/rdb/read_registry.feature#L61) | Missing secrets.asset_register.datasets.initiative producers; see docs/rdb.md |
-| RDB-104 | [Request acceptance after the terms and conditions change](../bdd/features/bonus_elettrodomestici/rdb/terms_and_conditions.feature#L17) | [Given the RDB dataset is "previous consent version"](../bdd/features/bonus_elettrodomestici/rdb/terms_and_conditions.feature#L18) | Missing secrets.asset_register.datasets.previous consent version; see docs/rdb.md |
+## Evidenze dal backend
 
-### G3b - Guasti email / OneTrust
+- Import: [ProducerImportController](../../idpay-asset-register-backend/src/main/java/it/gov/pagopa/register/controller/operation/ProducerImportController.java) espone POST /idpay/register/producers. Sul runner si usa /idpayassetregisterbackend/idpay/register/producers tramite ingress interno.
+- Payload vuoto: [ProducerImportService](../../idpay-asset-register-backend/src/main/java/it/gov/pagopa/register/service/operation/ProducerImportService.java) solleva ResponseStatusException con BAD_REQUEST; il suo test importProducers_shouldRejectEmptyPayload richiede 400. Causa probabile del 500 osservato: [ErrorManager](../../idpay-asset-register-backend/src/main/java/it/gov/pagopa/common/web/exception/ErrorManager.java) intercetta RuntimeException e tratta ResponseStatusException come errore generico. Questa è una deduzione dal codice, senza log del servizio.
+- Associazioni: lo stesso import imposta sempre enabled=true. Non sono esposte API applicative di disabilitazione.
+- Concorrenza: [ProductFileController](../../idpay-asset-register-backend/src/main/java/it/gov/pagopa/register/controller/operation/ProductFileController.java) espone upload/verifica/lettura, non un comando per mantenere il consumer fermo. Non vengono sospesi consumer condivisi per preparare i test.
+- Consenso: [PortalConsentServiceImpl](../../idpay-asset-register-backend/src/main/java/it/gov/pagopa/register/service/role/PortalConsentServiceImpl.java) rifiuta versioni diverse dalla corrente; non permette di creare un consenso storico tramite POST.
+- Email in errore: nel backend esiste ProductServiceTest.updateStatuses_rejected_oneEmailFails_returnsOK. La mancata persistenza su errore OneTrust resta una copertura da verificare nei test del backend, non dichiarata passata da questa suite.
 
-| ID | Scenario | Primo step fallito | Diagnostica |
-| --- | --- | --- | --- |
-| RDB-061 | [Preserve the status change when the email service fails](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L29) | [And the RDB dependency "email" is unavailable](../bdd/features/bonus_elettrodomestici/rdb/notification.feature#L33) | Missing secrets.asset_register.dependencies; see docs/rdb.md |
-| RDB-107 | [Do not store consent when OneTrust is unavailable](../bdd/features/bonus_elettrodomestici/rdb/terms_and_conditions.feature#L36) | [And the RDB dependency "OneTrust" is unavailable](../bdd/features/bonus_elettrodomestici/rdb/terms_and_conditions.feature#L38) | Missing secrets.asset_register.dependencies; see docs/rdb.md |
+## Perimetro ed effetti del run
 
-### G4 - Token applicativo scaduto
-
-| ID | Scenario | Primo step fallito | Diagnostica |
-| --- | --- | --- | --- |
-| RDB-006 | [Reject an expired application token](../bdd/features/bonus_elettrodomestici/rdb/authorization.feature#L31) | [Given the RDB application token fixture is "expired"](../bdd/features/bonus_elettrodomestici/rdb/authorization.feature#L32) | Test signer did not preserve the requested expiration; deploy the exp override from jwt_register_token_test.xml.tpl or configure application_tokens.expired |
-
-## Perimetro ed evidenze
-
-- Servizio email: 3/3 passati. L'asserzione verifica HTTP 204 e body vuoto; non verifica la consegna in casella.
-- Perimetro EPREL e soglie energetiche invariati. Gli stati esterni esclusi restano fuori dal conteggio.
-- La tolleranza HTTP 500 per CSV oltre 2 MB resta il debito tecnico [TD-RDB-001](rdb.md#td-rdb-001).
-- I test hanno usato API e dati UAT reali. Le risorse RDB create non vengono eliminate automaticamente dopo questo run.
-- Non sono state aggiunte credenziali Data Factory, alterate versioni OneTrust o riconfigurate dipendenze condivise.
+- I tre test email controllano la risposta reale HTTP 204 con body vuoto, non la consegna in casella.
+- Perimetro EPREL e soglie energetiche invariati; gli stati esterni precedentemente esclusi restano fuori dal conteggio.
+- Resta la tolleranza temporanea HTTP 500 sul CSV oltre 2 MB, documentata in [TD-RDB-001](rdb.md#td-rdb-001). Il passaggio di quel caso non certifica la correzione del backend.
+- La suite usa API UAT reali: upload, import, email operative, consensi e bozze possono scrivere dati. Il modulo rdb_cleanup non è stato reintrodotto; i dati RDB non vengono eliminati automaticamente.
+- Nessun nuovo secret aggiunto; nessuna modifica alla versione OneTrust o alle dipendenze condivise.
 
 ## Artefatti
 
-- [Risultati JSON](../tests/reports/rdb-2026-09-23-uat-final/results.json).
-- [CSV con tutti i 100 scenari](../tests/reports/rdb-2026-09-23-uat-final/scenarios.csv).
-- [JUnit](../tests/reports/rdb-2026-09-23-uat-final/junit), [metadati verificati](../tests/reports/rdb-2026-09-23-uat-final/run-metadata.json).
-- [Progress](../tests/reports/rdb-2026-09-23-uat-final/progress.log), [console](../tests/reports/rdb-2026-09-23-uat-final/console.log).
+- [CSV di tutti i 98 scenari](../tests/reports/rdb-2026-09-24-uat-full/scenarios.csv).
+- [Risultati JSON](../tests/reports/rdb-2026-09-24-uat-full/results.json).
+- [JUnit](../tests/reports/rdb-2026-09-24-uat-full/junit).
+- [Riepilogo verificato](../tests/reports/rdb-2026-09-24-uat-full/summary.json).
+- [Metadati](../tests/reports/rdb-2026-09-24-uat-full/run-metadata.json).
+- [Console](../tests/reports/rdb-2026-09-24-uat-full/console.log).
+- [Progress](../tests/reports/rdb-2026-09-24-uat-full/progress.log).
 
-Gli artefatti sotto tests/reports sono locali e ignorati da Git. Il report Markdown e la [guida RDB](rdb.md) sono versionabili.
+Confronti storici: [run completo del 23 settembre](../tests/reports/rdb-2026-09-23-uat-final/scenarios.csv) e [verifica mirata delle cinque letture](../tests/reports/rdb-2026-09-24-read-api/scenarios.csv).
+Gli artefatti sotto tests/reports sono locali e ignorati da Git; JWT e bearer sono oscurati. La [guida RDB](rdb.md) descrive i prerequisiti residui.

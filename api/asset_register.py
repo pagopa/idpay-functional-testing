@@ -8,6 +8,20 @@ _AR = settings.IDPAY.endpoints.asset_register
 _BASE = f'{secrets.base_path.IO}{settings.IDPAY.domain}'
 _REGISTER_BASE = f'{_BASE}{_AR.internal_path}'
 
+
+def import_producers(producers):
+    """POST /idpay/register/producers on the configured internal backend.
+
+    ProducerImportController is exposed on the internal ingress. The public
+    register API has no import operation; its separate Data Factory subscription
+    is unnecessary when the test runner can reach the internal backend.
+    """
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal.rstrip("/")}{_AR.backend_path}{_AR.producers}',
+        json={'producers': producers}, timeout=settings.default_timeout,
+    )
+
+
 def _with_initiative_path(initiative_id: str, path_suffix: str) -> str:
     return f'{_REGISTER_BASE}{_AR.initiatives}/{initiative_id}{path_suffix}'
 
@@ -154,8 +168,7 @@ def get_products(token,initiative_id:str, role='operatore', organization_id=None
                   status=None, category=None, brand=None, model=None,
                   page=None, size=None, sort=None):
     """API to get the filtered/paged list of products
-        GET /idpay/register/products
-        NOTE: no initiativeId in the path — the initiative is derived from the JWT.
+        GET /idpay/register/initiatives/{initiativeId}/products
         :param token: bearer token
         :param initiative_id: initiative id
         :param role: organization role (defaults to 'operatore')

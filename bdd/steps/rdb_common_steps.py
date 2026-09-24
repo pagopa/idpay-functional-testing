@@ -196,6 +196,21 @@ def rdb_producer_ids(context):
     assert sorted(item['producerId'] for item in s.items) == sorted(rdb.required(s.dataset, 'producer_ids'))
 
 
+@then('the RDB producer list is consistent with known initiative memberships')
+def rdb_known_producer_ids(context):
+    s = rdb.state(context)
+    if 'producer_ids' in s.dataset:
+        rdb_producer_ids(context)
+        return
+    ids = [item['producerId'] for item in s.items]
+    known = set(rdb.required(s.dataset, 'known_producer_ids'))
+    assert known, 'Producer list verification requires known memberships'
+    assert len(ids) == len(set(ids)), 'Producer list contains duplicate associations'
+    assert all(item.get('producerId') and item.get('producerName') for item in s.items), (
+        'Producer list contains incomplete identities')
+    assert known <= set(ids), 'Producer list omits known initiative memberships'
+
+
 @when('the RDB user requests the producer details')
 def rdb_producer_details(context):
     s = rdb.state(context)

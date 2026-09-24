@@ -1,25 +1,16 @@
-"""Prepare scenario-owned records from backend JUnit contracts, through real APIs.
-
-No mocked JUnit IDs are assumed to exist on UAT. Expected collections come from
-the inputs and acknowledged writes, never from the list endpoint being tested.
-"""
+"""Prepare fixtures through real APIs, reusing existing inventories for read tests."""
+import re
 import uuid
 from copy import deepcopy
 from datetime import date, timedelta
 
 from api import asset_register as api
-from api import data_factory
 from api import idpay
 from conf.configuration import secrets
 from util import rdb_utilities as rdb
-from util.rdb_csv_utilities import decoder_csv
 
 
 def new_producer(context, aliases=('A',), email=None):
-    # Check the prerequisite before issuing a token or creating any records.
-    assert rdb.config().get('producer_import_api_key'), (
-        'Missing secrets.asset_register.producer_import_api_key; '
-        'isolated RDB datasets require POST /idpay-itn/df/producers')
     s = rdb.state(context)
     body = deepcopy(rdb.build_operatore_token_body())
     body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB dataset producer')
@@ -29,7 +20,7 @@ def new_producer(context, aliases=('A',), email=None):
         associations.append({'initiativeId': rdb.select_initiative(context, alias),
                              'producerId': body['orgId'], 'producerName': body['orgName'],
                              'producerEmail': email})
-    result = rdb.outcome(data_factory.import_producers(associations))
+    result = rdb.outcome(api.import_producers(associations))
     assert (result['totalRecords'], result['importedRecords'], result['failedRecords']) == (
         len(associations), len(associations), 0), 'Dataset producer import was incomplete'
     s.bodies[profile] = body
@@ -77,26 +68,54 @@ def institution(context, unauthorized=False):
             'institution_expected': expected}
 
 
+def product_batch_ids(products):
+    """ProductMapper exposes the file ObjectId as the suffix of batchName."""
+    ids = set()
+    for product in products:
+        match = re.search(r'_([0-9a-fA-F]{24})\.csv$', product.get('batchName') or '')
+        assert match, 'Product batchName must contain the originating CSV ObjectId'
+        ids.add(match.group(1))
+    return sorted(ids)
+
+
 def scoped_records(context, kind):
-    """Two organizations and two initiatives provide independent exclusion controls."""
-    s = rdb.state(context)
-    target, _ = new_producer(context, ('A', 'B'))
-    organization = s.organization_id
-    rows = rdb.cooking_products(3 if kind == 'CSV history' else 2)
-    uploads = [rdb.upload_generated_csv(context, [row]) for row in rows]
-    rdb.select_initiative(context, 'B')
-    decoder_csv(context)
-    finish_upload(context)
-    new_producer(context)
-    rdb.upload_generated_csv(context)
-    rdb.authenticate(context, target)
-    rdb.select_initiative(context, 'A')
-    data = {'profile': target, 'initiative': 'A', 'organization_id': organization,
-            'product_gtins': [row[0] for row in rows],
-            'upload_ids': [u['productFileId'] for u in uploads],
-            'batch_ids': [u['productFileId'] for u in uploads]}
+    """Compare filtered/role-specific reads with an unfiltered Invitalia inventory.
+
+    These checks prove consistency and scope, not independent inventory completeness.
+    No imports or CSV uploads are needed; missing exclusion controls fail explicitly.
+    """
+    organization = rdb.build_operatore_token_body()['orgId']
+    rdb.authenticate(context, 'Invitalia')
+    inventories = {}
+    initiative_ids = []
+    for alias in ('A', 'B'):
+        initiative = rdb.select_initiative(context, alias)
+        initiative_ids.append(initiative)
+        inventories[alias] = rdb.products(context)
+        assert inventories[alias], f'Read fixture requires existing products in initiative {alias}'
+        assert all(p['initiativeId'] == initiative for p in inventories[alias]), (
+            f'Product list returned records outside initiative {alias}')
+    assert len(set(initiative_ids)) == 2, 'Read fixture requires two distinct initiatives'
+
+    own = [p for p in inventories['A'] if p['organizationId'] == organization]
+    foreign = [p for p in inventories['A'] if p['organizationId'] != organization]
+    assert own, 'Read fixture requires existing products for the configured producer in A'
+    assert foreign, 'Read fixture requires products of another organization in A'
+    profile = 'producer'
+    selected = own
     if kind in ('Invitalia registry', 'foreign CSV batches'):
-        data['profile'] = 'Invitalia'
+        profile = 'Invitalia'
+        organization = sorted({p['organizationId'] for p in foreign})[0]
+        selected = [p for p in foreign if p['organizationId'] == organization]
+    data = {'profile': profile, 'initiative': 'A', 'organization_id': organization,
+            'product_gtins': [p['gtinCode'] for p in selected]}
+    if kind == 'CSV history':
+        data.update(known_upload_ids=product_batch_ids(own),
+                    foreign_upload_ids=product_batch_ids(foreign + inventories['B']))
+        assert set(data['known_upload_ids']).isdisjoint(data['foreign_upload_ids']), (
+            'CSV isolation controls overlap across organizations or initiatives')
+    elif kind in ('organization CSV batches', 'foreign CSV batches'):
+        data['batch_ids'] = product_batch_ids(selected)
     return data
 
 
@@ -138,6 +157,23 @@ def inaccessible_report(context, other_initiative=False):
 def producer_without_email(context):
     profile, _ = new_producer(context)
     return {'profile': profile, 'initiative': 'A', 'producer_profile': profile}
+
+
+def initiative_producers(context):
+    """Known memberships come from initiative and product APIs, not the producer list."""
+    rdb.authenticate(context, 'producer')
+    initiative = rdb.select_initiative(context, 'A')
+    s = rdb.state(context)
+    enabled = rdb.success(api.get_initiatives(s.token)).json()
+    assert any(i['initiativeId'] == initiative and i['enabled'] for i in enabled), (
+        'The configured producer must be enabled on initiative A')
+    organization = s.organization_id
+    rdb.authenticate(context, 'Invitalia')
+    products = rdb.products(context)
+    assert products, 'Producer list verification requires known products in A'
+    assert all(p['initiativeId'] == initiative for p in products)
+    return {'profile': 'Invitalia', 'initiative': 'A',
+            'known_producer_ids': sorted({organization, *(p['organizationId'] for p in products)})}
 
 
 def portal_initiatives(context, foreign=False):
@@ -241,6 +277,7 @@ BUILDERS = {
     'report from another producer': inaccessible_report,
     'report from another initiative': lambda c: inaccessible_report(c, other_initiative=True),
     'producer without email': producer_without_email,
+    'initiative producers': initiative_producers,
     'product filters': product_filters,
     'Invitalia organization initiatives': portal_initiatives,
     'Invitalia foreign initiative': lambda c: portal_initiatives(c, foreign=True),

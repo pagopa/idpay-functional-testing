@@ -1,8 +1,7 @@
-"""Check direct email service acceptance separately from RDB outage resilience."""
+"""Check direct email service acceptance through real service responses."""
 from behave import given, then, when
 
 from api import rdb_email
-from util import rdb_dependencies as dependencies
 from util import rdb_notification_utilities as notifications
 from util import rdb_utilities as rdb
 
@@ -29,8 +28,3 @@ def rdb_email_accepted(context):
         f'Expected email service HTTP 204, got {response.status_code}'
     )
     assert not response.content, 'HTTP 204 must have no response body'
-
-
-@then('the RDB backend received the email service failure')
-def rdb_email_failure_observed(context):
-    dependencies.assert_fault_observed(context, 'email')

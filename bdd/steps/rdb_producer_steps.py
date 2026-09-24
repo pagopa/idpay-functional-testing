@@ -4,7 +4,6 @@ from behave import then
 from behave import when
 
 from api import asset_register as api
-from api import data_factory
 from util import rdb_utilities as rdb
 
 
@@ -47,7 +46,7 @@ def rdb_association_email(context, email):
 @when('the RDB producer associations are imported')
 def rdb_import(context):
     s = rdb.state(context)
-    s.response = data_factory.import_producers(s.associations)
+    s.response = api.import_producers(s.associations)
 
 
 @given('the RDB producer association has already been imported')

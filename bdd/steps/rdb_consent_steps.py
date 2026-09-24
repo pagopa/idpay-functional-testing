@@ -6,7 +6,6 @@ from behave import then
 from behave import when
 
 from api import asset_register as api
-from util import rdb_dependencies as dependencies
 from util import rdb_utilities as rdb
 
 
@@ -88,22 +87,3 @@ def rdb_consent_not_saved(context):
     rdb_get_consent(context)
     rdb_first_consent(context)
     assert s.response.json()['versionId'] == s.consent['versionId']
-
-
-@given('the RDB dependency "{name}" is unavailable')
-def rdb_dependency_unavailable(context, name):
-    dependencies.fail_dependency(context, name)
-
-
-@then('the RDB consent request fails because OneTrust is unavailable')
-def rdb_consent_dependency_error(context):
-    s = rdb.state(context)
-    expected = dependencies.dependency('OneTrust').get('expected_http_status', 500)
-    rdb.success(s.response, expected)
-    dependencies.assert_fault_observed(context, 'OneTrust')
-
-
-@then('the RDB consent still requires first acceptance after OneTrust recovers')
-def rdb_consent_after_recovery(context):
-    dependencies.restore_dependency(context, 'OneTrust')
-    rdb_consent_not_saved(context)

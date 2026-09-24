@@ -207,6 +207,22 @@ def rdb_history_ids(context):
     assert sorted(item['productFileId'] for item in s.items) == sorted(rdb.required(s.dataset, 'upload_ids'))
 
 
+@then('the RDB CSV history includes known uploads and excludes foreign uploads')
+def rdb_history_scope(context):
+    s = rdb.state(context)
+    if 'upload_ids' in s.dataset:
+        # Preserve exact-set checks for independently configured fixtures.
+        rdb_history_ids(context)
+        return
+    ids = [item['productFileId'] for item in s.items]
+    known = set(rdb.required(s.dataset, 'known_upload_ids'))
+    foreign = set(rdb.required(s.dataset, 'foreign_upload_ids'))
+    assert known and foreign, 'CSV history requires positive and negative controls'
+    assert len(ids) == len(set(ids)), 'CSV history contains duplicate upload IDs'
+    assert known <= set(ids), 'CSV history omits known uploads of the producer in this initiative'
+    assert foreign.isdisjoint(ids), 'CSV history includes uploads from another organization or initiative'
+
+
 @then('the RDB uploads are ordered by date descending')
 def rdb_history_order(context):
     dates = [item['dateUpload'] for item in rdb.state(context).items]

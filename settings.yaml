@@ -123,6 +123,7 @@ IDPAY:
       detokenize: '/pii'
     asset_register:
       internal_path: "/register"
+      backend_path: "/idpayassetregisterbackend/idpay/register"
       token_test: "/token/test"
       initiatives: "/initiatives"
       producers: "/producers"
