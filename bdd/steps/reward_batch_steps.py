@@ -202,20 +202,37 @@ def step_reverse_named_reward_batch_transactions(
     )
 
 
-def _reward_batch_has_transaction_count(context, trx_name, expected_number_of_transactions):
-    response = get_reward_batch_detail(
-        initiative_id=context.initiative_id,
-        reward_batch_id=_stored_reward_batch_id(context, trx_name),
-        merchant_id=context.merchants[context.associated_merchant[trx_name]]['id']
-    )
-    assert response.status_code == 200, (
-        f'Reward batch detail failed while checking transaction count: '
-        f'{response.status_code} {response.text}'
-    )
-    actual_number_of_transactions = response.json()['numberOfTransactions']
-    assert actual_number_of_transactions == int(expected_number_of_transactions), (
-        f'Expected reward batch to contain {expected_number_of_transactions} transactions, '
-        f'got {actual_number_of_transactions}'
+def _reward_batch_has_transaction_count(
+        context,
+        trx_name,
+        expected_number_of_transactions,
+        tries=30,
+        delay=1,
+):
+    expected = int(expected_number_of_transactions)
+    actual = None
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
+    merchant_id = context.merchants[context.associated_merchant[trx_name]]['id']
+
+    for attempt in range(tries):
+        response = get_reward_batch_detail(
+            initiative_id=context.initiative_id,
+            reward_batch_id=reward_batch_id,
+            merchant_id=merchant_id,
+        )
+        assert response.status_code == 200, (
+            'Reward batch detail failed while checking transaction count: '
+            f'{response.status_code} {response.text}'
+        )
+        actual = response.json()['numberOfTransactions']
+        if actual == expected:
+            return
+        if attempt < tries - 1:
+            time.sleep(delay)
+
+    raise AssertionError(
+        f'Expected reward batch {reward_batch_id} to contain {expected} transactions '
+        f'within {tries * delay} seconds, got {actual}'
     )
 
 
