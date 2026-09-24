@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","10366","Approval and rejection actions update the live counters at every review level","","2026-09-24","passed","2026-09-24","","","",""
+"","10045","REJECTED counters remain live and are not snapshots","","2026-09-24","passed","2026-09-24","","","",""

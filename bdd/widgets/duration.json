@@ -1,1 +1,1 @@
-[{"uid":"8ceac208f4323136","name":"Approval and rejection actions update the live counters at every review level","time":{"start":1790256934984,"stop":1790256945350,"duration":10366},"status":"passed","severity":"normal"}]
+[{"uid":"6a22a584ed89e668","name":"REJECTED counters remain live and are not snapshots","time":{"start":1790257254672,"stop":1790257264717,"duration":10045},"status":"passed","severity":"normal"}]
