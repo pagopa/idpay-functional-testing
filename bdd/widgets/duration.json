@@ -1,1 +1,1 @@
-[{"uid":"238d9def8166abbb","name":"CREATED counters immediately exclude a reversed transaction and an empty batch freezes zero","time":{"start":1790254139401,"stop":1790254213674,"duration":74273},"status":"passed","severity":"normal"}]
+[{"uid":"cada4c5890291d31","name":"Invoice replacement and POSTPONE update CREATED counters correctly","time":{"start":1790254587975,"stop":1790254597837,"duration":9862},"status":"failed","severity":"normal"}]
