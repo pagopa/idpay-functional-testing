@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","10529","Invoice replacement and POSTPONE update CREATED counters correctly","","2026-09-24","passed","2026-09-24","","","",""
+"","10504","SEND freezes initialAmountCents while the other applicable counters stay live","","2026-09-24","passed","2026-09-24","","","",""

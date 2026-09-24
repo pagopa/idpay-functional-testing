@@ -1,1 +1,1 @@
-{"name":"timeline","children":[{"name":"Invoice replacement and POSTPONE update CREATED counters correctly","uid":"5c5d750a15ecd563","status":"passed","time":{"start":1790255162824,"stop":1790255173353,"duration":10529}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}
+{"name":"timeline","children":[{"name":"SEND freezes initialAmountCents while the other applicable counters stay live","uid":"f9ff24003e05c52c","status":"passed","time":{"start":1790255465976,"stop":1790255476480,"duration":10504}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}
