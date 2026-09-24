@@ -1,1 +1,1 @@
-{"name":"timeline","children":[{"name":"SEND freezes initialAmountCents while the other applicable counters stay live","uid":"f9ff24003e05c52c","status":"passed","time":{"start":1790255465976,"stop":1790255476480,"duration":10504}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}
+{"name":"timeline","children":[{"name":"Rejected invoice and reversal operations in SENT leave every counter unchanged","uid":"16acd63873c6d64a","status":"passed","time":{"start":1790256335859,"stop":1790256346192,"duration":10333}}],"uid":"ab17fc5a4eb3bca4b216b548c7f9fcbc"}

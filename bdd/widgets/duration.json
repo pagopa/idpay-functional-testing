@@ -1,1 +1,1 @@
-[{"uid":"f9ff24003e05c52c","name":"SEND freezes initialAmountCents while the other applicable counters stay live","time":{"start":1790255465976,"stop":1790255476480,"duration":10504},"status":"passed","severity":"normal"}]
+[{"uid":"16acd63873c6d64a","name":"Rejected invoice and reversal operations in SENT leave every counter unchanged","time":{"start":1790256335859,"stop":1790256346192,"duration":10333},"status":"passed","severity":"normal"}]
