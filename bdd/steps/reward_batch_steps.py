@@ -86,7 +86,8 @@ def step_postpone_transaction_to_next_reward_batch(
         access_token=get_merchant_access_token(merchant_name),
     )
     assert response.status_code == 204, (
-        f'Postpone transaction failed: {response.status_code} {response.text}'
+        f'Postpone transaction failed on {response.request.url}: '
+        f'{response.status_code} {response.text}'
     )
 
     eligibility = retry_reward_batch_reassignment(

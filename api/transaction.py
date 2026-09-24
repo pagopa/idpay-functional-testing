@@ -315,7 +315,10 @@ def post_postpone_reward_batch_transaction(
         merchant_id: str,
         access_token: str):
     return requests.post(
-        f'{_reward_batch_base_path(initiative_id, reward_batch_id)}'
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.transactions.merchant}'
+        f'{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batch.path}/{reward_batch_id}'
         f'/transactions/{transaction_id}/postpone',
         headers={
             'Authorization': f'Bearer {access_token}',
