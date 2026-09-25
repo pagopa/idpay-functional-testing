@@ -15,6 +15,8 @@ def rdb_email_request(context, kind):
 def rdb_invoke_email(context):
     config = notifications.service_config()
     s = rdb.state(context)
+    print('RDB email request (recipient redacted):')
+    print(notifications.describe_request(s.email_request))
     s.email_response = rdb_email.notify(
         rdb.required(config, 'notify_url', 'asset_register.email_service'),
         s.email_request, notifications.request_headers(),
@@ -25,6 +27,7 @@ def rdb_invoke_email(context):
 def rdb_email_accepted(context):
     response = rdb.state(context).email_response
     assert response.status_code == 204, (
-        f'Expected email service HTTP 204, got {response.status_code}'
+        f'Expected email service HTTP 204, got {response.status_code}; '
+        f'{notifications.describe_error(response)}'
     )
     assert not response.content, 'HTTP 204 must have no response body'

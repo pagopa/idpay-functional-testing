@@ -1,5 +1,35 @@
 # RDB ? rilancio mirato UAT del 25 settembre 2026
 
+## Aggiornamento ? portalUrl nei test email
+
+Il contratto aggiornato del backend aggiunge portalUrl ai valori dei template.
+I test diretti al servizio email sono stati allineati usando l'URL dev/UAT in base
+a TARGET_ENV. **Rilancio mirato UAT: 3 passati, 0 falliti, 9 step passati** (2,099 s);
+tutte le risposte sono HTTP 204 con body vuoto. Il precedente problema email non
+si riproduce dopo la modifica. Non sono stati acquisiti log interni: la specifica
+eccezione FreeMarker dei precedenti 400 non ? confermata.
+
+[Payload effettivi inviati, destinatario oscurato](../tests/reports/rdb-2026-09-25-uat-email-portal-url/email-payloads.json) ?
+[JUnit](../tests/reports/rdb-2026-09-25-uat-email-portal-url/junit) ?
+[Risultati](../tests/reports/rdb-2026-09-25-uat-email-portal-url/results.json).
+
+Gli altri scenari non sono stati rilanciati: l'ultimo esito noto resta KO per
+import vuoto, associazione disabilitata e consenso storico. Questa verifica non
+costituisce un nuovo lancio completo della suite.
+
+
+## Aggiornamento ? rilancio dei soli KO alle 13:41 UTC
+
+Eseguiti esclusivamente i 7 casi falliti nella verifica precedente: **1 passato, 6 falliti**.
+**Il token scaduto ora passa anche in UAT**, compresa la verifica HTTP 401. La precedente
+indicazione di apply mancante descrive il run precedente e non ? pi? il risultato attuale.
+Restano i tre HTTP 400 email, il 500 sull?import vuoto e i due prerequisiti mancanti.
+Gli altri 91 scenari non sono stati rieseguiti. Nessuna modifica al codice dei test.
+
+[Risultati e diagnostica](../tests/reports/rdb-2026-09-25-134118-uat-failed-only/summary.json) ?
+[JUnit](../tests/reports/rdb-2026-09-25-134118-uat-failed-only/junit).
+
+
 **9 scenari eseguiti: 2 passati, 7 falliti.** Escludendo il token scaduto, gi? noto in attesa di apply UAT: **8 scenari, 2 passati e 6 falliti**.
 
 Questo ? il rilancio dei nove casi falliti nel JUnit UAT del 25 settembre alle 10:30?10:38 locali. Non ? una nuova esecuzione della suite completa: gli altri 89 casi RDB sono esclusi dalla selezione, non verificati in questo run.

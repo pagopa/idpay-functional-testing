@@ -6,6 +6,8 @@ Gli esiti dei run sono riportati nel [report RDB](rdb-test-results-2026-09-23-re
 
 Ultimo rilancio mirato: [UAT, 25 settembre 2026 ? esiti, riscontri e interventi](rdb-test-results-2026-09-25-uat-recheck.md).
 
+Ultimo lancio completo: [UAT, 25 settembre 2026](rdb-test-results-2026-09-25-uat-full.md).
+
 ## Esecuzione
 
 Nel workflow `test-run` scegliere ambiente `dev`/`uat`, tipo `bdd`, tag `rdb`.
@@ -182,3 +184,19 @@ La validazione di un CSV oltre 2 MB tollera temporaneamente HTTP 500 nel solo ca
 `@rdb_td_001`. Il risultato corretto è HTTP 200, `status: KO`,
 `errorKey: product.invalid.file.maxsize`. Un passaggio con 500 non certifica la
 correzione del backend. Rimuovere deroga e tag dopo la verifica della correzione nell'ambiente selezionato.
+
+### Valori template email per ambiente
+
+Tutti e tre i test email includono templateValues.portalUrl, selezionato tramite
+TARGET_ENV dalla mappa RDB_EMAIL_PORTAL_URLS in settings.yaml: dev e uat puntano
+ai rispettivi host rdb.dev.cstar.pagopa.it e rdb.uat.cstar.pagopa.it, percorso
+/registro-dei-beni. Per altri ambienti aggiungere l'URL verificato alla mappa:
+una voce assente blocca il test prima dell'invio. Gli URL pubblici non sono secret.
+
+Lo step di invio stampa il payload con destinatario oscurato; headers e token non
+vengono stampati. Con JUnit lo stdout viene catturato nel relativo XML anche quando
+si usa --no-capture. Senza JUnit, --no-capture mostra il payload sulla console.
+In caso di KO l'assertion include anche code e message JSON restituiti dal servizio.
+La suite passa template e valori, non HTML: il servizio email carica il template,
+applica i valori tramite FreeMarker, imposta mittente/prefisso oggetto dalla propria
+configurazione e invia tramite SES. HTTP 204 non certifica la consegna in casella.
