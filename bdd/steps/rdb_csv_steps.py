@@ -78,14 +78,24 @@ def rdb_processed_csv(context):
     rdb.completed_upload(context)
 
 
-@given('an RDB CSV is already being processed')
-def rdb_in_progress(context):
-    s = rdb.state(context)
-    file_id = rdb.required(s.dataset, 'product_file_id')
-    items = [item for item in rdb.history(context) if item['productFileId'] == file_id]
-    assert len(items) == 1 and items[0]['uploadStatus'] in ('UPLOADED', 'IN_PROCESS'), (
-        'The concurrency fixture must keep the consumer paused with a pending upload'
-    )
+@given('a new RDB CSV is prepared for concurrent processing on initiative A')
+def rdb_concurrent_processing(context):
+    csv_util.prepare_concurrent_processing(context)
+
+
+@when('the producer uploads the RDB product CSV during the first processing')
+def rdb_concurrent_upload(context):
+    csv_util.upload_during_processing(context)
+
+
+@then('the first RDB CSV was processing before and after the second upload request')
+def rdb_concurrent_overlap(context):
+    before, after = rdb.state(context).concurrent_observations
+    assert after and before['productFileId'] == after['productFileId'], (
+        'The first upload disappeared during the concurrency check')
+    assert all(item['uploadStatus'] in csv_util.PROCESSING_STATUSES for item in (before, after)), (
+        'The first CSV finished before overlap could be proved; concurrency result is inconclusive')
+    print('Concurrency confirmed: the same first CSV was active before and after the second request')
 
 
 @then('the RDB CSV finishes with status "{status}"')

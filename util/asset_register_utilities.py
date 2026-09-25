@@ -4,11 +4,11 @@ from conf.configuration import secrets
 from model.asset_register_model import AssetRegisterTokenPayload
 
 def _get_token_payload_from_secrets(profile: str) -> dict[str, str]:
-    asset_register_secrets = getattr(secrets, "asset_register", None)
+    asset_register_secrets = secrets.get("asset_register")
     if asset_register_secrets is None:
         raise KeyError("Missing secrets.asset_register configuration")
 
-    token_payloads = getattr(asset_register_secrets, "token_payload", None)
+    token_payloads = asset_register_secrets.get("token_payload")
     if token_payloads is None:
         raise KeyError("Missing secrets.asset_register.token_payload configuration")
 

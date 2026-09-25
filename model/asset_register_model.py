@@ -8,9 +8,9 @@ class AssetRegisterTokenPayload:
     uid: str
     name: str
     familyName: str
-    orgEmail: str
+    email: str
     orgId: str
-    orgVat: str
+    orgVAT: str
     orgName: str
     orgRole: str
     orgPec: str
@@ -18,7 +18,15 @@ class AssetRegisterTokenPayload:
 
     @classmethod
     def from_dict(cls, payload: dict[str, str]) -> "AssetRegisterTokenPayload":
-        return cls(**payload)
+        normalized = dict(payload)
+        # The APIM signer reads email/orgVAT. Accept the legacy configuration
+        # names without sending misspelled claims or mutating the secret object.
+        for legacy, canonical in (('orgEmail', 'email'), ('orgVat', 'orgVAT')):
+            if legacy in normalized:
+                if canonical in normalized and normalized[canonical] != normalized[legacy]:
+                    raise ValueError(f'Conflicting token fields: {legacy} and {canonical}')
+                normalized[canonical] = normalized.pop(legacy)
+        return cls(**normalized)
 
     def to_dict(self) -> dict[str, str]:
         return asdict(self)

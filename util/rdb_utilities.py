@@ -92,7 +92,9 @@ def claims(token):
 
 def assert_institution_details(body, expected):
     """APIM returns InstitutionResponse without an id; compare independent identity data."""
-    for field in ('vatNumber', 'description'):
+    assert str(body.get('description') or '').strip(), 'Institution description is missing'
+    fields = ('vatNumber', 'description') if 'description' in expected else ('vatNumber',)
+    for field in fields:
         assert expected.get(field) and expected[field] != '-', f'Missing expected institution {field}'
         assert body.get(field) == expected[field], f'Institution {field} does not match the fixture'
 
@@ -144,16 +146,24 @@ def application_token_for_condition(body, condition):
     return token
 
 
+def register_profile(context, profile, body):
+    """Store a scenario-owned profile only after token issuance succeeds."""
+    s = state(context)
+    body = deepcopy(body)
+    token = get_rdb_access_token(body)
+    s.bodies[profile] = body
+    s.tokens[profile] = token
+
+
 def authenticate(context, profile):
     s = state(context)
     if profile not in s.tokens:
         if profile in PROFILE_BUILDERS:
             body = PROFILE_BUILDERS[profile]()
         else:
-            body = deepcopy(required(required(config(), 'profiles'), profile,
-                                     'secrets.asset_register.profiles'))
-        s.bodies[profile] = body
-        s.tokens[profile] = get_rdb_access_token(body)
+            body = required(required(config(), 'profiles'), profile,
+                            'secrets.asset_register.profiles')
+        register_profile(context, profile, body)
     s.profile = profile
     s.token = s.tokens[profile]
     s.role = s.bodies[profile]['orgRole']
@@ -200,12 +210,10 @@ def dataset(context, name):
 
 def producer_without_initiatives(context):
     """Issue a test token for a fresh organization with no imported association."""
-    s = state(context)
-    body = deepcopy(build_operatore_token_body())
+    body = build_operatore_token_body()
     body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB unassociated producer')
     profile = 'generated producer without initiatives'
-    s.bodies[profile] = body
-    s.tokens[profile] = get_rdb_access_token(body)
+    register_profile(context, profile, body)
     authenticate(context, profile)
     return {'initiative_ids': []}
 
@@ -213,9 +221,14 @@ def producer_without_initiatives(context):
 def upload_generated_csv(context, rows=None):
     """Create an upload and locate its terminal history record by its unique filename."""
     set_csv(context, rows)
+    return finish_upload(context)
+
+
+def finish_upload(context):
+    """Submit the prepared fixture and require all its rows to be loaded."""
     outcome(submit_csv(context))
     upload = completed_upload(context)
-    assert upload['uploadStatus'] == 'LOADED', 'Generated valid CSV was not fully loaded'
+    assert upload['uploadStatus'] == 'LOADED', 'Dataset CSV was not completely loaded'
     return upload
 
 
@@ -279,8 +292,9 @@ def eprel_csv(context, case):
     fixture = required({**defaults, **config().get('eprel', {})}, case, 'secrets.asset_register.eprel')
     headers = fake_product_file(0)[1].decode('utf-8').split(';')
     rows = deepcopy(required(fixture, 'rows', f'asset_register.eprel.{case}'))
+    gtin_index = headers.index('Codice GTIN/EAN')
     for row in rows:
-        row[headers.index('Codice GTIN/EAN')] = uuid.uuid4().hex[:14]
+        row[gtin_index] = uuid.uuid4().hex[:14]
     set_csv(context, rows, headers, required(fixture, 'category'))
     state(context).eprel_fixture = fixture
 
@@ -312,9 +326,9 @@ def products(context, **filters):
         s.token, s.initiative_id, role=s.role, page=page, size=100, **filters))
 
 
-def wait_for(fetch, predicate, description):
+def wait_for(fetch, predicate, description, poll_interval=None):
     timeout = float(config().get('poll_timeout', 120))
-    interval = float(config().get('poll_interval', 2))
+    interval = float(config().get('poll_interval', 2) if poll_interval is None else poll_interval)
     assert timeout > 0 and interval > 0, 'Polling settings must be positive'
     deadline = time.monotonic() + timeout
     while True:
@@ -371,7 +385,8 @@ def change_status(context, names, current_status, target_status):
     if target_status == 'WAIT_APPROVED':
         return api.update_products_status_wait_approved(
             s.token, s.initiative_id, s.organization_id,
-            s.products[names[0]]['organizationId'], s.bodies[s.profile]['orgEmail'],
+            s.products[names[0]]['organizationId'],
+            s.bodies[s.profile].get('email', s.bodies[s.profile].get('orgEmail')),
             codes, current_status, 'RDB functional test', 'RDB functional test',
         )
     target = 'restored' if target_status == 'UPLOADED' else target_status.lower()

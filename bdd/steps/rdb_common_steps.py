@@ -209,6 +209,8 @@ def rdb_known_producer_ids(context):
     assert all(item.get('producerId') and item.get('producerName') for item in s.items), (
         'Producer list contains incomplete identities')
     assert known <= set(ids), 'Producer list omits known initiative memberships'
+    assert set(s.dataset.get('foreign_producer_ids', [])).isdisjoint(ids), (
+        'Producer list includes an association belonging only to another initiative')
 
 
 @when('the RDB user requests the producer details')

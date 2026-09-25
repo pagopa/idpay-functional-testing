@@ -112,24 +112,23 @@ Feature: Manage the product CSV lifecycle
 
   @csv_flow_initiative_isolation @upload_csv @rdb_fixture
   Scenario: Reject concurrent uploads for the same initiative and organization
-    Given the producer is enabled for the RDB initiative
-    And the RDB dataset is "upload in progress"
-    And an RDB CSV is already being processed
+    Given a new RDB CSV is prepared for concurrent processing on initiative A
     And a valid RDB product CSV with 1 rows
-    When the producer uploads the RDB product CSV
-    Then the RDB operation fails with error "product.invalid.file.already_in_progress"
+    When the producer uploads the RDB product CSV during the first processing
+    Then the first RDB CSV was processing before and after the second upload request
+    And the RDB operation fails with error "product.invalid.file.already_in_progress"
+    And none of the submitted RDB products are stored
 
   @csv_flow_initiative_isolation @upload_csv @rdb_fixture
   Scenario: Allow an upload on another initiative
-    Given the producer is enabled for the RDB initiative
-    And the RDB dataset is "upload in progress"
-    And an RDB CSV is already being processed
+    Given a new RDB CSV is prepared for concurrent processing on initiative A
     And the RDB initiative is "B"
     And the producer is enabled for the RDB initiative
     And a valid RDB product CSV with 1 rows
     And the RDB CSV uses the decoder template
-    When the producer uploads the RDB product CSV
-    Then the RDB operation has outcome "OK"
+    When the producer uploads the RDB product CSV during the first processing
+    Then the first RDB CSV was processing before and after the second upload request
+    And the RDB operation has outcome "OK"
     And the RDB CSV finishes with status "LOADED"
 
   @csv_flow_initiative_isolation @csv_processing @rdb_fixture

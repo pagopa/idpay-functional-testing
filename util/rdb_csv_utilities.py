@@ -1,9 +1,96 @@
 """Prepare CSV cases and retrieve their products and reports through real RDB APIs."""
 import json
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 from api import asset_register as api
 from util import rdb_utilities as rdb
+
+
+PROCESSING_STATUSES = ('UPLOADED', 'IN_PROCESS')
+FINISHED_STATUSES = ('LOADED', 'PARTIAL')
+
+
+def processing_upload(fixture):
+    # Only two files can be added by this sequential scenario. Reading the
+    # newest page avoids losing the overlap while paging through old uploads.
+    items = rdb.success(api.get_product_files(
+        fixture['token'], fixture['initiative_id'], page=0, size=10)).json()['content']
+    matches = [item for item in items if item['fileName'] == fixture['filename']]
+    assert len(matches) <= 1, 'The concurrency CSV appears more than once in history'
+    return matches[0] if matches else None
+
+
+def prepare_concurrent_processing(context):
+    """Prepare a scenario-owned CSV using the configured test producer on A/B."""
+    rdb.authenticate(context, 'producer')
+    s = rdb.state(context)
+    enabled = {item['initiativeId'] for item in rdb.success(api.get_initiatives(s.token)).json()
+               if item['enabled']}
+    initiatives = {rdb.select_initiative(context, alias) for alias in ('A', 'B')}
+    assert len(initiatives) == 2 and initiatives <= enabled, (
+        'Concurrency requires the configured test producer enabled on distinct initiatives A/B')
+    for alias in ('A', 'B'):
+        rdb.select_initiative(context, alias)
+        assert all(item['uploadStatus'] not in PROCESSING_STATUSES for item in rdb.history(context)), (
+            f'Another CSV is already processing in {alias}; use a dedicated test producer')
+    rdb.select_initiative(context, 'A')
+    rdb.eprel_csv(context, 'valid')
+    # The backend checks each row sequentially against EPREL. A normal batch
+    # provides an overlap window without pausing or mocking any shared service.
+    rows = []
+    gtin_index = s.headers.index('Codice GTIN/EAN')
+    for _ in range(100):
+        row = s.rows[0][:]
+        row[gtin_index] = uuid.uuid4().hex[:14]
+        rows.append(row)
+    rdb.set_csv(context, rows, s.headers, s.category)
+    s.concurrent_upload = {'token': s.token, 'initiative_id': s.initiative_id,
+                           'filename': s.csv_file[0], 'csv_file': s.csv_file,
+                           'category': s.category}
+
+
+def upload_during_processing(context):
+    """Bracket the second request with observations of the first active upload."""
+    s = rdb.state(context)
+    fixture = s.concurrent_upload
+    # Observe processing even if the first upload HTTP request has not returned.
+    # The worker uses immutable arguments and never mutates the Behave context.
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        first = executor.submit(api.upload_product_file, fixture['token'],
+                                fixture['initiative_id'], fixture['category'], fixture['csv_file'])
+
+        def observe():
+            if first.done():
+                rdb.outcome(first.result())
+            item = processing_upload(fixture)
+            assert not item or item['uploadStatus'] not in FINISHED_STATUSES, (
+                'Concurrency precondition not observed: the first CSV already finished; '
+                'the overlap has not been tested')
+            return item
+
+        def finish_first_upload():
+            rdb.outcome(first.result())
+            # Drain only this scenario's CSV, including on assertion failure.
+            rdb.wait_for(lambda: processing_upload(fixture),
+                         lambda item: item and item['uploadStatus'] in FINISHED_STATUSES,
+                         'the scenario concurrency CSV to finish processing')
+
+        try:
+            before = rdb.wait_for(
+                observe, lambda item: item and item['uploadStatus'] in PROCESSING_STATUSES,
+                'the scenario CSV to enter processing', poll_interval=0.2)
+            rdb.submit_csv(context)
+            after = processing_upload(fixture)
+            s.concurrent_observations = (before, after)
+        except Exception as error:
+            try:
+                finish_first_upload()
+            except Exception as finish_error:
+                error.add_note(f'Waiting for the first CSV also failed ({type(finish_error).__name__})')
+            raise
+        else:
+            finish_first_upload()
 
 
 def prepare_defective_csv(context, defect):

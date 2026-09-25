@@ -8,42 +8,35 @@ from api import asset_register as api
 from api import idpay
 from conf.configuration import secrets
 from util import rdb_utilities as rdb
+from util.rdb_csv_utilities import decoder_csv
 
 
 def new_producer(context, aliases=('A',), email=None):
-    s = rdb.state(context)
-    body = deepcopy(rdb.build_operatore_token_body())
+    assert aliases, 'Dataset producer requires at least one initiative'
+    initiative_ids = [rdb.select_initiative(context, alias) for alias in aliases]
+    assert len(set(initiative_ids)) == len(initiative_ids), 'Dataset requires distinct initiatives'
+    body = rdb.build_operatore_token_body()
     body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB dataset producer')
     profile = f'dataset producer {body["orgId"]}'
     associations = []
-    for alias in aliases:
-        associations.append({'initiativeId': rdb.select_initiative(context, alias),
+    for initiative_id in initiative_ids:
+        associations.append({'initiativeId': initiative_id,
                              'producerId': body['orgId'], 'producerName': body['orgName'],
                              'producerEmail': email})
     result = rdb.outcome(api.import_producers(associations))
     assert (result['totalRecords'], result['importedRecords'], result['failedRecords']) == (
         len(associations), len(associations), 0), 'Dataset producer import was incomplete'
-    s.bodies[profile] = body
-    s.tokens[profile] = rdb.get_rdb_access_token(body)
+    rdb.register_profile(context, profile, body)
     rdb.authenticate(context, profile)
     rdb.select_initiative(context, aliases[0])
-    return profile, [item['initiativeId'] for item in associations]
-
-
-def finish_upload(context):
-    rdb.outcome(rdb.submit_csv(context))
-    upload = rdb.completed_upload(context)
-    assert upload['uploadStatus'] == 'LOADED', 'Dataset CSV was not completely loaded'
-    return upload
+    return profile, initiative_ids
 
 
 def enabled_initiatives(context):
-    # A/B and the producer are explicitly configured fixtures. Keep exact-set
-    # assertions: additional associations must fail, not become expected via a read.
-    rdb.authenticate(context, 'producer')
-    ids = [rdb.select_initiative(context, alias) for alias in ('A', 'B')]
-    assert len(set(ids)) == 2, 'Dataset requires two distinct initiatives'
-    return {'profile': 'producer', 'initiative': 'A', 'initiative_ids': ids}
+    # Import a fresh producer so the exact expected set is independent of other
+    # associations of the shared test identity in the selected environment.
+    profile, ids = new_producer(context, ('A', 'B'))
+    return {'profile': profile, 'initiative': 'A', 'initiative_ids': ids}
 
 
 def unassociated_initiative(context):
@@ -59,7 +52,8 @@ def unassociated_initiative(context):
 def institution(context, unauthorized=False):
     producer = rdb.build_operatore_token_body()
     institution_id = producer['orgId']
-    expected = {'vatNumber': producer['orgVat'], 'description': producer['orgName']}
+    # A test JWT's display name is not an authoritative SelfCare legal name.
+    expected = {'vatNumber': producer['orgVAT']}
     rdb.authenticate(context, 'Invitalia')
     if unauthorized:
         body = rdb.success(api.get_institution_by_id(context.rdb.token, institution_id)).json()
@@ -109,14 +103,24 @@ def scoped_records(context, kind):
         selected = [p for p in foreign if p['organizationId'] == organization]
     data = {'profile': profile, 'initiative': 'A', 'organization_id': organization,
             'product_gtins': [p['gtinCode'] for p in selected]}
-    if kind == 'CSV history':
-        data.update(known_upload_ids=product_batch_ids(own),
-                    foreign_upload_ids=product_batch_ids(foreign + inventories['B']))
-        assert set(data['known_upload_ids']).isdisjoint(data['foreign_upload_ids']), (
-            'CSV isolation controls overlap across organizations or initiatives')
-    elif kind in ('organization CSV batches', 'foreign CSV batches'):
+    if kind in ('organization CSV batches', 'foreign CSV batches'):
         data['batch_ids'] = product_batch_ids(selected)
     return data
+
+
+def csv_history(context):
+    """Use acknowledged uploads with unambiguous ownership and exact expected IDs."""
+    profile, _ = new_producer(context, ('A', 'B'))
+    own = [rdb.upload_generated_csv(context) for _ in range(2)]
+    rdb.select_initiative(context, 'B')
+    decoder_csv(context)
+    other_initiative = rdb.finish_upload(context)
+    new_producer(context)
+    other_producer = rdb.upload_generated_csv(context)
+    ids = [item['productFileId'] for item in (*own, other_initiative, other_producer)]
+    assert len(set(ids)) == 4, 'Independent uploads must have distinct file IDs'
+    return {'profile': profile, 'initiative': 'A',
+            'upload_ids': [item['productFileId'] for item in own]}
 
 
 def inaccessible_report(context, other_initiative=False):
@@ -160,20 +164,13 @@ def producer_without_email(context):
 
 
 def initiative_producers(context):
-    """Known memberships come from initiative and product APIs, not the producer list."""
-    rdb.authenticate(context, 'producer')
-    initiative = rdb.select_initiative(context, 'A')
-    s = rdb.state(context)
-    enabled = rdb.success(api.get_initiatives(s.token)).json()
-    assert any(i['initiativeId'] == initiative and i['enabled'] for i in enabled), (
-        'The configured producer must be enabled on initiative A')
-    organization = s.organization_id
-    rdb.authenticate(context, 'Invitalia')
-    products = rdb.products(context)
-    assert products, 'Producer list verification requires known products in A'
-    assert all(p['initiativeId'] == initiative for p in products)
+    """Import positive/negative association controls, independently of seeded products."""
+    new_producer(context, ('A',))
+    own = rdb.state(context).organization_id
+    new_producer(context, ('B',))
+    foreign = rdb.state(context).organization_id
     return {'profile': 'Invitalia', 'initiative': 'A',
-            'known_producer_ids': sorted({organization, *(p['organizationId'] for p in products)})}
+            'known_producer_ids': [own], 'foreign_producer_ids': [foreign]}
 
 
 def portal_initiatives(context, foreign=False):
@@ -183,7 +180,6 @@ def portal_initiatives(context, foreign=False):
     Expected IDs come from acknowledged POST /initiative/info writes, not reads.
     Draft initiatives are included by that summary and map to enabled=True in RDB.
     """
-    s = rdb.state(context)
     organizations = [str(uuid.uuid4()), str(uuid.uuid4())]
     expected = []
     for index, organization in enumerate(organizations):
@@ -211,11 +207,10 @@ def portal_initiatives(context, foreign=False):
         # come solely from our writes, not from the RDB endpoint under test.
         summary = rdb.success(idpay.get_initiatives_summary(portal_token)).json()
         assert sorted(item['initiativeId'] for item in summary) == sorted(created)
-    body = deepcopy(rdb.build_l1_token_body())
+    body = rdb.build_l1_token_body()
     body.update(orgId=organizations[0], uid=str(uuid.uuid4()), orgName='RDB initiative dataset')
     profile = f'Invitalia initiative dataset {organizations[0]}'
-    s.bodies[profile] = body
-    s.tokens[profile] = rdb.get_rdb_access_token(body)
+    rdb.register_profile(context, profile, body)
     return {'profile': profile, 'initiative_ids': expected}
 
 
@@ -241,7 +236,7 @@ def product_filters(context):
     s.rows[0][s.headers.index('Codice GTIN/EAN')] = f'{gtin_prefix}04'
     rdb.set_csv(context, s.rows, s.headers, s.category)
     eprel_code, eprel_gtin = s.rows[0][:2]
-    finish_upload(context)
+    rdb.finish_upload(context)
     # Preserve a status control visible in the Invitalia view.
     s.products['status control'] = {'gtinCode': rows[3][0], 'organizationId': organization}
     rdb.authenticate(context, 'Invitalia')
@@ -271,7 +266,7 @@ BUILDERS = {
     'unauthorized producer details': lambda c: institution(c, unauthorized=True),
     'producer registry': lambda c: scoped_records(c, 'producer registry'),
     'Invitalia registry': lambda c: scoped_records(c, 'Invitalia registry'),
-    'CSV history': lambda c: scoped_records(c, 'CSV history'),
+    'CSV history': csv_history,
     'organization CSV batches': lambda c: scoped_records(c, 'organization CSV batches'),
     'foreign CSV batches': lambda c: scoped_records(c, 'foreign CSV batches'),
     'report from another producer': inaccessible_report,

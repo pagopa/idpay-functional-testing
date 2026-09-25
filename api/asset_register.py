@@ -5,7 +5,7 @@ from conf.configuration import settings
 from util.asset_register_utilities import _build_csv_file_part
 
 _AR = settings.IDPAY.endpoints.asset_register
-_BASE = f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+_BASE = f"{secrets['base_path']['IO']}{settings.IDPAY.domain}"
 _REGISTER_BASE = f'{_BASE}{_AR.internal_path}'
 
 
