@@ -35,7 +35,7 @@ Configurare in `asset_register` del JSON dell'ambiente:
 | `initiatives.A`, `.B` | Override degli ID; in assenza si usano `initiatives.bonus_elettrodomestici.id` e `initiatives.bonus_decoder.id` dell'ambiente |
 | `base_path.IDPAY.internal` (fuori da `asset_register`) | Host interno già usato dalla suite; deve essere raggiungibile per `POST /idpayassetregisterbackend/idpay/register/producers`. Non serve una chiave Data Factory |
 | `application_tokens.expired` | JWT scaduto firmato, opzionale; trattare comunque come credenziale |
-| `email_service` | `notify_url` dell'ambiente, `test_recipient` dedicato, eventuali `headers`; `authentication: "portal"` genera il token dai profili configurati |
+| `email_service` (opzionale) | Eventuali `headers` aggiuntivi; il token viene generato dai profili configurati. Il destinatario fittizio viene da `RDB_EMAIL_TEST_RECIPIENT` nei settings. L'URL usa `base_path.IO`, `IDPAY.domain` e `IDPAY.endpoints.asset_register.notify_path` |
 | `poll_timeout`, `poll_interval` | Polling API, default 120 e 2 secondi; non sono secret |
 
 A e B devono essere configurate per RDB, con template e associazioni compatibili.

@@ -13,12 +13,10 @@ def rdb_email_request(context, kind):
 
 @when('the test invokes the RDB email notification service')
 def rdb_invoke_email(context):
-    config = notifications.service_config()
     s = rdb.state(context)
     print('RDB email request (recipient redacted):')
     print(notifications.describe_request(s.email_request))
     s.email_response = rdb_email.notify(
-        rdb.required(config, 'notify_url', 'asset_register.email_service'),
         s.email_request, notifications.request_headers(),
     )
 

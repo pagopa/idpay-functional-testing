@@ -18,24 +18,20 @@ TEMPLATES = {
 
 
 def service_config():
-    return rdb.required(rdb.config(), 'email_service', 'secrets.asset_register')
+    return rdb.config().get('email_service', {})
 
 
 def request_headers():
     config = service_config()
     headers = dict(config.get('headers') or {})
-    authentication = config.get('authentication')
-    assert authentication in (None, 'portal'), 'Unsupported email service authentication'
-    if authentication == 'portal':
-        token = rdb.token_from_response(idpay.obtain_selfcare_test_token(secrets.selfcare_info.test_institution))
-        headers['Authorization'] = f'Bearer {token}'
+    token = rdb.token_from_response(idpay.obtain_selfcare_test_token(secrets.selfcare_info.test_institution))
+    headers['Authorization'] = f'Bearer {token}'
     return headers
 
 
 def request_payload(kind):
     config = service_config()
-    # Require an explicit test destination before making any service call.
-    recipient = rdb.required(config, 'test_recipient', 'asset_register.email_service')
+    recipient = settings.RDB_EMAIL_TEST_RECIPIENT
     template, subject = TEMPLATES[kind]
     marker = f'rdb-contract-{uuid.uuid4().hex}'
     environment = str(settings.TARGET_ENV).lower()

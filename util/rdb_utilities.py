@@ -299,23 +299,30 @@ def eprel_csv(context, case):
     state(context).eprel_fixture = fixture
 
 
-def collect_pages(fetch):
+def collect_pages(fetch, match=None):
     page, items = 0, []
     while True:
         body = success(fetch(page)).json()
         assert isinstance(body.get('content'), list), 'Missing page content'
         assert body['pageNo'] == page, 'Server returned the wrong page'
+        if match is not None:
+            matches = [item for item in body['content'] if match(item)]
+            if matches:
+                return matches
         items.extend(body['content'])
         page += 1
         if page >= body['totalPages']:
             assert len(items) == body['totalElements'], 'Pagination changed or lost records'
-            return items
+            return items if match is None else []
         assert page < 10000, 'Pagination did not terminate'
 
 
-def history(context):
+def history(context, filename=None):
     s = state(context)
-    return collect_pages(lambda page: api.get_product_files(s.token, s.initiative_id, page=page, size=100))
+    return collect_pages(
+        lambda page: api.get_product_files(s.token, s.initiative_id, page=page, size=100),
+        match=(lambda item: item['fileName'] == filename) if filename is not None else None,
+    )
 
 
 def products(context, **filters):
@@ -351,7 +358,7 @@ def completed_upload(context):
     s = state(context)
     filename = s.csv_file[0]
     matches = wait_for(
-        lambda: [item for item in history(context) if item['fileName'] == filename],
+        lambda: history(context, filename=filename),
         lambda items: len(items) == 1 and items[0]['uploadStatus'] in ('LOADED', 'PARTIAL'),
         f'CSV {filename} to finish processing',
     )
