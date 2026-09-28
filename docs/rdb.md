@@ -1,6 +1,6 @@
 # Test funzionali RDB
 
-La suite `bdd/features/bonus_elettrodomestici/rdb` contiene 98 scenari indipendenti.
+La suite `bdd/features/bonus_elettrodomestici/rdb` contiene 96 scenari indipendenti.
 Gli step usano le API dell'ambiente selezionato; i dataset generati non simulano le risposte.
 Ultimo lancio completo: [UAT, 25 settembre 2026](rdb-test-results-2026-09-25-uat-full.md).
 
@@ -53,7 +53,7 @@ Gli hook generici gestiscono soltanto le iniziative registrate in
 `secrets.newly_created`, secondo le opzioni `KEEP_INITIATIVES_*`.
 I dati RDB non vengono cancellati automaticamente dopo il run.
 
-## Dataset e prerequisiti residui
+## Dataset
 
 `asset_register.datasets` contiene eventuali override con i nomi usati dalle feature.
 `profile` seleziona il profilo e `initiative` l'alias A/B. Per i test che scrivono,
@@ -65,15 +65,12 @@ del produttore configurato e di un'altra organizzazione in A, oltre a prodotti i
 Verificano coerenza e isolamento, non la completezza indipendente dell'inventario.
 I casi SelfCare richiedono un'istituzione esistente con partita IVA nota.
 
-| Dataset da predisporre esternamente | Campi/prerequisiti |
-| --- | --- |
-| `producer disabled association` | `profile`, `initiative_ids` delle sole associazioni abilitate; esiste anche un'associazione disabilitata |
-| `previous consent version` | `profile`, `previous_version`, `current_version`; UID con una versione salvata a DB diversa da quella corrente |
-
-Per il mismatch del consenso basta una versione salvata diversa, anche sintetica:
-inserirla nei secret non modifica il DB. Non occorre cambiare OneTrust. Le API
-attuali non consentono questa preparazione o la disabilitazione di associazioni.
-Opzioni e pro/contro sono nel [documento di discussione](rdb-team-discussion.md).
+Per decisione dello standup, i casi di riaccettazione dopo un cambio versione e di
+associazione produttore disabilitata sono rimossi dalla suite Behave. La copertura
+resta nei test JUnit del backend; una futura integrazione UAT è rinviata, senza
+sviluppare ora API dedicate ai test. Non sono conteggiati come passati o saltati.
+Dettagli nel [documento di decisione](rdb-team-discussion.md).
+I report storici conservano il perimetro originale di 98 scenari.
 
 I test concorrenti preparano un CSV EPREL da 100 righe e ne verificano lo stato
 attivo prima e dopo il secondo upload. Non richiedono `datasets.upload in progress`.

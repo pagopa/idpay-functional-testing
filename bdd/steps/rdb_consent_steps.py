@@ -61,15 +61,6 @@ def rdb_first_consent(context):
     assert body['firstAcceptance'] is True and body['versionId']
 
 
-@then('the RDB consent requires renewed acceptance of the current version')
-def rdb_renew_consent(context):
-    s = rdb.state(context)
-    body = rdb.success(s.response).json()
-    assert body['firstAcceptance'] is False
-    assert body['versionId'] == rdb.required(s.dataset, 'current_version')
-    assert body['versionId'] != rdb.required(s.dataset, 'previous_version')
-
-
 @then('no RDB consent acceptance is required')
 def rdb_no_consent(context):
     assert rdb.success(rdb.state(context).response).json() == {}

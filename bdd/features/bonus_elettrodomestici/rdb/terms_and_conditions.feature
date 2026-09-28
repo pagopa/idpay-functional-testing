@@ -13,12 +13,6 @@ Feature: Accept the current version of the RDB terms and conditions
     When the RDB user requests the consent status
     Then no RDB consent acceptance is required
 
-  @rdb_fixture
-  Scenario: Request acceptance after the terms and conditions change
-    Given the RDB dataset is "previous consent version"
-    When the RDB user requests the consent status
-    Then the RDB consent requires renewed acceptance of the current version
-
   Scenario: Store acceptance of the current terms and conditions
     Given the RDB user knows the current consent version
     When the RDB user accepts the current consent version
