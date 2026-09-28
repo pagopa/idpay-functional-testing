@@ -247,6 +247,29 @@ def step_point_of_sale_reversal_bar_code(context, point_of_sale_name, merchant_n
         access_token=access_token
     )
 
+
+@when(
+    'the point of sale {point_of_sale_name} of merchant {merchant_name} tries to reverse '
+    'the transaction {trx_name} by Bar Code'
+)
+def step_point_of_sale_try_reversal_bar_code(
+    context,
+    point_of_sale_name,
+    merchant_name,
+    trx_name,
+):
+    access_token = get_point_of_sale_access_token(
+        merchant_name=merchant_name,
+        point_of_sale_name=point_of_sale_name,
+    )
+    context.latest_merchant_reversal_bar_code = post_reversal_bar_code_merchant(
+        initiative_id=context.initiative_id,
+        transaction_id=context.transactions[trx_name]['id'],
+        access_token=access_token,
+        reversal_content=REVERSAL_CONTENT,
+        doc_number=REVERSAL_DOC_NUMBER,
+    )
+
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 
@@ -278,6 +301,11 @@ def step_point_of_sale_try_update_invoice_bar_code(context, point_of_sale_name, 
         doc_number=UPDATED_INVOICE_DOC_NUMBER,
         filename='updated-invoice.pdf'
     )
+    if not hasattr(context, 'merchant_invoice_update_attempts_bar_code'):
+        context.merchant_invoice_update_attempts_bar_code = {}
+    context.merchant_invoice_update_attempts_bar_code.setdefault(
+        trx_name, []
+    ).append(context.latest_merchant_invoice_update_bar_code)
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 

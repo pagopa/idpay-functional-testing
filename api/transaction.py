@@ -306,3 +306,23 @@ def get_report_download(initiative_id: str,
         headers=headers,
         timeout=settings.default_timeout
     )
+
+
+def post_postpone_reward_batch_transaction(
+        initiative_id: str,
+        reward_batch_id: str,
+        transaction_id: str,
+        merchant_id: str,
+        access_token: str):
+    return requests.post(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+        f'{settings.IDPAY.endpoints.transactions.merchant}'
+        f'{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batch.path}/{reward_batch_id}'
+        f'/transactions/{transaction_id}/postpone',
+        headers={
+            'Authorization': f'Bearer {access_token}',
+            'x-merchant-id': merchant_id,
+        },
+        timeout=settings.default_timeout
+    )
