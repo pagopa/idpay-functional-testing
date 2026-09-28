@@ -2,6 +2,7 @@ import time
 
 from behave import given
 from behave import then
+from behave import when
 
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
@@ -99,6 +100,9 @@ def _counter_differences(actual, expected):
 
 
 @given(
+    'the counters of reward batch {batch_reference} are captured as {baseline_name}'
+)
+@when(
     'the counters of reward batch {batch_reference} are captured as {baseline_name}'
 )
 @then(

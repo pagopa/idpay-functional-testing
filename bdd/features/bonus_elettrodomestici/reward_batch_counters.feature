@@ -12,31 +12,6 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
     And the onboard of A becomes OK within 300 seconds
     And the merchant 1 is qualified
 
-  Scenario: CREATED counters immediately exclude a reversed transaction and an empty batch freezes zero
-    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    And the transaction X belongs to the reward batch named B
-    When the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
-    And the merchant 1 prepares and sends the reward batch named B
-    Then the reward batch named B is SENT
-    And the transaction X does not belong to a reward batch
-    And the reward batch named B contains 0 transactions
-    And the live counters of reward batch B match its current transactions
-    And reward batch B has zero initial amount
-
-  Scenario: SEND freezes initialAmountCents and rejects later invoice and reversal operations
-    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    And the transaction X belongs to the reward batch named B
-    And the counters of reward batch B are captured as before_send
-    When the reward batch of transaction X is prepared and sent
-    And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    And the point of sale pos_1 of merchant 1 tries to reverse the transaction X by Bar Code
-    Then the reward batch of transaction X is SENT
-    And the invoice update of transaction X is rejected
-    And the reversal of transaction X is rejected by its reward batch
-    And the live counters of reward batch B match its current transactions
-    And reward batch B keeps the initial amount captured as before_send
-    And the counters of reward batch B are unchanged from before_send
-
   Scenario: Invoice replacement and POSTPONE update CREATED counters correctly
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X belongs to the reward batch named B
@@ -44,19 +19,6 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
     When the point of sale pos_1 of merchant 1 updates the invoice of transaction X by Bar Code
     And the merchant 1 postpones transaction X to the next reward batch
     Then the live counters of reward batch B match its current transactions
-    And the destination reward batch of transaction X has live counters matching its current transactions
-
-  Scenario: EVALUATING rejects POS invoice changes while a merchant update reassigns the transaction
-    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
-    And the transaction X belongs to the reward batch named B
-    And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
-    And the counters of reward batch B are captured as before_invoice_reassignment
-    When the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    And the merchant 1 updates the invoice of transaction X by Bar Code
-    Then the invoice update of transaction X is rejected
-    And the transaction X belongs to a different current-month reward batch as SUSPENDED
-    And the live counters of reward batch B match its current transactions
-    And reward batch B keeps the initial amount captured as before_invoice_reassignment
     And the destination reward batch of transaction X has live counters matching its current transactions
 
   Scenario: Approval and rejection actions keep REJECTED counters live at every review level

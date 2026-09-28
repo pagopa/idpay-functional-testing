@@ -484,12 +484,19 @@ def _prepare_and_send_reward_batch(
 
 @then('the invoice update of transaction {trx_name} is rejected')
 def step_invoice_update_is_rejected(context, trx_name):
-    response = context.latest_merchant_invoice_update_bar_code
-    assert response.status_code == 403, (
-        f'Expected invoice update of transaction {trx_name} to be rejected, '
-        f'got {response.status_code} {response.text}'
-    )
-    assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
+    responses = getattr(
+        context,
+        'merchant_invoice_update_attempts_bar_code',
+        {},
+    ).get(trx_name, [context.latest_merchant_invoice_update_bar_code])
+    for response in responses:
+        assert response.status_code == 403, (
+            f'Expected invoice update of transaction {trx_name} to be rejected, '
+            f'got {response.status_code} {response.text}'
+        )
+        assert response.json()['code'] == (
+            'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
+        )
 
 
 @then('the reversal of transaction {trx_name} is rejected by its reward batch')

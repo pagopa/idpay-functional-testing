@@ -9,9 +9,10 @@ Questa suite verifica i contatori attraverso un unico flusso end-to-end.
 - `Then` controlla il risultato osservabile.
 - `And` continua il blocco precedente.
 
-Il file `bdd/features/bonus_elettrodomestici/reward_batch_counters.feature`
-descrive i casi di business senza contenere codice Python. Le frasi aggiunte sono
-implementate in `bdd/steps/reward_batch_counter_steps.py`.
+I controlli sono integrati negli scenari esistenti di `reward_batch.feature`
+quando il flusso di business e gia coperto. Il file
+`reward_batch_counters.feature` contiene soltanto i casi aggiuntivi. Le frasi
+aggiunte sono implementate in `bdd/steps/reward_batch_counter_steps.py`.
 
 ## Cosa viene verificato
 

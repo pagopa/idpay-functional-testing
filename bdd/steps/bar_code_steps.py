@@ -301,6 +301,11 @@ def step_point_of_sale_try_update_invoice_bar_code(context, point_of_sale_name, 
         doc_number=UPDATED_INVOICE_DOC_NUMBER,
         filename='updated-invoice.pdf'
     )
+    if not hasattr(context, 'merchant_invoice_update_attempts_bar_code'):
+        context.merchant_invoice_update_attempts_bar_code = {}
+    context.merchant_invoice_update_attempts_bar_code.setdefault(
+        trx_name, []
+    ).append(context.latest_merchant_invoice_update_bar_code)
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 
