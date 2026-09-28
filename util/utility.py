@@ -827,7 +827,7 @@ def create_initiative_and_update_conf(initiative_name: str,
                                       known_beneficiaries: list = None):
     secrets['initiatives'][initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name,
                                                                    known_beneficiaries=known_beneficiaries)
-    print(f'Created initiative {secrets["initiatives"][initiative_name]["id"]} ({initiative_name})')
+    print(f'Created initiative for {initiative_name}')
     secrets['newly_created'].add(secrets['initiatives'][initiative_name]['id'])
 
     startup_time = settings.INITIATIVE_STARTUP_TIME_SECONDS
