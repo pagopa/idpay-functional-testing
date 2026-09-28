@@ -133,6 +133,7 @@ dmypy.json
 
 # Ignore dynaconf secret files
 conf/pari-feature-secrets.json
+conf/pari-feature-secrets-dev.json
 /secrets/
 
 # Exclude cryptography files
