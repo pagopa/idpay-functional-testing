@@ -200,6 +200,14 @@ def step_reward_batch_keeps_initial_snapshot(context, batch_reference, baseline_
     )
 
 
+@then('reward batch {batch_reference} has zero initial amount')
+def step_reward_batch_has_zero_initial_amount(context, batch_reference):
+    batch, _ = _batch_observation(context, batch_reference)
+    assert batch['initialAmountCents'] == 0, (
+        f"Expected initialAmountCents 0, got {batch['initialAmountCents']}"
+    )
+
+
 @then(
     'reward batch {batch_reference} keeps the suspended amount captured as {baseline_name}'
 )

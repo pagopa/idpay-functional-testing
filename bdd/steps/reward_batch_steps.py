@@ -142,6 +142,7 @@ def _prepare_and_send_empty_reward_batch(context, merchant_name, trx_name):
     assert context.associated_merchant[trx_name] == merchant_name, (
         f'Transaction {trx_name} is not associated with merchant {merchant_name}'
     )
+    _reward_batch_has_transaction_count(context, trx_name, 0)
     _prepare_and_send_reward_batch(
         context=context,
         trx_name=trx_name,
