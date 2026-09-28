@@ -4,13 +4,15 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util.asset_register_utilities import _build_csv_file_part
 
+JSON_CONTENT_TYPE = 'application/json'
+
 _AR = settings.IDPAY.endpoints.asset_register
 _BASE = f"{secrets['base_path']['IO']}{settings.IDPAY.domain}"
 _REGISTER_BASE = f'{_BASE}{_AR.internal_path}'
 
 
 def _json_headers(token):
-    return {'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'}
+    return {'Content-Type': JSON_CONTENT_TYPE, 'Authorization': f'Bearer {token}'}
 
 
 def _defined_parameters(**values):
@@ -41,7 +43,7 @@ def post_token_test(body:dict):
     """
     return requests.post(f'{_REGISTER_BASE}{_AR.token_test}',
          headers={
-             'Content-Type': 'application/json'
+             'Content-Type': JSON_CONTENT_TYPE
          },
         json=body,
         timeout = settings.default_timeout
@@ -84,7 +86,7 @@ def get_initiatives(token: str | None):
     """
     return requests.get(f'{_REGISTER_BASE}{_AR.initiatives}',
         headers={
-            'Content-Type': 'application/json',
+            'Content-Type': JSON_CONTENT_TYPE,
             **({'Authorization': f'Bearer {token}'} if token is not None else {}),
         },
         timeout=settings.default_timeout

@@ -18,6 +18,10 @@ from util.rdb_csv_data import cooking_products
 from util.rdb_csv_data import csv_bytes
 from util.rdb_csv_data import HEADERS
 
+CSV_UPLOAD_FILTER = 'CSV upload'
+PRODUCT_NAME_FILTER = 'product name'
+TEST_MOTIVATION = 'RDB functional test'
+
 PROFILE_BUILDERS = {
     'producer': build_operatore_token_body,
     'Invitalia': build_l1_token_body,
@@ -25,10 +29,10 @@ PROFILE_BUILDERS = {
 }
 FILTER_FIELDS = {
     'category': ('category', 'category'),
-    'CSV upload': ('product_file_id', 'productFileId'),
+    CSV_UPLOAD_FILTER: ('product_file_id', 'productFileId'),
     'EPREL code': ('eprel_code', 'eprelCode'),
     'GTIN': ('gtin_code', 'gtinCode'),
-    'product name': ('product_name', 'productName'),
+    PRODUCT_NAME_FILTER: ('product_name', 'productName'),
     'brand': ('brand', 'brand'),
     'model': ('model', 'model'),
     'status': ('status', 'status'),
@@ -247,7 +251,7 @@ def prepare_csv_history(context, count):
 
 def prepare_product_filter(context, field):
     """Generate positive/control rows for filters that can use unique CSV values."""
-    generated_fields = {'CSV upload', 'GTIN', 'product name', 'brand', 'model'}
+    generated_fields = {CSV_UPLOAD_FILTER, 'GTIN', PRODUCT_NAME_FILTER, 'brand', 'model'}
     if 'product filters' in config().get('datasets', {}) or field not in generated_fields:
         dataset(context, 'product filters')
         return
@@ -258,15 +262,15 @@ def prepare_product_filter(context, field):
         row[4], row[5] = f'RDB {marker}', f'Model {marker}'
     rows[2][4], rows[2][5] = f'Control {uuid.uuid4().hex}', f'Other {uuid.uuid4().hex}'
     target = rows[:2]
-    if field == 'CSV upload':
+    if field == CSV_UPLOAD_FILTER:
         upload = upload_generated_csv(context, target)
         upload_generated_csv(context, rows[2:])
     else:
         upload = upload_generated_csv(context, rows)
     values = {
-        'CSV upload': upload['productFileId'],
+        CSV_UPLOAD_FILTER: upload['productFileId'],
         'GTIN': target[0][0],
-        'product name': marker,
+        PRODUCT_NAME_FILTER: marker,
         'brand': target[0][4],
         'model': target[0][5],
     }
@@ -394,12 +398,12 @@ def change_status(context, names, current_status, target_status):
             s.token, s.initiative_id, s.organization_id,
             s.products[names[0]]['organizationId'],
             s.bodies[s.profile].get('email', s.bodies[s.profile].get('orgEmail')),
-            codes, current_status, 'RDB functional test', 'RDB functional test',
+            codes, current_status, TEST_MOTIVATION, TEST_MOTIVATION,
         )
     target = 'restored' if target_status == 'UPLOADED' else target_status.lower()
     return api.update_products_status(
         s.token, s.initiative_id, s.role, s.username, codes,
-        current_status, target, 'RDB functional test', 'RDB functional test',
+        current_status, target, TEST_MOTIVATION, TEST_MOTIVATION,
     )
 
 

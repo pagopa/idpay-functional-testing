@@ -10,7 +10,7 @@ class AssetRegisterTokenPayload:
     familyName: str
     email: str
     orgId: str
-    orgVAT: str
+    org_vat: str
     orgName: str
     orgRole: str
     orgPec: str
@@ -26,7 +26,11 @@ class AssetRegisterTokenPayload:
                 if canonical in normalized and normalized[canonical] != normalized[legacy]:
                     raise ValueError(f'Conflicting token fields: {legacy} and {canonical}')
                 normalized[canonical] = normalized.pop(legacy)
+        if 'orgVAT' in normalized:
+            normalized['org_vat'] = normalized.pop('orgVAT')
         return cls(**normalized)
 
     def to_dict(self) -> dict[str, str]:
-        return asdict(self)
+        payload = asdict(self)
+        payload['orgVAT'] = payload.pop('org_vat')
+        return payload

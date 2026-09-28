@@ -10,6 +10,10 @@ from conf.configuration import secrets
 from util import rdb_utilities as rdb
 from util.rdb_csv_utilities import decoder_csv
 
+FOREIGN_CSV_BATCHES = 'foreign CSV batches'
+ORGANIZATION_CSV_BATCHES = 'organization CSV batches'
+INVITALIA_REGISTRY = 'Invitalia registry'
+
 
 def new_producer(context, aliases=('A',), email=None):
     assert aliases, 'Dataset producer requires at least one initiative'
@@ -97,13 +101,13 @@ def scoped_records(context, kind):
     assert foreign, 'Read fixture requires products of another organization in A'
     profile = 'producer'
     selected = own
-    if kind in ('Invitalia registry', 'foreign CSV batches'):
+    if kind in (INVITALIA_REGISTRY, FOREIGN_CSV_BATCHES):
         profile = 'Invitalia'
-        organization = sorted({p['organizationId'] for p in foreign})[0]
+        organization = min(p['organizationId'] for p in foreign)
         selected = [p for p in foreign if p['organizationId'] == organization]
     data = {'profile': profile, 'initiative': 'A', 'organization_id': organization,
             'product_gtins': [p['gtinCode'] for p in selected]}
-    if kind in ('organization CSV batches', 'foreign CSV batches'):
+    if kind in (ORGANIZATION_CSV_BATCHES, FOREIGN_CSV_BATCHES):
         data['batch_ids'] = product_batch_ids(selected)
     return data
 
@@ -147,14 +151,16 @@ def inaccessible_report(context, other_initiative=False):
     # Demonstrate report existence before testing access from a different scope.
     rdb.success(api.download_product_file_report(s.token, s.initiative_id, file_id))
     if other_initiative:
-        rdb.select_initiative(context, 'B')
+        initiative = 'B'
+        rdb.select_initiative(context, initiative)
     else:
+        initiative = 'A'
         owner = s.organization_id
         # DownloadReport checks the report's organization and initiative, without
         # an association precondition. A fresh producer token is sufficient.
         rdb.producer_without_initiatives(context)
         assert s.organization_id != owner
-    return {'profile': s.profile, 'initiative': 'B' if other_initiative else 'A',
+    return {'profile': s.profile, 'initiative': initiative,
             'product_file_id': file_id}
 
 
@@ -265,10 +271,10 @@ BUILDERS = {
     'SelfCare producer': institution,
     'unauthorized producer details': lambda c: institution(c, unauthorized=True),
     'producer registry': lambda c: scoped_records(c, 'producer registry'),
-    'Invitalia registry': lambda c: scoped_records(c, 'Invitalia registry'),
+    INVITALIA_REGISTRY: lambda c: scoped_records(c, INVITALIA_REGISTRY),
     'CSV history': csv_history,
-    'organization CSV batches': lambda c: scoped_records(c, 'organization CSV batches'),
-    'foreign CSV batches': lambda c: scoped_records(c, 'foreign CSV batches'),
+    ORGANIZATION_CSV_BATCHES: lambda c: scoped_records(c, ORGANIZATION_CSV_BATCHES),
+    FOREIGN_CSV_BATCHES: lambda c: scoped_records(c, FOREIGN_CSV_BATCHES),
     'report from another producer': inaccessible_report,
     'report from another initiative': lambda c: inaccessible_report(c, other_initiative=True),
     'producer without email': producer_without_email,

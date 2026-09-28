@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor
 from api import asset_register as api
 from util import rdb_utilities as rdb
 
+GTIN_COLUMN = 'Codice GTIN/EAN'
+
 
 PROCESSING_STATUSES = ('UPLOADED', 'IN_PROCESS')
 FINISHED_STATUSES = ('LOADED', 'PARTIAL')
@@ -39,7 +41,7 @@ def prepare_concurrent_processing(context):
     # The backend checks each row sequentially against EPREL. A normal batch
     # provides an overlap window without pausing or mocking any shared service.
     rows = []
-    gtin_index = s.headers.index('Codice GTIN/EAN')
+    gtin_index = s.headers.index(GTIN_COLUMN)
     for _ in range(100):
         row = s.rows[0][:]
         row[gtin_index] = uuid.uuid4().hex[:14]
@@ -132,12 +134,12 @@ def decoder_csv(context, gtin=None):
     # Backend postman/file/valid/terrestre_ok.csv, with a fresh business key.
     code = gtin or uuid.uuid4().hex[:14]
     return rdb.set_csv(context, [[code, 'TR01', 'DT', 'RDB Decoder', 'RDB Model']],
-                       ['Codice GTIN/EAN', 'Codice Prodotto', 'Categoria', 'Marca', 'Modello'], 'DT')
+                       [GTIN_COLUMN, 'Codice Prodotto', 'Categoria', 'Marca', 'Modello'], 'DT')
 
 
 def submitted_products(context):
     s = rdb.state(context)
-    index = s.headers.index('Codice GTIN/EAN')
+    index = s.headers.index(GTIN_COLUMN)
     result = {}
     for code in dict.fromkeys(row[index] for row in s.rows):
         assert code, 'Cannot look up a product with an empty GTIN'
