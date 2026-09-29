@@ -34,6 +34,7 @@ def step_transaction_is_associated_with_reward_batch(context, trx_name):
     if not hasattr(context, 'reward_batch_ids'):
         context.reward_batch_ids = {}
     context.reward_batch_ids[trx_name] = reward_batch_id
+    _register_reward_batch_for_cleanup(context, trx_name, reward_batch_id)
 
 
 @then('the transaction {trx_name} belongs to the reward batch named {batch_name}')
@@ -747,3 +748,11 @@ def step_operator_validation_reward_batch_fails(context, role, trx_name, reason)
             f'Expected validation error code BATCH_NOT_ELABORATED_15_PERCENT, '
             f'got {response_body}'
         )
+
+def _register_reward_batch_for_cleanup(context, trx_name, reward_batch_id):
+    merchant_name = context.associated_merchant[trx_name]
+    merchant_id = context.merchants[merchant_name]["id"]
+
+    context.reward_batches_to_cleanup.add(
+        (context.initiative_id, merchant_id, reward_batch_id)
+    )
