@@ -1,5 +1,5 @@
 @bonus_elettrodomestici
-@merchant-portal
+@merchant_portal
 @login
 Feature: Merchant login through Self-Care
 
