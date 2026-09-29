@@ -103,6 +103,8 @@ jobs:
             bdd/features/bonus_elettrodomestici \
             --junit \
             --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
           else
@@ -111,6 +113,8 @@ jobs:
             --tags "$FEATURE_TAG" \
             --junit \
             --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
           fi
