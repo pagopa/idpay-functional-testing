@@ -267,7 +267,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = status_onboarding(token_io, context.initiative_id)
-    assert res.status_code == 200
+    assert res.status_code == 200, f'Unexpected onboarding status response for {citizen_name}: {res.status_code} {res.text}'
 
     if status == 'KO':
         expected_status = f'ONBOARDING_{status}'
@@ -277,10 +277,10 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                             )
         curr_onboarded_citizen_count_increment = 0
         res = wallet(initiative_id=context.initiative_id, token=token_io)
-        assert res.status_code == 404
+        assert res.status_code == 404, f'Wallet should be absent for {citizen_name} when onboarding is KO; got {res.status_code} {res.text}'
         res = timeline(initiative_id=context.initiative_id, token=token_io)
-        assert res.status_code == 404
-        assert res.json()['code'] == 'TIMELINE_USER_NOT_FOUND'
+        assert res.status_code == 404, f'Timeline should be absent for {citizen_name} when onboarding is KO; got {res.status_code} {res.text}'
+        assert res.json()['code'] == 'TIMELINE_USER_NOT_FOUND', f'Unexpected timeline code for {citizen_name}: {res.text}'
 
     elif status == 'SUSPENDED':
         expected_status = status
@@ -408,7 +408,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         curr_onboarded_citizen_count_increment = 0
 
     else:
-        assert False, 'Unexpected status'
+        assert False, f'Unexpected onboarding status {status} for citizen {citizen_name} in initiative {context.initiative_id}'
 
     if not skip_statistics_check:
         check_statistics(organization_id=context.organization_id,
@@ -595,4 +595,27 @@ def step_try_to_insert_mismatch_email(context, citizen_name):
         token=token_io,
         initiative_id=context.initiative_id,
         user_mail_confirmation='mismatched_email@email.com'
+    )
+
+
+@when('the citizen {citizen_name} onboards the initiative {initiative_name} without an email')
+def step_try_to_insert_mismatch_email(context, citizen_name, initiative_name):
+    context.initiative_id = secrets.initiatives[initiative_name]['id']
+    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+                                                        initiative_id=context.initiative_id).json()
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    multi_consent_isee_value = getattr(context, 'multi_consent_isee_value', '1')
+
+    self_declaration_list = build_self_declaration_list_payload_by_initiative(
+        initiative_name,
+        multi_consent_isee_value=multi_consent_isee_value
+    )
+
+    context.save_onboarding_response = save_onboarding(
+        token=token_io,
+        initiative_id=context.initiative_id,
+        self_declaration_list=self_declaration_list,
+        user_mail='',
+        user_mail_confirmation='',
     )

@@ -34,6 +34,11 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A filled out mismatching email
     Then the citizen onboarding failed because the citizen inserted mismatch value
 
+  Scenario: Citizen without email tries to onboard unsuccessfully
+    Given the citizen A has fiscal code random
+    When the citizen A onboards the initiative bonus_elettrodomestici without an email
+    Then the onboard of A is ON_EVALUATION
+
   Scenario: A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
     Given the citizen A has fiscal code random
     When the citizen A tries to insert wrong value in self-declared criteria
