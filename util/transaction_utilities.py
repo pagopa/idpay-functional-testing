@@ -2,7 +2,7 @@ import datetime
 import time
 
 from api.idpay import obtain_merchant_test_token
-from api.transaction import get_merchant_transactions_processed, get_reports, get_report_download
+from api.transaction import delete_reward_batch_cleanup, get_merchant_transactions_processed, get_reports, get_report_download
 from api.transaction import post_approve_transactions
 from api.transaction import post_reject_transactions
 from api.transaction import post_suspend_transactions
@@ -203,6 +203,17 @@ def assert_transactions_share_same_reward_batch(trx_names: list[str],
 
     return first_reward_batch_id
 
+def cleanup_reward_batches_and_related_transactions(merchant_id: str,
+                                                   initiative_id: str,
+                                                   reward_batch_id: str):
+    response = delete_reward_batch_cleanup(
+        initiative_id=initiative_id,
+        reward_batch_id=reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert response.status_code == 204, (
+        f"Reward batch cleanup failed: {response.status_code} {response.text}"
+    )
 
 def _build_report_request(range_days: int, report_type: str) -> ReportRequest:
     end_date = datetime.date.today() - datetime.timedelta(days=1)
