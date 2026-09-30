@@ -1,5 +1,6 @@
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.transaction_utilities import cleanup_reward_batches_and_related_transactions
 from util.utility import create_initiative_and_update_conf
 from util.utility import delete_new_initiatives_after_test
 
@@ -15,6 +16,7 @@ def before_all(context):
 def before_feature(context, feature):
     """Create the feature's initiative if it has not been yet created for this run
     """
+    context.reward_batches_to_cleanup = set()
 
     # Create an initiative for each proper tag on feature file (if not created yet in this run)
     if 'initiatives' not in secrets or not secrets.initiatives:
@@ -41,3 +43,16 @@ def after_feature(context, feature):
                 if curr_initiative_name in secrets.initiatives.keys():
                     print(f'Tengo {curr_initiative_name}')
                     secrets['newly_created'].remove(secrets.initiatives[curr_initiative_name]['id'])
+
+    if settings.REWARD_BATCH_CLEANUP and 'reward_batch' in feature.tags:
+        for initiative_id, merchant_id, reward_batch_id in context.reward_batches_to_cleanup:
+            print(
+                "Cleaning up reward batch and related transactions for "
+                f"reward_batch_id={reward_batch_id}, initiative_id={initiative_id}, "
+                f"merchant_id={merchant_id}"
+            )
+            cleanup_reward_batches_and_related_transactions(
+                merchant_id=merchant_id,
+                initiative_id=initiative_id,
+                reward_batch_id=reward_batch_id,
+            )
