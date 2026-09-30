@@ -1,5 +1,6 @@
-@merchant
-@initiative-onboarding
+@bonus_elettrodomestici
+@merchant_portal
+@merchant_onboarding
 Feature: Merchant onboards an initiative
 
   # Note: these tests don't perform the actual login flow (SelfCare + token exchange),
