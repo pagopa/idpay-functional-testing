@@ -1,6 +1,10 @@
 SECRET_PATH: "conf/pari-feature-secrets.json"
 # Default environment. Overridden if specified through environment variable (prefixed by conf.IDPAY_ENV_VAR_PREFIX current value)
 TARGET_ENV: "uat"
+RDB_EMAIL_TEST_RECIPIENT: "rdb-functional-test@example.com"
+RDB_EMAIL_PORTAL_URLS:
+  dev: "https://rdb.dev.cstar.pagopa.it/registro-dei-beni"
+  uat: "https://rdb.uat.cstar.pagopa.it/registro-dei-beni"
 API_KEY_HEADER: "Ocp-Apim-Subscription-Key"
 default_timeout: 5000
 long_timeout: 60000
@@ -125,10 +129,12 @@ IDPAY:
       detokenize: '/pii'
     asset_register:
       internal_path: "/register"
+      backend_path: "/idpayassetregisterbackend/idpay/register"
       token_test: "/token/test"
       initiatives: "/initiatives"
       producers: "/producers"
       email: "/email"
+      notify_path: "/email-notification/notify"
       products:
         path: "/products"
         update_status:

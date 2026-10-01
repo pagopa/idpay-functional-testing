@@ -10,7 +10,7 @@ def before_all(context):
     """
     secrets['newly_created'] = set()
     if 'organization_id' not in secrets and 'selfcare_info' in secrets:
-        secrets.organization_id = secrets.selfcare_info.test_institution.orgId
+        secrets['organization_id'] = secrets['selfcare_info']['test_institution']['orgId']
 
 
 def before_feature(context, feature):
@@ -19,12 +19,12 @@ def before_feature(context, feature):
     context.reward_batches_to_cleanup = set()
 
     # Create an initiative for each proper tag on feature file (if not created yet in this run)
-    if 'initiatives' not in secrets or not secrets.initiatives:
-        secrets.initiatives = {}
+    if not secrets.get('initiatives'):
+        secrets['initiatives'] = {}
     for curr_initiative_name in feature.tags:
         if curr_initiative_name in settings.initiatives:
-            if curr_initiative_name not in secrets.initiatives.keys():
-                secrets.initiatives[curr_initiative_name] = {}
+            if curr_initiative_name not in secrets['initiatives']:
+                secrets['initiatives'][curr_initiative_name] = {}
                 create_initiative_and_update_conf(initiative_name=curr_initiative_name)
 
 
@@ -35,14 +35,16 @@ def after_all(context):
 
 
 def after_feature(context, feature):
-    """Delete the feature's initiative only if no scenario in the feature failed
+    """Preserve run-created initiatives when the feature fails.
     """
     if settings.KEEP_INITIATIVES_AFTER_FAILED_TEST:
         if any(scenario.status == 'failed' for scenario in feature.scenarios):
             for curr_initiative_name in feature.tags:
-                if curr_initiative_name in secrets.initiatives.keys():
+                # Preserve only initiatives created in this run from the final cleanup.
+                initiative_id = secrets.get('initiatives', {}).get(curr_initiative_name, {}).get('id')
+                if initiative_id in secrets['newly_created']:
                     print(f'Tengo {curr_initiative_name}')
-                    secrets['newly_created'].remove(secrets.initiatives[curr_initiative_name]['id'])
+                    secrets['newly_created'].remove(initiative_id)
 
     if settings.REWARD_BATCH_CLEANUP and 'reward_batch' in feature.tags:
         for initiative_id, merchant_id, reward_batch_id in context.reward_batches_to_cleanup:

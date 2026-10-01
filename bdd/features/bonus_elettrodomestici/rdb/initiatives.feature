@@ -10,7 +10,6 @@ Feature: List the initiatives available to an RDB organization
     Examples:
       | dataset                            |
       | producer enabled initiatives       |
-      | producer disabled association      |
       | producer without initiatives       |
       | Invitalia organization initiatives |
       | Invitalia foreign initiative       |

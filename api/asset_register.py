@@ -4,9 +4,34 @@ from conf.configuration import secrets
 from conf.configuration import settings
 from util.asset_register_utilities import _build_csv_file_part
 
+JSON_CONTENT_TYPE = 'application/json'
+
 _AR = settings.IDPAY.endpoints.asset_register
-_BASE = f'{secrets.base_path.IO}{settings.IDPAY.domain}'
+_BASE = f"{secrets['base_path']['IO']}{settings.IDPAY.domain}"
 _REGISTER_BASE = f'{_BASE}{_AR.internal_path}'
+
+
+def _json_headers(token):
+    return {'Content-Type': JSON_CONTENT_TYPE, 'Authorization': f'Bearer {token}'}
+
+
+def _defined_parameters(**values):
+    """Omit only unset filters; preserve zero, false and empty values."""
+    return {key: value for key, value in values.items() if value is not None}
+
+
+def import_producers(producers):
+    """POST /idpay/register/producers on the configured internal backend.
+
+    ProducerImportController is exposed on the internal ingress. The public
+    register API has no import operation; its separate Data Factory subscription
+    is unnecessary when the test runner can reach the internal backend.
+    """
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal.rstrip("/")}{_AR.backend_path}{_AR.producers}',
+        json={'producers': producers}, timeout=settings.default_timeout,
+    )
+
 
 def _with_initiative_path(initiative_id: str, path_suffix: str) -> str:
     return f'{_REGISTER_BASE}{_AR.initiatives}/{initiative_id}{path_suffix}'
@@ -18,7 +43,7 @@ def post_token_test(body:dict):
     """
     return requests.post(f'{_REGISTER_BASE}{_AR.token_test}',
          headers={
-             'Content-Type': 'application/json'
+             'Content-Type': JSON_CONTENT_TYPE
          },
         json=body,
         timeout = settings.default_timeout
@@ -31,10 +56,7 @@ def get_portal_consent(token:str):
     """
     return requests.get(
         f'{_REGISTER_BASE}{_AR.consent.path}',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        },
+        headers=_json_headers(token),
         timeout=settings.default_timeout
     )
 
@@ -53,22 +75,19 @@ def save_portal_consent(token:str, version_id=None, first_acceptance=None):
 
     return requests.post(
         f'{_REGISTER_BASE}{_AR.consent.path}',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        },
+        headers=_json_headers(token),
         json=body,
         timeout=settings.default_timeout
     )
 
-def get_initiatives(token:str):
+def get_initiatives(token: str | None):
     """API to get enabled initiatives for an organization
         :param token: bearer token
     """
     return requests.get(f'{_REGISTER_BASE}{_AR.initiatives}',
         headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}'
+            'Content-Type': JSON_CONTENT_TYPE,
+            **({'Authorization': f'Bearer {token}'} if token is not None else {}),
         },
         timeout=settings.default_timeout
     )
@@ -117,18 +136,14 @@ def get_product_files(token:str, initiative_id:str, page=None, size=None):
         :param page: page number (optional)
         :param size: page size (optional, default 20 server-side)
     """
-    params = {}
-    if page is not None:
-        params['page'] = page
-    if size is not None:
-        params['size'] = size
+    params = _defined_parameters(
+        page=page,
+        size=size,
+    )
 
     return requests.get(
         _with_initiative_path(initiative_id, _AR.product_files.path),
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        },
+        headers=_json_headers(token),
         params=params,
         timeout=settings.default_timeout
     )
@@ -154,8 +169,7 @@ def get_products(token,initiative_id:str, role='operatore', organization_id=None
                   status=None, category=None, brand=None, model=None,
                   page=None, size=None, sort=None):
     """API to get the filtered/paged list of products
-        GET /idpay/register/products
-        NOTE: no initiativeId in the path — the initiative is derived from the JWT.
+        GET /idpay/register/initiatives/{initiativeId}/products
         :param token: bearer token
         :param initiative_id: initiative id
         :param role: organization role (defaults to 'operatore')
@@ -174,43 +188,26 @@ def get_products(token,initiative_id:str, role='operatore', organization_id=None
         :param size: page size (optional, default 20 server-side)
         :param sort: sort clause (optional, default registrationDate,DESC server-side)
     """
-    params = {}
-    if organization_id is not None:
-        params['organizationId'] = organization_id
-    if product_name is not None:
-        params['productName'] = product_name
-    if full_product_name is not None:
-        params['fullProductName'] = full_product_name
-    if product_file_id is not None:
-        params['productFileId'] = product_file_id
-    if eprel_code is not None:
-        params['eprelCode'] = eprel_code
-    if gtin_code is not None:
-        params['gtinCode'] = gtin_code
-    if product_code is not None:
-        params['productCode'] = product_code
-    if status is not None:
-        params['status'] = status
-    if category is not None:
-        params['category'] = category
-    if brand is not None:
-        params['brand'] = brand
-    if model is not None:
-        params['model'] = model
-    if page is not None:
-        params['page'] = page
-    if size is not None:
-        params['size'] = size
-    if sort is not None:
-        params['sort'] = sort
+    params = _defined_parameters(
+        organizationId=organization_id,
+        productName=product_name,
+        fullProductName=full_product_name,
+        productFileId=product_file_id,
+        eprelCode=eprel_code,
+        gtinCode=gtin_code,
+        productCode=product_code,
+        status=status,
+        category=category,
+        brand=brand,
+        model=model,
+        page=page,
+        size=size,
+        sort=sort,
+    )
 
     return requests.get(
         _with_initiative_path(initiative_id, _AR.products.path),
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-            'x-organization-role': role,
-        },
+        headers={**_json_headers(token), 'x-organization-role': role},
         params=params,
         timeout=settings.default_timeout
     )
@@ -223,10 +220,7 @@ def get_product_files_batch_list(token, initiative_id, organization_selected=Non
         :param initiative_id: initiative id
         :param organization_selected: selected sub-organization uuid (optional)
     """
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {token}',
-    }
+    headers = _json_headers(token)
     if organization_selected is not None:
         headers['x-organization-selected'] = organization_selected
 
@@ -244,20 +238,17 @@ def get_institution_by_id(token, institution_id):
     """
     return requests.get(
         f'{_REGISTER_BASE}{_AR.institutions.by_id.format(institution_id)}',
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        },
+        headers=_json_headers(token),
         timeout=settings.default_timeout
     )
 
-_UPDATE_STATUS_TARGETS = ('approved', 'wait_approved', 'supervised', 'rejected', 'restored')
 _UPDATE_STATUS_ENDPOINTS = {
     'approved': _AR.products.update_status.approved,
     'wait_approved': _AR.products.update_status.wait_approved,
     'wait-approved': _AR.products.update_status.wait_approved,
     'supervised': _AR.products.update_status.supervised,
-    'rejected': _AR.products.update_status.rejected
+    'rejected': _AR.products.update_status.rejected,
+    'restored': _AR.products.update_status.restored,
 }
 
 def _build_products_update_body(gtin_codes, current_status, motivation=None, formal_motivation=None):
@@ -276,8 +267,7 @@ def _update_products_status_request(token, initiative_id, role, username, endpoi
     return requests.post(
         _with_initiative_path(initiative_id, endpoint_path),
         headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
+            **_json_headers(token),
             'x-organization-role': role,
             'x-user-name': username,
         },
@@ -297,8 +287,7 @@ def update_products_status_wait_approved(token,initiative_id, organization_id, o
                                          gtin_codes, current_status, motivation=None, formal_motivation=None):
     """POST /idpay/register/initiatives/{initiativeId}/products/update-status/wait-approved"""
     headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {token}',
+        **_json_headers(token),
         'x-organization-id': organization_id,
         'x-organization-selected': organization_selected,
         'x-user-email': user_email,
@@ -360,20 +349,15 @@ def get_producers(token, initiative_id, page=None, size=None, sort=None):
         :param size: page size (optional, default 1000 server-side)
         :param sort: sort clause (optional)
     """
-    params = {}
-    if page is not None:
-        params['page'] = page
-    if size is not None:
-        params['size'] = size
-    if sort is not None:
-        params['sort'] = sort
+    params = _defined_parameters(
+        page=page,
+        size=size,
+        sort=sort,
+    )
 
     return requests.get(
          _with_initiative_path(initiative_id, _AR.producers),
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        },
+        headers=_json_headers(token),
         params=params,
         timeout=settings.default_timeout
     )
@@ -393,8 +377,7 @@ def update_operative_email(token, organization_id, initiative_id, operative_emai
     return requests.put(
         _with_initiative_path(initiative_id, _AR.email),
         headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
+            **_json_headers(token),
             'x-organization-id': organization_id,
         },
         json={

@@ -18,7 +18,7 @@ Feature: Consult products, batches and producers in the RDB registry
 
   @rdb_fixture
   Scenario Outline: Filter products by a supported field
-    Given the RDB dataset is "product filters"
+    Given RDB products are prepared for filter "<filter>"
     When the RDB user filters products by "<filter>"
     Then only RDB products matching the selected filters are returned
 
@@ -60,7 +60,7 @@ Feature: Consult products, batches and producers in the RDB registry
   Scenario: List the producers associated with the initiative
     Given the RDB dataset is "initiative producers"
     When the RDB user requests the producers
-    Then the returned RDB producer IDs match the dataset
+    Then the RDB producer list is consistent with known initiative memberships
 
   @rdb_fixture
   Scenario: Retrieve a producer registered in SelfCare

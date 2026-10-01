@@ -1,0 +1,29 @@
+{
+  "valid": {
+    "source": "idpay-asset-register-backend/postman/file/valid/eprel_ok_Asciugatrici.csv:2",
+    "category": "TUMBLEDRYERS",
+    "rows": [["2274343", "REGENERATED", "TD01", "Asciugatrice", "IT"]]
+  },
+  "energy class below minimum": {
+    "source": "idpay-asset-register-backend/postman/file/valid/eprel_ok_Lavatrici.csv:10; EPREL API verified 2026-09-23: washingmachines2019, PUBLISHED, energyClass F; initiative minimum A",
+    "category": "WASHINGMACHINES",
+    "rows": [["703757", "REGENERATED", "WM09", "Lavatrice", "IT"]],
+    "error_text": "La classe energetica non è conforme"
+  },
+  "category mismatch": {
+    "source": "idpay-asset-register-backend/postman/file/valid/eprel_ok_Lavatrici.csv:2; washing-machine EPREL code submitted as a tumble dryer",
+    "category": "TUMBLEDRYERS",
+    "rows": [["2416717", "REGENERATED", "WM01", "Asciugatrice", "IT"]],
+    "error_text": "La categoria presente sulla Banca dati europea"
+  },
+  "mixed": {
+    "source": "idpay-asset-register-backend/postman/file/valid/eprel_ok_Asciugatrici.csv:2 and eprel_ok_Lavatrici.csv:2; second row has the wrong EPREL product group",
+    "category": "TUMBLEDRYERS",
+    "rows": [
+      ["2274343", "REGENERATED", "TD01", "Asciugatrice", "IT"],
+      ["2416717", "REGENERATED", "WM01", "Asciugatrice", "IT"]
+    ],
+    "valid_row_indexes": [0],
+    "error_text": "La categoria presente sulla Banca dati europea"
+  }
+}
