@@ -10,7 +10,7 @@
         <meta name="author" content="PagoPA">
       
       
-        <link rel="canonical" href="https://pagopa.github.io/idpay-functional-testing/components/bonus_elettrodomestici/csv/">
+        <link rel="canonical" href="https://pagopa.github.io/idpay-functional-testing/components/bonus_elettrodomestici/email_service/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Manage the product CSV lifecycle - PARI Functional Testing</title>
+        <title>Accept RDB notification payloads at the email service - PARI Functional Testing</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#manage-the-product-csv-lifecycle" class="md-skip">
+        <a href="#accept-rdb-notification-payloads-at-the-email-service" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Manage the product CSV lifecycle
+              Accept RDB notification payloads at the email service
             
           </span>
         </div>
@@ -853,32 +853,10 @@
   
 
 
-<h1 id="manage-the-product-csv-lifecycle">Manage the product CSV lifecycle</h1>
+<h1 id="accept-rdb-notification-payloads-at-the-email-service">Accept RDB notification payloads at the email service</h1>
 <h2 id="scenarios">Scenarios:</h2>
 <ul>
-<li>Validate a CSV compliant with the initiative template</li>
-<li>Accept a valid CSV for processing</li>
-<li>Store every valid product</li>
-<li>Process cooking hobs without requiring EPREL data</li>
-<li>Reject invalid CSV file constraints</li>
-<li>Reject a CSV larger than 2 MB with temporary server error tolerance</li>
-<li>Report every formal error in the same row</li>
-<li>Do not process an invalid CSV</li>
-<li>Exclude a CSV with formal errors from history</li>
-<li>Download a formal validation report</li>
-<li>Reject concurrent uploads for the same initiative and organization</li>
-<li>Allow an upload on another initiative</li>
-<li>Manage the same GTIN independently across initiatives</li>
-<li>Accept a published and compliant EPREL product</li>
-<li>Discard products failing an EPREL check</li>
-<li>An invalid product does not prevent valid products from being stored</li>
-<li>Keep the first occurrence of a duplicated GTIN</li>
-<li>Download a processing report repeatedly</li>
-<li>Reload a product from an allowed status</li>
-<li>Preserve a product that is already under review</li>
-<li>List only uploads belonging to the organization and initiative</li>
-<li>Paginate the CSV upload history</li>
-<li>Reject access to an inaccessible report</li>
+<li>Accept a notification request for an RDB event</li>
 </ul>
 
 

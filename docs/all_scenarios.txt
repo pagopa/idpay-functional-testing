@@ -101,8 +101,10 @@ A transaction of 1 cent is authorized
 A transaction, created through MIL, greater than the budget by 1 cent is authorized
 A transaction, created through MIL, is not authorized if the budget is eroded
 A transaction, created through MIL, of 1 cent is authorized
+Accept a notification request for an RDB event
 Accept a published and compliant EPREL product
 Accept a valid CSV for processing
+Access RDB with a generated application token
 After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
 After a cancellation of a transaction by Bar Code the family member budget is updated
 After a cancellation of a transaction by IDPay Code the family member budget is updated
@@ -189,13 +191,11 @@ Count an association missing a mandatory field as failed
 Discard products failing an EPREL check
 Do not process an invalid CSV
 Do not request acceptance of an already accepted version
-Do not store consent when OneTrust is unavailable
 Do not update a product through another initiative
 Download a formal validation report
 Download a processing report repeatedly
 Eligible merchant already onboarded fails to onboard
 Eligible merchant onboards successfully
-Exchange a valid SelfCare identity token
 Exclude a CSV with formal errors from history
 Families are ranked correctly ordered by ISEE after ranking publication of initiative
 Families are ranked correctly ordered by ISEE after ranking publication of initiative
@@ -208,7 +208,6 @@ Given many onboarding of citizens from the same family, the ranking will be publ
 Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
 Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
 Given many onboarding of citizens from the same family, the ranking will be published with only the citizen of the family who onboarded first
-Group rejected products in one notification per producer
 If a transaction is authorized by citizen A, B receives an error upon pre-authorizing the same transaction.
 If a transaction is correctly authorized by the citizen, if the latter is suspended, the payment mandate is correctly generated
 If a transaction, created through MIL, is authorized by citizen A, B receives an error upon pre-authorizing the same transaction.
@@ -236,8 +235,6 @@ Merchant receives max refund for discounted transaction exceeding the citizen's 
 Merchant successfully logs in Merchant Portal
 Merchant without eligible ATECO fails to onboard
 Normalize the producer email during import
-Notify a producer after partial CSV processing
-Notify a producer after successful CSV processing
 Onboard family cannot unsubscribe before grace period end on a initiative with ranking
 Onboard family cannot unsubscribe before onboarding period end on a initiative with ranking
 Operator downloads the approved reward batch report
@@ -250,16 +247,16 @@ Operator requests the USER_DETAILS CSV report export correctly
 Paginate the CSV upload history
 Perform an allowed product status transition
 Preserve a product that is already under review
-Preserve the status change when the email service fails
 Process a CSV when the operational email is missing
 Process cooking hobs without requiring EPREL data
 Reimport an association without creating duplicates
-Reject a SelfCare token with invalid claims or signature
+Reject a CSV larger than 2 MB with temporary server error tolerance
 Reject a batch containing different current statuses
 Reject a product when the operational email is missing
 Reject a request without an authentication token
 Reject acceptance of an outdated version
 Reject access to an inaccessible report
+Reject an application token with invalid claims or signature
 Reject an email update for an unrelated initiative
 Reject an empty association payload
 Reject an expired application token
@@ -272,14 +269,12 @@ Reject the entire batch when one product does not exist
 Reload a product from an allowed status
 Replace the previous operational email
 Report every formal error in the same row
-Request acceptance after the terms and conditions change
 Request consent for a user who has never accepted
 Restrict batches to the selected organization
 Restrict product visibility to the selected organization
 Retrieve a producer registered in SelfCare
 Return an empty result for a nonexistent GTIN
 Return exactly the initiatives visible to the current user
-Send separate rejection notifications to different producers
 Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
 Store every valid product
