@@ -11,6 +11,7 @@ long_timeout: 60000
 iso_date_format: '%Y-%m-%dT%H:%M:%S.000%z'
 KEEP_INITIATIVES_AFTER_TEST: false
 KEEP_INITIATIVES_AFTER_FAILED_TEST: false
+REWARD_BATCH_CLEANUP: true
 INITIATIVE_STARTUP_TIME_SECONDS: 120
 IDPAY:
   domain: "/idpay-itn"

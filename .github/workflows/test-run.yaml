@@ -44,6 +44,12 @@ on:
         options:
           - bdd
 
+      reward_batch_cleanup:
+        description: Cleanup environment after test run
+        required: false
+        default: true
+        type: boolean
+
 jobs:
   run-bdd:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' }}
