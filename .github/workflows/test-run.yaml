@@ -47,6 +47,7 @@ on:
         description: Cleanup environment after test run
         required: true
         type: boolean
+        default: true
 
 jobs:
   run-bdd:
@@ -55,7 +56,7 @@ jobs:
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
-      reward_batch_cleanup: ${{ github.event_name == 'workflow_dispatch' && inputs.reward_batch_cleanup || true }}
+      reward_batch_cleanup: ${{ github.event_name != 'workflow_dispatch' || inputs.reward_batch_cleanup }}
     secrets: inherit
 
   #run-functional-tests:
