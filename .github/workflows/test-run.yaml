@@ -45,8 +45,7 @@ on:
 
       reward_batch_cleanup:
         description: Cleanup environment after test run
-        required: false
-        default: true
+        required: true
         type: boolean
 
 jobs:
