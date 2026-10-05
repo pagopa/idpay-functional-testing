@@ -137,7 +137,7 @@ jobs:
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
-    if: ${{ inputs.target_env == 'uat' }}
+    if: ${{ always() && inputs.target_env == 'uat' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
