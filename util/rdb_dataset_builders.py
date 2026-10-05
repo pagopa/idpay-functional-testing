@@ -9,6 +9,7 @@ from api import idpay
 from conf.configuration import secrets
 from util import rdb_utilities as rdb
 from util.rdb_csv_utilities import decoder_csv
+from util.rdb_cleanup import remember_portal
 
 FOREIGN_CSV_BATCHES = 'foreign CSV batches'
 ORGANIZATION_CSV_BATCHES = 'organization CSV batches'
@@ -199,6 +200,7 @@ def portal_initiatives(context, foreign=False):
             result = rdb.success(idpay.post_initiative_info(
                 portal_token, initiative_name_prefix=f'RDB fixture {uuid.uuid4().hex}'), 201).json()
             initiative_id = rdb.required(result, 'initiativeId', 'portal creation response')
+            remember_portal(initiative_id, portal_body)
             # Portal summary dereferences general.startDate/endDate even for drafts.
             general = {'beneficiaryType': 'PF', 'beneficiaryKnown': False,
                        'rankingEnabled': False, 'budget': 1000, 'beneficiaryBudgetFixed': 100,

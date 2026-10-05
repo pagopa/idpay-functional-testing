@@ -556,14 +556,15 @@ def get_merchant_list(selfcare_token: str,
     )
 
 
-def delete_initiative(initiative_id: str):
+def delete_initiative(initiative_id: str, domain: str = None):
     """API to delete everything related to an initiative.
             :param initiative_id: ID of the initiative of interest.
+            :param domain: Internal backend domain, when different from the gateway domain.
             :returns: the response of the call.
             :rtype: requests.Response
         """
     return requests.delete(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{domain or settings.IDPAY.domain}/initiative/{initiative_id}',
         timeout=settings.default_timeout)
 
 

@@ -51,7 +51,32 @@ record di storico e report; import, aggiornamenti email, consensi e dataset
 Invitalia modificano associazioni o creano nuove bozze.
 Gli hook generici gestiscono soltanto le iniziative registrate in
 `secrets.newly_created`, secondo le opzioni `KEEP_INITIATIVES_*`.
-I dati RDB non vengono cancellati automaticamente dopo il run.
+
+La pulizia RDB viene eseguita da `after_all`, anche se alcuni scenari falliscono
+e Behave arriva regolarmente all'hook finale. Il tracciamento è solo in memoria,
+per il run corrente: non ci sono file di stato né recupero da run interrotti.
+
+- CSV, report, record upload e prodotti vengono eliminati solo per i file creati
+  dal run, identificati da organizzazione, iniziativa e nome esatto. Prima di una
+  scrittura viene escluso che i GTIN appartengano a prodotti preesistenti.
+- Le associazioni nuove vengono eliminate; quelle preesistenti vengono
+  ripristinate integralmente, inclusi email e timestamp. Se lo stato osservato
+  è cambiato nel frattempo, il backend risponde 409 e non lo sovrascrive.
+- Vengono rimossi soltanto i consensi dei nuovi utenti generati dai test e le
+  iniziative portal i cui ID provengono dalle creazioni confermate del run.
+
+Il backend deve esporre le API interne `/idpay/register/clean/fixtures`, con
+`TEST_SUPPORT_ENABLED=true`, come in `idpay-transactions`. La proprietà applicativa
+è `app.test-support.enabled`, con default `false`. I valori Helm DEV/UAT abilitano
+la flag; produzione resta disabilitata per default. Gli endpoint non richiedono un token
+dedicato. La suite verifica la disponibilità delle API prima degli scenari RDB.
+Il controller di pulizia è escluso dalla documentazione Swagger e usa soltanto
+l'ingress interno: non vengono aggiunte rotte APIM né modifiche Terraform.
+
+La pulizia attende al massimo 120 secondi per upload ancora in elaborazione
+e cancellazioni portal asincrone; il limite è definito nel codice. Una pulizia incompleta
+produce un errore nell'hook finale, senza cancellare le associazioni collegate a
+upload ancora presenti. Il dry-run non invoca queste API.
 
 ## Dataset
 

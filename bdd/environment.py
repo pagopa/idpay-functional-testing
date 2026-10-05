@@ -18,6 +18,10 @@ def before_feature(context, feature):
     """
     context.reward_batches_to_cleanup = set()
 
+    if 'rdb' in feature.tags and not context.config.dry_run:
+        from util.rdb_cleanup import start
+        start()
+
     # Create an initiative for each proper tag on feature file (if not created yet in this run)
     if not secrets.get('initiatives'):
         secrets['initiatives'] = {}
@@ -31,7 +35,11 @@ def before_feature(context, feature):
 def after_all(context):
     """Delete each initiative created during the run
     """
-    delete_new_initiatives_after_test()
+    from util.rdb_cleanup import finish
+    try:
+        finish()
+    finally:
+        delete_new_initiatives_after_test()
 
 
 def after_feature(context, feature):
