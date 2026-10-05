@@ -22,6 +22,7 @@ Manual execution:
    - `environment`: `uat`
    - `test_type`: `bdd`
    - `feature`: BDD tag to run (`rdb` for all RDB scenarios)
+   - `reward_batch_cleanup`: Cleanup environment after test run
 5. Start the run.
 
 ### Environment and secrets
@@ -32,6 +33,14 @@ this file from Key Vault. The default path for configuration is
 `conf/pari-feature-secrets.json`. Never commit the secrets file.
 
 The runner executes Behave with the selected tag, for example:
+
+### Commands 
+
+```commandline
+[PARI_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
+```
+
+For example this command runs in UAT(default) all onboarding tests without legacy tests and save the junitxml report to a file:
 
 ```console
 pipenv run behave --junit --junit-directory "tests/reports/behave" --tags @rdb
