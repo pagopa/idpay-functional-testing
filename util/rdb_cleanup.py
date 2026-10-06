@@ -78,7 +78,7 @@ class Cleanup:
             body = self.profiles.get(token)
             if body is None:
                 raise CleanupError('CSV writer has no tracked test profile')
-            scope = dict(organizationId=body['orgId'], initiativeId=initiative, fileName=name)
+            scope = {'organizationId': body['orgId'], 'initiativeId': initiative, 'fileName': name}
             key = (body['orgId'], initiative, name)
             if key in self.files:
                 return key
@@ -146,7 +146,7 @@ class Cleanup:
 
     def clean(self):
         errors = []
-        for key, scope in list(self.files.items()):
+        for key, scope in self.files.copy().items():
             self._attempt(errors, f'file {scope["fileName"]}', self._delete_run_file, key, scope)
         for user_id in self.consents:
             self._attempt(errors, f'consent {user_id}', self._delete_consent, user_id)

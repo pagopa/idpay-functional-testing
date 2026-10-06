@@ -140,6 +140,25 @@ class CleanupTest(unittest.TestCase):
         self.assertIn('/consents/delete', paths)
         self.assertNotIn('/associations/restore', paths)
 
+    def test_multiple_files_are_cleaned_even_when_one_deletion_fails(self):
+        self.prepare_file('first.csv')
+        failed_key = self.prepare_file('failed.csv')
+        self.prepare_file('last.csv')
+        base = self.cleanup.http.side_effect
+
+        def delete_with_failure(method, path, **kwargs):
+            if path == '/files/delete' and kwargs['json']['fileName'] == 'failed.csv':
+                raise cleanup_module.CleanupError('HTTP 503')
+            return base(method, path, **kwargs)
+
+        self.cleanup.http.side_effect = delete_with_failure
+        with self.assertRaisesRegex(cleanup_module.CleanupError, 'failed.csv'):
+            self.cleanup.clean()
+        self.assertEqual(set(self.cleanup.files), {failed_key})
+        attempted = [call.kwargs['json']['fileName'] for call in self.cleanup.http.call_args_list
+                     if call.args[1] == '/files/delete']
+        self.assertEqual(attempted, ['first.csv', 'failed.csv', 'last.csv'])
+
     def test_processing_file_waits_then_cleans(self):
         scope = {'fileName': 'processing.csv'}
         self.cleanup.http = Mock(side_effect=[response(409),
