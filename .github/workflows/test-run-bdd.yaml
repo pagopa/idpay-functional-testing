@@ -17,8 +17,7 @@ on:
         description: 'Behave tag to run'
       reward_batch_cleanup:
         type: boolean
-        required: false
-        default: true
+        required: true
         description: 'Cleanup environment after test run'
 
 jobs:
@@ -97,7 +96,7 @@ jobs:
 
       - name: Run tests with Behave
         run: |
-          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
+          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
           if [ "$FEATURE_TAG" = "all" ]; then
             python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/bonus_elettrodomestici \
@@ -118,7 +117,6 @@ jobs:
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
           fi
-        continue-on-error: true
 
       - name: Sanitize allure results
         if: always()
@@ -139,7 +137,7 @@ jobs:
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
-    if: ${{ inputs.target_env == 'uat' }}
+    if: ${{ always() && inputs.target_env == 'uat' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
