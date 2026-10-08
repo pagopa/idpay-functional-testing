@@ -2,9 +2,9 @@
 
 La suite `bdd/features/bonus_elettrodomestici/rdb` contiene 96 scenari indipendenti.
 Gli step usano le API dell'ambiente selezionato; i dataset generati non simulano le risposte.
-Ultimo lancio completo con pulizia: [DEV, 6 ottobre 2026](rdb-test-results-2026-10-06-dev-full.md),
-96 scenari passati e hook finale completato. La verifica della pulizia usa le API
-per confermare l'assenza di upload e prodotti, senza controlli diretti dello storage.
+Ultimo lancio completo con pulizia: [UAT, 8 ottobre 2026](rdb-test-results-2026-10-08-uat-full.md),
+96 scenari passati e hook finale completato. La verifica usa le API per confermare
+l'assenza di upload e prodotti, senza controlli diretti dello storage.
 
 ## Esecuzione
 
