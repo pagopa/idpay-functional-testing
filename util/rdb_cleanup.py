@@ -64,6 +64,11 @@ class Cleanup:
             raise CleanupError('Association writes require a scenario-owned producer')
         self.associations.add(producer + '_' + initiative)
 
+    def before_import(self, producers):
+        for producer in producers:
+            if isinstance(producer, dict):
+                self.before_association(producer.get('producerId'), producer.get('initiativeId'))
+
     def before_file(self, token, initiative, csv_file):
         from util.asset_register_utilities import _build_csv_file_part
         name, content, *_ = _build_csv_file_part(csv_file)
@@ -190,9 +195,7 @@ def tracked(operation):
             if operation == 'file':
                 cleanup.before_file(values['token'], values['initiative_id'], values['csv_file'])
             elif operation == 'import':
-                for producer in values['producers']:
-                    if isinstance(producer, dict):
-                        cleanup.before_association(producer.get('producerId'), producer.get('initiativeId'))
+                cleanup.before_import(values['producers'])
             elif operation == 'email':
                 cleanup.before_association(values['organization_id'], values['initiative_id'])
             result = function(*args, **kwargs)

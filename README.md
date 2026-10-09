@@ -21,7 +21,7 @@ Manual execution:
 4. Set the parameters:
    - `environment`: `uat`
    - `test_type`: `bdd`
-   - `feature`: BDD tag to run (`rdb` for all RDB scenarios)
+   - `feature`: BDD tag to run
    - `reward_batch_cleanup`: Cleanup environment after test run
 5. Start the run.
 
@@ -42,15 +42,11 @@ The runner executes Behave with the selected tag, for example:
 
 For example this command runs in UAT(default) all onboarding tests without legacy tests and save the junitxml report to a file:
 
-```console
-pipenv run behave --junit --junit-directory "tests/reports/behave" --tags @rdb
+```commandline
+behave --junit --junit-directory "tests/reports/behave" --tags @onboarding
 ```
 
-This command calls the environment APIs and requires the corresponding secrets.
-Dataset requirements and dependency observation are described in
-[RDB BDD tests](docs/rdb.md).
-
-### Dependency setup (pipenv)
+### Local environment commands (pipenv)
 
 Install pipenv:
 
