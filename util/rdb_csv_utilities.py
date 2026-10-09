@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from api import asset_register as api
 from util import rdb_utilities as rdb
+from util.rdb_cleanup import prepare_upload
 
 GTIN_COLUMN = 'Codice GTIN/EAN'
 
@@ -56,6 +57,10 @@ def upload_during_processing(context):
     """Bracket the second request with observations of the first active upload."""
     s = rdb.state(context)
     fixture = s.concurrent_upload
+    # Ownership checks make HTTP calls; finish them before measuring overlap.
+    # The upload decorators reuse these entries without repeating the checks.
+    prepare_upload(fixture['token'], fixture['initiative_id'], fixture['csv_file'])
+    prepare_upload(s.token, s.initiative_id, s.csv_file)
     # Observe processing even if the first upload HTTP request has not returned.
     # The worker uses immutable arguments and never mutates the Behave context.
     with ThreadPoolExecutor(max_workers=1) as executor:

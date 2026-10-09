@@ -18,10 +18,6 @@ def before_feature(context, feature):
     """
     context.reward_batches_to_cleanup = set()
 
-    if 'rdb' in feature.tags and not context.config.dry_run:
-        from util.rdb_cleanup import start
-        start()
-
     # Create an initiative for each proper tag on feature file (if not created yet in this run)
     if not secrets.get('initiatives'):
         secrets['initiatives'] = {}
@@ -30,6 +26,18 @@ def before_feature(context, feature):
             if curr_initiative_name not in secrets['initiatives']:
                 secrets['initiatives'][curr_initiative_name] = {}
                 create_initiative_and_update_conf(initiative_name=curr_initiative_name)
+
+
+def before_scenario(context, scenario):
+    if 'rdb' in scenario.effective_tags and not context.config.dry_run:
+        from util.rdb_cleanup import start
+        start(context)
+
+
+def after_scenario(context, scenario):
+    if 'rdb' in scenario.effective_tags and not context.config.dry_run:
+        from util.rdb_cleanup import finish_scenario
+        finish_scenario()
 
 
 def after_all(context):

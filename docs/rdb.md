@@ -2,9 +2,11 @@
 
 La suite `bdd/features/bonus_elettrodomestici/rdb` contiene 96 scenari indipendenti.
 Gli step usano le API dell'ambiente selezionato; i dataset generati non simulano le risposte.
-Ultimo lancio completo con pulizia: [UAT, 8 ottobre 2026](rdb-test-results-2026-10-08-uat-full.md),
-96 scenari passati e hook finale completato. La verifica usa le API per confermare
-l'assenza di upload e prodotti, senza controlli diretti dello storage.
+Ultimo lancio completo con pulizia semplificata: [UAT, 9 ottobre 2026](rdb-test-results-2026-10-09-uat.md),
+95 scenari passati e 1 KO sulla prova di concorrenza, confermato dal rilancio isolato.
+Tutte le 96 pulizie completate, senza errori degli hook.
+Il KO � stato poi corretto spostando i controlli preliminari fuori dalla finestra
+concorrente: entrambi i casi concorrenti passano in due lanci UAT consecutivi.
 
 ## Esecuzione
 
@@ -49,21 +51,23 @@ e soglie energetiche non sono credenziali.
 ## Scritture dei test
 
 La suite usa le API reali dell'ambiente selezionato. Upload e validazioni CSV possono creare prodotti,
-record di storico e report; import, aggiornamenti email, consensi e dataset
-Invitalia modificano associazioni o creano nuove bozze.
+record di storico e report; import e aggiornamenti email modificano associazioni
+di produttori dedicati. Consensi e dataset Invitalia creano accettazioni e bozze dedicate.
 Gli hook generici gestiscono soltanto le iniziative registrate in
 `secrets.newly_created`, secondo le opzioni `KEEP_INITIATIVES_*`.
 
-La pulizia RDB viene eseguita da `after_all`, anche se alcuni scenari falliscono
-e Behave arriva regolarmente all'hook finale. Il tracciamento è solo in memoria,
-per il run corrente: non ci sono file di stato né recupero da run interrotti.
+La pulizia RDB viene eseguita da `after_scenario`, anche se lo scenario fallisce.
+`after_all` ritenta soltanto le risorse la cui pulizia non � riuscita. Il tracciamento è solo in memoria,
+nel context dello scenario: non ci sono file di stato né recupero da run interrotti.
 
 - CSV, report, record upload e prodotti vengono eliminati solo per i file creati
   dal run, identificati da organizzazione, iniziativa e nome esatto. Prima di una
   scrittura viene escluso che i GTIN appartengano a prodotti preesistenti.
-- Le associazioni nuove vengono eliminate; quelle preesistenti vengono
-  ripristinate integralmente, inclusi email e timestamp. Se lo stato osservato
-  è cambiato nel frattempo, il backend risponde 409 e non lo sovrascrive.
+- Import, reimport e aggiornamenti email usano produttori dedicati generati per
+  scenario: le associazioni vengono tracciate per ID e poi eliminate. Lo stato
+  corrente viene letto solo alla cancellazione, come richiesto dal contratto CAS
+  del backend. Le scritture su associazioni di produttori non creati dallo scenario
+  vengono bloccate prima della chiamata: non occorrono snapshot di ripristino.
 - Vengono rimossi soltanto i consensi dei nuovi utenti generati dai test e le
   iniziative portal i cui ID provengono dalle creazioni confermate del run.
 
@@ -77,8 +81,12 @@ l'ingress interno: non vengono aggiunte rotte APIM né modifiche Terraform.
 
 La pulizia attende al massimo 120 secondi per upload ancora in elaborazione
 e cancellazioni portal asincrone; il limite è definito nel codice. Una pulizia incompleta
-produce un errore nell'hook finale, senza cancellare le associazioni collegate a
+produce un errore nell'hook dello scenario, senza cancellare le associazioni collegate a
 upload ancora presenti. Il dry-run non invoca queste API.
+
+Verifica del 9 ottobre: 27 test unitari passati; suite completa UAT con 95 scenari
+passati e 1 KO di concorrenza. Pulizia riuscita per tutti i 96 scenari e per il
+rilancio isolato del caso fallito. Dettagli nel report sopra.
 
 ## Dataset
 
@@ -100,7 +108,8 @@ Dettagli nel [documento di decisione](rdb-team-discussion.md).
 I report storici conservano il perimetro originale di 98 scenari.
 
 I test concorrenti preparano un CSV EPREL da 100 righe e ne verificano lo stato
-attivo prima e dopo il secondo upload. Non richiedono `datasets.upload in progress`.
+attivo prima e dopo il secondo upload. I controlli preliminari della pulizia per
+entrambi i file vengono eseguiti prima del primo upload, fuori dalla finestra misurata. Non richiedono `datasets.upload in progress`.
 Il produttore deve essere abilitato su A/B e non avere altri upload attivi; il test
 attende il completamento del proprio CSV senza sospendere consumer condivisi.
 

@@ -4,7 +4,6 @@ import inspect
 import io
 import threading
 import time
-from copy import deepcopy
 from functools import wraps
 
 import requests
@@ -14,6 +13,8 @@ _ACTIVE_STATUSES = {"UPLOADED", "IN_PROCESS"}
 _CLEANUP_TIMEOUT = 120
 _CAPABILITIES = {"files-v1", "products-v1", "association-cas-v1", "consents-v1"}
 _active = None
+_pending = []
+_verified_base = None
 
 
 class CleanupError(RuntimeError):
@@ -29,15 +30,18 @@ class Cleanup:
         self.base = register + '/clean/fixtures'
         self.profiles = {}
         self.files = {}
-        self.file_ids = set()
-        self.associations = {}
+        self.associations = set()
+        self.producers = set()
         self.consents = set()
         self.portal_initiatives = {}
         self.lock = threading.RLock()
         self.timeout = _CLEANUP_TIMEOUT
-        capabilities = self.http('GET', '/capabilities').json()
-        if not _CAPABILITIES <= set(capabilities):
-            raise CleanupError('Deploy and enable the fixture cleanup API before running RDB tests')
+        global _verified_base
+        if _verified_base != self.base:
+            capabilities = self.http('GET', '/capabilities').json()
+            if not _CAPABILITIES <= set(capabilities):
+                raise CleanupError('Deploy and enable the fixture cleanup API before running RDB tests')
+            _verified_base = self.base
 
     def http(self, method, path, allowed=(200, 204), **kwargs):
         response = requests.request(method, self.base + path, timeout=(10, 30),
@@ -55,31 +59,20 @@ class Cleanup:
 
     def before_association(self, producer, initiative):
         if not producer or not initiative:
-            return None  # Missing-field scenarios must reach the import service.
-        key = producer + '_' + initiative
-        with self.lock:
-            current = self.association(key)
-            entry = self.associations.get(key)
-            if entry is None:
-                self.associations[key] = {'before': deepcopy(current), 'expected': current}
-            elif entry['expected'] != current:
-                raise CleanupError('Association changed outside the tracked operation')
-        return key
-
-    def after_association(self, key):
-        if key:
-            with self.lock:
-                self.associations[key]['expected'] = self.association(key)
+            return  # Missing-field scenarios must reach the import service.
+        if producer not in self.producers:
+            raise CleanupError('Association writes require a scenario-owned producer')
+        self.associations.add(producer + '_' + initiative)
 
     def before_file(self, token, initiative, csv_file):
         from util.asset_register_utilities import _build_csv_file_part
         name, content, *_ = _build_csv_file_part(csv_file)
         with self.lock:
-            body = self.profiles.get(token)
-            if body is None:
+            organization = self.profiles.get(token)
+            if organization is None:
                 raise CleanupError('CSV writer has no tracked test profile')
-            scope = {'organizationId': body['orgId'], 'initiativeId': initiative, 'fileName': name}
-            key = (body['orgId'], initiative, name)
+            scope = {'organizationId': organization, 'initiativeId': initiative, 'fileName': name}
+            key = (organization, initiative, name)
             if key in self.files:
                 return key
             if self.find_files(scope):
@@ -88,15 +81,14 @@ class Cleanup:
             if codes:
                 products = self.http('POST', '/products/find', json={
                     'initiativeId': initiative, 'gtinCodes': codes}).json()
-                if any(product.get('productFileId') not in self.file_ids for product in products):
+                owned_files = set()
+                if products:
+                    for prior_scope in self.files.values():
+                        owned_files.update(file['id'] for file in self.find_files(prior_scope))
+                if any(product.get('productFileId') not in owned_files for product in products):
                     raise CleanupError('CSV would modify a pre-existing product; no upload sent')
             self.files[key] = scope
             return key
-
-    def after_file(self, key):
-        with self.lock:
-            files = self.find_files(self.files[key])
-            self.file_ids.update(file['id'] for file in files)
 
     def delete_file(self, scope):
         deadline = time.monotonic() + self.timeout
@@ -111,10 +103,9 @@ class Cleanup:
                 raise CleanupError('File cleanup conflict')
             _wait(deadline, 'Upload still processing at cleanup timeout')
 
-    def delete_portal_initiative(self, initiative_id, body):
+    def delete_portal_initiative(self, initiative_id, token):
         from api import idpay
         from util import rdb_utilities as rdb
-        token = rdb.token_from_response(idpay.obtain_selfcare_test_token(body))
         response = idpay.delete_initiative(initiative_id, domain='/idpay')
         if response.status_code not in (200, 202, 204, 404):
             raise CleanupError(f'Portal initiative deletion: HTTP {response.status_code}')
@@ -122,6 +113,7 @@ class Cleanup:
         while True:
             initiatives = rdb.success(idpay.get_initiatives_summary(token)).json()
             if all(item['initiativeId'] != initiative_id for item in initiatives):
+                del self.portal_initiatives[initiative_id]
                 return
             _wait(deadline, 'Portal initiative deletion still processing')
 
@@ -131,11 +123,16 @@ class Cleanup:
 
     def _delete_consent(self, user_id):
         self.http('POST', '/consents/delete', allowed=(204,), json={'userId': user_id})
+        self.consents.remove(user_id)
 
-    def _restore_association(self, key, entry):
-        self.http('POST', '/associations/restore', json={'id': key, **entry})
-        if self.association(key) != entry['before']:
-            raise CleanupError('Association differs from its initial state')
+    def _delete_association(self, key):
+        # The backend CAS contract requires the current document at deletion.
+        expected = self.association(key)
+        self.http('POST', '/associations/restore',
+                  json={'id': key, 'before': None, 'expected': expected})
+        if self.association(key) is not None:
+            raise CleanupError('Association still present after cleanup')
+        self.associations.remove(key)
 
     @staticmethod
     def _attempt(errors, label, function, *args):
@@ -148,19 +145,19 @@ class Cleanup:
         errors = []
         for key, scope in self.files.copy().items():
             self._attempt(errors, f'file {scope["fileName"]}', self._delete_run_file, key, scope)
-        for user_id in self.consents:
+        for user_id in self.consents.copy():
             self._attempt(errors, f'consent {user_id}', self._delete_consent, user_id)
-        for initiative_id, body in self.portal_initiatives.items():
+        for initiative_id, token in self.portal_initiatives.copy().items():
             self._attempt(errors, f'portal initiative {initiative_id}',
-                          self.delete_portal_initiative, initiative_id, body)
+                          self.delete_portal_initiative, initiative_id, token)
         if self.files:
             errors.append('Associations retained because some run uploads could not be deleted')
         else:
-            for key, entry in self.associations.items():
-                self._attempt(errors, f'association {key}', self._restore_association, key, entry)
+            for key in self.associations.copy():
+                self._attempt(errors, f'association {key}', self._delete_association, key)
         if errors:
-            raise CleanupError('RDB end-of-suite cleanup failed: ' + '; '.join(errors))
-        print('RDB end-of-suite cleanup completed')
+            raise CleanupError('RDB fixture cleanup failed: ' + '; '.join(errors))
+        print('RDB fixture cleanup completed')
 
 
 def _gtin_codes(content):
@@ -190,43 +187,31 @@ def tracked(operation):
             bound = signature.bind(*args, **kwargs)
             bound.apply_defaults()
             values = bound.arguments
-            keys = []
-            file_key = None
             if operation == 'file':
-                file_key = cleanup.before_file(values['token'], values['initiative_id'], values['csv_file'])
+                cleanup.before_file(values['token'], values['initiative_id'], values['csv_file'])
             elif operation == 'import':
-                pairs = dict.fromkeys((p.get('producerId'), p.get('initiativeId'))
-                                      for p in values['producers'] if isinstance(p, dict))
-                keys = [cleanup.before_association(*pair) for pair in pairs]
+                for producer in values['producers']:
+                    if isinstance(producer, dict):
+                        cleanup.before_association(producer.get('producerId'), producer.get('initiativeId'))
             elif operation == 'email':
-                keys = [cleanup.before_association(values['organization_id'], values['initiative_id'])]
-            try:
-                result = function(*args, **kwargs)
-            except Exception as error:
-                try:
-                    _after_write(cleanup, keys, file_key)
-                except Exception as cleanup_error:
-                    error.add_note(f'Unable to observe the write outcome ({type(cleanup_error).__name__})')
-                raise
-            _after_write(cleanup, keys, file_key)
+                cleanup.before_association(values['organization_id'], values['initiative_id'])
+            result = function(*args, **kwargs)
             if operation == 'token' and result.status_code == 200:
-                with cleanup.lock:
-                    cleanup.profiles[result.text.strip().strip('"')] = dict(values['body'])
+                cleanup.profiles[result.text.strip().strip('"')] = values['body']['orgId']
             return result
         return invoke
     return decorate
 
 
-def _after_write(cleanup, keys, file_key):
-    for key in keys:
-        cleanup.after_association(key)
-    if file_key is not None:
-        cleanup.after_file(file_key)
-
-
-def remember_portal(initiative_id, body):
+def prepare_upload(token, initiative_id, csv_file):
+    """Run ownership checks before a timing-sensitive upload starts."""
     if _active is not None:
-        _active.portal_initiatives[initiative_id] = dict(body)
+        _active.before_file(token, initiative_id, csv_file)
+
+
+def remember_portal(initiative_id, token):
+    if _active is not None:
+        _active.portal_initiatives[initiative_id] = token
 
 
 def remember_consent(user_id):
@@ -234,14 +219,42 @@ def remember_consent(user_id):
         _active.consents.add(user_id)
 
 
-def start():
+def remember_producer(organization_id):
+    if _active is not None:
+        _active.producers.add(organization_id)
+
+
+def start(context=None):
     global _active
     if _active is None:
         _active = Cleanup()
+    if context is not None:
+        context.rdb_cleanup = _active
 
 
-def finish():
+def finish_scenario():
     global _active
     cleanup, _active = _active, None
     if cleanup is not None:
-        cleanup.clean()
+        try:
+            cleanup.clean()
+        except Exception:
+            _pending.append(cleanup)
+            raise
+
+
+def finish():
+    global _active, _verified_base
+    cleanup, _active = _active, None
+    if cleanup is not None:
+        _pending.append(cleanup)
+    errors = []
+    for item in _pending.copy():
+        try:
+            item.clean()
+            _pending.remove(item)
+        except Exception as error:
+            errors.append(str(error))
+    _verified_base = None
+    if errors:
+        raise CleanupError('; '.join(errors))

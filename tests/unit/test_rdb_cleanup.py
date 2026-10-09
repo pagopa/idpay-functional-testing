@@ -1,4 +1,4 @@
-"""End-of-run cleanup behavior, with every HTTP operation simulated."""
+"""Scenario cleanup behavior, with every HTTP operation simulated."""
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -25,12 +25,15 @@ class CleanupTest(unittest.TestCase):
             item.start()
             self.addCleanup(item.stop)
         cleanup_module._active = None
+        cleanup_module._pending.clear()
+        cleanup_module._verified_base = None
         self.addCleanup(setattr, cleanup_module, '_active', None)
         self.cleanup = cleanup_module.Cleanup()
         self.cleanup.timeout = 2
         self.data = {'/files/find': [], '/products/find': []}
         self.cleanup.http = Mock(side_effect=self.http)
-        self.cleanup.profiles['token'] = {'orgId': 'producer'}
+        self.cleanup.profiles['token'] = 'producer'
+        self.cleanup.producers.update(('producer', 'new'))
 
     def http(self, method, path, allowed=(200, 204), **kwargs):
         if path == '/files/delete':
@@ -49,37 +52,19 @@ class CleanupTest(unittest.TestCase):
         return self.cleanup.before_file('token', 'initiative', (
             filename, b'Codice GTIN/EAN;Marca\nABC123;Brand\n', 'text/csv'))
 
-    def test_shared_association_restores_original_snapshot_after_multiple_writes(self):
-        path = '/associations/producer_initiative'
-        before = {'id': 'producer_initiative', 'producerEmail': 'original', 'createdAt': 'original-date'}
-        self.data[path] = before
-        key = self.cleanup.before_association('producer', 'initiative')
-        self.data[path] = {**before, 'producerEmail': 'first'}
-        self.cleanup.after_association(key)
-        self.cleanup.before_association('producer', 'initiative')
-        self.data[path] = {**before, 'producerEmail': 'second'}
-        self.cleanup.after_association(key)
-        self.cleanup.clean()
-        self.assertEqual(self.data[path], before)
-        restore = next(call.kwargs['json'] for call in self.cleanup.http.call_args_list
-                       if call.args[1] == '/associations/restore')
-        self.assertEqual(restore['before'], before)
-        self.assertEqual(restore['expected']['producerEmail'], 'second')
-
     def test_new_association_is_removed(self):
-        key = self.cleanup.before_association('new', 'initiative')
+        self.cleanup.before_association('new', 'initiative')
+        key = 'new_initiative'
         self.data['/associations/' + key] = {'id': key}
-        self.cleanup.after_association(key)
         self.cleanup.clean()
         self.assertIsNone(self.data['/associations/' + key])
 
-    def test_external_change_prevents_next_tracked_mutation(self):
-        path = '/associations/producer_initiative'
-        self.data[path] = {'email': 'original'}
-        self.cleanup.before_association('producer', 'initiative')
-        self.data[path] = {'email': 'external'}
-        with self.assertRaisesRegex(cleanup_module.CleanupError, 'outside'):
-            self.cleanup.before_association('producer', 'initiative')
+    def test_shared_association_write_is_rejected_without_mutation(self):
+        self.data['/associations/shared_initiative'] = {'email': 'original'}
+        with self.assertRaisesRegex(cleanup_module.CleanupError, 'scenario-owned'):
+            self.cleanup.before_association('shared', 'initiative')
+        self.cleanup.http.assert_not_called()
+        self.assertFalse(self.cleanup.associations)
 
     def test_preexisting_filename_is_rejected(self):
         self.data['/files/find'] = [{'id': 'existing'}]
@@ -93,12 +78,6 @@ class CleanupTest(unittest.TestCase):
             self.prepare_file()
         self.assertFalse(self.cleanup.files)
 
-    def test_reloading_product_created_by_this_run_is_allowed(self):
-        self.cleanup.file_ids.add('own-file')
-        self.data['/products/find'] = [{'productFileId': 'own-file'}]
-        key = self.prepare_file('reload.csv')
-        self.assertIn(key, self.cleanup.files)
-
     def test_invalid_csv_is_forwarded_and_recorded_for_formal_report_cleanup(self):
         key = self.cleanup.before_file('token', 'initiative', ('bad.csv', b'\xff', 'text/csv'))
         self.assertIn(key, self.cleanup.files)
@@ -111,11 +90,63 @@ class CleanupTest(unittest.TestCase):
         self.assertIn({'initiativeId': 'initiative', 'gtinCodes': ['ABC123']},
                       [call.kwargs.get('json') for call in self.cleanup.http.call_args_list])
 
-    def test_own_file_ids_are_recorded_after_upload(self):
-        key = self.prepare_file()
+    def test_reload_discovers_owned_file_ids_only_when_needed(self):
+        self.prepare_file()
         self.data['/files/find'] = [{'id': 'created-file'}]
-        self.cleanup.after_file(key)
-        self.assertEqual(self.cleanup.file_ids, {'created-file'})
+        self.data['/products/find'] = [{'productFileId': 'created-file'}]
+        # The new filename does not exist; only the prior upload has a record.
+        base = self.cleanup.http.side_effect
+        def lookup(method, path, **kwargs):
+            if path == '/files/find' and kwargs['json']['fileName'] == 'reload.csv':
+                return response(body=[])
+            return base(method, path, **kwargs)
+        self.cleanup.http.side_effect = lookup
+        key = self.prepare_file('reload.csv')
+        self.assertEqual(self.cleanup.files[key]['fileName'], 'reload.csv')
+        self.assertIn(key, self.cleanup.files)
+
+    def test_dedicated_association_tracks_only_id_until_deletion(self):
+        self.cleanup.producers.add('fresh')
+        self.cleanup.before_association('fresh', 'initiative')
+        key = 'fresh_initiative'
+        self.data['/associations/' + key] = {'id': key, 'producerEmail': 'new'}
+        self.cleanup.before_association('fresh', 'initiative')
+        self.cleanup.http.assert_not_called()
+        self.assertIn(key, self.cleanup.associations)
+        self.cleanup.clean()
+        self.assertIsNone(self.data['/associations/' + key])
+        self.assertFalse(self.cleanup.associations)
+
+    def test_scenario_failure_is_retried_at_end_without_repeating_deleted_resources(self):
+        cleanup_module._active = self.cleanup
+        self.cleanup.consents.add('user')
+        self.prepare_file()
+        base = self.cleanup.http.side_effect
+        def fail(method, path, **kwargs):
+            if path == '/files/delete':
+                raise cleanup_module.CleanupError('HTTP 503')
+            return base(method, path, **kwargs)
+        self.cleanup.http.side_effect = fail
+        with self.assertRaises(cleanup_module.CleanupError):
+            cleanup_module.finish_scenario()
+        self.assertIsNone(cleanup_module._active)
+        self.assertFalse(self.cleanup.consents)
+        self.cleanup.http.side_effect = base
+        cleanup_module.finish()
+        self.assertFalse(cleanup_module._pending)
+        deletes = [call for call in self.cleanup.http.call_args_list
+                   if call.args[1] == '/consents/delete']
+        self.assertEqual(len(deletes), 1)
+
+    def test_scenarios_have_separate_context_trackers_and_share_capability_check(self):
+        context = SimpleNamespace()
+        cleanup_module.start(context)
+        first = context.rdb_cleanup
+        cleanup_module.finish_scenario()
+        cleanup_module.start(context)
+        self.assertIsNot(first, context.rdb_cleanup)
+        self.assertEqual(cleanup_module.requests.request.call_count, 1)
+        cleanup_module.finish_scenario()
 
     def test_files_are_deleted_before_associations(self):
         self.prepare_file()
@@ -176,12 +207,9 @@ class CleanupTest(unittest.TestCase):
 
     def test_only_acknowledged_portal_initiative_ids_are_deleted(self):
         from api import idpay
-        from util import rdb_utilities as rdb
         cleanup_module._active = self.cleanup
-        cleanup_module.remember_portal('created', {'orgId': 'generated'})
-        with patch.object(idpay, 'obtain_selfcare_test_token'), \
-             patch.object(rdb, 'token_from_response', return_value='portal-token'), \
-             patch.object(idpay, 'delete_initiative', return_value=response(204)) as delete, \
+        cleanup_module.remember_portal('created', 'portal-token')
+        with patch.object(idpay, 'delete_initiative', return_value=response(204)) as delete, \
              patch.object(idpay, 'get_initiatives_summary', return_value=response(
                  body=[{'initiativeId': 'preexisting'}])):
             self.cleanup.clean()
@@ -226,7 +254,7 @@ class CleanupTest(unittest.TestCase):
         cleanup_module.secrets.get.return_value = {}
         cleanup_module.Cleanup()
         cleanup_module.secrets.get.assert_not_called()
-        self.assertEqual(cleanup_module.requests.request.call_count, 2)
+        self.assertEqual(cleanup_module.requests.request.call_count, 1)
 
     def test_production_is_rejected(self):
         cleanup_module.settings.TARGET_ENV = 'prod'
@@ -251,7 +279,7 @@ class CleanupTest(unittest.TestCase):
             return 'original-result'
         self.assertEqual(import_records([{'producerId': 'new', 'initiativeId': 'initiative'}]),
                          'original-result')
-        self.assertEqual(self.cleanup.associations['new_initiative']['expected'], {'id': 'new_initiative'})
+        self.assertEqual(self.cleanup.associations, {'new_initiative'})
 
     def test_tracking_decorator_records_successful_write_even_if_caller_raises(self):
         cleanup_module._active = self.cleanup
@@ -261,7 +289,26 @@ class CleanupTest(unittest.TestCase):
             raise ValueError('caller failure')
         with self.assertRaisesRegex(ValueError, 'caller failure'):
             update('producer', 'initiative')
-        self.assertEqual(self.cleanup.associations['producer_initiative']['expected'], {'email': 'changed'})
+        self.assertEqual(self.cleanup.associations, {'producer_initiative'})
+        self.cleanup.clean()
+        self.assertIsNone(self.data['/associations/producer_initiative'])
+
+    def test_prepared_upload_does_not_repeat_checks_inside_the_request_window(self):
+        cleanup_module._active = self.cleanup
+        csv_file = ('concurrent.csv', b'Codice GTIN/EAN;Marca\nABC123;Brand\n', 'text/csv')
+        cleanup_module.prepare_upload('token', 'initiative', csv_file)
+        calls = self.cleanup.http.call_count
+
+        @cleanup_module.tracked('file')
+        def upload(token, initiative_id, csv_file):
+            self.assertEqual(self.cleanup.http.call_count, calls)
+            raise ValueError('response lost after write')
+
+        with self.assertRaisesRegex(ValueError, 'response lost'):
+            upload('token', 'initiative', csv_file)
+        self.assertEqual(len(self.cleanup.files), 1)
+        self.cleanup.clean()
+        self.assertFalse(self.cleanup.files)
 
     def test_untracked_suites_send_original_request_without_cleanup(self):
         called = Mock(return_value='original')
