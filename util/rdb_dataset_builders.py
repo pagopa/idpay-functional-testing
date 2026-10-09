@@ -2,14 +2,16 @@
 import re
 import uuid
 from copy import deepcopy
-from datetime import date, timedelta
+from datetime import date
+from datetime import timedelta
 
 from api import asset_register as api
 from api import idpay
 from conf.configuration import secrets
 from util import rdb_utilities as rdb
+from util.rdb_cleanup import remember_portal
+from util.rdb_cleanup import remember_producer
 from util.rdb_csv_utilities import decoder_csv
-from util.rdb_cleanup import remember_portal, remember_producer
 
 FOREIGN_CSV_BATCHES = 'foreign CSV batches'
 ORGANIZATION_CSV_BATCHES = 'organization CSV batches'

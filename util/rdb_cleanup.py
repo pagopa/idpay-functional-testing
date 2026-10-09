@@ -7,11 +7,13 @@ import time
 from functools import wraps
 
 import requests
-from conf.configuration import secrets, settings
 
-_ACTIVE_STATUSES = {"UPLOADED", "IN_PROCESS"}
+from conf.configuration import secrets
+from conf.configuration import settings
+
+_ACTIVE_STATUSES = {'UPLOADED', 'IN_PROCESS'}
 _CLEANUP_TIMEOUT = 120
-_CAPABILITIES = {"files-v1", "products-v1", "association-cas-v1", "consents-v1"}
+_CAPABILITIES = {'files-v1', 'products-v1', 'association-cas-v1', 'consents-v1'}
 _active = None
 _pending = []
 _verified_base = None

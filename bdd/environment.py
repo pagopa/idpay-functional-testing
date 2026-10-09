@@ -65,7 +65,7 @@ def after_feature(context, feature):
     if settings.REWARD_BATCH_CLEANUP and 'reward_batch' in feature.tags:
         for initiative_id, merchant_id, reward_batch_id in context.reward_batches_to_cleanup:
             print(
-                "Cleaning up reward batch and related transactions for "
+                'Cleaning up reward batch and related transactions for '
                 f"reward_batch_id={reward_batch_id}, initiative_id={initiative_id}, "
                 f"merchant_id={merchant_id}"
             )

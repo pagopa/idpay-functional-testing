@@ -1,7 +1,8 @@
 """Scenario cleanup behavior, with every HTTP operation simulated."""
 import unittest
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 from util import rdb_cleanup as cleanup_module
 
