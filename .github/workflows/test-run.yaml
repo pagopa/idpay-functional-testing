@@ -18,8 +18,10 @@ on:
         options:
           - all
           - bonus_elettrodomestici
+          - bonus_decoder
           - rdb
           - portale_enti
+          - merchant_portal
           - report_csv
           - reward_batch
           - onboarding

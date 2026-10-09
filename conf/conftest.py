@@ -46,5 +46,6 @@ def pytest_sessionfinish(session, exitstatus):
 def create_test_initiatives(initiative_name: str):
     secrets.initiatives[initiative_name] = {}
     secrets.initiatives[initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name)
+    secrets.initiatives[initiative_name]["organization_id"] = secrets.selfcare_info.test_institution["orgId"]
     print(f'Created initiative {secrets.initiatives[initiative_name]["id"]} ({initiative_name})')
     secrets['newly_created'].add(secrets.initiatives[initiative_name]['id'])

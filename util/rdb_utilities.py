@@ -54,7 +54,8 @@ def state(context):
         context.rdb = SimpleNamespace(
             tokens={}, bodies={}, products={}, before={}, dataset={}, filters={},
             category='COOKINGHOBS', response=None, csv_file=None,
-            initiative_id=None, role=None, token=None, upload=None,
+            initiative_id=getattr(context, 'initiative_id', None),
+            role=None, token=None, upload=None,
             current_status=None, target_status=None, report=None,
         )
     return context.rdb

@@ -728,6 +728,7 @@ def post_create_payment_bar_code(token, initiative_id: str):
 
 def put_authorize_bar_code_merchant(trx_code: str,
                                     amount_cents: int,
+                                    initiative_id: str,
                                     access_token: str = None,
                                     additional_properties=None
                                     ):
@@ -745,15 +746,17 @@ def put_authorize_bar_code_merchant(trx_code: str,
         payload['additionalProperties'] = additional_properties
 
     return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}{settings.IDPAY.endpoints.ecommerce.authorize}',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}/initiatives/{initiative_id}/{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}{settings.IDPAY.endpoints.ecommerce.authorize}',
         headers=headers,
         json=payload
     )
 
 
-def put_capture_bar_code_merchant(trx_code: str, access_token: str):
+def put_capture_bar_code_merchant(trx_code: str, access_token: str, initiative_id: str):
     return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}{settings.IDPAY.endpoints.ecommerce.capture}',
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.ecommerce.path}'
+        f'/initiatives/{initiative_id}{settings.IDPAY.endpoints.ecommerce.barcode}/{trx_code}'
+        f'{settings.IDPAY.endpoints.ecommerce.capture}',
         headers={
             'Authorization': f'Bearer {access_token}'
         }

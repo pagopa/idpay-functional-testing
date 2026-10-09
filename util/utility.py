@@ -82,7 +82,7 @@ def get_selfcare_token(institution_info: str):
     return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
 
 
-def get_merchant_access_token(merchant_name: str):
+def get_merchant_access_token(initiative_name: str, merchant_name: str):
     merchant = secrets.merchants[f'merchant_{merchant_name}']
     response = obtain_merchant_test_token({
         'aud': 'idpay.merchant.welfare.pagopa.it',
@@ -93,7 +93,7 @@ def get_merchant_access_token(merchant_name: str):
         'email': 'esercente_test@test.email.it',
         'acquirerId': settings.idpay.acquirer_id,
         'merchantId': merchant['id'],
-        'orgId': secrets.organization_id,
+        'orgId': secrets.initiatives[initiative_name]["organization_id"],
         'orgVAT': merchant['fiscal_code'],
         'orgName': 'Esercente di test IdPay',
         'orgPartyRole': 'MANAGER',
@@ -327,19 +327,20 @@ def clean_trx_files(source_filename: str):
 
 
 def retry_institution_statistics(initiative_id: str,
+                                 organization_id: str,
                                  tries=10,
                                  delay=1):
     count = 0
 
     res = get_initiative_statistics(
-        organization_id=secrets.organization_id,
+        organization_id=organization_id,
         initiative_id=initiative_id)
 
     while res.status_code != 200:
         count += 1
         time.sleep(delay)
         res = get_initiative_statistics(
-            organization_id=secrets.organization_id,
+            organization_id=organization_id,
             initiative_id=initiative_id)
         if count == tries:
             break
@@ -827,6 +828,7 @@ def create_initiative_and_update_conf(initiative_name: str,
                                       known_beneficiaries: list = None):
     secrets['initiatives'][initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name,
                                                                    known_beneficiaries=known_beneficiaries)
+    secrets["initiatives"][initiative_name]["organization_id"] = secrets.selfcare_info.test_institution["orgId"]
     print(f'Created initiative for {initiative_name}')
     secrets['newly_created'].add(secrets['initiatives'][initiative_name]['id'])
 
