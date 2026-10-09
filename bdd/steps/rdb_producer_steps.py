@@ -7,6 +7,19 @@ from api import asset_register as api
 from util import rdb_utilities as rdb
 
 
+@given('a dedicated RDB producer without associations')
+def rdb_dedicated_producer(context):
+    from util.rdb_dataset_builders import producer_identity
+    producer_identity(context)
+
+
+@given('a dedicated RDB producer enabled for the initiative')
+def rdb_dedicated_enabled_producer(context):
+    payload = association(context)
+    payload['producerEmail'] = None
+    rdb.outcome(api.import_producers([payload]))
+
+
 def association(context):
     s = rdb.state(context)
     return {
@@ -69,6 +82,7 @@ def rdb_import_counts(context, received, imported, failed):
 @then('the RDB producer association is stored once')
 def rdb_association_stored(context):
     s = rdb.state(context)
+    producer_profile = s.profile
     producer_token = s.token
     operator_token = rdb.authenticate(context, 'Invitalia')
     items = rdb.collect_pages(lambda page: api.get_producers(operator_token, s.initiative_id, page=page))
@@ -76,7 +90,7 @@ def rdb_association_stored(context):
     matches = [item for item in items if item['producerId'] == producer_id]
     assert len(matches) == 1
     assert matches[0]['producerName'] == s.associations[0]['producerName']
-    rdb.authenticate(context, 'producer')
+    rdb.authenticate(context, producer_profile)
     assert s.token == producer_token
     assert initiative_details(context)['enabled'] is True
 

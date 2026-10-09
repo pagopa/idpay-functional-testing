@@ -7,6 +7,7 @@ from behave import when
 
 from api import asset_register as api
 from util import rdb_utilities as rdb
+from util.rdb_cleanup import remember_consent
 
 
 @given('a new RDB user authenticated as "{profile}"')
@@ -14,6 +15,7 @@ def rdb_new_user(context, profile):
     s = rdb.state(context)
     body = rdb.PROFILE_BUILDERS[profile]()
     body['uid'] = str(uuid.uuid4())
+    remember_consent(body['uid'])
     s.bodies[profile] = body
     s.tokens[profile] = rdb.token_from_response(api.post_token_test(body))
     rdb.authenticate(context, profile)

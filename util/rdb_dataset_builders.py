@@ -2,12 +2,15 @@
 import re
 import uuid
 from copy import deepcopy
-from datetime import date, timedelta
+from datetime import date
+from datetime import timedelta
 
 from api import asset_register as api
 from api import idpay
 from conf.configuration import secrets
 from util import rdb_utilities as rdb
+from util.rdb_cleanup import remember_portal
+from util.rdb_cleanup import remember_producer
 from util.rdb_csv_utilities import decoder_csv
 
 FOREIGN_CSV_BATCHES = 'foreign CSV batches'
@@ -15,23 +18,29 @@ ORGANIZATION_CSV_BATCHES = 'organization CSV batches'
 INVITALIA_REGISTRY = 'Invitalia registry'
 
 
+def producer_identity(context):
+    """Generate a scenario-owned identity without importing an association."""
+    body = rdb.build_operatore_token_body()
+    body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB dataset producer')
+    profile = f'dataset producer {body["orgId"]}'
+    rdb.register_profile(context, profile, body)
+    remember_producer(body['orgId'])
+    rdb.authenticate(context, profile)
+    return profile
+
+
 def new_producer(context, aliases=('A',), email=None):
     assert aliases, 'Dataset producer requires at least one initiative'
     initiative_ids = [rdb.select_initiative(context, alias) for alias in aliases]
     assert len(set(initiative_ids)) == len(initiative_ids), 'Dataset requires distinct initiatives'
-    body = rdb.build_operatore_token_body()
-    body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB dataset producer')
-    profile = f'dataset producer {body["orgId"]}'
-    associations = []
-    for initiative_id in initiative_ids:
-        associations.append({'initiativeId': initiative_id,
-                             'producerId': body['orgId'], 'producerName': body['orgName'],
-                             'producerEmail': email})
+    profile = producer_identity(context)
+    body = rdb.state(context).bodies[profile]
+    associations = [{'initiativeId': initiative_id, 'producerId': body['orgId'],
+                     'producerName': body['orgName'], 'producerEmail': email}
+                    for initiative_id in initiative_ids]
     result = rdb.outcome(api.import_producers(associations))
     assert (result['totalRecords'], result['importedRecords'], result['failedRecords']) == (
         len(associations), len(associations), 0), 'Dataset producer import was incomplete'
-    rdb.register_profile(context, profile, body)
-    rdb.authenticate(context, profile)
     rdb.select_initiative(context, aliases[0])
     return profile, initiative_ids
 
@@ -199,6 +208,7 @@ def portal_initiatives(context, foreign=False):
             result = rdb.success(idpay.post_initiative_info(
                 portal_token, initiative_name_prefix=f'RDB fixture {uuid.uuid4().hex}'), 201).json()
             initiative_id = rdb.required(result, 'initiativeId', 'portal creation response')
+            remember_portal(initiative_id, portal_token)
             # Portal summary dereferences general.startDate/endDate even for drafts.
             general = {'beneficiaryType': 'PF', 'beneficiaryKnown': False,
                        'rankingEnabled': False, 'budget': 1000, 'beneficiaryBudgetFixed': 100,
