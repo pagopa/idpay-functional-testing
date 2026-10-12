@@ -108,6 +108,30 @@ def step_transaction_belongs_to_next_reward_batch(context, trx_name):
     context.reward_batches_to_cleanup.add(
         (context.initiative_id, merchant_id, destination_reward_batch_id)
     )
+    source_response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
+        reward_batch_id=source_reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert source_response.status_code == 200, (
+        f'Source reward batch detail failed: '
+        f'{source_response.status_code} {source_response.text}'
+    )
+    source_month = datetime.datetime.strptime(source_response.json()['month'], '%Y-%m')
+    next_month = (source_month.replace(day=28) + datetime.timedelta(days=4)).strftime('%Y-%m')
+    destination_response = get_reward_batch_detail(
+        initiative_id=context.initiative_id,
+        reward_batch_id=destination_reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert destination_response.status_code == 200, (
+        f'Destination reward batch detail failed: '
+        f'{destination_response.status_code} {destination_response.text}'
+    )
+    assert destination_response.json()['month'] == next_month, (
+        f'Expected destination reward batch {destination_reward_batch_id} month '
+        f'{next_month}, got {destination_response.json()["month"]}'
+    )
     destination_transactions = _get_reward_batch_transactions(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
