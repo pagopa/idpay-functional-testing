@@ -228,34 +228,44 @@ def step_check_save_onboarding_failed(context, reason_ko):
     reason_ko = reason_ko.upper()
 
     if reason_ko == 'THE CITIZEN DID NOT ACCEPT T&C':
-        assert context.save_onboarding_response.status_code == 500
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_TOS_NOT_CONFIRMED'
+        expected_status_code = 500
+        expected_status = 'ONBOARDING_TOS_NOT_CONFIRMED'
     elif reason_ko == 'THE CONSENT WAS DENIED BY THE CITIZEN':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_PDND_CONSENT_DENIED'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_PDND_CONSENT_DENIED'
     elif reason_ko == 'THE CITIZEN INSERTED THE WRONG VALUE':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_SELF_DECLARATION_NOT_VALID'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_SELF_DECLARATION_NOT_VALID'
     elif reason_ko == 'THE CITIZEN INSERTED MISMATCH VALUE':
-        assert context.save_onboarding_response.status_code == 500
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_EMAIL_NOT_MATCHED'
+        expected_status_code = 500
+        expected_status = 'ONBOARDING_EMAIL_NOT_MATCHED'
     elif reason_ko == 'BUDGET TERMINATED':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_BUDGET_EXHAUSTED'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_BUDGET_EXHAUSTED'
     elif reason_ko == 'USER UNSUBSCRIBED':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_USER_UNSUBSCRIBED'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_USER_UNSUBSCRIBED'
     elif reason_ko == 'ONBOARDING PERIOD ENDED':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_INITIATIVE_ENDED'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_INITIATIVE_ENDED'
     elif reason_ko == 'UNSATISFIED REQUIREMENTS':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_UNSATISFIED_REQUIREMENTS'
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_UNSATISFIED_REQUIREMENTS'
     elif reason_ko == 'INITIATIVE NOT FOUND':
-        assert context.save_onboarding_response.status_code == 404
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_INITIATIVE_NOT_FOUND'
+        expected_status_code = 404
+        expected_status = 'ONBOARDING_INITIATIVE_NOT_FOUND'
+    elif reason_ko == 'INITIATIVE NOT PUBLISHED':
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED'
     else:
         assert False, 'Uncovered fail reason'
+
+    assert context.save_onboarding_response.status_code == expected_status_code, (
+        f'Unexpected onboarding response: {context.save_onboarding_response.text}'
+    )
+    assert context.save_onboarding_response.json()['code'] == expected_status, (
+        f'Unexpected onboarding response: {context.save_onboarding_response.text}'
+    )
 
 
 @then('the onboard of {citizen_name} is {status}')
@@ -272,7 +282,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     if status == 'KO':
         expected_status = f'ONBOARDING_{status}'
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=36, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0

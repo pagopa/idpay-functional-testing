@@ -60,6 +60,19 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard on nonexistent initiative
     Then the citizen onboarding failed because initiative not found
 
+  Scenario: A citizen tries to onboard a non published initiative
+    Given the citizen A is 21 years old exactly
+    And the new initiative A is created
+    When the citizen A tries to onboard the initiative A
+    Then the citizen onboarding failed because initiative not published
+
+  Scenario: A citizen tries to onboard a non started initiative
+    Given the citizen A is 21 years old exactly
+    And the new initiative A is created
+    And the initiative "A" is published
+    When the citizen A tries to onboard the initiative A
+    Then the citizen onboarding failed because initiative not started
+
   Scenario Outline: One member of a family onboards an initiative
     Given citizens <family members> have fiscal code random
     And citizens <family members> are in the same family

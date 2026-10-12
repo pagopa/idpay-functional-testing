@@ -5,7 +5,7 @@ import pytz
 from behave import given
 from behave import then
 
-from api.idpay import get_initiative_info
+from api.idpay import get_initiative_info, post_initiative_info, publish_approved_initiative, put_initiative_approval
 from api.idpay import get_initiative_statistics
 from api.idpay import get_ranking_page
 from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
@@ -148,3 +148,28 @@ def step_initiative_has_a_rank(context):
     assert context.eligible_citizen is not None
     assert context.not_eligible_citizen is not None
     assert context.not_onboard_citizen is not None
+
+
+@given('the new initiative {initiative_name} is created')
+def step_new_initiative_created(context, initiative_name):
+    token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+
+    response = post_initiative_info(token, initiative_name)
+    assert response.status_code == 201, "Unexpected status code when creating initiative: {}".format(response.status_code)
+    secrets.initiatives[initiative_name] = {'id': response.json().get('initiativeId')}
+    assert secrets.initiatives[initiative_name]['id'] is not None, "Failed to retrieve initiative ID from response"
+
+
+@given('the initiative "{initiative_name}" is published')
+def step_initiative_published(context, initiative_name):
+    token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    
+    response = put_initiative_approval(selfcare_token=token, initiative_id=secrets.initiatives[initiative_name]['id'])
+    assert response.status_code == 200, (
+        "Unexpected status code when approving initiative: {}; response: {}".format(response.status_code, response.text)
+    )
+
+    response = publish_approved_initiative(selfcare_token=token, initiative_id=secrets.initiatives[initiative_name]['id'])
+    assert response.status_code == 201, (
+        "Unexpected status code when publishing initiative: {}; response: {}".format(response.status_code, response.text)
+    )
