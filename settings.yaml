@@ -108,6 +108,7 @@ IDPAY:
           approved: '/transactions/approved'
           rejected: '/transactions/rejected'
           suspended: '/transactions/suspended'
+          postpone: '/transactions/{transaction_id}/postpone'
       reward_batches: '/idpay/merchant/portal/initiatives'
       reward_batch_test_support: '/idpay/internal/test-support/initiatives'
     merchant:
