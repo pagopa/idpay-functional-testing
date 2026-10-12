@@ -1,1 +1,1 @@
-{"reportName":"BDD Report #165","testRuns":[],"statistic":{"failed":0,"broken":43,"skipped":0,"passed":98,"unknown":0,"total":141},"time":{"start":1791818015932,"stop":1791818414408,"duration":398476,"minDuration":2,"maxDuration":122876,"sumDuration":709794}}
+{"reportName":"BDD Report #166","testRuns":[],"statistic":{"failed":19,"broken":0,"skipped":1,"passed":27,"unknown":0,"total":47},"time":{"start":1791818770407,"stop":1791819367092,"duration":596685,"minDuration":354,"maxDuration":186235,"sumDuration":702456}}
