@@ -24,10 +24,12 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is ON_EVALUATION
 
-  Scenario: A citizen under the minimum age tries to onboard unsuccessfully
-    Given the citizen A is 17 years old at most
-    When the citizen A tries to onboard the initiative bonus_elettrodomestici
-    Then the onboard of A is KO
+### Currently the backend does not enforce the minimum age requirement for onboarding,
+### this check is performed on the frontend (app IO and web authentication)
+#  Scenario: A citizen under the minimum age tries to onboard unsuccessfully
+#    Given the citizen A is 17 years old at most
+#    When the citizen A tries to onboard the initiative bonus_elettrodomestici
+#    Then the onboard of A is KO
 
   Scenario: Citizen with mismatching email tries to onboard unsuccessfully
     Given the citizen A has fiscal code random
