@@ -15,8 +15,8 @@ from util.utility import create_initiative_and_update_conf
 
 
 INITIATIVE_CONFIGS = {
-    "common_bonus_features": {
-        "initiative_id": "common_bonus_features",
+    "bonus_elettrodomestici": {
+        "initiative_id": "bonus_elettrodomestici",
         "product_gtin": "TUMBLEDRYERS03",
     },
     "bonus_decoder": {
@@ -24,7 +24,7 @@ INITIATIVE_CONFIGS = {
         "product_gtin": "DECODER20",
     },
 }
-DEFAULT_INITIATIVE = "common_bonus_features"
+DEFAULT_INITIATIVE = "bonus_elettrodomestici"
 logger = logging.getLogger(__name__)
 
 
