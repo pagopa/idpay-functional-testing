@@ -30,6 +30,7 @@ def step_given_initiative_name(context, initiative_name):
 @given("the initiative is active")
 def step_given_active_initiative(context):
     initiative_name = context.initiative_config["initiative_id"]
+    print(f"Initiative selected: {initiative_name}")
     context.feature_initiative_names.add(initiative_name)
     if initiative_name not in secrets["initiatives"]:
         secrets["initiatives"][initiative_name] = {}
