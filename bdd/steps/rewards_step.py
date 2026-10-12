@@ -10,7 +10,6 @@ from api.idpay import get_initiative_statistics_merchant_portal
 from api.idpay import get_transaction_detail
 from api.idpay import put_merchant_confirms_payment
 from api.idpay import timeline
-from conf.configuration import secrets
 from util.dataset_utility import reward
 from util.utility import check_merchant_statistics
 from util.utility import check_processed_transactions
@@ -92,7 +91,7 @@ def step_institution_refunds_merchant(context, merchant_name, expected_refund, r
     export_ids, export_path = force_rewards(initiative_id=context.initiative_id)
     context.export_ids = export_ids
     check_rewards(initiative_id=context.initiative_id,
-                  organization_id=secrets.organization_id,
+                  organization_id=context.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
                   export_ids=export_ids,
                   exptected_status='EXPORTED'
@@ -121,7 +120,7 @@ def step_check_refund_of_merchant(context, merchant_name, expected_refund):
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_iban = context.merchants[merchant_name]['iban']
     check_rewards(initiative_id=context.initiative_id,
-                  organization_id=secrets.organization_id,
+                  organization_id=context.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
                   export_ids=context.export_ids,
                   exptected_status='COMPLETED_OK'
@@ -139,7 +138,7 @@ def step_check_missing_refund_of_merchant(context, merchant_name, expected_refun
     curr_merchant_id = context.merchants[merchant_name]['id']
     curr_iban = context.merchants[merchant_name]['iban']
     check_rewards(initiative_id=context.initiative_id,
-                  organization_id=secrets.organization_id,
+                  organization_id=context.organization_id,
                   expected_rewards=[reward(curr_iban, float(expected_refund))],
                   export_ids=context.export_ids,
                   exptected_status='COMPLETED_KO'
@@ -171,7 +170,7 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                      accrued_rewards_increment=context.transactions[trx_name]['rewardCents'] / 100,
                      rewarded_trxs_increment=1
                      )
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
 
     check_merchant_statistics(merchant_id=curr_merchant_id,
@@ -188,7 +187,8 @@ def step_merchant_confirms_a_transactions(context, trx_name):
                                  expected_reward=context.transactions[trx_name]['rewardCents'],
                                  expected_fiscal_code=context.associated_citizen[trx_name],
                                  merchant_id=curr_merchant_id,
-                                 access_token=get_merchant_access_token(curr_merchant_name)
+                                 access_token=get_merchant_access_token(initiative_name=context.initiative_name,
+                                                                       merchant_name=curr_merchant_name)
                                  )
 
     check_unprocessed_transactions(initiative_id=context.initiative_id,
