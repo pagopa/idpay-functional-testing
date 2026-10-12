@@ -55,7 +55,7 @@ Feature: Onboarding Bonus Elettrodomestici
     Given the citizen A is 21 years old exactly
     And the citizen A accepts terms and conditions
     When the citizen A tries to save PDND consent not correctly
-    Then the citizen onboarding failed because the consent was denied by the citizen
+    Then the onboard of A is in error with value ONBOARDING_UNSATISFIED_REQUIREMENTS
 
   Scenario: A citizen tries to onboard a nonexistent initiative
     Given the citizen A is 21 years old exactly

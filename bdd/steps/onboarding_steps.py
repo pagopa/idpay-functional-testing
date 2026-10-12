@@ -261,10 +261,35 @@ def step_check_save_onboarding_failed(context, reason_ko):
         assert False, 'Uncovered fail reason'
 
     assert context.save_onboarding_response.status_code == expected_status_code, (
-        f'Unexpected onboarding response: {context.save_onboarding_response.text}'
+        'Unexpected onboarding response, '
+        f'status code: {context.save_onboarding_response.status_code},'
+        f'response body: {context.save_onboarding_response.text}'
     )
     assert context.save_onboarding_response.json()['code'] == expected_status, (
-        f'Unexpected onboarding response: {context.save_onboarding_response.text}'
+        'Unexpected onboarding response, '
+        f'status code: {context.save_onboarding_response.status_code},'
+        f'response body: {context.save_onboarding_response.text}'
+    )
+
+@then('the onboard of {citizen_name} is in error with value ONBOARDING_UNSATISFIED_REQUIREMENTS')
+def step_onboarding_unsatisfied_requirements(context, citizen_name):
+    expected_status = 'ONBOARDING_UNSATISFIED_REQUIREMENTS'
+    max_retries = 50
+    retry_delay = 5
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    res = None
+    for attempt in range(max_retries + 1):
+        res = status_onboarding(token_io, context.initiative_id)
+        if res.json().get('code') == expected_status:
+            break
+
+        if attempt < max_retries:
+            time.sleep(retry_delay)
+
+    assert res is not None and res.json().get('code') == expected_status, (
+        f'Onboarding status for {citizen_name} did not become {expected_status} '
+        f'after {max_retries} retries; '
+        f'last response: {res.status_code} {res.text}'
     )
 
 
@@ -458,10 +483,17 @@ def step_try_to_save_pdnd_consent(context, citizen_name, correctness):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     pdnd_accept = correctness != 'not correctly'
     confirmed_tos = context.confirmed_tos.get(citizen_name, False) if 'confirmed_tos' in context else False
+    multi_consent_isee_value = getattr(context, 'multi_consent_isee_value', '1')
+
+    self_declaration_list = build_self_declaration_list_payload_by_initiative(
+        initiative_name=context.initiative_name,
+        multi_consent_isee_value=multi_consent_isee_value
+    )
 
     context.save_onboarding_response = save_onboarding(
         token=token_io,
         initiative_id=context.initiative_id,
+        self_declaration_list=self_declaration_list,
         confirmedTos=confirmed_tos,
         pdnd_accept=pdnd_accept
     )
