@@ -1,8 +1,7 @@
 import logging
 import os
 
-from behave.tag_expression import make_tag_expression
-from behave.tag_expression.v1 import TagExpression
+from behave.tag_expression import TagExpression, make_tag_expression
 from cucumber_tag_expressions.model import And
 from cucumber_tag_expressions.model import Literal
 from cucumber_tag_expressions.model import Not
@@ -11,8 +10,7 @@ from cucumber_tag_expressions.model import Or
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.transaction_utilities import cleanup_reward_batches_and_related_transactions
-from util.utility import create_initiative_and_update_conf
-
+from util.utility import create_initiative_and_update_conf, delete_new_initiatives_after_test
 
 INITIATIVE_CONFIGS = {
     "bonus_elettrodomestici": {
@@ -134,6 +132,16 @@ def after_all(context):
         delete_new_initiatives_after_test()
 
 def after_feature(context, feature):
+    """Preserve run-created initiatives when the feature fails.
+    """
+    if settings.KEEP_INITIATIVES_AFTER_FAILED_TEST:
+        if any(scenario.status == 'failed' for scenario in feature.scenarios):
+            for curr_initiative_name in feature.tags:
+                # Preserve only initiatives created in this run from the final cleanup.
+                initiative_id = secrets.get('initiatives', {}).get(curr_initiative_name, {}).get('id')
+                if initiative_id in secrets['newly_created']:
+                    print(f'Tengo {curr_initiative_name}')
+                    secrets['newly_created'].remove(initiative_id)
     if settings.REWARD_BATCH_CLEANUP and 'reward_batch' in feature.tags:
         for initiative_id, merchant_id, reward_batch_id in context.reward_batches_to_cleanup:
             print(
