@@ -106,6 +106,7 @@ jobs:
           if [ "$FEATURE_TAG" = "all" ]; then
             python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/common_bonus_features \
+            bdd/features/bonus_elettrodomestici \
             bdd/features/bonus_decoder \
             --junit \
             --junit-directory "tests/reports/behave" \
@@ -116,6 +117,7 @@ jobs:
           else
             python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/common_bonus_features \
+            bdd/features/bonus_elettrodomestici \
             bdd/features/bonus_decoder \
             --tags "$FEATURE_TAG" \
             --junit \

@@ -1,7 +1,8 @@
 @bonus_elettrodomestici
+@bonus_decoder
 @transaction
 @bar_code
-Feature: Barcode payments for Bonus Elettrodomestici
+Feature: Barcode payments for Bonus Elettrodomestici or Bonus Decoder
 
   Background:
     Given the initiative is active

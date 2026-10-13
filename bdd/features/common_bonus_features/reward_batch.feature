@@ -1,8 +1,9 @@
 @bonus_elettrodomestici
+@bonus_decoder
 @transaction
 @bar_code
 @reward_batch
-Feature: Reward batches for Bonus Elettrodomestici barcode payments
+Feature: Reward batches for Bonus Elettrodomestici or Bonus Decoder barcode payments
 
   Background:
     Given the initiative is active
