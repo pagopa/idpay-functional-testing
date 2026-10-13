@@ -1,126 +1,166 @@
-# Test funzionali RDB
+# RDB functional tests
 
-La suite `bdd/features/bonus_elettrodomestici/rdb` contiene 96 scenari indipendenti.
-Gli step usano le API dell'ambiente selezionato; i dataset generati non simulano le risposte.
-Ultimo lancio completo: [UAT, 25 settembre 2026](rdb-test-results-2026-09-25-uat-full.md).
+The `bdd/features/bonus_elettrodomestici/rdb` suite contains 96 independent scenarios.
+Steps use the APIs of the selected environment; generated datasets do not mock responses.
+Latest full run with simplified cleanup: [UAT, 9 October 2026](rdb-test-results-2026-10-09-uat.md),
+95 scenarios passed and 1 concurrency check failed, confirmed by an isolated rerun.
+All 96 cleanups completed without hook errors.
+The failure was subsequently fixed by moving preliminary checks outside the
+concurrency window: both concurrent upload cases pass in two consecutive UAT runs.
 
-## Esecuzione
+## Running the tests
 
-Installare le dipendenze con `pipenv sync`. Il default in `settings.yaml` è `uat`.
-Da PowerShell, selezionare esplicitamente l'ambiente:
+Install dependencies with `pipenv sync`. The default in `settings.yaml` is `uat`.
+In PowerShell, explicitly select the environment:
 
 ```powershell
-$env:PARI_TARGET_ENV = "uat"  # oppure "dev"
+$env:PARI_TARGET_ENV = "uat"  # or "dev"
 pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb"
 ```
 
-Nel workflow `test-run` scegliere ambiente, tipo `bdd` e tag `rdb`.
-Per un solo scenario usare il percorso della feature e `--name "^Nome scenario$"`.
+In the `test-run` workflow, select the environment, type `bdd`, and tag `rdb`.
+To run a single scenario, use the feature path and `--name "^Scenario name$"`.
 
-Il file indicato da `PARI_SECRET_PATH` (default `conf/pari-feature-secrets.json`)
-deve contenere la sezione dell'ambiente scelto. Gli import richiedono accesso
-all'host interno, tramite VPN quando necessaria.
+The file specified by `PARI_SECRET_PATH` (default: `conf/pari-feature-secrets.json`)
+must contain a section for the selected environment. Imports require access
+to the internal host, through a VPN when necessary.
 
-`--dry-run` verifica la corrispondenza tra scenari e step senza eseguire le API.
-`@rdb_fixture` segnala un prerequisito: non esclude il caso dal lancio.
+`--dry-run` checks scenario-to-step matching without invoking APIs.
+`@rdb_fixture` indicates a prerequisite; it does not exclude the scenario from the run.
 
-## Configurazione e secret
+## Configuration and secrets
 
-Configurare in `asset_register` del JSON dell'ambiente:
+Configure the following under `asset_register` in the environment JSON:
 
-| Campo | Uso e riservatezza |
+| Field | Purpose and confidentiality |
 | --- | --- |
-| `token_payload.operatore`, `.l1`, `.l2` | Profili esistenti riusati dai builder; dati personali/organizzativi da mantenere fuori da Git |
-| `profiles` | Profili aggiuntivi con gli stessi campi, inclusi `orgRole`, `orgId`, `email`, `uid` |
-| `initiatives.A`, `.B` | Override degli ID; in assenza si usano `initiatives.bonus_elettrodomestici.id` e `initiatives.bonus_decoder.id` dell'ambiente |
-| `base_path.IDPAY.internal` (fuori da `asset_register`) | Host interno già usato dalla suite; deve essere raggiungibile per `POST /idpayassetregisterbackend/idpay/register/producers`. Non serve una chiave Data Factory |
-| `application_tokens.expired` | JWT scaduto firmato, opzionale; trattare comunque come credenziale |
-| `email_service` (opzionale) | Eventuali `headers` aggiuntivi; il token viene generato dai profili configurati. Il destinatario fittizio viene da `RDB_EMAIL_TEST_RECIPIENT` nei settings. L'URL usa `base_path.IO`, `IDPAY.domain` e `IDPAY.endpoints.asset_register.notify_path` |
-| `poll_timeout`, `poll_interval` | Polling API, default 120 e 2 secondi; non sono secret |
+| `token_payload.operatore`, `.l1`, `.l2` | Existing profiles reused by the builders; keep personal and organizational data out of Git |
+| `profiles` | Additional profiles with the same fields, including `orgRole`, `orgId`, `email`, `uid` |
+| `initiatives.A`, `.B` | ID overrides; when absent, the environment's `initiatives.bonus_elettrodomestici.id` and `initiatives.bonus_decoder.id` are used |
+| `base_path.IDPAY.internal` (outside `asset_register`) | Internal host already used by the suite; it must be reachable for `POST /idpayassetregisterbackend/idpay/register/producers`. No Data Factory key is required |
+| `application_tokens.expired` | Optional signed, expired JWT; still treat it as a credential |
+| `email_service` (optional) | Any additional `headers`; the token is generated from the configured profiles. The dummy recipient comes from `RDB_EMAIL_TEST_RECIPIENT` in settings. The URL uses `base_path.IO`, `IDPAY.domain`, and `IDPAY.endpoints.asset_register.notify_path` |
+| `poll_timeout`, `poll_interval` | API polling settings, defaulting to 120 and 2 seconds; these are not secrets |
 
-A e B devono essere configurate per RDB, con template e associazioni compatibili.
-Usare produttori di test dedicati, senza scritture concorrenti di altri processi.
-I profili usano `email` e `orgVAT`, con supporto agli alias `orgEmail` e `orgVat`.
-Credenziali, JWT e dati personali restano fuori da Git. URL pubblici, ID iniziativa
-e soglie energetiche non sono credenziali.
+A and B must be configured for RDB with compatible templates and associations.
+Use dedicated test producers without concurrent writes from other processes.
+Profiles use `email` and `orgVAT`, with support for the aliases `orgEmail` and `orgVat`.
+Keep credentials, JWTs, and personal data out of Git. Public URLs, initiative IDs,
+and energy class thresholds are not credentials.
 
-## Scritture dei test
+## Data written by the tests
 
-La suite usa le API reali dell'ambiente selezionato. Upload e validazioni CSV possono creare prodotti,
-record di storico e report; import, aggiornamenti email, consensi e dataset
-Invitalia modificano associazioni o creano nuove bozze.
-Gli hook generici gestiscono soltanto le iniziative registrate in
-`secrets.newly_created`, secondo le opzioni `KEEP_INITIATIVES_*`.
-I dati RDB non vengono cancellati automaticamente dopo il run.
+The suite uses the real APIs of the selected environment. CSV uploads and validation
+can create products, history records, and reports; imports and email updates modify
+associations of dedicated producers. Consent and Invitalia datasets create dedicated
+acceptance records and draft initiatives.
+Generic hooks only manage initiatives registered in
+`secrets.newly_created`, according to the `KEEP_INITIATIVES_*` options.
 
-## Dataset
+RDB cleanup runs in `after_scenario`, even if the scenario fails.
+`after_all` retries only resources whose cleanup failed. Tracking is held only in
+memory, in the scenario context: there are no state files or recovery from interrupted runs.
 
-`asset_register.datasets` contiene eventuali override con i nomi usati dalle feature.
-`profile` seleziona il profilo e `initiative` l'alias A/B. Per i test che scrivono,
-le attese derivano dagli input o dalle scritture confermate.
+- CSV files, reports, upload records, and products are deleted only for files created
+  by the run, identified by organization, initiative, and exact filename. Before a
+  write, checks ensure that the GTINs do not belong to pre-existing products.
+- Imports, reimports, and email updates use dedicated producers generated per
+  scenario: associations are tracked by ID and then deleted. The current state
+  is read only at deletion, as required by the backend's CAS contract. Writes to
+  associations of producers not created by the scenario are blocked before the
+  request: restoration snapshots are unnecessary.
+- Only consent records belonging to newly generated test users and portal initiatives
+  whose IDs come from confirmed creations in the run are removed.
 
-La suite prepara tramite API CSV, prodotti, storico, report, associazioni e bozze.
-Quattro test di lettura prodotti/batch riusano dati esistenti: servono prodotti
-del produttore configurato e di un'altra organizzazione in A, oltre a prodotti in B.
-Verificano coerenza e isolamento, non la completezza indipendente dell'inventario.
-I casi SelfCare richiedono un'istituzione esistente con partita IVA nota.
+The backend must expose the internal `/idpay/register/clean/fixtures` APIs with
+`TEST_SUPPORT_ENABLED=true`, as in `idpay-transactions`. The application property
+is `app.test-support.enabled`, defaulting to `false`. DEV/UAT Helm values enable
+the flag; production remains disabled by default. The endpoints do not require
+a dedicated token. The suite checks API availability before the RDB scenarios.
+The cleanup controller is excluded from Swagger documentation and uses only
+the internal ingress: no APIM routes or Terraform changes are added.
 
-Per decisione dello standup, i casi di riaccettazione dopo un cambio versione e di
-associazione produttore disabilitata sono rimossi dalla suite Behave. La copertura
-resta nei test JUnit del backend; una futura integrazione UAT è rinviata, senza
-sviluppare ora API dedicate ai test. Non sono conteggiati come passati o saltati.
-Dettagli nel [documento di decisione](rdb-team-discussion.md).
-I report storici conservano il perimetro originale di 98 scenari.
+Cleanup waits up to 120 seconds for uploads still being processed and asynchronous
+portal deletions; the limit is defined in code. Incomplete cleanup produces an error
+in the scenario hook without deleting associations linked to uploads that remain.
+Dry runs do not invoke these APIs.
 
-I test concorrenti preparano un CSV EPREL da 100 righe e ne verificano lo stato
-attivo prima e dopo il secondo upload. Non richiedono `datasets.upload in progress`.
-Il produttore deve essere abilitato su A/B e non avere altri upload attivi; il test
-attende il completamento del proprio CSV senza sospendere consumer condivisi.
+Verification on 9 October: 27 unit tests passed; the full UAT suite had 95 passing
+scenarios and 1 concurrency failure. Cleanup succeeded for all 96 scenarios and
+for the isolated rerun of the failed case. See the report above for details.
 
-## Perimetro funzionale
+## Datasets
 
-Il signer `/register/token/test` genera JWT applicativi; non è uno scambio reale
-SelfCare. Il test del token scaduto richiede che la policy rispetti `exp`, oppure
-un JWT firmato già scaduto in `application_tokens.expired`.
+`asset_register.datasets` contains optional overrides using the names referenced
+by the features. `profile` selects the profile and `initiative` selects alias A/B.
+For tests that write data, expectations derive from inputs or confirmed writes.
 
-Le condizioni EPREL product not found/not published/blocked e organization/brand
-not verified sono fuori dal perimetro concordato e non sono conteggiate come passate.
-Restano categoria, elaborazione valida/mista e classe energetica minima:
+The suite prepares CSV files, products, history, reports, associations, and draft
+initiatives through APIs. Four product/batch read tests reuse existing data:
+products must exist for the configured producer and another organization in A,
+as well as products in B. They verify consistency and isolation, rather than
+independently establishing inventory completeness.
+SelfCare cases require an existing institution with a known VAT number.
 
-| Categoria | Minimo |
+Following the standup decision, the cases for renewed acceptance after a version
+change and for a disabled producer association were removed from the Behave suite.
+Coverage remains in backend JUnit tests; future UAT integration is deferred,
+without developing dedicated test APIs now. These cases are not counted as passed
+or skipped. Details are in the [decision document](rdb-team-discussion.md).
+Historical reports retain the original scope of 98 scenarios.
+
+Concurrent upload tests prepare a 100-row EPREL CSV and verify that it is active
+before and after the second upload. Preliminary cleanup checks for both files
+run before the first upload, outside the measured window.
+These tests do not require `datasets.upload in progress`.
+The producer must be enabled on A/B and have no other active uploads; the test
+waits for its own CSV to finish without suspending shared consumers.
+
+## Functional scope
+
+The `/register/token/test` signer generates application JWTs; it is not a real
+SelfCare exchange. The expired-token test requires the policy to honor `exp`,
+or an already expired signed JWT in `application_tokens.expired`.
+
+The EPREL conditions product not found/not published/blocked and organization/brand
+not verified are outside the agreed scope and are not counted as passed.
+Category, valid/mixed processing, and minimum energy class remain in scope:
+
+| Category | Minimum |
 | --- | --- |
 | WASHINGMACHINES, WASHERDRIERS, OVENS | A |
 | RANGEHOODS | B |
 | DISHWASHERS, TUMBLEDRYERS | C |
 | REFRIGERATINGAPPL | D |
-| COOKINGHOBS | Nessun controllo EPREL |
+| COOKINGHOBS | No EPREL check |
 
-Tutte usano `Codice GTIN/EAN`. Per le categorie EPREL il template è EPREL_STANDARD.
-Fixture pubbliche in `conf/rdb/eprel.json`, con override tramite `asset_register.eprel`.
-Il portale permette il download del report degli errori, non del CSV originale di history.
+All use `Codice GTIN/EAN`. EPREL categories use the EPREL_STANDARD template.
+Public fixtures are in `conf/rdb/eprel.json`, with overrides through `asset_register.eprel`.
+The portal supports downloading the error report, not the original CSV from upload history.
 
-I due scenari di indisponibilità forzata email/OneTrust sono esclusi dalla suite.
-La resilienza con dipendenze simulate va verificata nei test backend.
+The two scenarios that force email/OneTrust unavailability are excluded from the suite.
+Resilience with simulated dependencies should be verified in backend tests.
 
-## Email e report
+## Email and reports
 
-I tre test email invocano direttamente il servizio e richiedono **HTTP 204 con body
-vuoto**. `templateValues.portalUrl` deriva da `TARGET_ENV` e dalla mappa
-`RDB_EMAIL_PORTAL_URLS` in `settings.yaml`, con URL dev/UAT. Una voce assente blocca
-l'invio. Il servizio costruisce l'HTML dai template; il test non certifica la
-consegna in casella né il trigger automatico del backend RDB.
+The three email tests invoke the service directly and require **HTTP 204 with an
+empty body**. `templateValues.portalUrl` derives from `TARGET_ENV` and the
+`RDB_EMAIL_PORTAL_URLS` map in `settings.yaml`, with dev/UAT URLs. A missing entry
+blocks sending. The service builds the HTML from templates; the test does not
+certify mailbox delivery or the automatic RDB backend trigger.
 
-Il payload viene stampato con destinatario oscurato e senza token. In caso di KO
-l'assertion include `code` e `message`. Con JUnit lo stdout finisce negli XML;
-senza JUnit, `--no-capture` permette di visualizzarlo in console.
+The payload is printed with the recipient masked and without a token. On failure,
+the assertion includes `code` and `message`. With JUnit, stdout is included in the
+XML files; without JUnit, `--no-capture` displays it in the console.
 
-`tests/reports/` contiene risultati generati, ignorati da Git e ripulibili quando
-non servono più. JUnit è il formato XML dei risultati, non un'altra suite.
-I file `tests/test_*.py` appartengono invece alla suite pytest e non sono report.
+`tests/reports/` contains generated results, ignored by Git and removable when
+no longer needed. JUnit is the XML results format, not a separate suite.
+The `tests/test_*.py` files belong to the pytest suite and are not reports.
 
 ## TD-RDB-001
 
-La validazione di un CSV oltre 2 MB tollera temporaneamente HTTP 500 nel solo caso
-`@rdb_td_001`. Il risultato corretto è HTTP 200, `status: KO`,
-`errorKey: product.invalid.file.maxsize`. Un passaggio con 500 non certifica la
-correzione del backend. Rimuovere deroga e tag dopo la verifica della correzione nell'ambiente selezionato.
+Validation of a CSV larger than 2 MB temporarily tolerates HTTP 500 only in the
+`@rdb_td_001` case. The correct result is HTTP 200, `status: KO`,
+`errorKey: product.invalid.file.maxsize`. Passing with HTTP 500 does not certify
+the backend fix. Remove the tolerance and tag after verifying the fix in the
+selected environment.
