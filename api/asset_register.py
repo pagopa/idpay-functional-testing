@@ -3,6 +3,7 @@ import requests
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.asset_register_utilities import _build_csv_file_part
+from util.rdb_cleanup import tracked
 
 JSON_CONTENT_TYPE = 'application/json'
 
@@ -20,6 +21,7 @@ def _defined_parameters(**values):
     return {key: value for key, value in values.items() if value is not None}
 
 
+@tracked('import')
 def import_producers(producers):
     """POST /idpay/register/producers on the configured internal backend.
 
@@ -36,6 +38,7 @@ def import_producers(producers):
 def _with_initiative_path(initiative_id: str, path_suffix: str) -> str:
     return f'{_REGISTER_BASE}{_AR.initiatives}/{initiative_id}{path_suffix}'
 
+@tracked('token')
 def post_token_test(body:dict):
     """ API to create token test of the asset register
         POST /idpay/register/test
@@ -92,6 +95,7 @@ def get_initiatives(token: str | None):
         timeout=settings.default_timeout
     )
 
+@tracked('file')
 def verify_product_file(token:str, initiative_id:str, category:str, csv_file):
     """API to dry-run validate a product CSV file before uploading it
         POST /idpay/register/initiatives/{initiativeId}/product-files/verify
@@ -110,6 +114,7 @@ def verify_product_file(token:str, initiative_id:str, category:str, csv_file):
         timeout=settings.default_timeout
     )
 
+@tracked('file')
 def upload_product_file(token:str, initiative_id:str, category:str, csv_file):
     """API to upload a product CSV file
         POST /idpay/register/initiatives/{initiativeId}/product-files
@@ -362,6 +367,7 @@ def get_producers(token, initiative_id, page=None, size=None, sort=None):
         timeout=settings.default_timeout
     )
 
+@tracked('email')
 def update_operative_email(token, organization_id, initiative_id, operative_email):
     """API to update the operative email for an organization on an initiative
 
