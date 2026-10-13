@@ -589,7 +589,7 @@ def perform_full_onboarding(context, citizen_name):
         initiative_id=context.initiative_id,
         self_declaration_list=self_declaration_list
     )
-    breakpoint()
+
     assert context.save_onboarding_response.status_code == 202
     return context.save_onboarding_response
 
