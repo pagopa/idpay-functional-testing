@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import Any
 
 _MULTI_SEGMENT_TOKEN = r"[\w-]+(?:\.+[\w-]+)+"
+INITIATIVE_SUITES = {
+    "bonus_elettrodomestici": "Bonus Elettrodomestici",
+    "bonus_decoder": "Bonus Decoder",
+}
 
 
 def sanitize_text(text: str) -> str:
@@ -65,6 +69,13 @@ def sanitize_json_file(file_path: Path, initiative: str | None = None) -> bool:
             labels = sanitized_data.setdefault('labels', [])
             if not any(label.get('name') == 'initiative' for label in labels):
                 labels.append({'name': 'initiative', 'value': initiative})
+            labels[:] = [
+                label for label in labels if label.get("name") != "parentSuite"
+            ]
+            labels.append({
+                "name": "parentSuite",
+                "value": INITIATIVE_SUITES[initiative],
+            })
 
         # Check if anything was modified
         original_json = json.dumps(data, sort_keys=True)
@@ -99,7 +110,7 @@ def main():
     parser.add_argument(
         '--initiative',
         choices=('bonus_elettrodomestici', 'bonus_decoder'),
-        help='Add the selected initiative as an Allure label to each test result',
+        help="Add the selected initiative label and parent suite to each test result",
     )
     args = parser.parse_args()
 
