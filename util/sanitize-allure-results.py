@@ -76,6 +76,11 @@ def sanitize_json_file(file_path: Path, initiative: str | None = None) -> bool:
                 "name": "parentSuite",
                 "value": INITIATIVE_SUITES[initiative],
             })
+            history_id = sanitized_data.get("historyId")
+            history_prefix = f"{initiative}:"
+            # Shared scenarios must not become retries across initiatives.
+            if history_id and not history_id.startswith(history_prefix):
+                sanitized_data["historyId"] = f"{history_prefix}{history_id}"
 
         # Check if anything was modified
         original_json = json.dumps(data, sort_keys=True)
@@ -110,7 +115,7 @@ def main():
     parser.add_argument(
         '--initiative',
         choices=('bonus_elettrodomestici', 'bonus_decoder'),
-        help="Add the selected initiative label and parent suite to each test result",
+        help="Assign initiative labels, parent suite and a separate history to each test result",
     )
     args = parser.parse_args()
 
