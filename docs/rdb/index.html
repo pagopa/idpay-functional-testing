@@ -23,7 +23,7 @@
     
     
       
-        <title>Test funzionali RDB - PARI Functional Testing</title>
+        <title>RDB functional tests - PARI Functional Testing</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#test-funzionali-rdb" class="md-skip">
+        <a href="#rdb-functional-tests" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Test funzionali RDB
+              RDB functional tests
             
           </span>
         </div>
@@ -823,10 +823,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#esecuzione" class="md-nav__link">
+  <a href="#running-the-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Esecuzione
+        Running the tests
       
     </span>
   </a>
@@ -834,10 +834,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configurazione-e-secret" class="md-nav__link">
+  <a href="#configuration-and-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configurazione e secret
+        Configuration and secrets
       
     </span>
   </a>
@@ -845,10 +845,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scritture-dei-test" class="md-nav__link">
+  <a href="#data-written-by-the-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scritture dei test
+        Data written by the tests
       
     </span>
   </a>
@@ -856,10 +856,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dataset" class="md-nav__link">
+  <a href="#datasets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dataset
+        Datasets
       
     </span>
   </a>
@@ -867,10 +867,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#perimetro-funzionale" class="md-nav__link">
+  <a href="#functional-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Perimetro funzionale
+        Functional scope
       
     </span>
   </a>
@@ -878,10 +878,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#email-e-report" class="md-nav__link">
+  <a href="#email-and-reports" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Email e report
+        Email and reports
       
     </span>
   </a>
@@ -919,106 +919,142 @@
   
 
 
-<h1 id="test-funzionali-rdb">Test funzionali RDB</h1>
-<p>La suite <code>bdd/features/bonus_elettrodomestici/rdb</code> contiene 96 scenari indipendenti.
-Gli step usano le API dell'ambiente selezionato; i dataset generati non simulano le risposte.
-Ultimo lancio completo: <a href="rdb-test-results-2026-09-25-uat-full.md">UAT, 25 settembre 2026</a>.</p>
-<h2 id="esecuzione">Esecuzione</h2>
-<p>Installare le dipendenze con <code>pipenv sync</code>. Il default in <code>settings.yaml</code> è <code>uat</code>.
-Da PowerShell, selezionare esplicitamente l'ambiente:</p>
-<pre><code class="language-powershell">$env:PARI_TARGET_ENV = &quot;uat&quot;  # oppure &quot;dev&quot;
+<h1 id="rdb-functional-tests">RDB functional tests</h1>
+<p>The <code>bdd/features/bonus_elettrodomestici/rdb</code> suite contains 96 independent scenarios.
+Steps use the APIs of the selected environment; generated datasets do not mock responses.
+Latest full run with simplified cleanup: <a href="rdb-test-results-2026-10-09-uat.md">UAT, 9 October 2026</a>,
+95 scenarios passed and 1 concurrency check failed, confirmed by an isolated rerun.
+All 96 cleanups completed without hook errors.
+The failure was subsequently fixed by moving preliminary checks outside the
+concurrency window: both concurrent upload cases pass in two consecutive UAT runs.</p>
+<h2 id="running-the-tests">Running the tests</h2>
+<p>Install dependencies with <code>pipenv sync</code>. The default in <code>settings.yaml</code> is <code>uat</code>.
+In PowerShell, explicitly select the environment:</p>
+<pre><code class="language-powershell">$env:PARI_TARGET_ENV = &quot;uat&quot;  # or &quot;dev&quot;
 pipenv run behave --junit --junit-directory &quot;tests/reports/behave&quot; --tags &quot;@rdb&quot;
 </code></pre>
-<p>Nel workflow <code>test-run</code> scegliere ambiente, tipo <code>bdd</code> e tag <code>rdb</code>.
-Per un solo scenario usare il percorso della feature e <code>--name "^Nome scenario$"</code>.</p>
-<p>Il file indicato da <code>PARI_SECRET_PATH</code> (default <code>conf/pari-feature-secrets.json</code>)
-deve contenere la sezione dell'ambiente scelto. Gli import richiedono accesso
-all'host interno, tramite VPN quando necessaria.</p>
-<p><code>--dry-run</code> verifica la corrispondenza tra scenari e step senza eseguire le API.
-<code>@rdb_fixture</code> segnala un prerequisito: non esclude il caso dal lancio.</p>
-<h2 id="configurazione-e-secret">Configurazione e secret</h2>
-<p>Configurare in <code>asset_register</code> del JSON dell'ambiente:</p>
+<p>In the <code>test-run</code> workflow, select the environment, type <code>bdd</code>, and tag <code>rdb</code>.
+To run a single scenario, use the feature path and <code>--name "^Scenario name$"</code>.</p>
+<p>The file specified by <code>PARI_SECRET_PATH</code> (default: <code>conf/pari-feature-secrets.json</code>)
+must contain a section for the selected environment. Imports require access
+to the internal host, through a VPN when necessary.</p>
+<p><code>--dry-run</code> checks scenario-to-step matching without invoking APIs.
+<code>@rdb_fixture</code> indicates a prerequisite; it does not exclude the scenario from the run.</p>
+<h2 id="configuration-and-secrets">Configuration and secrets</h2>
+<p>Configure the following under <code>asset_register</code> in the environment JSON:</p>
 <table>
 <thead>
 <tr>
-<th>Campo</th>
-<th>Uso e riservatezza</th>
+<th>Field</th>
+<th>Purpose and confidentiality</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>token_payload.operatore</code>, <code>.l1</code>, <code>.l2</code></td>
-<td>Profili esistenti riusati dai builder; dati personali/organizzativi da mantenere fuori da Git</td>
+<td>Existing profiles reused by the builders; keep personal and organizational data out of Git</td>
 </tr>
 <tr>
 <td><code>profiles</code></td>
-<td>Profili aggiuntivi con gli stessi campi, inclusi <code>orgRole</code>, <code>orgId</code>, <code>email</code>, <code>uid</code></td>
+<td>Additional profiles with the same fields, including <code>orgRole</code>, <code>orgId</code>, <code>email</code>, <code>uid</code></td>
 </tr>
 <tr>
 <td><code>initiatives.A</code>, <code>.B</code></td>
-<td>Override degli ID; in assenza si usano <code>initiatives.bonus_elettrodomestici.id</code> e <code>initiatives.bonus_decoder.id</code> dell'ambiente</td>
+<td>ID overrides; when absent, the environment's <code>initiatives.bonus_elettrodomestici.id</code> and <code>initiatives.bonus_decoder.id</code> are used</td>
 </tr>
 <tr>
-<td><code>base_path.IDPAY.internal</code> (fuori da <code>asset_register</code>)</td>
-<td>Host interno già usato dalla suite; deve essere raggiungibile per <code>POST /idpayassetregisterbackend/idpay/register/producers</code>. Non serve una chiave Data Factory</td>
+<td><code>base_path.IDPAY.internal</code> (outside <code>asset_register</code>)</td>
+<td>Internal host already used by the suite; it must be reachable for <code>POST /idpayassetregisterbackend/idpay/register/producers</code>. No Data Factory key is required</td>
 </tr>
 <tr>
 <td><code>application_tokens.expired</code></td>
-<td>JWT scaduto firmato, opzionale; trattare comunque come credenziale</td>
+<td>Optional signed, expired JWT; still treat it as a credential</td>
 </tr>
 <tr>
-<td><code>email_service</code> (opzionale)</td>
-<td>Eventuali <code>headers</code> aggiuntivi; il token viene generato dai profili configurati. Il destinatario fittizio viene da <code>RDB_EMAIL_TEST_RECIPIENT</code> nei settings. L'URL usa <code>base_path.IO</code>, <code>IDPAY.domain</code> e <code>IDPAY.endpoints.asset_register.notify_path</code></td>
+<td><code>email_service</code> (optional)</td>
+<td>Any additional <code>headers</code>; the token is generated from the configured profiles. The dummy recipient comes from <code>RDB_EMAIL_TEST_RECIPIENT</code> in settings. The URL uses <code>base_path.IO</code>, <code>IDPAY.domain</code>, and <code>IDPAY.endpoints.asset_register.notify_path</code></td>
 </tr>
 <tr>
 <td><code>poll_timeout</code>, <code>poll_interval</code></td>
-<td>Polling API, default 120 e 2 secondi; non sono secret</td>
+<td>API polling settings, defaulting to 120 and 2 seconds; these are not secrets</td>
 </tr>
 </tbody>
 </table>
-<p>A e B devono essere configurate per RDB, con template e associazioni compatibili.
-Usare produttori di test dedicati, senza scritture concorrenti di altri processi.
-I profili usano <code>email</code> e <code>orgVAT</code>, con supporto agli alias <code>orgEmail</code> e <code>orgVat</code>.
-Credenziali, JWT e dati personali restano fuori da Git. URL pubblici, ID iniziativa
-e soglie energetiche non sono credenziali.</p>
-<h2 id="scritture-dei-test">Scritture dei test</h2>
-<p>La suite usa le API reali dell'ambiente selezionato. Upload e validazioni CSV possono creare prodotti,
-record di storico e report; import, aggiornamenti email, consensi e dataset
-Invitalia modificano associazioni o creano nuove bozze.
-Gli hook generici gestiscono soltanto le iniziative registrate in
-<code>secrets.newly_created</code>, secondo le opzioni <code>KEEP_INITIATIVES_*</code>.
-I dati RDB non vengono cancellati automaticamente dopo il run.</p>
-<h2 id="dataset">Dataset</h2>
-<p><code>asset_register.datasets</code> contiene eventuali override con i nomi usati dalle feature.
-<code>profile</code> seleziona il profilo e <code>initiative</code> l'alias A/B. Per i test che scrivono,
-le attese derivano dagli input o dalle scritture confermate.</p>
-<p>La suite prepara tramite API CSV, prodotti, storico, report, associazioni e bozze.
-Quattro test di lettura prodotti/batch riusano dati esistenti: servono prodotti
-del produttore configurato e di un'altra organizzazione in A, oltre a prodotti in B.
-Verificano coerenza e isolamento, non la completezza indipendente dell'inventario.
-I casi SelfCare richiedono un'istituzione esistente con partita IVA nota.</p>
-<p>Per decisione dello standup, i casi di riaccettazione dopo un cambio versione e di
-associazione produttore disabilitata sono rimossi dalla suite Behave. La copertura
-resta nei test JUnit del backend; una futura integrazione UAT è rinviata, senza
-sviluppare ora API dedicate ai test. Non sono conteggiati come passati o saltati.
-Dettagli nel <a href="rdb-team-discussion.md">documento di decisione</a>.
-I report storici conservano il perimetro originale di 98 scenari.</p>
-<p>I test concorrenti preparano un CSV EPREL da 100 righe e ne verificano lo stato
-attivo prima e dopo il secondo upload. Non richiedono <code>datasets.upload in progress</code>.
-Il produttore deve essere abilitato su A/B e non avere altri upload attivi; il test
-attende il completamento del proprio CSV senza sospendere consumer condivisi.</p>
-<h2 id="perimetro-funzionale">Perimetro funzionale</h2>
-<p>Il signer <code>/register/token/test</code> genera JWT applicativi; non è uno scambio reale
-SelfCare. Il test del token scaduto richiede che la policy rispetti <code>exp</code>, oppure
-un JWT firmato già scaduto in <code>application_tokens.expired</code>.</p>
-<p>Le condizioni EPREL product not found/not published/blocked e organization/brand
-not verified sono fuori dal perimetro concordato e non sono conteggiate come passate.
-Restano categoria, elaborazione valida/mista e classe energetica minima:</p>
+<p>A and B must be configured for RDB with compatible templates and associations.
+Use dedicated test producers without concurrent writes from other processes.
+Profiles use <code>email</code> and <code>orgVAT</code>, with support for the aliases <code>orgEmail</code> and <code>orgVat</code>.
+Keep credentials, JWTs, and personal data out of Git. Public URLs, initiative IDs,
+and energy class thresholds are not credentials.</p>
+<h2 id="data-written-by-the-tests">Data written by the tests</h2>
+<p>The suite uses the real APIs of the selected environment. CSV uploads and validation
+can create products, history records, and reports; imports and email updates modify
+associations of dedicated producers. Consent and Invitalia datasets create dedicated
+acceptance records and draft initiatives.
+Generic hooks only manage initiatives registered in
+<code>secrets.newly_created</code>, according to the <code>KEEP_INITIATIVES_*</code> options.</p>
+<p>RDB cleanup runs in <code>after_scenario</code>, even if the scenario fails.
+<code>after_all</code> retries only resources whose cleanup failed. Tracking is held only in
+memory, in the scenario context: there are no state files or recovery from interrupted runs.</p>
+<ul>
+<li>CSV files, reports, upload records, and products are deleted only for files created
+  by the run, identified by organization, initiative, and exact filename. Before a
+  write, checks ensure that the GTINs do not belong to pre-existing products.</li>
+<li>Imports, reimports, and email updates use dedicated producers generated per
+  scenario: associations are tracked by ID and then deleted. The current state
+  is read only at deletion, as required by the backend's CAS contract. Writes to
+  associations of producers not created by the scenario are blocked before the
+  request: restoration snapshots are unnecessary.</li>
+<li>Only consent records belonging to newly generated test users and portal initiatives
+  whose IDs come from confirmed creations in the run are removed.</li>
+</ul>
+<p>The backend must expose the internal <code>/idpay/register/clean/fixtures</code> APIs with
+<code>TEST_SUPPORT_ENABLED=true</code>, as in <code>idpay-transactions</code>. The application property
+is <code>app.test-support.enabled</code>, defaulting to <code>false</code>. DEV/UAT Helm values enable
+the flag; production remains disabled by default. The endpoints do not require
+a dedicated token. The suite checks API availability before the RDB scenarios.
+The cleanup controller is excluded from Swagger documentation and uses only
+the internal ingress: no APIM routes or Terraform changes are added.</p>
+<p>Cleanup waits up to 120 seconds for uploads still being processed and asynchronous
+portal deletions; the limit is defined in code. Incomplete cleanup produces an error
+in the scenario hook without deleting associations linked to uploads that remain.
+Dry runs do not invoke these APIs.</p>
+<p>Verification on 9 October: 27 unit tests passed; the full UAT suite had 95 passing
+scenarios and 1 concurrency failure. Cleanup succeeded for all 96 scenarios and
+for the isolated rerun of the failed case. See the report above for details.</p>
+<h2 id="datasets">Datasets</h2>
+<p><code>asset_register.datasets</code> contains optional overrides using the names referenced
+by the features. <code>profile</code> selects the profile and <code>initiative</code> selects alias A/B.
+For tests that write data, expectations derive from inputs or confirmed writes.</p>
+<p>The suite prepares CSV files, products, history, reports, associations, and draft
+initiatives through APIs. Four product/batch read tests reuse existing data:
+products must exist for the configured producer and another organization in A,
+as well as products in B. They verify consistency and isolation, rather than
+independently establishing inventory completeness.
+SelfCare cases require an existing institution with a known VAT number.</p>
+<p>Following the standup decision, the cases for renewed acceptance after a version
+change and for a disabled producer association were removed from the Behave suite.
+Coverage remains in backend JUnit tests; future UAT integration is deferred,
+without developing dedicated test APIs now. These cases are not counted as passed
+or skipped. Details are in the <a href="rdb-team-discussion.md">decision document</a>.
+Historical reports retain the original scope of 98 scenarios.</p>
+<p>Concurrent upload tests prepare a 100-row EPREL CSV and verify that it is active
+before and after the second upload. Preliminary cleanup checks for both files
+run before the first upload, outside the measured window.
+These tests do not require <code>datasets.upload in progress</code>.
+The producer must be enabled on A/B and have no other active uploads; the test
+waits for its own CSV to finish without suspending shared consumers.</p>
+<h2 id="functional-scope">Functional scope</h2>
+<p>The <code>/register/token/test</code> signer generates application JWTs; it is not a real
+SelfCare exchange. The expired-token test requires the policy to honor <code>exp</code>,
+or an already expired signed JWT in <code>application_tokens.expired</code>.</p>
+<p>The EPREL conditions product not found/not published/blocked and organization/brand
+not verified are outside the agreed scope and are not counted as passed.
+Category, valid/mixed processing, and minimum energy class remain in scope:</p>
 <table>
 <thead>
 <tr>
-<th>Categoria</th>
-<th>Minimo</th>
+<th>Category</th>
+<th>Minimum</th>
 </tr>
 </thead>
 <tbody>
@@ -1040,32 +1076,33 @@ Restano categoria, elaborazione valida/mista e classe energetica minima:</p>
 </tr>
 <tr>
 <td>COOKINGHOBS</td>
-<td>Nessun controllo EPREL</td>
+<td>No EPREL check</td>
 </tr>
 </tbody>
 </table>
-<p>Tutte usano <code>Codice GTIN/EAN</code>. Per le categorie EPREL il template è EPREL_STANDARD.
-Fixture pubbliche in <code>conf/rdb/eprel.json</code>, con override tramite <code>asset_register.eprel</code>.
-Il portale permette il download del report degli errori, non del CSV originale di history.</p>
-<p>I due scenari di indisponibilità forzata email/OneTrust sono esclusi dalla suite.
-La resilienza con dipendenze simulate va verificata nei test backend.</p>
-<h2 id="email-e-report">Email e report</h2>
-<p>I tre test email invocano direttamente il servizio e richiedono <strong>HTTP 204 con body
-vuoto</strong>. <code>templateValues.portalUrl</code> deriva da <code>TARGET_ENV</code> e dalla mappa
-<code>RDB_EMAIL_PORTAL_URLS</code> in <code>settings.yaml</code>, con URL dev/UAT. Una voce assente blocca
-l'invio. Il servizio costruisce l'HTML dai template; il test non certifica la
-consegna in casella né il trigger automatico del backend RDB.</p>
-<p>Il payload viene stampato con destinatario oscurato e senza token. In caso di KO
-l'assertion include <code>code</code> e <code>message</code>. Con JUnit lo stdout finisce negli XML;
-senza JUnit, <code>--no-capture</code> permette di visualizzarlo in console.</p>
-<p><code>tests/reports/</code> contiene risultati generati, ignorati da Git e ripulibili quando
-non servono più. JUnit è il formato XML dei risultati, non un'altra suite.
-I file <code>tests/test_*.py</code> appartengono invece alla suite pytest e non sono report.</p>
+<p>All use <code>Codice GTIN/EAN</code>. EPREL categories use the EPREL_STANDARD template.
+Public fixtures are in <code>conf/rdb/eprel.json</code>, with overrides through <code>asset_register.eprel</code>.
+The portal supports downloading the error report, not the original CSV from upload history.</p>
+<p>The two scenarios that force email/OneTrust unavailability are excluded from the suite.
+Resilience with simulated dependencies should be verified in backend tests.</p>
+<h2 id="email-and-reports">Email and reports</h2>
+<p>The three email tests invoke the service directly and require <strong>HTTP 204 with an
+empty body</strong>. <code>templateValues.portalUrl</code> derives from <code>TARGET_ENV</code> and the
+<code>RDB_EMAIL_PORTAL_URLS</code> map in <code>settings.yaml</code>, with dev/UAT URLs. A missing entry
+blocks sending. The service builds the HTML from templates; the test does not
+certify mailbox delivery or the automatic RDB backend trigger.</p>
+<p>The payload is printed with the recipient masked and without a token. On failure,
+the assertion includes <code>code</code> and <code>message</code>. With JUnit, stdout is included in the
+XML files; without JUnit, <code>--no-capture</code> displays it in the console.</p>
+<p><code>tests/reports/</code> contains generated results, ignored by Git and removable when
+no longer needed. JUnit is the XML results format, not a separate suite.
+The <code>tests/test_*.py</code> files belong to the pytest suite and are not reports.</p>
 <h2 id="td-rdb-001">TD-RDB-001</h2>
-<p>La validazione di un CSV oltre 2 MB tollera temporaneamente HTTP 500 nel solo caso
-<code>@rdb_td_001</code>. Il risultato corretto è HTTP 200, <code>status: KO</code>,
-<code>errorKey: product.invalid.file.maxsize</code>. Un passaggio con 500 non certifica la
-correzione del backend. Rimuovere deroga e tag dopo la verifica della correzione nell'ambiente selezionato.</p>
+<p>Validation of a CSV larger than 2 MB temporarily tolerates HTTP 500 only in the
+<code>@rdb_td_001</code> case. The correct result is HTTP 200, <code>status: KO</code>,
+<code>errorKey: product.invalid.file.maxsize</code>. Passing with HTTP 500 does not certify
+the backend fix. Remove the tolerance and tag after verifying the fix in the
+selected environment.</p>
 
 
 
