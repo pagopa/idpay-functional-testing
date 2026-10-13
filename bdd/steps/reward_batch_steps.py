@@ -6,7 +6,6 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
 from api.idpay import post_evaluate_sent_reward_batches
 from api.idpay import post_prepare_reward_batch_for_send
@@ -17,12 +16,15 @@ from api.transaction import post_postpone_transaction
 from api.transaction import post_reward_batch_confirmation_batch
 from bdd.steps.bar_code_steps import get_point_of_sale_access_token
 from bdd.steps.bar_code_steps import reverse_bar_code_transaction
+from util.transaction_utilities import assert_transaction_in_next_month_reward_batch
 from util.transaction_utilities import assert_transaction_in_processed_reward_batch
 from util.transaction_utilities import assert_transactions_share_same_reward_batch
 from util.transaction_utilities import get_institution_selfcare_token
+from util.transaction_utilities import get_reward_batch_transactions as _get_reward_batch_transactions
 from util.transaction_utilities import parse_transaction_names
 from util.transaction_utilities import perform_reward_batch_transaction_action
 from util.transaction_utilities import request_reward_batch_validation
+from util.transaction_utilities import retry_postponed_transaction_reward_batch
 from util.transaction_utilities import validate_reward_batch_as_operator
 from util.utility import get_merchant_access_token
 from util.utility import retry_reward_batch_eligibility
@@ -96,52 +98,24 @@ def step_transaction_belongs_to_next_reward_batch(context, trx_name):
     merchant_name = context.associated_merchant[trx_name]
     merchant_id = context.merchants[merchant_name]['id']
     source_reward_batch_id = _stored_reward_batch_id(context, trx_name)
-    for attempt in range(20):
-        destination_reward_batch_id = _get_associated_reward_batch_id(context, trx_name)
-        if destination_reward_batch_id != source_reward_batch_id:
-            break
-        if attempt < 19:
-            time.sleep(3)
-    assert destination_reward_batch_id != source_reward_batch_id, (
-        f'Transaction {transaction_id} remained in reward batch {source_reward_batch_id}'
+    destination_reward_batch_id = retry_postponed_transaction_reward_batch(
+        initiative_id=context.initiative_id,
+        merchant_id=merchant_id,
+        transaction_id=transaction_id,
+        source_reward_batch_id=source_reward_batch_id,
+        access_token=context.transaction_pos_access_tokens[trx_name],
     )
     context.reward_batches_to_cleanup.add(
         (context.initiative_id, merchant_id, destination_reward_batch_id)
     )
-    source_response = get_reward_batch_detail(
-        initiative_id=context.initiative_id,
-        reward_batch_id=source_reward_batch_id,
-        merchant_id=merchant_id,
-    )
-    assert source_response.status_code == 200, (
-        f'Source reward batch detail failed: '
-        f'{source_response.status_code} {source_response.text}'
-    )
-    source_month = datetime.datetime.strptime(source_response.json()['month'], '%Y-%m')
-    next_month = (source_month.replace(day=28) + datetime.timedelta(days=4)).strftime('%Y-%m')
-    destination_response = get_reward_batch_detail(
-        initiative_id=context.initiative_id,
-        reward_batch_id=destination_reward_batch_id,
-        merchant_id=merchant_id,
-    )
-    assert destination_response.status_code == 200, (
-        f'Destination reward batch detail failed: '
-        f'{destination_response.status_code} {destination_response.text}'
-    )
-    assert destination_response.json()['month'] == next_month, (
-        f'Expected destination reward batch {destination_reward_batch_id} month '
-        f'{next_month}, got {destination_response.json()["month"]}'
-    )
-    destination_transactions = _get_reward_batch_transactions(
+    assert_transaction_in_next_month_reward_batch(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
-        reward_batch_id=destination_reward_batch_id,
+        transaction_id=transaction_id,
+        source_reward_batch_id=source_reward_batch_id,
+        destination_reward_batch_id=destination_reward_batch_id,
         access_token=get_merchant_access_token(merchant_name),
     )
-    assert any(
-        transaction['trxId'].strip() == transaction_id.strip()
-        for transaction in destination_transactions
-    ), f'Transaction {transaction_id} not found in next reward batch {destination_reward_batch_id}'
 
 
 @when('the reward batch of transaction {trx_name} is prepared and sent')
@@ -385,36 +359,6 @@ def _stored_reward_batch_transaction(context, batch_name):
         f'Reward batch alias {batch_name} was not captured before use'
     )
     return context.reward_batch_aliases[batch_name]
-
-
-def _get_reward_batch_transactions(
-        initiative_id,
-        merchant_id,
-        reward_batch_id,
-        access_token,
-        reward_batch_trx_status=None
-):
-    transactions = []
-    page = 0
-    while True:
-        response = get_merchant_processed_transactions(
-            initiative_id=initiative_id,
-            merchant_id=merchant_id,
-            access_token=access_token,
-            page=page,
-            size=100,
-            reward_batch_id=reward_batch_id,
-            reward_batch_trx_status=reward_batch_trx_status
-        )
-        assert response.status_code == 200, (
-            f'Reward batch transactions request failed: '
-            f'{response.status_code} {response.text}'
-        )
-        page_data = response.json()
-        transactions.extend(page_data['content'])
-        if page + 1 >= page_data['totalPages']:
-            return transactions
-        page += 1
 
 
 def _prepare_and_send_reward_batch(
