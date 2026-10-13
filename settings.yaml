@@ -220,6 +220,7 @@ initiatives:
         rankingEnabled: false
         budget: 99999999999999
         beneficiaryBudget: 51.5
+        beneficiaryBudgetFixed: 5150
         startDate: 'future'
         endDate: 'future_tomorrow'
         descriptionMap:
@@ -229,6 +230,7 @@ initiatives:
         selfDeclarationCriteria:
           - _type: 'boolean'
             description: '1'
+            subDescription: 'Sub description for the boolean criteria'
             value: true
             code: '1'
       reward:

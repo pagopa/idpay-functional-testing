@@ -12,7 +12,7 @@ from bdd.steps.dataset_steps import step_citizen_fc_exact_or_random
 from bdd.steps.onboarding_steps import step_named_citizen_onboard
 from conf.configuration import secrets
 from conf.configuration import settings
-from util.utility import check_statistics
+from util.utility import check_statistics, create_initiative
 from util.utility import create_initiative_and_update_conf
 from util.utility import get_selfcare_token
 from util.utility import retry_institution_statistics
@@ -152,6 +152,12 @@ def step_initiative_has_a_rank(context):
 
 @given('the new initiative {initiative_name} is created')
 def step_new_initiative_created(context, initiative_name):
+    initiative_id = create_initiative(initiative_name)
+    secrets.initiatives[initiative_name] = {'id': initiative_id}
+
+
+@given('the new initiative {initiative_name} is created but not published')
+def step_new_initiative_created_but_not_published(context, initiative_name):
     token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
 
     response = post_initiative_info(token, initiative_name)

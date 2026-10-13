@@ -254,6 +254,12 @@ def step_check_save_onboarding_failed(context, reason_ko):
     elif reason_ko == 'INITIATIVE NOT FOUND':
         expected_status_code = 404
         expected_status = 'ONBOARDING_INITIATIVE_NOT_FOUND'
+    elif reason_ko == 'INITIATIVE NOT STARTED':
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_INITIATIVE_NOT_STARTED'
+    elif reason_ko == 'INITIATIVE ALREADY ENDED':
+        expected_status_code = 403
+        expected_status = 'ONBOARDING_INITIATIVE_ALREADY_ENDED'
     elif reason_ko == 'INITIATIVE NOT PUBLISHED':
         expected_status_code = 403
         expected_status = 'ONBOARDING_INITIATIVE_STATUS_NOT_PUBLISHED'
