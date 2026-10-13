@@ -130,7 +130,7 @@ jobs:
         if: always()
         run: |
           if [ -d allure-results ]; then
-            python3 util/sanitize-allure-results.py allure-results
+            python3 util/sanitize-allure-results.py allure-results --initiative "$FEATURE_TAG"
           else
             echo "No allure-results directory to sanitize"
           fi

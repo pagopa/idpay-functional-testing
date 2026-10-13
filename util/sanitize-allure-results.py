@@ -51,7 +51,7 @@ def sanitize_dict(obj: Any) -> Any:
         return obj
 
 
-def sanitize_json_file(file_path: Path) -> bool:
+def sanitize_json_file(file_path: Path, initiative: str | None = None) -> bool:
     """
     Sanitize a single JSON file.
     Returns True if file was modified, False otherwise.
@@ -61,6 +61,10 @@ def sanitize_json_file(file_path: Path) -> bool:
             data = json.load(f)
 
         sanitized_data = sanitize_dict(data)
+        if initiative and file_path.name.endswith('-result.json'):
+            labels = sanitized_data.setdefault('labels', [])
+            if not any(label.get('name') == 'initiative' for label in labels):
+                labels.append({'name': 'initiative', 'value': initiative})
 
         # Check if anything was modified
         original_json = json.dumps(data, sort_keys=True)
@@ -87,10 +91,15 @@ def main():
     """
     parser = argparse.ArgumentParser(description="Sanitize bearer tokens and JWTs from Allure JSON results.")
     parser.add_argument(
-        "results_dir",
-        nargs="?",
-        default="allure-results",
-        help="Path to allure-results directory (default: allure-results)",
+        'results_dir',
+        nargs='?',
+        default='allure-results',
+        help='Path to allure-results directory (default: allure-results)',
+    )
+    parser.add_argument(
+        '--initiative',
+        choices=('bonus_elettrodomestici', 'bonus_decoder'),
+        help='Add the selected initiative as an Allure label to each test result',
     )
     args = parser.parse_args()
 
@@ -110,7 +119,7 @@ def main():
 
     modified_count = 0
     for json_file in json_files:
-        if sanitize_json_file(json_file):
+        if sanitize_json_file(json_file, args.initiative):
             modified_count += 1
             print(f"✅ Sanitized: {json_file.relative_to(allure_results_dir)}")
 
