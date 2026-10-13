@@ -216,6 +216,8 @@ def producer_without_initiatives(context):
     """Issue a test token for a fresh organization with no imported association."""
     body = build_operatore_token_body()
     body.update(orgId=str(uuid.uuid4()), uid=str(uuid.uuid4()), orgName='RDB unassociated producer')
+    from util.rdb_cleanup import remember_producer
+    remember_producer(body['orgId'])
     profile = 'generated producer without initiatives'
     register_profile(context, profile, body)
     authenticate(context, profile)

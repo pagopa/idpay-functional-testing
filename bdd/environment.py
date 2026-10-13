@@ -28,10 +28,26 @@ def before_feature(context, feature):
                 create_initiative_and_update_conf(initiative_name=curr_initiative_name)
 
 
+def before_scenario(context, scenario):
+    if 'rdb' in scenario.effective_tags and not context.config.dry_run:
+        from util.rdb_cleanup import start
+        start(context)
+
+
+def after_scenario(context, scenario):
+    if 'rdb' in scenario.effective_tags and not context.config.dry_run:
+        from util.rdb_cleanup import finish_scenario
+        finish_scenario()
+
+
 def after_all(context):
     """Delete each initiative created during the run
     """
-    delete_new_initiatives_after_test()
+    from util.rdb_cleanup import finish
+    try:
+        finish()
+    finally:
+        delete_new_initiatives_after_test()
 
 
 def after_feature(context, feature):
@@ -49,7 +65,7 @@ def after_feature(context, feature):
     if settings.REWARD_BATCH_CLEANUP and 'reward_batch' in feature.tags:
         for initiative_id, merchant_id, reward_batch_id in context.reward_batches_to_cleanup:
             print(
-                "Cleaning up reward batch and related transactions for "
+                'Cleaning up reward batch and related transactions for '
                 f"reward_batch_id={reward_batch_id}, initiative_id={initiative_id}, "
                 f"merchant_id={merchant_id}"
             )

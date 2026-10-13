@@ -2,7 +2,7 @@
 Feature: Manage producer associations and operational email
 
   Background:
-    Given the RDB user is authenticated as "producer"
+    Given a dedicated RDB producer without associations
     And the RDB initiative is "A"
 
   @rdb_import
@@ -51,14 +51,14 @@ Feature: Manage producer associations and operational email
     And the RDB producer association is stored once
 
   Scenario: Replace the previous operational email
-    Given the producer is enabled for the RDB initiative
+    Given a dedicated RDB producer enabled for the initiative
     And the RDB operational email was set to "old@example.it"
     When the producer sets the RDB operational email to "new@example.it"
     Then the RDB operation has outcome "OK"
     And the RDB operational email is "new@example.it"
 
   Scenario: Reject an invalid operational email
-    Given the producer is enabled for the RDB initiative
+    Given a dedicated RDB producer enabled for the initiative
     When the producer sets the RDB operational email to "invalid-email"
     Then the RDB request is rejected
 
