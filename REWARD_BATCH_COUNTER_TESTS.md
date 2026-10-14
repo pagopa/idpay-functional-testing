@@ -1,40 +1,40 @@
 # Reward batch counter tests
 
-Questa suite verifica i contatori attraverso un unico flusso end-to-end.
+This suite verifies counters through a single end-to-end flow.
 
-## Come leggere gli scenari Gherkin
+## How to read the Gherkin scenarios
 
-- `Given` prepara il dato iniziale.
-- `When` esegue l'azione da verificare.
-- `Then` controlla il risultato osservabile.
-- `And` continua il blocco precedente.
+- `Given` sets up the initial data.
+- `When` performs the action under test.
+- `Then` checks the observable result.
+- `And` continues the preceding block.
 
-I controlli sono integrati negli scenari esistenti di `reward_batch.feature`
-quando il flusso di business e gia coperto. Il file
-`reward_batch_counters.feature` contiene soltanto i casi aggiuntivi. Le frasi
-aggiunte sono implementate in `bdd/steps/reward_batch_counter_steps.py`.
+The checks are integrated into existing scenarios in `reward_batch.feature`
+when the business flow is already covered. The
+`reward_batch_counters.feature` file contains only additional cases. The added
+steps are implemented in `bdd/steps/reward_batch_counter_steps.py`.
 
-## Cosa viene verificato
+## What is verified
 
-- In `CREATED` i contatori cambiano seguendo le transazioni correnti; uno storno
-  rimuove quindi la transazione dai totali e il postpone sposta lo stesso
-  contributo live al lotto del mese successivo.
-- Al passaggio a `SENT`, `initialAmountCents` rimane lo snapshot acquisito al
-  momento dell'invio.
-- Da `APPROVING`, `suspendedAmountCents` rimane lo snapshot acquisito prima che
-  le transazioni sospese vengano riassegnate.
-- Numero e importo delle transazioni `REJECTED` restano live: non hanno uno
-  snapshot dedicato.
+- In `CREATED`, counters reflect the current transactions: a reversal removes a
+  transaction from the totals, and postponement moves the same live
+  contribution to the following month's batch.
+- When a batch moves to `SENT`, `initialAmountCents` remains the snapshot
+  captured when it was sent.
+- In `APPROVING`, `suspendedAmountCents` remains the snapshot captured before
+  suspended transactions are reassigned.
+- The count and amount of `REJECTED` transactions remain live; they do not have
+  a dedicated snapshot.
 
-## Esecuzione
+## Running the tests
 
-Scenari end-to-end dei contatori:
+End-to-end counter scenarios:
 
 ```shell
 behave --tags @reward_batch_counter
 ```
 
-Come indicato nel README del repository, l'esecuzione end-to-end ufficiale va
-lanciata dal workflow GitHub Actions `test-run`, scegliendo il tipo `bdd` e il
-tag `reward_batch_counter`. Tutti i casi CREATED, SENT, EVALUATING e APPROVING
-sono eseguiti insieme con questa singola opzione.
+As described in the repository README, run the official end-to-end suite from
+the GitHub Actions `test-run` workflow by selecting the `bdd` test type and the
+`reward_batch_counter` tag. This runs all `CREATED`, `SENT`, `EVALUATING`, and
+`APPROVING` cases together.
