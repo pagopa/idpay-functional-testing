@@ -2,7 +2,7 @@
 @bonus_decoder
 @portale_enti
 @reward_batch
-Feature: Reward batches for Bonus Elettrodomestici or Bonus Decoder and Refund Approval Process
+Feature: Reward batches for initiatives and Refund Approval Process
   Background:
     Given the initiative is active
     And the citizen A is 21 years old exactly

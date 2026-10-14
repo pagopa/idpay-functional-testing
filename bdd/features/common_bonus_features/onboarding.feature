@@ -1,7 +1,7 @@
 @bonus_elettrodomestici
 @bonus_decoder
 @onboarding
-Feature: Onboarding Bonus Elettrodomestici or Bonus Decoder
+Feature: Onboarding to an initiative
   Background:
     Given the initiative is active
 
