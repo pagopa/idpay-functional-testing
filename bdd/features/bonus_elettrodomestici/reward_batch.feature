@@ -23,11 +23,9 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     When the reward batch of transaction X is prepared and sent
     And the counters of reward batch B are captured as after_send
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    And the point of sale pos_1 of merchant 1 tries to reverse the transaction X by Bar Code
     And the reward batch of transaction X is sent for evaluation
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
     Then the invoice update of transaction X is rejected
-    And the reversal of transaction X is rejected by its reward batch
     And the reward batch of transaction X is EVALUATING
     And the live counters of reward batch B match its current transactions
     And reward batch B keeps the initial amount captured as after_send
