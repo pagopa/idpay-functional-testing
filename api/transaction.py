@@ -232,6 +232,20 @@ def get_reward_batches(
         timeout=settings.default_timeout
     )
 
+def delete_reward_batch_cleanup(
+        initiative_id: str,
+        reward_batch_id: str,
+        merchant_id: str):
+    return requests.delete(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.transactions.path}'
+        f'{settings.IDPAY.endpoints.transactions.reward_batch_test_support}/{initiative_id}'
+        f'/reward-batches/{reward_batch_id}/cleanup',
+        headers={
+            "x-merchant-id": merchant_id,
+        },
+        timeout=settings.default_timeout
+    )
+
 def post_reward_batch_confirmation_batch(initiative_id: str,
                                         request_body: dict):
     return requests.post(

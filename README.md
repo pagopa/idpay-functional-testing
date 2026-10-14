@@ -6,6 +6,7 @@ Repository containing BDD and functional tests for the PARI platform.
 
 - GitHub Pages (docs + report): https://pagopa.github.io/idpay-functional-testing/docs
 - Public Allure reports are published from `uat` runs only.
+- RDB features, environment datasets and reusable utilities: [RDB BDD tests](docs/rdb.md).
 
 ## Test execution
 
@@ -19,9 +20,19 @@ Manual execution:
 3. Click **Run workflow**.
 4. Set the parameters:
    - `environment`: `uat`
-   - `test_type`: `all`, `bdd`, `functional`
+   - `test_type`: `bdd`
    - `feature`: BDD tag to run
+   - `reward_batch_cleanup`: Cleanup environment after test run
 5. Start the run.
+
+### Environment and secrets
+
+Features run against the deployed environment selected by `PARI_TARGET_ENV`.
+`PARI_SECRET_PATH` points to its `pari-feature-secrets.json`; the workflow retrieves
+this file from Key Vault. The default path for configuration is
+`conf/pari-feature-secrets.json`. Never commit the secrets file.
+
+The runner executes Behave with the selected tag, for example:
 
 ### Commands 
 
@@ -29,7 +40,7 @@ Manual execution:
 [PARI_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
 ```
 
-For example this command runs in UAT(default) all onboarding tests and save the junitxml report to a file:
+For example this command runs in UAT(default) all onboarding tests without legacy tests and save the junitxml report to a file:
 
 ```commandline
 behave --junit --junit-directory "tests/reports/behave" --tags @onboarding

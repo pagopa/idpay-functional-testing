@@ -1,6 +1,7 @@
 import json
 
 import requests
+from model.visura_impresa import VisuraImpresa
 from conf.configuration import secrets
 from conf.configuration import settings
 
@@ -63,5 +64,21 @@ def get_family_from_user_id(user_id: str):
         headers={
             'Content-Type': 'application/json'
         },
+        timeout=settings.default_timeout
+    )
+
+def put_mocked_visura_impresa(visura: VisuraImpresa):
+    """API to persist a visura impresa on the PDND mock
+        :param visura: visura impresa to persist
+        :returns: call response
+        :rtype: requests.Response
+    """
+
+    return requests.post(
+        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.mock.internal_path}{settings.IDPAY.endpoints.mock.pdnd}/visura-impresa',
+        headers={
+            'Content-Type': 'application/json'
+        },
+        data=json.dumps(visura.to_dict()),
         timeout=settings.default_timeout
     )
