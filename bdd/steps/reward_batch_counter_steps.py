@@ -99,6 +99,22 @@ def _counter_differences(actual, expected):
     }
 
 
+def _wait_for_live_counter_consistency(observe_batch):
+    for attempt in range(20):
+        batch, transactions = observe_batch()
+        expected = derive_visible_live_counters(batch['status'], transactions)
+        differences = _counter_differences(batch, expected)
+        if not differences:
+            return
+        if attempt < 19:
+            time.sleep(0.5)
+
+    raise AssertionError(
+        f"Reward batch {batch['id']} counters do not match current transactions. "
+        f"Differences: {differences}"
+    )
+
+
 @given(
     'the counters of reward batch {batch_reference} are captured as {baseline_name}'
 )
@@ -154,21 +170,8 @@ def step_reward_batch_counters_are_unchanged(
     'the live counters of reward batch {batch_reference} match its current transactions'
 )
 def step_live_reward_batch_counters_match(context, batch_reference):
-    differences = None
-    batch = None
-    transactions = None
-    for attempt in range(20):
-        batch, transactions = _batch_observation(context, batch_reference)
-        expected = derive_visible_live_counters(batch['status'], transactions)
-        differences = _counter_differences(batch, expected)
-        if not differences:
-            return
-        if attempt < 19:
-            time.sleep(0.5)
-
-    raise AssertionError(
-        f"Reward batch {batch['id']} counters do not match current transactions. "
-        f'Differences: {differences}. Transactions: {transactions}'
+    _wait_for_live_counter_consistency(
+        lambda: _batch_observation(context, batch_reference)
     )
 
 
@@ -179,16 +182,12 @@ def step_live_reward_batch_counters_match(context, batch_reference):
 def step_destination_reward_batch_counters_match(context, transaction_name):
     destination = context.destination_reward_batches[transaction_name]
     merchant_name = context.associated_merchant[transaction_name]
-    batch, transactions = _batch_observation_by_id(
-        context,
-        merchant_name,
-        destination['id'],
-    )
-    expected = derive_visible_live_counters(batch['status'], transactions)
-    differences = _counter_differences(batch, expected)
-    assert not differences, (
-        f'Destination reward batch {batch["id"]} counters do not match its '
-        f'current transactions: {differences}'
+    _wait_for_live_counter_consistency(
+        lambda: _batch_observation_by_id(
+            context,
+            merchant_name,
+            destination['id'],
+        )
     )
 
 

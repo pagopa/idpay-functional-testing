@@ -15,9 +15,9 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
   Scenario: Invoice replacement and POSTPONE update CREATED counters correctly
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X belongs to the reward batch named B
-    And the counters of reward batch B are captured as before_created_operations
     When the point of sale pos_1 of merchant 1 updates the invoice of transaction X by Bar Code
-    And the merchant 1 postpones transaction X to the next reward batch
+    Then the live counters of reward batch B match its current transactions
+    When the merchant 1 postpones transaction X to the next reward batch
     Then the live counters of reward batch B match its current transactions
     And the destination reward batch of transaction X has live counters matching its current transactions
 
@@ -37,6 +37,9 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
     When An operator with l1 role validating the reward batch containing transaction X
     And An operator with l2 role validating the reward batch containing transaction X
     And An operator with l3 role tries to approve the reward batch containing transaction X
+    Then the reward batch of transaction X is APPROVING
+    And reward batch X keeps the suspended amount captured as before_approving
+    When the approval of the reward batch containing transaction X is confirmed
     Then the reward batch of transaction X is APPROVED
     And after approval, the transaction X belongs to a different current-month reward batch as SUSPENDED
     And the live counters of reward batch X match its current transactions

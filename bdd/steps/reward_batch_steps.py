@@ -787,6 +787,10 @@ def step_operator_approve_reward_batch(context, role, trx_name):
         f"{approve_reward_batch.status_code} {approve_reward_batch.text}"
     )
 
+
+@when('the approval of the reward batch containing transaction {trx_name} is confirmed')
+def step_confirm_reward_batch_approval(context, trx_name):
+    reward_batch_id = context.source_reward_batches[trx_name]['id']
     reward_batch_confirmation_batch = post_reward_batch_confirmation_batch(
         initiative_id=context.initiative_id,
         request_body={
@@ -854,7 +858,7 @@ def step_operator_validation_reward_batch_fails(context, role, trx_name, reason)
 
 def _register_reward_batch_for_cleanup(context, trx_name, reward_batch_id):
     merchant_name = context.associated_merchant[trx_name]
-    merchant_id = context.merchants[merchant_name]["id"]
+    merchant_id = context.merchants[merchant_name]['id']
 
     context.reward_batches_to_cleanup.add(
         (context.initiative_id, merchant_id, reward_batch_id)

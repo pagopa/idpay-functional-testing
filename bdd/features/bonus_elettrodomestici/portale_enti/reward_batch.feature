@@ -50,6 +50,7 @@ Feature: Reward batches for Bonus Elettrodomestici and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    And the approval of the reward batch containing transaction X is confirmed
     Then the reward batch of transaction X is APPROVED
 
   Scenario: Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
@@ -69,6 +70,7 @@ Feature: Reward batches for Bonus Elettrodomestici and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    And the approval of the reward batch containing transaction X is confirmed
     Then the reward batch of transaction X is APPROVED
     And after approval, the transaction X belongs to a different current-month reward batch as SUSPENDED
     And the approved reward batch of transaction X keeps its captured suspended amount after the suspended transaction is reassigned
@@ -82,6 +84,7 @@ Feature: Reward batches for Bonus Elettrodomestici and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    And the approval of the reward batch containing transaction X is confirmed
     And the reward batch of transaction X is APPROVED
     And An operator with l3 role downloads the approved reward batch report of transaction X after 30 seconds
     Then the approved reward batch report of transaction X is downloaded

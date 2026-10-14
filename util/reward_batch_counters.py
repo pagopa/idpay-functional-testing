@@ -7,13 +7,19 @@ LIVE_SUSPENDED_BATCH_STATUSES = {'CREATED', 'SENT', 'EVALUATING'}
 
 def transaction_reward_amount(transaction: dict) -> int:
     '''Return the materialized reward amount exposed by a transaction API.'''
-    for field in ('rewardAmountCents', 'accruedRewardCents'):
+    reward_amount_fields = ('rewardAmountCents', 'accruedRewardCents')
+    for field in reward_amount_fields:
         value = transaction.get(field)
         if value is not None:
             return int(value)
+    missing_fields = ', '.join(
+        field
+        for field in reward_amount_fields
+        if transaction.get(field) is None
+    )
     raise AssertionError(
-        'Transaction does not expose rewardAmountCents or accruedRewardCents: '
-        f'{transaction}'
+        'Transaction does not expose a reward amount; missing fields: '
+        f"{missing_fields}"
     )
 
 
