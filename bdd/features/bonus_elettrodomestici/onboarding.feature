@@ -74,6 +74,12 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative NOT_STARTED
     Then the citizen onboarding failed because initiative not started
 
+  Scenario: A citizen tries to onboard a budget exhausted initiative
+    Given the citizen A is 21 years old exactly
+    And the new initiative budget_exhausted is created
+    When the citizen A tries to onboard the initiative budget_exhausted
+    Then the citizen onboarding failed because initiative budget exhausted
+
   Scenario Outline: One member of a family onboards an initiative
     Given citizens <family members> have fiscal code random
     And citizens <family members> are in the same family
