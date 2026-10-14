@@ -187,6 +187,25 @@ def post_suspend_transactions(
     )
 
 
+def post_postpone_transaction(
+        initiative_id: str,
+        reward_batch_id: str,
+        transaction_id: str,
+        access_token: str):
+    reward_batch = settings.IDPAY.endpoints.transactions.reward_batch
+    return requests.post(
+        f"{secrets.base_path.IO}{settings.IDPAY.domain}"
+        f"{settings.IDPAY.endpoints.transactions.merchant}"
+        f"{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}"
+        f"{reward_batch.path}/{reward_batch_id}"
+        f"{reward_batch.transactions.postpone.format(transaction_id=transaction_id)}",
+        headers={
+            'Authorization': f"Bearer {access_token}",
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def get_reward_batches(
         initiative_id: str,
         status: str | None = None,
