@@ -22,6 +22,7 @@ on:
 
 jobs:
   run-bdd-feature-tests:
+    if: ${{ github.event_name != 'pull_request' }}
     timeout-minutes: 90
     runs-on: [ self-hosted-job, "${{ inputs.target_env }}" ]
     environment: ${{ inputs.target_env }}
@@ -147,7 +148,7 @@ jobs:
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
-    if: ${{ always() && inputs.target_env == 'uat' }}
+    if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
