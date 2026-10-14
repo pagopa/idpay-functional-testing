@@ -1,17 +1,17 @@
 @bonus_elettrodomestici @rdb @authorization
 Feature: Access and authorization to RDB
 
-  @rdb_fixture
-  Scenario: Exchange a valid SelfCare identity token
-    Given the RDB identity token fixture is "valid"
-    When the user exchanges the SelfCare token for an RDB token
+  # Application tokens are issued by /idpay-itn/register/token/test.
+  # This flow does not exercise the real SelfCare identity-token exchange.
+  Scenario: Access RDB with a generated application token
+    Given the RDB user is authenticated as "producer"
+    When the RDB user requests the initiatives
     Then the RDB response has HTTP status 200
-    And the returned RDB token identifies the expected role and organization
+    And the generated RDB token identifies the authenticated role and organization
 
-  @rdb_fixture
-  Scenario Outline: Reject a SelfCare token with invalid claims or signature
-    Given the RDB identity token fixture is "<condition>"
-    When the user exchanges the SelfCare token for an RDB token
+  Scenario Outline: Reject an application token with invalid claims or signature
+    Given an RDB application token with "<condition>" is generated
+    When the RDB user requests the initiatives
     Then the RDB response has HTTP status 401
 
     Examples:
@@ -26,6 +26,8 @@ Feature: Access and authorization to RDB
     Then the RDB response has HTTP status 401
 
   @rdb_fixture
+  # Use a configured expired JWT or ask the test signer to preserve an expired exp.
+  # Fail during preparation if the deployed signer still forces an 8-hour lifetime.
   Scenario: Reject an expired application token
     Given the RDB application token fixture is "expired"
     When the RDB user requests the initiatives

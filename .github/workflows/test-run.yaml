@@ -7,7 +7,8 @@ permissions:
 on:
   pull_request:
     branches: [main]
-  push:
+  merge_group:
+    types: [checks_requested]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -19,6 +20,7 @@ on:
         options:
           - all
           - bonus_elettrodomestici
+          - rdb
           - portale_enti
           - report_csv
           - reward_batch
@@ -43,6 +45,12 @@ on:
         options:
           - bdd
 
+      reward_batch_cleanup:
+        description: Cleanup environment after test run
+        required: true
+        type: boolean
+        default: true
+
 jobs:
   run-bdd:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' }}
@@ -50,6 +58,7 @@ jobs:
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
+      reward_batch_cleanup: ${{ github.event_name != 'workflow_dispatch' || inputs.reward_batch_cleanup }}
     secrets: inherit
 
   #run-functional-tests:

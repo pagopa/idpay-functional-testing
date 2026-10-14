@@ -79,3 +79,9 @@ Feature: Reward batches for Bonus Elettrodomestici barcode payments
     Then the reward batch named B contains 0 transactions
     When the merchant 1 prepares and sends the reward batch named B
     Then the reward batch named B is SENT
+
+  Scenario: A merchant postpones a transaction to the next reward batch
+    Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
+    When the transaction X belongs to a reward batch
+    And the merchant 1 postpones transaction X to the next reward batch
+    Then the transaction X belongs to the next reward batch

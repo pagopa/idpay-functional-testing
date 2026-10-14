@@ -15,15 +15,21 @@ on:
         type: string
         required: true
         description: 'Behave tag to run'
+      reward_batch_cleanup:
+        type: boolean
+        required: true
+        description: 'Cleanup environment after test run'
 
 jobs:
   run-bdd-feature-tests:
+    if: ${{ github.event_name != 'pull_request' }}
     timeout-minutes: 90
     runs-on: [ self-hosted-job, "${{ inputs.target_env }}" ]
     environment: ${{ inputs.target_env }}
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
       FEATURE_TAG: ${{ inputs.feature_tag }}
+      PARI_REWARD_BATCH_CLEANUP: ${{ inputs.reward_batch_cleanup }}
 
     steps:
       - name: Checkout repository
@@ -91,24 +97,27 @@ jobs:
 
       - name: Run tests with Behave
         run: |
-          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG"
+          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
           if [ "$FEATURE_TAG" = "all" ]; then
-            python3 -m pipenv run behave \
+            python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/bonus_elettrodomestici \
             --junit \
             --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
           else
-            python3 -m pipenv run behave \
+            python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/bonus_elettrodomestici \
             --tags "$FEATURE_TAG" \
             --junit \
             --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
             --format allure_behave.formatter:AllureFormatter \
             -o allure-results
           fi
-        continue-on-error: true
 
       - name: Sanitize allure results
         if: always()
@@ -129,7 +138,7 @@ jobs:
 
   publish-bdd-report:
     needs: run-bdd-feature-tests
-    if: ${{ inputs.target_env == 'uat' }}
+    if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
