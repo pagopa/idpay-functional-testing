@@ -69,7 +69,7 @@ def step_check_citizens_correct_election(context, citizens):
                      onboarded_citizen_count_increment=len(citizens),
                      accrued_rewards_increment=0,
                      skip_trx_check=True)
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
 
 
@@ -154,11 +154,18 @@ def step_check_onboard_not_found(context, citizen_name):
     res = status_onboarding(token_io, context.initiative_id)
     assert res.status_code == 404
 
+@given("the citizen {citizen_name} tries to onboard the initiative")
+@when("the citizen {citizen_name} tries to onboard the initiative")
 @given('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
 @when('the citizen {citizen_name} tries to onboard the initiative {initiative_name}')
-def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initiative_name):
-    context.initiative_id = secrets.initiatives[initiative_name]['id']
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initiative_name=None):
+    if initiative_name is None:
+        initiative_name = context.initiative_name
+    else:
+        context.initiative_name = initiative_name
+        context.initiative_id = secrets.initiatives[initiative_name]["id"]
+    context.organization_id = secrets.initiatives[initiative_name]["organization_id"]
+    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
     token_io = get_io_token(context.citizens_fc[citizen_name])
 
@@ -418,7 +425,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                          accrued_rewards_increment=0,
                          skip_trx_check=True,
                          deadline=statistics_deadline)
-        context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+        context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                             initiative_id=context.initiative_id).json()
 
 

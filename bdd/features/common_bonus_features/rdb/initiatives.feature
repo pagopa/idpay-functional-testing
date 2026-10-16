@@ -1,4 +1,4 @@
-@bonus_elettrodomestici @rdb @initiatives @rdb_fixture
+@rdb @initiatives @rdb_fixture @bonus_decoder @bonus_elettrodomestici
 Feature: List the initiatives available to an RDB organization
 
   Scenario Outline: Return exactly the initiatives visible to the current user

@@ -1,9 +1,9 @@
-@bonus_elettrodomestici @rdb @producer
+@bonus_elettrodomestici @rdb @producer @bonus_decoder
 Feature: Manage producer associations and operational email
 
   Background:
     Given a dedicated RDB producer without associations
-    And the RDB initiative is "A"
+    And the initiative is active
 
   @rdb_import
   Scenario: Import valid producer associations

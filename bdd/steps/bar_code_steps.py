@@ -57,7 +57,7 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
 
 
 @when('the citizen {citizen_name} tries to create the transaction {trx_name} by Bar Code')
-def step_citizen_create_bar_code(context, citizen_name, trx_name):
+def step_citizen_try_create_bar_code(context, citizen_name, trx_name):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     response = post_create_payment_bar_code(token=token_io,
                                             initiative_id=context.initiative_id)
@@ -104,6 +104,7 @@ def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, am
     trx_code = context.transactions[trx_name]['trxCode']
 
     context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(trx_code=trx_code,
+                                                                                     initiative_id=context.initiative_id,
                                                                                      amount_cents=amount_cents)
 
 
@@ -127,9 +128,10 @@ def get_point_of_sale_access_token(merchant_name, point_of_sale_name):
     return access_token
 
 
+@when("the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents with default product GTIN")
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
 def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
-                                          product_gtin):
+                                          product_gtin=None):
     step_point_of_sale_try_to_authorize_bar_code(
         context=context,
         point_of_sale_name=point_of_sale_name,
@@ -145,9 +147,12 @@ def step_point_of_sale_authorize_bar_code(context, point_of_sale_name, merchant_
     )
 
 
+@when("the point of sale {point_of_sale_name} of merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents with default product GTIN")
 @when('the point of sale {point_of_sale_name} of merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents with product GTIN {product_gtin}')
 def step_point_of_sale_try_to_authorize_bar_code(context, point_of_sale_name, merchant_name, trx_name, amount_cents,
-                                                 product_gtin):
+                                                 product_gtin=None):
+    if product_gtin is None:
+        product_gtin = context.product_gtin
     trx_code = context.transactions[trx_name]['trxCode']
     access_token = get_point_of_sale_access_token(
         merchant_name=merchant_name,
@@ -155,6 +160,7 @@ def step_point_of_sale_try_to_authorize_bar_code(context, point_of_sale_name, me
     )
 
     context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(trx_code=trx_code,
+                                                                                     initiative_id=context.initiative_id,
                                                                                      amount_cents=amount_cents,
                                                                                      access_token=access_token,
                                                                                      additional_properties={'productGtin': product_gtin})
@@ -171,6 +177,7 @@ def step_point_of_sale_capture_bar_code(context, point_of_sale_name, merchant_na
 
     context.latest_merchant_capture_bar_code = put_capture_bar_code_merchant(
         trx_code=trx_code,
+        initiative_id=context.initiative_id,
         access_token=access_token
     )
 
@@ -222,9 +229,10 @@ def step_point_of_sale_invoice_bar_code(context, point_of_sale_name, merchant_na
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 
+@given("the citizen {citizen_name} fully performs the transaction {trx_name} by Bar Code at point of sale {point_of_sale_name} of merchant {merchant_name} of amount {amount_cents} cents with default product GTIN")
 @given('the citizen {citizen_name} fully performs the transaction {trx_name} by Bar Code at point of sale {point_of_sale_name} of merchant {merchant_name} of amount {amount_cents} cents with product GTIN {product_gtin}')
 def step_citizen_fully_performs_transaction_by_bar_code(context, citizen_name, trx_name, point_of_sale_name, merchant_name,
-                                                        amount_cents, product_gtin):
+                                                        amount_cents, product_gtin=None):
     step_citizen_create_bar_code(context, citizen_name, trx_name)
     step_point_of_sale_authorize_bar_code(
         context, point_of_sale_name, merchant_name, trx_name, amount_cents, product_gtin
@@ -318,7 +326,7 @@ def step_merchant_update_invoice_bar_code(context, merchant_name, trx_name):
     response = put_invoice_bar_code_as_merchant(
         initiative_id=context.initiative_id,
         transaction_id=context.transactions[trx_name]['id'],
-        access_token=get_merchant_access_token(merchant_name),
+        access_token=get_merchant_access_token(initiative_name=context.initiative_name, merchant_name=merchant_name),
         invoice_content=UPDATED_INVOICE_CONTENT,
         doc_number=UPDATED_INVOICE_DOC_NUMBER,
         filename='updated-invoice.pdf'

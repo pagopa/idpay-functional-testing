@@ -1,4 +1,4 @@
-@bonus_elettrodomestici @rdb @authorization
+@rdb @authorization
 Feature: Access and authorization to RDB
 
   # Application tokens are issued by /idpay-itn/register/token/test.
@@ -35,7 +35,7 @@ Feature: Access and authorization to RDB
 
   Scenario: A producer cannot approve a product
     Given the RDB user is authenticated as "producer"
-    And the RDB initiative is "A"
+    And the initiative is active
     And RDB product "X" has initial status "WAIT_APPROVED"
     When the RDB user changes products "X" from "WAIT_APPROVED" to "APPROVED"
     Then the RDB response has HTTP status 403

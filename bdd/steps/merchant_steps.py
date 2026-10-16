@@ -104,9 +104,13 @@ def step_merchant_has_ateco_code(context, merchant_name, ateco):
     mock_merchant_ateco(context.merchants [merchant_name]['fiscalCode'], ateco=ateco)
 
 
+@given("merchant {merchant_name} is not onboarded on the initiative")
 @given("merchant {merchant_name} isn't onboarded on {initiative_name}")
-def step_merchant_is_not_onboarded(context, merchant_name, initiative_name):
-    initiative_id = secrets.initiatives[initiative_name]['id']
+def step_merchant_is_not_onboarded(context, merchant_name, initiative_name=None):
+    initiative_id = (
+        context.initiative_id if initiative_name is None
+        else secrets.initiatives[initiative_name]["id"]
+    )
     response = get_initiative_statistics_merchant_portal(
         merchant_id=context.merchants[merchant_name]['merchantId'],
         initiative_id=initiative_id
@@ -117,9 +121,13 @@ def step_merchant_is_not_onboarded(context, merchant_name, initiative_name):
     )
 
 
+@given("merchant {merchant_name} has onboarded the initiative")
 @given('merchant {merchant_name} has onboarded initiative {initiative_name}')
-def step_merchant_has_onboarded_initiative(context, merchant_name, initiative_name):
-    initiative_id = secrets.initiatives[initiative_name]['id']
+def step_merchant_has_onboarded_initiative(context, merchant_name, initiative_name=None):
+    initiative_id = (
+        context.initiative_id if initiative_name is None
+        else secrets.initiatives[initiative_name]["id"]
+    )
     response = put_onboard_merchant_initiative(
         selfcare_token=context.merchants[merchant_name]['token'],
         merchant_id=context.merchants[merchant_name]['merchantId'],
@@ -131,9 +139,13 @@ def step_merchant_has_onboarded_initiative(context, merchant_name, initiative_na
     )
 
 
+@when("merchant {merchant_name} tries to onboard the initiative")
 @when('merchant {merchant_name} tries to onboard the initiative {initiative_name}')
-def step_merchant_tries_to_onboard_initiative(context, merchant_name, initiative_name):
-    initiative_id = secrets.initiatives[initiative_name]['id']
+def step_merchant_tries_to_onboard_initiative(context, merchant_name, initiative_name=None):
+    initiative_id = (
+        context.initiative_id if initiative_name is None
+        else secrets.initiatives[initiative_name]["id"]
+    )
 
     context.merchants[merchant_name]['onboarding_response'] = put_onboard_merchant_initiative(
         selfcare_token=context.merchants[merchant_name]['token'],

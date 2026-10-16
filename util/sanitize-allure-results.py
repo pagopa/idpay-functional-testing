@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import Any
 
 _MULTI_SEGMENT_TOKEN = r"[\w-]+(?:\.+[\w-]+)+"
+INITIATIVE_SUITES = {
+    "bonus_elettrodomestici": "Bonus Elettrodomestici",
+    "bonus_decoder": "Bonus Decoder",
+}
 
 
 def sanitize_text(text: str) -> str:
@@ -51,7 +55,7 @@ def sanitize_dict(obj: Any) -> Any:
         return obj
 
 
-def sanitize_json_file(file_path: Path) -> bool:
+def sanitize_json_file(file_path: Path, initiative: str | None = None) -> bool:
     """
     Sanitize a single JSON file.
     Returns True if file was modified, False otherwise.
@@ -61,6 +65,23 @@ def sanitize_json_file(file_path: Path) -> bool:
             data = json.load(f)
 
         sanitized_data = sanitize_dict(data)
+        if initiative and file_path.name.endswith('-result.json'):
+            labels = sanitized_data.setdefault('labels', [])
+            if not any(label.get('name') == 'initiative' for label in labels):
+                labels.append({'name': 'initiative', 'value': initiative})
+            labels[:] = [
+                label for label in labels if label.get("name") != "parentSuite"
+            ]
+            labels.append({
+                "name": "parentSuite",
+                "value": INITIATIVE_SUITES[initiative],
+            })
+            identity_prefix = f"{initiative}:"
+            # Scope both supplied IDs and the full name used to derive IDs.
+            for field in ("historyId", "testCaseId", "fullName"):
+                identity = sanitized_data.get(field)
+                if identity and not identity.startswith(identity_prefix):
+                    sanitized_data[field] = f"{identity_prefix}{identity}"
 
         # Check if anything was modified
         original_json = json.dumps(data, sort_keys=True)
@@ -87,10 +108,15 @@ def main():
     """
     parser = argparse.ArgumentParser(description="Sanitize bearer tokens and JWTs from Allure JSON results.")
     parser.add_argument(
-        "results_dir",
-        nargs="?",
-        default="allure-results",
-        help="Path to allure-results directory (default: allure-results)",
+        'results_dir',
+        nargs='?',
+        default='allure-results',
+        help='Path to allure-results directory (default: allure-results)',
+    )
+    parser.add_argument(
+        '--initiative',
+        choices=('bonus_elettrodomestici', 'bonus_decoder'),
+        help="Assign initiative labels, parent suite and a separate history to each test result",
     )
     args = parser.parse_args()
 
@@ -110,7 +136,7 @@ def main():
 
     modified_count = 0
     for json_file in json_files:
-        if sanitize_json_file(json_file):
+        if sanitize_json_file(json_file, args.initiative):
             modified_count += 1
             print(f"✅ Sanitized: {json_file.relative_to(allure_results_dir)}")
 
