@@ -67,7 +67,9 @@ def step_merchant_postpones_transaction(context, merchant_name, trx_name):
     )
     reward_batch_id = _stored_reward_batch_id(context, trx_name)
     merchant_id = context.merchants[merchant_name]['id']
-    access_token = get_merchant_access_token(merchant_name)
+    access_token = get_merchant_access_token(
+        initiative_name=context.initiative_name, merchant_name=merchant_name
+    )
     batch_transactions = _get_reward_batch_transactions(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
@@ -114,7 +116,9 @@ def step_transaction_belongs_to_next_reward_batch(context, trx_name):
         transaction_id=transaction_id,
         source_reward_batch_id=source_reward_batch_id,
         destination_reward_batch_id=destination_reward_batch_id,
-        access_token=get_merchant_access_token(merchant_name),
+        access_token=get_merchant_access_token(
+            initiative_name=context.initiative_name, merchant_name=merchant_name
+        ),
     )
 
 
