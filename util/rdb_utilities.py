@@ -16,6 +16,8 @@ from util.asset_register_utilities import build_operatore_token_body
 from util.asset_register_utilities import fake_product_file
 from util.rdb_csv_data import cooking_products
 from util.rdb_csv_data import csv_bytes
+from util.rdb_csv_data import DECODER_HEADERS
+from util.rdb_csv_data import decoder_products
 from util.rdb_csv_data import HEADERS
 
 CSV_UPLOAD_FILTER = 'CSV upload'
@@ -51,10 +53,19 @@ def config():
 
 def state(context):
     if not hasattr(context, 'rdb'):
+        initiative_config = getattr(context, 'initiative_config', {})
+        initiative_alias = getattr(context, 'initiative_name', None)
+        if not initiative_alias:
+            initiative_alias = (
+                initiative_config.get('initiative_id')
+                if isinstance(initiative_config, dict)
+                else getattr(initiative_config, 'initiative_id', None)
+            )
         context.rdb = SimpleNamespace(
             tokens={}, bodies={}, products={}, before={}, dataset={}, filters={},
             category='COOKINGHOBS', response=None, csv_file=None,
             initiative_id=getattr(context, 'initiative_id', None),
+            initiative_alias=initiative_alias,
             role=None, token=None, upload=None,
             current_status=None, target_status=None, report=None,
         )
@@ -187,7 +198,20 @@ def select_initiative(context, alias):
         initiative = required(secrets.get('initiatives', {}), initiative_name, 'secrets.initiatives')
         s.initiative_id = required(initiative, 'id', f'secrets.initiatives.{initiative_name}')
         assert s.initiative_id, f'Empty secrets.initiatives.{initiative_name}.id'
+    s.initiative_alias = alias
     return s.initiative_id
+
+
+def is_decoder_initiative(context):
+    s = state(context)
+    decoder_id = secrets.get('initiatives', {}).get('bonus_decoder', {}).get('id')
+    return getattr(s, 'initiative_alias', None) in ('B', 'bonus_decoder') or (
+        decoder_id is not None and getattr(s, 'initiative_id', None) == decoder_id
+    )
+
+
+def product_rows(context, count=1):
+    return decoder_products(count) if is_decoder_initiative(context) else cooking_products(count)
 
 
 def dataset(context, name):
@@ -259,11 +283,15 @@ def prepare_product_filter(context, field):
         dataset(context, 'product filters')
         return
     authenticate(context, 'producer')
-    rows = cooking_products(3)
+    rows = product_rows(context, 3)
     marker = uuid.uuid4().hex
+    headers = DECODER_HEADERS if is_decoder_initiative(context) else HEADERS
+    brand_index = headers.index('Marca')
+    model_index = headers.index('Modello')
     for row in rows[:2]:
-        row[4], row[5] = f'RDB {marker}', f'Model {marker}'
-    rows[2][4], rows[2][5] = f'Control {uuid.uuid4().hex}', f'Other {uuid.uuid4().hex}'
+        row[brand_index], row[model_index] = f'RDB {marker}', f'Model {marker}'
+    rows[2][brand_index], rows[2][model_index] = (
+        f'Control {uuid.uuid4().hex}', f'Other {uuid.uuid4().hex}')
     target = rows[:2]
     if field == CSV_UPLOAD_FILTER:
         upload = upload_generated_csv(context, target)
@@ -274,8 +302,8 @@ def prepare_product_filter(context, field):
         CSV_UPLOAD_FILTER: upload['productFileId'],
         'GTIN': target[0][0],
         PRODUCT_NAME_FILTER: marker,
-        'brand': target[0][4],
-        'model': target[0][5],
+        'brand': target[0][brand_index],
+        'model': target[0][model_index],
     }
     expected = [row[0] for row in (target[:1] if field == 'GTIN' else target)]
     state(context).dataset = {
@@ -284,11 +312,12 @@ def prepare_product_filter(context, field):
     }
 
 
-def set_csv(context, rows=None, headers=None, category='COOKINGHOBS'):
+def set_csv(context, rows=None, headers=None, category=None):
     s = state(context)
-    s.rows = cooking_products() if rows is None else rows
-    s.headers = HEADERS[:] if headers is None else headers
-    s.category = category
+    decoder = is_decoder_initiative(context)
+    s.rows = product_rows(context) if rows is None else rows
+    s.headers = (DECODER_HEADERS if decoder else HEADERS)[:] if headers is None else headers
+    s.category = category if category is not None else ('DT' if decoder else 'COOKINGHOBS')
     s.csv_file = (f'rdb-{uuid.uuid4().hex}.csv', csv_bytes(s.headers, s.rows), 'text/csv')
     return s.csv_file
 

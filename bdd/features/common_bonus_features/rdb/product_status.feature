@@ -1,8 +1,8 @@
-@bonus_elettrodomestici @rdb @product_status
+@bonus_elettrodomestici @rdb @product_status @bonus_decoder
 Feature: Change product status with role checks and atomic updates
 
   Background:
-    Given the RDB initiative is "A"
+     Given the initiative is active
 
   Scenario Outline: Perform an allowed product status transition
     Given the RDB user is authenticated as "<role>"
@@ -53,3 +53,12 @@ Feature: Change product status with role checks and atomic updates
     Then the RDB request is rejected
     And RDB product "X" is unchanged
     And RDB product "Y" remains absent
+
+  @rdb_fixture
+  Scenario: Do not update a product through another initiative
+    Given the RDB user is authenticated as "Invitalia"
+    And RDB product "X" has initial status "UPLOADED"
+    And the RDB initiative differs from the initiative of product "X"
+    When the RDB user changes products "X" from "UPLOADED" to "REJECTED"
+    Then the RDB request is rejected
+    And RDB product "X" is unchanged

@@ -4,8 +4,39 @@ Feature: Consult RDB registry scope and producer details
   Producer detail requests do not select an initiative.
 
   @rdb_fixture
+  Scenario Outline: Filter products by a supported field
+    Given the initiative is active
+    And RDB products are prepared for filter "<filter>"
+    When the RDB user filters products by "<filter>"
+    Then only RDB products matching the selected filters are returned
+
+    Examples:
+      | filter       |
+      | category     |
+      | CSV upload   |
+      | GTIN         |
+      | product name |
+      | brand        |
+      | model        |
+      | status       |
+
+  @rdb_fixture
+  Scenario: Combine product filters
+    Given the initiative is active
+    And the RDB dataset is "product filters"
+    When the RDB user filters products by "category, brand, model, status"
+    Then only RDB products matching the selected filters are returned
+
+  Scenario: Return an empty result for a nonexistent GTIN
+    Given the initiative is active
+    And the RDB user is authenticated as "producer"
+    And RDB product "X" does not exist
+    When the RDB user searches for product "X"
+    Then the RDB product list is empty
+
+  @rdb_fixture
   Scenario Outline: Restrict product visibility to the selected organization
-    Given the RDB initiative is "A"
+    Given the initiative is active
     And the RDB dataset is "<dataset>"
     When the RDB user requests the dataset products
     Then the returned RDB product GTINs match the dataset
@@ -18,7 +49,7 @@ Feature: Consult RDB registry scope and producer details
 
   @rdb_fixture
   Scenario Outline: Restrict batches to the selected organization
-    Given the RDB initiative is "A"
+     Given the initiative is active
     And the RDB dataset is "<dataset>"
     When the RDB user requests the CSV batches
     Then the returned RDB batch IDs match the dataset
@@ -30,7 +61,7 @@ Feature: Consult RDB registry scope and producer details
 
   @rdb_fixture
   Scenario: List the producers associated with the initiative
-    Given the RDB initiative is "A"
+     Given the initiative is active
     And the RDB dataset is "initiative producers"
     When the RDB user requests the producers
     Then the RDB producer list is consistent with known initiative memberships

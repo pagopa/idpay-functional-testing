@@ -235,7 +235,11 @@ def product_filters(context):
     producer = 'producer'
     rdb.authenticate(context, producer)
     organization = s.organization_id
-    rows = rdb.cooking_products(4)
+    rdb.set_csv(context, rdb.product_rows(context, 4))
+    rows = s.rows
+    headers, category = s.headers[:], s.category
+    brand_index = headers.index('Marca')
+    model_index = headers.index('Modello')
     # ProductSpecificRepositoryImpl applies substring matching to gtinCode.
     # Scope every query to these five inputs while keeping category/status
     # exclusion controls, without importing another organization.
@@ -243,29 +247,34 @@ def product_filters(context):
     marker = uuid.uuid4().hex
     for index, row in enumerate(rows):
         row[0] = f'{gtin_prefix}{index:02x}'
-        row[4], row[5] = f'Brand {marker}', f'Model {marker}'
-    rows[1][4] = f'Other {marker}'
-    rows[2][5] = f'Other {marker}'
+        row[brand_index], row[model_index] = f'Brand {marker}', f'Model {marker}'
+    rows[1][brand_index] = f'Other {marker}'
+    rows[2][model_index] = f'Other {marker}'
     upload = rdb.upload_generated_csv(context, rows)
-    rdb.eprel_csv(context, 'valid')
-    assert len(s.rows) == 1, 'Product filters require exactly one valid EPREL control row'
-    s.rows[0][s.headers.index('Codice GTIN/EAN')] = f'{gtin_prefix}04'
-    rdb.set_csv(context, s.rows, s.headers, s.category)
-    eprel_code, eprel_gtin = s.rows[0][:2]
-    rdb.finish_upload(context)
+    eprel_filters = {}
+    eprel_gtins = []
+    if not rdb.is_decoder_initiative(context):
+        rdb.eprel_csv(context, 'valid')
+        assert len(s.rows) == 1, 'Product filters require exactly one valid EPREL control row'
+        s.rows[0][s.headers.index('Codice GTIN/EAN')] = f'{gtin_prefix}04'
+        rdb.set_csv(context, s.rows, s.headers, s.category)
+        eprel_code, eprel_gtin = s.rows[0][:2]
+        rdb.finish_upload(context)
+        eprel_filters['EPREL code'] = eprel_code
+        eprel_gtins.append(eprel_gtin)
     # Preserve a status control visible in the Invitalia view.
     s.products['status control'] = {'gtinCode': rows[3][0], 'organizationId': organization}
     rdb.authenticate(context, 'Invitalia')
     rdb.outcome(rdb.change_status(context, ['status control'], 'UPLOADED', 'SUPERVISED'))
-    return {'profile': 'Invitalia', 'initiative': 'A', 'producer_profile': producer,
+    return {'profile': 'Invitalia', 'producer_profile': producer,
             'query_scope': {'organization_id': organization, 'gtin_code': gtin_prefix},
-            'filters': {'category': 'COOKINGHOBS', 'status': 'UPLOADED',
-                        'EPREL code': eprel_code, 'brand': rows[0][4], 'model': rows[0][5],
+            'filters': {'category': category, 'status': 'UPLOADED',
+                        **eprel_filters, 'brand': rows[0][brand_index], 'model': rows[0][model_index],
                         'CSV upload': upload['productFileId'], 'GTIN': rows[0][0], 'product name': marker},
             'filter_product_gtins': {
                 'category': [row[0] for row in rows],
-                'status': [row[0] for row in rows[:3]] + [eprel_gtin],
-                'EPREL code': [eprel_gtin],
+                'status': [row[0] for row in rows[:3]] + eprel_gtins,
+                'EPREL code': eprel_gtins,
                 'CSV upload': [row[0] for row in rows],
                 'GTIN': [rows[0][0]],
                 'brand': [rows[i][0] for i in (0, 2, 3)],
