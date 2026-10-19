@@ -81,7 +81,6 @@ Feature: Reward batches for initiative barcode payments
     When the merchant 1 prepares and sends the reward batch named B
     Then the reward batch named B is SENT
 
-    @daniele
   Scenario: A merchant postpones a transaction to the next reward batch
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN

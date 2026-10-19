@@ -167,7 +167,7 @@ jobs:
         if: always()
         run: |
           mkdir -p merged-allure-results
-          printf 'Target environment=%s\n' "$TARGET_ENV" > merged-allure-results/environment.properties
+          printf '%s\n' "${TARGET_ENV^^}" > merged-allure-results/environment.properties
           cat > merged-allure-results/executor.json <<EOF
           {
             "name": "GitHub Actions",
