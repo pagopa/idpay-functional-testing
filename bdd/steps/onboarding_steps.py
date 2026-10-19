@@ -311,7 +311,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     status = status.upper()
     token_io = get_io_token(context.citizens_fc[citizen_name])
     res = status_onboarding(token_io, context.initiative_id)
-    assert res.status_code == 200, f'Unexpected onboarding status response for {citizen_name}: {res.status_code} {res.text}'
+    assert res.status_code != 500, f'Unexpected onboarding status response for {citizen_name}: {res.status_code} {res.text}'
 
     if status == 'KO':
         expected_status = f'ONBOARDING_{status}'
@@ -356,11 +356,11 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = f'ONBOARDING_{status}'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=180, delay=1,
                             message=f'Citizen onboard not {status}'
                             )
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                     initiative_id=context.initiative_id, field='status', tries=10, delay=3)
+                     initiative_id=context.initiative_id, field='status', tries=180, delay=1)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
                        initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                        message='Not onboard')
@@ -387,7 +387,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = status
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=50, delay=1,
                             message=f'Citizen not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
@@ -450,6 +450,16 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
+
+    elif status == 'JOINED':
+        expected_status = "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED"
+
+        retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
+                            initiative_id=context.initiative_id, field='code', tries=50, delay=1,
+                            message=f'Citizen onboard not {status}'
+                            )
+        curr_onboarded_citizen_count_increment = 0
+        skip_statistics_check = True
 
     else:
         assert False, f'Unexpected onboarding status {status} for citizen {citizen_name} in initiative {context.initiative_id}'

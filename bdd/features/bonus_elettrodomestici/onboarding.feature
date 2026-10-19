@@ -80,15 +80,13 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative budget_exhausted
     Then the citizen onboarding failed because initiative budget exhausted
 
-  Scenario Outline: One member of a family onboards an initiative
-    Given citizens <family members> have fiscal code random
-    And citizens <family members> are in the same family
-    And citizens <family members> have ISEE 19999 of type "ordinario"
-    And the citizen <family members> selects ISEE type "under_25000"
-    When the first citizen of <family members> onboards
+  Scenario: One member of a family onboards an initiative
+    Given citizens A B C have fiscal code random
+    And citizens A B C are in the same family
+    And citizens A B C have ISEE 19999 of type "ordinario"
+    And the citizen A B C selects ISEE type "under_25000"
+    When the first citizen of A B C onboards
     Then the onboard of A is OK
-    And the onboards of <KO citizens> are KO
-
-    Examples: Family members
-      | KO citizens | family members |
-      | B C         | A B C          |
+    When the citizen B tries to onboard
+    And the citizen C tries to onboard
+    Then the onboards of B C are JOINED
