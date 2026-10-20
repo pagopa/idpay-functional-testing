@@ -316,8 +316,10 @@ def set_csv(context, rows=None, headers=None, category=None):
     s = state(context)
     decoder = is_decoder_initiative(context)
     s.rows = product_rows(context) if rows is None else rows
-    s.headers = (DECODER_HEADERS if decoder else HEADERS)[:] if headers is None else headers
-    s.category = category if category is not None else ('DT' if decoder else 'COOKINGHOBS')
+    default_headers = DECODER_HEADERS if decoder else HEADERS
+    s.headers = default_headers[:] if headers is None else headers
+    default_category = 'DT' if decoder else 'COOKINGHOBS'
+    s.category = default_category if category is None else category
     s.csv_file = (f'rdb-{uuid.uuid4().hex}.csv', csv_bytes(s.headers, s.rows), 'text/csv')
     return s.csv_file
 
