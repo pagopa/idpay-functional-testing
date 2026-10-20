@@ -97,4 +97,4 @@ Feature: Onboarding Bonus Elettrodomestici
     And the citizen B tries to onboard
     And the citizen C tries to onboard
     Then the onboard of A is OK
-    And the onboards of B C are JOINED
+    And the onboards of B C are family joined

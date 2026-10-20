@@ -445,7 +445,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                             )
         curr_onboarded_citizen_count_increment = 0
 
-    elif status == 'JOINED':
+    elif status == 'FAMILY JOINED':
         expected_status = "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED"
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
