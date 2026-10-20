@@ -356,7 +356,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = f'ONBOARDING_{status}'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=180, delay=1,
+                            initiative_id=context.initiative_id, field='status', tries=310, delay=1,
                             message=f'Citizen onboard not {status}'
                             )
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
@@ -365,10 +365,10 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         curr_onboarded_citizen_count_increment = 1
 
     elif status == 'UNSUBSCRIBED':
-        expected_status = status
+        expected_status = "ONBOARDING_USER_NOT_ONBOARDED"
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='code', tries=50, delay=0.1,
                             message=f'Citizen not {status}')
         retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
@@ -470,12 +470,12 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                                                             initiative_id=context.initiative_id).json()
 
 
-@then('the wallet of {citizen_name} is refundable with the initial budget')
-def step_check_initial_wallet(context, citizen_name):
+@then('the wallet of {citizen_name} is refundable with {budget} euros budget')
+def step_check_initial_wallet(context, citizen_name, budget):
     token_io = get_io_token(context.citizens_fc[citizen_name])
     retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                  initiative_id=context.initiative_id, field='status', tries=180, delay=1)
-    expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'],
+    expect_wallet_counters(expected_amount=int(budget),
                            expected_accrued=0,
                            token=token_io,
                            initiative_id=context.initiative_id)

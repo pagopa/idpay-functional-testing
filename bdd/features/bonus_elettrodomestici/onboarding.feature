@@ -113,3 +113,14 @@ Feature: Onboarding Bonus Elettrodomestici
     And the citizen C tries to onboard
     Then the onboard of A is OK
     And the onboards of B C are family joined
+
+  Scenario: An unsubscribed citizen onboards the same initiative again successfully
+    Given the citizen A is 21 years old exactly
+    And the citizen A has ISEE 24000 of type "ordinario"
+    And the citizen A selects ISEE type "under_25000"
+    And the citizen A tries to onboard the initiative bonus_elettrodomestici
+    And the onboard of A is OK
+    And the citizen A unsubscribes
+    And the onboard of A is unsubscribed
+    When the citizen A tries to onboard the initiative bonus_elettrodomestici
+    Then the onboard of A is OK
