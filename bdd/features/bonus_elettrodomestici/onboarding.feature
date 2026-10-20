@@ -11,6 +11,14 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is OK
 
+  Scenario: Onboarded citizen with ISEE lower than 25k has a wallet with correct budget
+    Given the citizen A is 21 years old exactly
+    And the citizen A has ISEE 24000 of type "ordinario"
+    And the citizen A selects ISEE type "under_25000"
+    When the citizen A tries to onboard the initiative bonus_elettrodomestici
+    Then the onboard of A is OK
+    And the wallet of A is refundable with 200 euros budget
+
   Scenario: Citizen with ISEE equal or above 25k tries to onboard successfully
     Given the citizen A is 21 years old exactly
     And the citizen A has ISEE 30000 of type "ordinario"
@@ -18,19 +26,26 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is OK
 
+  Scenario: Onboarded citizen with ISEE equal or above 25k has a wallet with correct budget
+    Given the citizen A is 21 years old exactly
+    And the citizen A has ISEE 30000 of type "ordinario"
+    And the citizen A selects ISEE type "over_25000"
+    When the citizen A tries to onboard the initiative bonus_elettrodomestici
+    Then the onboard of A is OK
+    And the wallet of A is refundable with 100 euros budget
+
   Scenario: Citizen with no declared ISEE tries to onboard successfully
     Given the citizen A is 21 years old exactly
     And the citizen A selects ISEE type "not_declared"
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is OK
 
-  Scenario: Successfully onboarded citizen has a refundable wallet with the initial budget
+  Scenario: Onboarded citizen with no declared ISEE has a wallet with correct budget
     Given the citizen A is 21 years old exactly
-    And the citizen A has ISEE 24000 of type "ordinario"
-    And the citizen A selects ISEE type "under_25000"
+    And the citizen A selects ISEE type "not_declared"
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is OK
-    And the wallet of A is refundable with the initial budget
+    And the wallet of A is refundable with 100 euros budget
 
 ### Currently the backend does not enforce a minimum age requirement for onboarding,
 ### this check is performed on the frontend (app IO and web authentication)
