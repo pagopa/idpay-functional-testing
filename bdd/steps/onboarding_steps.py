@@ -359,15 +359,9 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                             initiative_id=context.initiative_id, field='status', tries=180, delay=1,
                             message=f'Citizen onboard not {status}'
                             )
-        retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                     initiative_id=context.initiative_id, field='status', tries=180, delay=1)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
                        initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
                        message='Not onboard')
-        expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'],
-                               expected_accrued=0,
-                               token=token_io,
-                               initiative_id=context.initiative_id)
         curr_onboarded_citizen_count_increment = 1
 
     elif status == 'UNSUBSCRIBED':
@@ -474,6 +468,17 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                          deadline=statistics_deadline)
         context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
                                                             initiative_id=context.initiative_id).json()
+
+
+@then('the wallet of {citizen_name} is refundable with the initial budget')
+def step_check_initial_wallet(context, citizen_name):
+    token_io = get_io_token(context.citizens_fc[citizen_name])
+    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
+                 initiative_id=context.initiative_id, field='status', tries=180, delay=1)
+    expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'],
+                           expected_accrued=0,
+                           token=token_io,
+                           initiative_id=context.initiative_id)
 
 
 @then('the onboards of {citizens_names} are {status}')

@@ -24,7 +24,15 @@ Feature: Onboarding Bonus Elettrodomestici
     When the citizen A tries to onboard the initiative bonus_elettrodomestici
     Then the onboard of A is OK
 
-### Currently the backend does not enforce the minimum age requirement for onboarding,
+  Scenario: Successfully onboarded citizen has a refundable wallet with the initial budget
+    Given the citizen A is 21 years old exactly
+    And the citizen A has ISEE 24000 of type "ordinario"
+    And the citizen A selects ISEE type "under_25000"
+    When the citizen A tries to onboard the initiative bonus_elettrodomestici
+    Then the onboard of A is OK
+    And the wallet of A is refundable with the initial budget
+
+### Currently the backend does not enforce a minimum age requirement for onboarding,
 ### this check is performed on the frontend (app IO and web authentication)
 #  Scenario: A citizen under the minimum age tries to onboard unsuccessfully
 #    Given the citizen A is 17 years old at most
