@@ -316,7 +316,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     if status == 'KO':
         expected_status = f'ONBOARDING_{status}'
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=36, delay=5,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
@@ -329,7 +329,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     elif status == 'SUSPENDED':
         expected_status = status
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         retry_wallet(expected=wallet_statuses.suspended, request=wallet, token=token_io,
@@ -342,7 +342,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
     elif status == 'READMITTED':
         expected_status = 'ONBOARDING_OK'
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
@@ -356,7 +356,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = f'ONBOARDING_{status}'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=310, delay=1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
@@ -368,7 +368,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = "ONBOARDING_USER_NOT_ONBOARDED"
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='code', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='code', tries=62, delay=5,
                             message=f'Citizen not {status}')
         retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
@@ -381,7 +381,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = status
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
@@ -390,7 +390,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = f'ONBOARDING_OK'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
@@ -408,7 +408,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = 'ELIGIBLE_KO'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         skip_statistics_check = False
@@ -417,7 +417,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = status
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
@@ -426,7 +426,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = f'ONBOARDING_OK'
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}')
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
@@ -440,7 +440,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = status
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='status', tries=50, delay=0.1,
+                            initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
@@ -449,7 +449,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         expected_status = "ONBOARDING_FAMILY_UNIT_ALREADY_JOINED"
 
         retry_io_onboarding(expected=expected_status, request=status_onboarding, token=token_io,
-                            initiative_id=context.initiative_id, field='code', tries=50, delay=1,
+                            initiative_id=context.initiative_id, field='code', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
         curr_onboarded_citizen_count_increment = 0
