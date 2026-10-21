@@ -350,6 +350,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../components/bonus_decoder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bonus_decoder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../components/ranking/" class="md-nav__link">
         
   
@@ -386,6 +414,34 @@
     
   
     idpay_code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/common_bonus_features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    common_bonus_features
   
 
     
@@ -920,7 +976,17 @@
 
 
 <h1 id="rdb-functional-tests">RDB functional tests</h1>
-<p>The <code>bdd/features/bonus_elettrodomestici/rdb</code> suite contains 96 independent scenarios.
+<p>The RDB suite contains 96 independent scenarios, split across
+<code>bdd/features/common_bonus_features/rdb</code> (26),
+<code>bdd/features/bonus_elettrodomestici/rdb</code> (66), and
+<code>bdd/features/bonus_decoder/rdb</code> (4).
+Appliances-specific scenarios explicitly select initiative A; decoder isolation
+scenarios also require initiative A alongside B. The common initiative-list
+fixtures may require both initiatives. Common registry-scope and CSV-history
+scenarios tagged <code>@multi_initiative</code> use A as the query target and B as an
+isolation control. Producer detail requests are initiative-independent.
+Decoder scenarios remain in the decoder suite when the operation under test
+targets B, even if their prerequisites also use A.
 Steps use the APIs of the selected environment; generated datasets do not mock responses.
 Latest full run with simplified cleanup: <a href="rdb-test-results-2026-10-09-uat.md">UAT, 9 October 2026</a>,
 95 scenarios passed and 1 concurrency check failed, confirmed by an isolated rerun.
