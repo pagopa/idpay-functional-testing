@@ -689,3 +689,8 @@ def step_try_to_insert_mismatch_email(context, citizen_name, initiative_name):
     assert context.save_onboarding_response.status_code == 202, (
         f'Onboarding failed: {context.save_onboarding_response.status_code} {context.save_onboarding_response.text}'
     )
+
+
+@given('the citizen {citizen_name} has not payed Canone TV')
+def step_citizen_has_not_payed_canone_tv(context, citizen_name):
+    assert False, 'to be implemented'
