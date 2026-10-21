@@ -108,7 +108,7 @@ Feature: Onboarding Bonus Elettrodomestici
     And citizens A B C are in the same family
     And citizens A B C have ISEE 19999 of type "ordinario"
     And the citizen A B C selects ISEE type "under_25000"
-    When the first citizen of A B C onboards
+    When the citizen A tries to onboard
     And the citizen B tries to onboard
     And the citizen C tries to onboard
     Then the onboard of A is OK
