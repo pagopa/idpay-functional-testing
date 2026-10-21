@@ -1,6 +1,16 @@
 # RDB functional tests
 
-The `bdd/features/bonus_elettrodomestici/rdb` suite contains 96 independent scenarios.
+The RDB suite contains 96 independent scenarios, split across
+`bdd/features/common_bonus_features/rdb` (26),
+`bdd/features/bonus_elettrodomestici/rdb` (66), and
+`bdd/features/bonus_decoder/rdb` (4).
+Appliances-specific scenarios explicitly select initiative A; decoder isolation
+scenarios also require initiative A alongside B. The common initiative-list
+fixtures may require both initiatives. Common registry-scope and CSV-history
+scenarios tagged `@multi_initiative` use A as the query target and B as an
+isolation control. Producer detail requests are initiative-independent.
+Decoder scenarios remain in the decoder suite when the operation under test
+targets B, even if their prerequisites also use A.
 Steps use the APIs of the selected environment; generated datasets do not mock responses.
 Latest full run with simplified cleanup: [UAT, 9 October 2026](rdb-test-results-2026-10-09-uat.md),
 95 scenarios passed and 1 concurrency check failed, confirmed by an isolated rerun.

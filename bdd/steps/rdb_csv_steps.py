@@ -15,7 +15,7 @@ from util import rdb_utilities as rdb
 @given('a valid RDB product CSV with {count:d} rows')
 def rdb_valid_csv(context, count):
     assert count > 0
-    rdb.set_csv(context, rdb.cooking_products(count))
+    rdb.set_csv(context, rdb.product_rows(context, count))
 
 
 @given('the RDB product CSV has defect "{defect}"')
@@ -37,7 +37,7 @@ def rdb_decoder_template(context):
 
 @given('the RDB CSV contains duplicate GTIN rows with different product codes')
 def rdb_duplicate_csv(context):
-    first = rdb.cooking_products()[0]
+    first = rdb.product_rows(context)[0]
     second = first[:]
     second[1] = 'SECOND'
     rdb.set_csv(context, [first, second])
@@ -46,8 +46,14 @@ def rdb_duplicate_csv(context):
 @given('the RDB CSV updates product "{name}"')
 def rdb_reload_csv(context, name):
     product = rdb.get_product(context, name)
-    row = [product['gtinCode'], 'UPDATED', 'Piano cottura', 'IT', 'RDB Updated', 'Updated model']
-    rdb.set_csv(context, [row])
+    rdb.set_csv(context)
+    s = rdb.state(context)
+    row = s.rows[0]
+    row[s.headers.index('Codice GTIN/EAN')] = product['gtinCode']
+    row[s.headers.index('Codice Prodotto')] = 'UPDATED'
+    row[s.headers.index('Marca')] = 'RDB Updated'
+    row[s.headers.index('Modello')] = 'Updated model'
+    rdb.set_csv(context, s.rows, s.headers, s.category)
 
 
 @when('the producer validates the RDB product CSV')
@@ -156,14 +162,14 @@ def rdb_first_duplicate(context):
 def rdb_reloaded_product(context, name):
     s = rdb.state(context)
     item = rdb.get_product(context, name)
-    assert item['gtinCode'] == s.before[name]['gtinCode']
-    assert item['initiativeId'] == s.before[name]['initiativeId']
-    assert item['status'] == 'UPLOADED'
-    assert item['productCode'] == 'UPDATED'
-    assert item['brand'] == 'RDB Updated'
-    assert item['model'] == 'Updated model'
-    assert item['batchName'] == s.upload['batchName']
-    assert item['batchName'] != s.before[name]['batchName']
+    assert item['gtinCode'] == s.before[name]['gtinCode'], 'Reload changed the product GTIN'
+    assert item['initiativeId'] == s.before[name]['initiativeId'], 'Reload changed the initiative'
+    assert item['status'] == 'UPLOADED', f'Reloaded product has status {item["status"]}'
+    assert item['productCode'] == 'UPDATED', f'Reloaded product code is {item["productCode"]}'
+    assert item['brand'] == 'RDB Updated', f'Reloaded product brand is {item["brand"]}'
+    assert item['model'] == 'Updated model', f'Reloaded product model is {item["model"]}'
+    assert item['batchName'] == s.upload['batchName'], 'Reloaded product has the wrong batch'
+    assert item['batchName'] != s.before[name]['batchName'], 'Reload did not create a new batch'
 
 
 @then('the submitted RDB product belongs to the selected initiative')

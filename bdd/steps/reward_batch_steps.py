@@ -67,7 +67,9 @@ def step_merchant_postpones_transaction(context, merchant_name, trx_name):
     )
     reward_batch_id = _stored_reward_batch_id(context, trx_name)
     merchant_id = context.merchants[merchant_name]['id']
-    access_token = get_merchant_access_token(merchant_name)
+    access_token = get_merchant_access_token(
+        initiative_name=context.initiative_name, merchant_name=merchant_name
+    )
     batch_transactions = _get_reward_batch_transactions(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
@@ -114,7 +116,9 @@ def step_transaction_belongs_to_next_reward_batch(context, trx_name):
         transaction_id=transaction_id,
         source_reward_batch_id=source_reward_batch_id,
         destination_reward_batch_id=destination_reward_batch_id,
-        access_token=get_merchant_access_token(merchant_name),
+        access_token=get_merchant_access_token(
+            initiative_name=context.initiative_name, merchant_name=merchant_name
+        ),
     )
 
 
@@ -161,7 +165,7 @@ def _reverse_reward_batch_transactions(
         initiative_id=context.initiative_id,
         merchant_id=merchant_id,
         reward_batch_id=reward_batch_id,
-        access_token=get_merchant_access_token(merchant_name)
+        access_token=get_merchant_access_token(initiative_name=context.initiative_name, merchant_name=merchant_name)
     )
 
     access_token = get_point_of_sale_access_token(
@@ -253,7 +257,7 @@ def step_reward_batch_has_positive_suspended_amount(context, trx_name):
         initiative_id=context.initiative_id,
         merchant_id=context.merchants[merchant_name]['id'],
         reward_batch_id=reward_batch['id'],
-        access_token=get_merchant_access_token(merchant_name),
+        access_token=get_merchant_access_token(initiative_name=context.initiative_name, merchant_name=merchant_name),
         reward_batch_trx_status='SUSPENDED'
     )
     transaction = next(
@@ -400,7 +404,7 @@ def _prepare_and_send_reward_batch(
     send_response = post_send_reward_batch(
         initiative_id=context.initiative_id,
         reward_batch_id=reward_batch_id,
-        access_token=get_merchant_access_token(merchant_name)
+        access_token=get_merchant_access_token(initiative_name=context.initiative_name, merchant_name=merchant_name)
     )
     defer_send_outcome_assertion = expected_number_of_transactions == 0
     if not defer_send_outcome_assertion:

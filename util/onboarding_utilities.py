@@ -96,8 +96,6 @@ def build_self_declaration_list_payload_by_initiative(
                 self_declaration_accepted=self_declaration_accepted,
             )
         case 'bonus_decoder':
-            return build_bonus_decoder_self_declaration_list_payload(
-                multi_consent_isee_value=multi_consent_isee_value,
-            )
+            return None
         case _:
             return None

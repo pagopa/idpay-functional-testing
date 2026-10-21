@@ -1,9 +1,10 @@
 @bonus_elettrodomestici
+@bonus_decoder
 @portale_enti
 @report_csv
 Feature: Export Transactions (Report CSV)
   Background:
-    Given the initiative is "bonus_elettrodomestici"
+    Given the initiative is active
     And the merchant 1 is qualified
 
   Scenario Outline: Operator requests the CSV report export correctly

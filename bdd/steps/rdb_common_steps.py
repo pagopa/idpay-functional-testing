@@ -20,6 +20,16 @@ def rdb_initiative(context, alias):
     rdb.select_initiative(context, alias)
 
 
+@given('the RDB initiative differs from the initiative of product "{name}"')
+def rdb_other_product_initiative(context, name):
+    product_initiative = rdb.state(context).products[name]['initiativeId']
+    selected = rdb.select_initiative(context, 'B')
+    if selected == product_initiative:
+        selected = rdb.select_initiative(context, 'A')
+    assert selected != product_initiative, (
+        'Cross-initiative isolation requires two distinct initiative IDs')
+
+
 @given('the RDB dataset is "{name}"')
 def rdb_dataset(context, name):
     rdb.dataset(context, name)
