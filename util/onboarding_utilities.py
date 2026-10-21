@@ -35,13 +35,8 @@ def onboard_io(fc, initiative_id):
 def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5,
                         message='Test failed'):
     count = 0
-    res = request(token, initiative_id)
-    assert res.status_code != 500, (
-        f'Onboarding status request failed: {res.status_code} {res.text}'
-    )
-    success = (expected == res.json()[field])
+    success = False
     while not success:
-        count += 1
         if count == tries:
             break
         time.sleep(delay)
@@ -49,9 +44,14 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
         assert res.status_code != 500, (
             f'Onboarding status request failed: {res.status_code} {res.text}'
         )
-        success = (expected == res.json()[field])
-    actual = res.json()[field]
+        success = field in res.json() and expected == res.json()[field]
+        count += 1
 
+    assert field in res.json(), (
+        f'Onboarding status response does not contain expected field: {field}, response: {res.json()}'
+    )
+    
+    actual = res.json()[field]
     assert expected == actual, (
         f'{message}: result retry io onboarding {actual} does not match expected {expected} for field {field}'
     )
