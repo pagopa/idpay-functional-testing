@@ -685,3 +685,7 @@ def step_try_to_insert_mismatch_email(context, citizen_name, initiative_name):
         user_mail='',
         user_mail_confirmation='',
     )
+
+    assert context.save_onboarding_response.status_code == 202, (
+        f'Onboarding failed: {context.save_onboarding_response.status_code} {context.save_onboarding_response.text}'
+    )
