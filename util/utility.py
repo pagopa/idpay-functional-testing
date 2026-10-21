@@ -327,24 +327,27 @@ def clean_trx_files(source_filename: str):
 
 
 def retry_institution_statistics(initiative_id: str,
+                                 organization_id: str = secrets.organization_id,
                                  tries=10,
                                  delay=1):
     count = 0
 
     res = get_initiative_statistics(
-        organization_id=secrets.organization_id,
+        organization_id=organization_id,
         initiative_id=initiative_id)
 
     while res.status_code != 200:
         count += 1
         time.sleep(delay)
         res = get_initiative_statistics(
-            organization_id=secrets.organization_id,
+            organization_id=organization_id,
             initiative_id=initiative_id)
         if count == tries:
             break
 
-    assert res.status_code == 200
+    assert res.status_code == 200, (
+        f'get_initiative_statistics failed: status={res.status_code}, body={res.text}'
+    )
     return res.json()
 
 
@@ -398,7 +401,7 @@ def check_statistics(organization_id: str,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
                      tries=10,
-                     delay=1,
+                     delay=2,
                      deadline=None):
     success = False
     count = 0

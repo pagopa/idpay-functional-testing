@@ -23,6 +23,7 @@ def step_given_initiative_name(context, initiative_name):
     context.initiative_name = initiative_name
     context.initiative_id = secrets.initiatives[initiative_name]['id']
     context.initiative_settings = settings.initiatives[initiative_name]
+    context.organization_id = secrets.initiatives[initiative_name]['organization_id']
     base_context_initialization(context)
 
 
@@ -51,7 +52,11 @@ def base_context_initialization(context):
     context.trx_date = (datetime.datetime.now(pytz.timezone('Europe/Rome')) + datetime.timedelta(days=1)).strftime(
         settings.iso_date_format)
 
-    context.base_statistics = retry_institution_statistics(initiative_id=context.initiative_id)
+    if not hasattr(context, 'organization_id'):
+        context.organization_id = secrets.organization_id
+
+    context.base_statistics = retry_institution_statistics(initiative_id=context.initiative_id,
+                                                           organization_id=context.organization_id)
     context.base_merchants_statistics = {}
 
     context.transactions = {}
@@ -62,8 +67,6 @@ def base_context_initialization(context):
         context.citizens_fc = {}
 
     context.num_new_trxs = 0
-    context.organization_id = secrets.organization_id
-
     context.trxs_per_citizen = {}
     context.accrued_per_citizen = {}
     context.total_accrued = 0
@@ -88,13 +91,13 @@ def step_allocate_initiative_budget(context, precision):
     if precision == 'almost':
         allowable_citizens -= 1
 
-    context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
 
     while context.base_statistics['onboardedCitizenCount'] < allowable_citizens:
         step_citizen_fc_exact_or_random(context=context, citizen_name=str(i), citizen_fc='random')
         step_named_citizen_onboard(context=context, citizen_name=str(i))
-        context.base_statistics = get_initiative_statistics(organization_id=secrets.organization_id,
+        context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                             initiative_id=context.initiative_id).json()
         i += 1
 
