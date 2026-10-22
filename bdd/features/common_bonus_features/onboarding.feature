@@ -5,10 +5,17 @@ Feature: Onboarding to an initiative
   Background:
     Given the initiative is active
 
-  Scenario: A citizen under the minimum age tries to onboard unsuccessfully
-    Given the citizen A is 17 years old at most
-    When the citizen A tries to onboard the initiative
-    Then the onboard of A is KO
+### Currently the backend does not enforce a minimum age requirement for onboarding,
+### this check is performed on the frontend (app IO and web authentication)
+#  Scenario: A citizen under the minimum age tries to onboard unsuccessfully
+#    Given the citizen A is 17 years old at most
+#    When the citizen A tries to onboard the initiative
+#    Then the onboard of A is KO
+
+  Scenario: Citizen without email tries to onboard successfully
+    Given the citizen A has fiscal code random
+    When the citizen A onboards the initiative without an email
+    Then the onboard of A is OK
 
   Scenario: Citizen with mismatching email tries to onboard unsuccessfully
     Given the citizen A has fiscal code random
@@ -29,22 +36,37 @@ Feature: Onboarding to an initiative
     Given the citizen A is 21 years old exactly
     And the citizen A accepts terms and conditions
     When the citizen A tries to save PDND consent not correctly
-    Then the citizen onboarding failed because the consent was denied by the citizen
+    Then the onboard of A is in error with value ONBOARDING_UNSATISFIED_REQUIREMENTS
 
   Scenario: A citizen tries to onboard a nonexistent initiative
     Given the citizen A is 21 years old exactly
     When the citizen A tries to onboard on nonexistent initiative
     Then the citizen onboarding failed because initiative not found
 
-  Scenario Outline: One member of a family onboards an initiative
-    Given citizens <family members> have fiscal code random
-    And citizens <family members> are in the same family
-    And citizens <family members> have ISEE 19999 of type "ordinario"
-    And the citizen <family members> selects ISEE type "under_25000"
-    When the first citizen of <family members> onboards
-    Then the onboard of A is OK
-    And the onboards of <KO citizens> are KO
+  Scenario: A citizen tries to onboard a non published initiative
+    Given the citizen A is 21 years old exactly
+    And the new initiative A is created but not published
+    When the citizen A tries to onboard the initiative A
+    Then the citizen onboarding failed because initiative not published
 
-    Examples: Family members
-      | KO citizens | family members |
-      | B C         | A B C          |
+  Scenario: A citizen tries to onboard a non started initiative
+    Given the citizen A is 21 years old exactly
+    And the new initiative NOT_STARTED is created
+    When the citizen A tries to onboard the initiative NOT_STARTED
+    Then the citizen onboarding failed because initiative not started
+
+  Scenario: A citizen tries to onboard an initiative with residual budget less than 100 euros
+    Given the citizen A is 21 years old exactly
+    And the new initiative budget_exhausted is created
+    When the citizen A tries to onboard the initiative budget_exhausted
+    Then the citizen onboarding failed because initiative budget exhausted
+
+  @timeout
+  Scenario: An unsubscribed citizen onboards the same initiative again successfully
+    Given the citizen A is 21 years old exactly
+    And the citizen A tries to onboard the initiative
+    And the onboard of A is OK
+    And the citizen A unsubscribes
+    And the onboard of A is unsubscribed
+    When the citizen A tries to onboard the initiative
+    Then the onboard of A is OK
