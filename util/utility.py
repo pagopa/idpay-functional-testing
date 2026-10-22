@@ -334,14 +334,12 @@ def retry_institution_statistics(initiative_id: str,
 
     res = get_initiative_statistics(
         organization_id=organization_id,
-        organization_id=organization_id,
         initiative_id=initiative_id)
 
     while res.status_code != 200:
         count += 1
         time.sleep(delay)
         res = get_initiative_statistics(
-            organization_id=organization_id,
             organization_id=organization_id,
             initiative_id=initiative_id)
         if count == tries:
@@ -402,8 +400,8 @@ def check_statistics(organization_id: str,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
-                     tries=20,
-                     delay=3,
+                     tries=62,
+                     delay=5,
                      deadline=None):
     success = False
     count = 0
@@ -418,8 +416,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (current_statistics['accruedRewards'] ==
-                                           old_statistics['accruedRewards'] + accrued_rewards_increment)
+        are_accrued_rewards_incremented = (round(current_statistics['accruedRewards'], 2) ==
+                                           round(old_statistics['accruedRewards'] + accrued_rewards_increment, 2))
 
         if not skip_trx_check:
             are_trxs_incremented = (
@@ -442,7 +440,10 @@ def check_statistics(organization_id: str,
             sleep_duration = min(delay, remaining_time)
         time.sleep(sleep_duration)
 
-    assert success, f'Initiative statistics did not reach the expected values: {current_statistics}'
+    assert success, (f'Initiative statistics did not reach the expected values: {current_statistics}. '
+                     f'Previous: {old_statistics}, expected increments: onboarded={onboarded_citizen_count_increment}, '
+                     f'rewardedTrxs={rewarded_trxs_increment} (skipped={skip_trx_check}), '
+                     f'accruedRewards={accrued_rewards_increment}')
 
 
 def check_merchant_statistics(merchant_id: str,

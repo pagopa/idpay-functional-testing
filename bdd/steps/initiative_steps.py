@@ -111,13 +111,11 @@ def step_allocate_initiative_budget(context, precision):
         allowable_citizens -= 1
 
     context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
-    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
 
     while context.base_statistics['onboardedCitizenCount'] < allowable_citizens:
         step_citizen_fc_exact_or_random(context=context, citizen_name=str(i), citizen_fc='random')
         step_named_citizen_onboard(context=context, citizen_name=str(i))
-        context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
         context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                             initiative_id=context.initiative_id).json()
         i += 1
@@ -177,7 +175,9 @@ def step_initiative_has_a_rank(context):
 @given('the new initiative {initiative_name} is created')
 def step_new_initiative_created(context, initiative_name):
     initiative_id = create_initiative(initiative_name)
-    secrets.initiatives[initiative_name] = {'id': initiative_id}
+    if (secrets.initiatives.get(initiative_name) is None):
+        secrets.initiatives[initiative_name] = {'id': None}
+    secrets.initiatives[initiative_name]['id'] = initiative_id
 
 
 @given('the new initiative {initiative_name} is created but not published')
@@ -186,7 +186,9 @@ def step_new_initiative_created_but_not_published(context, initiative_name):
 
     response = post_initiative_info(token, initiative_name)
     assert response.status_code == 201, "Unexpected status code when creating initiative: {}".format(response.status_code)
-    secrets.initiatives[initiative_name] = {'id': response.json().get('initiativeId')}
+    if (secrets.initiatives.get(initiative_name) is None):
+        secrets.initiatives[initiative_name] = {'id': None, 'organization_id': secrets.selfcare_info.test_institution.orgId}
+    secrets.initiatives[initiative_name]['id'] = response.json().get('initiativeId')
     assert secrets.initiatives[initiative_name]['id'] is not None, "Failed to retrieve initiative ID from response"
 
 

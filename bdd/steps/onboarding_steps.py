@@ -70,7 +70,6 @@ def step_check_citizens_correct_election(context, citizens):
                      accrued_rewards_increment=0,
                      skip_trx_check=True)
     context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
-    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
 
 
@@ -165,6 +164,7 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
     else:
         context.initiative_name = initiative_name
         context.initiative_id = secrets.initiatives[initiative_name]["id"]
+
     context.organization_id = secrets.initiatives[initiative_name]["organization_id"]
     context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
@@ -657,7 +657,9 @@ def perform_full_onboarding(context, citizen_name):
         self_declaration_list=self_declaration_list
     )
 
-    assert context.save_onboarding_response.status_code == 202
+    assert context.save_onboarding_response.status_code == 202, (
+        f'Onboarding failed: {context.save_onboarding_response.status_code} {context.save_onboarding_response.text}'
+    )
     return context.save_onboarding_response
 
 
@@ -673,7 +675,11 @@ def step_try_to_insert_mismatch_email(context, citizen_name):
 
 
 @when('the citizen {citizen_name} onboards the initiative {initiative_name} without an email')
-def step_try_to_insert_mismatch_email(context, citizen_name, initiative_name):
+@when('the citizen {citizen_name} onboards the initiative without an email')
+def step_try_to_insert_mismatch_email(context, citizen_name, initiative_name=None):
+    if initiative_name is None:
+        initiative_name = context.initiative_name
+    
     context.initiative_id = secrets.initiatives[initiative_name]['id']
     context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
