@@ -2,7 +2,7 @@
 @onboarding
 Feature: Onboarding Bonus Elettrodomestici
   Background:
-    Given the initiative is "bonus_elettrodomestici"
+    Given the initiative is active
 
   Scenario: Citizen with ISEE lower than 25k tries to onboard successfully
     Given the citizen A is 21 years old exactly

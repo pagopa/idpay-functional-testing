@@ -1,4 +1,4 @@
-@bonus_elettrodomestici @rdb @terms_and_conditions @term_and_conditions
+@rdb @terms_and_conditions @term_and_conditions
 Feature: Accept the current version of the RDB terms and conditions
 
   Background:

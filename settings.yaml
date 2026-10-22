@@ -219,30 +219,31 @@ initiatives:
     it: 'bonus_decoder'
     cashback_percentage: 70
     budget_per_citizen: 70
-    fruition_start: '2023-03-13T00:00:00.000+01:00'
-    fruition_end: '2099-03-13T22:59:59.000Z'
+    fruition_start: '2026-05-27T00:00:00.000+02:00'
+    fruition_end: '2027-08-31T23:59:59.999+02:00'
     creation_payloads:
       general:
         beneficiaryType: 'NF'
+        familyUnitComposition: 'ANPR'
         beneficiaryKnown: false
         rankingEnabled: false
         budget: 3000000000
-        beneficiaryBudget: 70
-        startDate: 'future'
-        endDate: 'future_tomorrow'
+        beneficiaryBudgetFixed: 70
+        startDate: '2026-05-27'
+        endDate: '2027-08-31'
         descriptionMap:
-          it: '123123213123123'
+          it: 'Test - Bonus Decoder'
       beneficiary:
         automatedCriteria: [ ]
         selfDeclarationCriteria:
-          - _type: 'informative'
+          - _type: 'INFORMATIVE'
             code: 'ADE'
             description: 'Canone TV'
             organization: 'Agenzia delle Entrate'
             value: 'Descrizione estesa del requisito informativo'
-          - _type: 'informative'
+          - _type: 'INFORMATIVE'
             code: 'ANPR'
-            description: ' Famiglia anagrafica Test'
+            description: 'Famiglia anagrafica Test'
             organization: 'Anagrafe Nazionale della Popolazione Residente'
             value: 'Descrizione estesa del requisito informativo'
       reward:
@@ -251,7 +252,13 @@ initiatives:
           _type: 'rewardValue'
           rewardValue: 70
           rewardValueType: 'PERCENTAGE'
-        trxRule: { }
+        trxRule:
+          rewardLimits: [ ]
+          trxCount:
+            from: 1
+            fromIncluded: true
+            to: 2
+            toIncluded: false
       refund:
         timeParameter:
           timeType: 'DAILY'
