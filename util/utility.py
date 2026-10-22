@@ -400,8 +400,8 @@ def check_statistics(organization_id: str,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
-                     tries=10,
-                     delay=2,
+                     tries=20,
+                     delay=3,
                      deadline=None):
     success = False
     count = 0
