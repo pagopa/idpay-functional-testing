@@ -165,7 +165,11 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
         context.initiative_name = initiative_name
         context.initiative_id = secrets.initiatives[initiative_name]["id"]
 
-    context.organization_id = secrets.initiatives[initiative_name]["organization_id"]
+    if "organization_id" in secrets.initiatives[initiative_name]:
+        context.organization_id = secrets.initiatives[initiative_name]["organization_id"]
+    else:
+        context.organization_id = secrets.organization_id
+    
     context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                         initiative_id=context.initiative_id).json()
     token_io = get_io_token(context.citizens_fc[citizen_name])
