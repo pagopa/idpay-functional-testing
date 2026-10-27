@@ -945,7 +945,7 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
 def delete_new_initiatives_after_test():
     if not settings.KEEP_INITIATIVES_AFTER_TEST:
         for initiative_id in secrets['newly_created']:
-            res = delete_initiative(initiative_id=initiative_id)
+            res = delete_initiative(initiative_id=initiative_id, domain="/idpay")
             if res.status_code == 204:
                 print(f'Deleted initiative {initiative_id}')
             else:
