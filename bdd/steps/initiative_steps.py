@@ -178,6 +178,7 @@ def step_new_initiative_created(context, initiative_name):
     if (secrets.initiatives.get(initiative_name) is None):
         secrets.initiatives[initiative_name] = {'id': None}
     secrets.initiatives[initiative_name]['id'] = initiative_id
+    secrets["newly_created"].add(initiative_id)
 
 
 @given('the new initiative {initiative_name} is created but not published')
@@ -190,6 +191,7 @@ def step_new_initiative_created_but_not_published(context, initiative_name):
         secrets.initiatives[initiative_name] = {'id': None, 'organization_id': secrets.selfcare_info.test_institution.orgId}
     secrets.initiatives[initiative_name]['id'] = response.json().get('initiativeId')
     assert secrets.initiatives[initiative_name]['id'] is not None, "Failed to retrieve initiative ID from response"
+    secrets["newly_created"].add(secrets.initiatives[initiative_name]["id"]) 
 
 
 @given('the initiative "{initiative_name}" is published')
