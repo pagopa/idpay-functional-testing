@@ -327,9 +327,11 @@ def clean_trx_files(source_filename: str):
 
 
 def retry_institution_statistics(initiative_id: str,
-                                 organization_id: str = secrets.organization_id,
+                                 organization_id: str = None,
                                  tries=10,
                                  delay=1):
+    if organization_id is None:
+        organization_id = secrets.organization_id
     count = 0
 
     res = get_initiative_statistics(
