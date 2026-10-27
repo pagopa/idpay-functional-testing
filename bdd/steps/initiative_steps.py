@@ -199,11 +199,11 @@ def step_initiative_published(context, initiative_name):
     token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
     
     response = put_initiative_approval(selfcare_token=token, initiative_id=secrets.initiatives[initiative_name]['id'])
-    assert response.status_code == 200, (
+    assert response.status_code == 204, (
         "Unexpected status code when approving initiative: {}; response: {}".format(response.status_code, response.text)
     )
 
     response = publish_approved_initiative(selfcare_token=token, initiative_id=secrets.initiatives[initiative_name]['id'])
-    assert response.status_code == 201, (
+    assert response.status_code == 204, (
         "Unexpected status code when publishing initiative: {}; response: {}".format(response.status_code, response.text)
     )
