@@ -947,11 +947,9 @@ def delete_new_initiatives_after_test():
         for initiative_id in secrets['newly_created']:
             res = delete_initiative(initiative_id=initiative_id)
             if res.status_code == 204:
-                print(
-                    f'Deleted initiative {initiative_id}')
+                print(f'Deleted initiative {initiative_id}')
             else:
-                print(
-                    f'Failed to delete initiative {initiative_id}')
+                print(f'Failed to delete initiative {initiative_id}, {res.status_code}, {res.text}')
 
 
 def get_refund_exported_content(initiative_id: str,
