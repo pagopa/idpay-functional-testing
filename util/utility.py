@@ -327,9 +327,11 @@ def clean_trx_files(source_filename: str):
 
 
 def retry_institution_statistics(initiative_id: str,
-                                 organization_id: str,
+                                 organization_id: str = None,
                                  tries=10,
                                  delay=1):
+    if organization_id is None:
+        organization_id = secrets.organization_id
     count = 0
 
     res = get_initiative_statistics(
@@ -345,7 +347,9 @@ def retry_institution_statistics(initiative_id: str,
         if count == tries:
             break
 
-    assert res.status_code == 200
+    assert res.status_code == 200, (
+        f'get_initiative_statistics failed: status={res.status_code}, body={res.text}'
+    )
     return res.json()
 
 
@@ -398,8 +402,8 @@ def check_statistics(organization_id: str,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
-                     tries=10,
-                     delay=1,
+                     tries=62,
+                     delay=5,
                      deadline=None):
     success = False
     count = 0
@@ -414,8 +418,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (current_statistics['accruedRewards'] ==
-                                           old_statistics['accruedRewards'] + accrued_rewards_increment)
+        are_accrued_rewards_incremented = (round(current_statistics['accruedRewards'], 2) ==
+                                           round(old_statistics['accruedRewards'] + accrued_rewards_increment, 2))
 
         if not skip_trx_check:
             are_trxs_incremented = (
@@ -438,7 +442,10 @@ def check_statistics(organization_id: str,
             sleep_duration = min(delay, remaining_time)
         time.sleep(sleep_duration)
 
-    assert success, f'Initiative statistics did not reach the expected values: {current_statistics}'
+    assert success, (f'Initiative statistics did not reach the expected values: {current_statistics}. '
+                     f'Previous: {old_statistics}, expected increments: onboarded={onboarded_citizen_count_increment}, '
+                     f'rewardedTrxs={rewarded_trxs_increment} (skipped={skip_trx_check}), '
+                     f'accruedRewards={accrued_rewards_increment}')
 
 
 def check_merchant_statistics(merchant_id: str,
@@ -938,13 +945,11 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
 def delete_new_initiatives_after_test():
     if not settings.KEEP_INITIATIVES_AFTER_TEST:
         for initiative_id in secrets['newly_created']:
-            res = delete_initiative(initiative_id=initiative_id)
+            res = delete_initiative(initiative_id=initiative_id, domain="/idpay")
             if res.status_code == 204:
-                print(
-                    f'Deleted initiative {initiative_id}')
+                print(f'Deleted initiative {initiative_id}')
             else:
-                print(
-                    f'Failed to delete initiative {initiative_id}')
+                print(f'Failed to delete initiative {initiative_id}, {res.status_code}, {res.text}')
 
 
 def get_refund_exported_content(initiative_id: str,

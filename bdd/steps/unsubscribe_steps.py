@@ -34,7 +34,7 @@ def step_check_latest_cancellation_failed(context, status):
         assert False, f'Uncovered case {status}'
 
 
-@given('the citizen {citizen_name} is unsubscribed')
+@given('the citizen {citizen_name} unsubscribes')
 @when('the citizen {citizen_name} unsubscribes')
 def step_citizen_unsubscribes(context, citizen_name):
     citizen_unsubscribe_from_initiative(initiative_id=context.initiative_id,
