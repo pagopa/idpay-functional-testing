@@ -73,7 +73,7 @@ def build_bonus_elettrodomestici_self_declaration_list_payload(multi_consent_ise
 def build_bonus_decoder_self_declaration_list_payload():
     return []
 
-def build_budget_exhausted_self_declaration_list_payload(multi_consent_isee_value:str='1', self_declaration_accepted=True):
+def build_budget_exhausted_self_declaration_list_payload(self_declaration_accepted=True):
     return [{
             '_type': 'boolean',
             'accepted': self_declaration_accepted,
@@ -102,8 +102,7 @@ def build_self_declaration_list_payload_by_initiative(
             return build_bonus_decoder_self_declaration_list_payload()
         case 'budget_exhausted':
             return build_budget_exhausted_self_declaration_list_payload(
-                multi_consent_isee_value=multi_consent_isee_value,
-                self_declaration_accepted=self_declaration_accepted,
+                self_declaration_accepted=self_declaration_accepted
             )
         case _:
             return None
