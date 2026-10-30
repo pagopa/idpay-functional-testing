@@ -56,58 +56,6 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
 
 
-@when('the citizen {citizen_name} tries to create the transaction {trx_name} by Bar Code')
-def step_citizen_try_create_bar_code(context, citizen_name, trx_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    response = post_create_payment_bar_code(token=token_io,
-                                            initiative_id=context.initiative_id)
-
-    context.latest_citizen_creation_bar_code = response
-    context.transactions[trx_name] = response.json()
-
-
-@then('the latest transaction creation by citizen fails because {reason_ko}')
-def step_check_latest_citizen_creation_bar_code(context, reason_ko):
-    reason_ko = reason_ko.upper()
-
-    if reason_ko == 'THE BUDGET IS EXHAUSTED':
-        assert context.latest_citizen_creation_bar_code.status_code == 403
-        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-
-    if reason_ko == 'THE CITIZEN IS NOT ONBOARDED':
-        assert context.latest_citizen_creation_bar_code.status_code == 403
-        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_USER_NOT_ONBOARDED'
-
-    if reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
-        assert context.latest_citizen_creation_bar_code.status_code == 403
-        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-
-    if reason_ko == 'IS OUT OF VALID PERIOD':
-        assert context.latest_citizen_creation_bar_code.status_code == 403
-        assert context.latest_citizen_creation_bar_code.json()['code'] == 'PAYMENT_INITIATIVE_INVALID_DATE'
-
-
-@when('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
-@given('the merchant {merchant_name} authorizes the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
-def step_merchant_authorize_bar_code(context, merchant_name, trx_name, amount_cents):
-    step_merchant_try_to_authorize_bar_code(context=context, merchant_name=merchant_name,
-                                            trx_name=trx_name, amount_cents=amount_cents)
-
-    assert context.latest_merchant_authorization_bar_code.status_code == 200
-    context.associated_merchant[trx_name] = merchant_name
-    step_check_detail_transaction_bar_code(context=context, trx_name=trx_name, expected_status='AUTHORIZED')
-
-
-@when(
-    'the merchant {merchant_name} tries to authorize the transaction {trx_name} by Bar Code of amount {amount_cents} cents')
-def step_merchant_try_to_authorize_bar_code(context, merchant_name, trx_name, amount_cents):
-    trx_code = context.transactions[trx_name]['trxCode']
-
-    context.latest_merchant_authorization_bar_code = put_authorize_bar_code_merchant(trx_code=trx_code,
-                                                                                     initiative_id=context.initiative_id,
-                                                                                     amount_cents=amount_cents)
-
-
 def get_point_of_sale_access_token(merchant_name, point_of_sale_name):
     client_credentials = secrets.merchants[f'merchant_{merchant_name}'].points_of_sale[
         point_of_sale_name
@@ -289,35 +237,6 @@ def step_point_of_sale_try_update_invoice_bar_code(context, point_of_sale_name, 
     context.transaction_pos_access_tokens[trx_name] = access_token
 
 
-@when('the point of sale {point_of_sale_name} of merchant {merchant_name} updates the invoice of transaction {trx_name} by Bar Code')
-def step_point_of_sale_update_invoice_bar_code(context, point_of_sale_name, merchant_name, trx_name):
-    access_token = get_point_of_sale_access_token(
-        merchant_name=merchant_name,
-        point_of_sale_name=point_of_sale_name
-    )
-    expected_months = {
-        datetime.datetime.now(ZoneInfo('Europe/Rome')).strftime('%Y-%m')
-    }
-    response = post_invoice_bar_code_merchant(
-        initiative_id=context.initiative_id,
-        transaction_id=context.transactions[trx_name]['id'],
-        access_token=access_token,
-        invoice_content=UPDATED_INVOICE_CONTENT,
-        doc_number=UPDATED_INVOICE_DOC_NUMBER,
-        filename='updated-invoice.pdf'
-    )
-    expected_months.add(
-        datetime.datetime.now(ZoneInfo('Europe/Rome')).strftime('%Y-%m')
-    )
-    assert response.status_code == 204, (
-        f'POS barcode invoice update failed: {response.status_code} {response.text}'
-    )
-    if not hasattr(context, 'invoice_update_months'):
-        context.invoice_update_months = {}
-    context.invoice_update_months[trx_name] = expected_months
-    context.transaction_pos_access_tokens[trx_name] = access_token
-
-
 @when('the merchant {merchant_name} updates the invoice of transaction {trx_name} by Bar Code')
 def step_merchant_update_invoice_bar_code(context, merchant_name, trx_name):
     expected_months = {
@@ -400,32 +319,3 @@ def step_point_of_sale_cancellation_is_rejected_for_captured_transaction(context
         f'got {response.status_code} {response.text}'
     )
     assert response.json()['code'] == 'PAYMENT_DELETE_NOT_ALLOWED_FOR_TRX_STATUS'
-
-
-@then('the latest authorization by merchant fails because {reason_ko}')
-def step_check_latest_merchant_authorized_bar_code(context, reason_ko):
-    reason_ko = reason_ko.upper()
-
-    if reason_ko == 'THE TRANSACTION IS NOT FOUND':
-        assert context.latest_merchant_authorization_bar_code.status_code == 404
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_NOT_FOUND_OR_EXPIRED'
-
-    elif reason_ko == 'THE TRANSACTION IS ALREADY AUTHORIZED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_ALREADY_AUTHORIZED'
-
-    elif reason_ko == 'THE CITIZEN IS SUSPENDED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_SUSPENDED'
-
-    elif reason_ko == 'THE CITIZEN IS UNSUBSCRIBED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_USER_UNSUBSCRIBED'
-
-    elif reason_ko == 'THE BUDGET IS EXHAUSTED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_BUDGET_EXHAUSTED'
-
-    elif reason_ko == 'THE MERCHANT IS NOT QUALIFIED':
-        assert context.latest_merchant_authorization_bar_code.status_code == 403
-        assert context.latest_merchant_authorization_bar_code.json()['code'] == 'PAYMENT_MERCHANT_NOT_ONBOARDED'

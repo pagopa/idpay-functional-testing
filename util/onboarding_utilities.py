@@ -1,7 +1,5 @@
 import time
 
-from api.onboarding_io import save_onboarding
-from api.onboarding_io import status_onboarding
 from api.token_io import login
 
 def get_io_token(fc):
@@ -10,27 +8,6 @@ def get_io_token(fc):
     """
     return login(fc).content.decode('utf-8')
 
-def onboard_io(fc, initiative_id):
-    """Onboarding process through IO
-    :param fc: fiscal code to onboard
-    :param initiative_id: ID of the initiative of interest.
-    """
-    token = get_io_token(fc)
-
-    res = save_onboarding(token, initiative_id)
-    assert res.status_code == 202
-
-    retry_io_onboarding(expected='ACCEPTED_TC', request=status_onboarding, token=token,
-                        initiative_id=initiative_id, field='status', tries=50, delay=1,
-                        message='Citizen not ACCEPTED_TC')
-
-    res = status_onboarding(token, initiative_id)
-    assert res.status_code == 200
-
-    res = retry_io_onboarding(expected='ONBOARDING_OK', request=status_onboarding, token=token,
-                              initiative_id=initiative_id, field='status', tries=50, delay=1,
-                              message='Citizen onboard not OK')
-    return res
 
 def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3, delay=5,
                         message='Test failed'):
@@ -50,7 +27,7 @@ def retry_io_onboarding(expected, request, token, initiative_id, field, tries=3,
     assert field in res.json(), (
         f'Onboarding status response does not contain expected field: {field}, response: {res.json()}'
     )
-    
+
     actual = res.json()[field]
     assert expected == actual, (
         f'{message}: result retry io onboarding {actual} does not match expected {expected} for field {field}'

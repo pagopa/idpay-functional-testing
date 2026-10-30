@@ -53,8 +53,7 @@ def parse_feature_files(feat_files):
                     )
 
             if scenarios:
-                feature_file_name = os.path.splitext(os.path.basename(curr_feature_file))[0]
-                feature_scenarios[feature_file_name] = {
+                feature_scenarios[curr_feature_file] = {
                     "feature_name": feature.name,
                     "scenarios": scenarios,
                 }
@@ -67,8 +66,14 @@ feature_files = []
 folder_links = []
 component_features = {}
 
-for dir in os.listdir(root_directory):
-    if os.path.isdir(os.path.join(root_directory, dir)) and dir != "steps" and dir != "__pycache__":
+for dir in sorted(os.listdir(root_directory)):
+    component_root = os.path.join(root_directory, dir)
+    has_features = any(
+        file.endswith(".feature")
+        for _, _, files in os.walk(component_root)
+        for file in files
+    )
+    if os.path.isdir(component_root) and has_features:
         folder_links.append(f"- [{dir}]({os.path.join('components', dir + '.md')})")
         component_features[dir] = []
         for root, _, files in os.walk(os.path.join(root_directory, dir)):
@@ -95,10 +100,15 @@ for component, files in component_features.items():
         component_file.write(f"# {component} features:\n\n")
         for file in files:
             feature_name = os.path.splitext(os.path.basename(file))[0]
-            feature_data = scenarios_by_feature.get(feature_name, {})
+            feature_relative_path = os.path.splitext(
+                os.path.relpath(file, os.path.join(root_directory, component))
+            )[0]
+            feature_data = scenarios_by_feature.get(file, {})
             feature_title = feature_data.get("feature_name", feature_name)
-            feature_file_path = os.path.join(component_dir_path, f"{feature_name}.md")
-            component_file.write(f"## [{feature_title}]({os.path.join(component, feature_name + '.md')})\n\n")
+            feature_file_path = os.path.join(component_dir_path, feature_relative_path + ".md")
+            os.makedirs(os.path.dirname(feature_file_path), exist_ok=True)
+            feature_link = os.path.join(component, feature_relative_path + ".md").replace(os.sep, "/")
+            component_file.write(f"## [{feature_title}]({feature_link})\n\n")
             with open(feature_file_path, "w") as feature_file:
                 feature_file.write(f"# {feature_title}\n\n")
                 feature_file.write("## Scenarios:\n\n")
@@ -109,7 +119,6 @@ for component, files in component_features.items():
         if args.component_test_report:
             component_file.write("<hr>\n")
             component_file.write(f"## [Allure BDD Test report](https://pagopa.github.io/{args.repo_name[0]}/bdd)")
-            component_file.write(f"## [Allure FUNCTIONAL Test report](https://pagopa.github.io/{args.repo_name[0]}/functional-tests)")
 
     nav_links.append({component: f"components/{component}.md"})
 
@@ -126,11 +135,11 @@ mkdocs_config = {
     "use_directory_urls": True,
     "nav": [
         {"Home": "index.md"},
+        {"RDB guide": "rdb.md"},
         {"Components": nav_links},
         {
             "Allure Reports": [
                 {"BDD": f"https://pagopa.github.io/{args.repo_name[0]}/bdd"},
-                {"FUNCTIONAL": f"https://pagopa.github.io/{args.repo_name[0]}/functional-tests"},
             ]
         },
     ],

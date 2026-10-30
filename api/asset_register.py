@@ -280,13 +280,6 @@ def _update_products_status_request(token, initiative_id, role, username, endpoi
         timeout=settings.default_timeout
     )
 
-def update_products_status_approved(token, initiative_id, role, username, gtin_codes, current_status,
-                                    motivation=None, formal_motivation=None):
-    """POST /idpay/register/initiatives/{initiativeId}/products/update-status/approved"""
-    return _update_products_status_request(
-        token, initiative_id, role, username, _AR.products.update_status.approved,
-        gtin_codes, current_status, motivation, formal_motivation
-    )
 
 def update_products_status_wait_approved(token,initiative_id, organization_id, organization_selected, user_email,
                                          gtin_codes, current_status, motivation=None, formal_motivation=None):
@@ -304,21 +297,6 @@ def update_products_status_wait_approved(token,initiative_id, organization_id, o
         timeout=settings.default_timeout
     )
 
-def update_products_status_supervised(token, initiative_id, role, username, gtin_codes, current_status,
-                                      motivation=None, formal_motivation=None):
-    """POST /idpay/register/initiatives/{initiativeId}/products/update-status/supervised"""
-    return _update_products_status_request(
-        token, initiative_id, role, username, _AR.products.update_status.supervised,
-        gtin_codes, current_status, motivation, formal_motivation
-    )
-
-def update_products_status_rejected(token, initiative_id, role, username, gtin_codes, current_status,
-                                    motivation=None, formal_motivation=None):
-    """POST /idpay/register/initiatives/{initiativeId}/products/update-status/rejected"""
-    return _update_products_status_request(
-        token, initiative_id, role, username, _AR.products.update_status.rejected,
-        gtin_codes, current_status, motivation, formal_motivation
-    )
 
 def update_products_status(token, initiative_id, role, username, gtin_codes, current_status, target_status,
                            motivation=None, formal_motivation=None):

@@ -42,8 +42,8 @@
 ### Did you update secrets accordingly?
 
 - [ ] Yes
-  - [ ] `.secrets_template.yaml`
-  - [ ] Pipelines' secure file
+  - [ ] `conf/pari-feature-secrets-template.json`
+  - [ ] Key Vault configuration
   - [ ] Confluence
 - [ ] Not needed
 - [ ] No (_please provide further information_)

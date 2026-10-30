@@ -7,100 +7,23 @@ from behave import when
 
 from api.idpay import get_initiative_statistics
 from api.idpay import get_initiative_statistics_merchant_portal
-from api.idpay import get_onboardings_list
 from api.idpay import timeline
 from api.idpay import wallet
 from api.onboarding_io import save_onboarding
 from api.onboarding_io import status_onboarding
 from conf.configuration import secrets
 from conf.configuration import settings
-from util.dataset_utility import fake_iban
-from util.dataset_utility import fake_pan
 from util.onboarding_utilities import build_boolean_self_declaration_list_payload
 from util.onboarding_utilities import build_self_declaration_list_payload_by_initiative
 from util.onboarding_utilities import retry_io_onboarding
-from util.utility import card_enroll
 from util.utility import check_statistics
 from util.utility import expect_wallet_counters
 from util.utility import get_io_token
-from util.utility import get_selfcare_token
-from util.utility import iban_enroll
-from util.utility import onboard_one_random_merchant
-from util.utility import retry_merchant_statistics
 from util.utility import retry_timeline
 from util.utility import retry_wallet
 
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
-
-@given('the citizen {citizen_name} onboarded')
-@given('the citizen {citizen_name} is onboard')
-@given('the citizen {citizen_name} is onboarded')
-def step_named_citizen_onboard(context, citizen_name):
-    perform_full_onboarding(context=context, citizen_name=citizen_name)
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
-
-
-@given('the citizen {citizen_name} onboards and waits for ranking')
-@when('the citizen {citizen_name} onboards and waits for ranking')
-def step_named_citizen_joins_ranking(context, citizen_name):
-    perform_full_onboarding(context=context, citizen_name=citizen_name)
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
-
-
-@given('{citizens} onboard in order and wait for ranking')
-@then('{citizens} onboard in order and wait for ranking')
-def step_citizens_join_ranking(context, citizens):
-    citizens = citizens.split()
-    for c in citizens:
-        perform_full_onboarding(context=context, citizen_name=c)
-        step_check_onboarding_status(context=context, citizen_name=c, status='ON_EVALUATION')
-
-
-@then('{citizens} are elected')
-def step_check_citizens_correct_election(context, citizens):
-    citizens = citizens.split()
-    for c in citizens:
-        step_check_onboarding_status(context=context, citizen_name=c, status='ELECTED')
-
-    check_statistics(organization_id=context.organization_id,
-                     initiative_id=context.initiative_id,
-                     old_statistics=context.base_statistics,
-                     onboarded_citizen_count_increment=len(citizens),
-                     accrued_rewards_increment=0,
-                     skip_trx_check=True)
-    context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
-                                                        initiative_id=context.initiative_id).json()
-
-
-@given('the citizen {citizen_name} is suspended')
-@then('the citizen {citizen_name} is suspended')
-def step_named_citizen_suspension(context, citizen_name):
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='SUSPENDED')
-
-
-@then('the citizen {citizen_name} is readmitted')
-def step_named_citizen_suspension(context, citizen_name):
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='READMITTED')
-
-
-@given('the citizen {citizen_name} is not onboard')
-def step_citizen_not_onboard(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    context.save_onboarding_response = save_onboarding(token=token_io, initiative_id=context.initiative_id,
-                                                        pdnd_accept=False)
-    check_statistics(organization_id=context.organization_id,
-                     initiative_id=context.initiative_id,
-                     old_statistics=context.base_statistics,
-                     onboarded_citizen_count_increment=0,
-                     accrued_rewards_increment=0,
-                     skip_trx_check=True)
-
-
-@then('the citizen {citizen_name} is still waiting for ranking')
-@then('the citizen {citizen_name} is waiting for ranking')
-def step_named_citizen_suspension(context, citizen_name):
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='ON_EVALUATION')
 
 
 @given('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
@@ -132,27 +55,6 @@ def step_wait_for_onboarding_ok(context, citizen_name, timeout_seconds):
 def step_citizen_tries_to_onboard(context, citizen_name):
     res = perform_full_onboarding(context=context, citizen_name=citizen_name)
 
-@when('the first citizen of {citizens_names} onboards')
-@given('the first citizen of {citizens_names} onboards')
-def step_family_member_onboards(context, citizens_names):
-    citizens = citizens_names.split()
-    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
-
-
-@given('the first citizen of {citizens_names} onboards and waits for ranking')
-def step_family_member_onboards_ranking(context, citizens_names):
-    citizens = citizens_names.split()
-    step_citizen_tries_to_onboard(context=context, citizen_name=citizens[0])
-    step_check_onboarding_status(context=context, citizen_name=citizens[0], status='ON_EVALUATION')
-    citizens.pop(0)
-    for c in citizens:
-        step_check_onboard_not_found(context, c)
-
-
-def step_check_onboard_not_found(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    res = status_onboarding(token_io, context.initiative_id)
-    assert res.status_code == 404
 
 @given("the citizen {citizen_name} tries to onboard the initiative")
 @when("the citizen {citizen_name} tries to onboard the initiative")
@@ -188,13 +90,6 @@ def step_citizen_tries_to_onboard_named_initiative(context, citizen_name, initia
     )
 
 
-@given('the citizen {citizen_name} tries to accept terms and conditions')
-@when('the citizen {citizen_name} tries to accept terms and conditions')
-@when('the citizen {citizen_name} tries to accept terms and conditions again')
-def step_citizen_tries_to_accept_terms_and_conditions(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    context.save_onboarding_response = save_onboarding(token=token_io, initiative_id=context.initiative_id)
-
 @when('the citizen {citizen_name} tries to onboard on nonexistent initiative')
 @when('the citizen {citizen_name} tries to accept terms and conditions on a nonexistent initiative')
 def step_citizen_tries_to_accept_terms_and_conditions_nonexistent_initiative(context, citizen_name):
@@ -219,18 +114,6 @@ def step_try_to_insert_self_declared_criteria(context, citizen_name):
         self_declaration_list= build_boolean_self_declaration_list_payload(self_declaration_accepted=False)
     )
 
-@given('the citizen {citizen_name} saves PDND consent not correctly')
-def step_save_pdnd_consent_not_correctly(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    confirmed_tos = context.confirmed_tos.get(citizen_name, True) if 'confirmed_tos' in context else True
-
-    context.save_onboarding_response = save_onboarding(
-        token=token_io,
-        initiative_id=context.initiative_id,
-        confirmedTos=confirmed_tos,
-        pdnd_accept=False
-    )
-    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='KO')
 
 @then('the citizen onboarding failed because {reason_ko}')
 @then('the latest saving of consent failed because {reason_ko}')
@@ -501,19 +384,6 @@ def step_check_onboarding_citizens_status(context, citizens_names, status):
         step_check_onboarding_status(context=context, citizen_name=c, status=status)
 
 
-@when('the citizen {citizen_name} inserts self-declared criteria')
-def step_insert_self_declared_criteria(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    self_declaration_list = build_self_declaration_list_payload_by_initiative(context.initiative_name)
-
-    context.save_onboarding_response = save_onboarding(
-        token=token_io,
-        initiative_id=context.initiative_id,
-        self_declaration_list=self_declaration_list
-    )
-    assert context.save_onboarding_response.status_code == 202
-
-
 @when('the citizen {citizen_name} tries to save PDND consent {correctness}')
 def step_try_to_save_pdnd_consent(context, citizen_name, correctness):
     token_io = get_io_token(context.citizens_fc[citizen_name])
@@ -550,90 +420,6 @@ def step_merchant_qualified(context, merchant_name, is_qualified):
 
     context.merchants[merchant_name] = curr_merchant_info
 
-
-@given('the random merchant {merchant_name} is onboard')
-def step_merchant_random_onboard(context, merchant_name):
-    institution_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    curr_merchant_info = onboard_one_random_merchant(initiative_id=context.initiative_id,
-                                                     institution_selfcare_token=institution_token)
-    context.merchants[merchant_name] = curr_merchant_info
-
-    context.base_merchants_statistics[merchant_name] = retry_merchant_statistics(
-        merchant_id=curr_merchant_info['id'],
-        initiative_id=context.initiative_id)
-
-
-@given('the citizen {citizen_name} enrolls a random card')
-def step_card_enroll(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    context.card = fake_pan()
-    card_enroll(fc=context.citizens_fc[citizen_name], pan=context.card, initiative_id=context.initiative_id)
-    retry_wallet(expected=wallet_statuses.not_refundable_only_instrument, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)
-
-
-@given('the citizen {citizen_name} enrolls a random iban')
-def step_iban_enroll(context, citizen_name):
-    token_io = get_io_token(context.citizens_fc[citizen_name])
-    context.iban = fake_iban('00000')
-    iban_enroll(fc=context.citizens_fc[citizen_name], iban=context.iban, initiative_id=context.initiative_id)
-    retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
-                 initiative_id=context.initiative_id, field='status', tries=3, delay=3)
-
-
-@given('citizens {citizens_names} are invited on the initiative with whitelist')
-def step_check_citizens_invited_whitelist_initiative(context, citizens_names):
-    citizens_names = citizens_names.split()
-
-    institution_selfcare_token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
-    response = get_onboardings_list(selfcare_token=institution_selfcare_token,
-                                    initiative_id=context.initiative_id)
-
-    assert response.status_code == 200
-    assert len(citizens_names) == response.json()['totalElements']
-
-    invited_citizens = response.json()['content']
-
-    for citizen_name in citizens_names:
-        citizen_fc = context.citizens_fc[citizen_name]
-
-        is_present = False
-        for invited_citizen in invited_citizens:
-            if citizen_fc == invited_citizen['beneficiary']:
-                is_present = True
-
-        assert is_present
-
-        step_check_onboarding_status(context=context,
-                                     citizen_name=citizen_name,
-                                     status='INVITED')
-
-
-@when('the citizen {citizen_name} onboards on initiative with whitelist')
-@given('the citizen {citizen_name} onboards on initiative with whitelist')
-def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
-    perform_full_onboarding(context=context, citizen_name=citizen_name)
-
-@when('the citizen {citizen_name} tries to onboard on initiative with whitelist')
-def step_citizen_tries_to_onboard_whitelist(context, citizen_name):
-    perform_full_onboarding(context=context, citizen_name=citizen_name)
-
-
-@then('the latest check of prerequisites failed because {reason_ko}')
-def step_check_latest_prerequisites_failed(context, reason_ko):
-    reason_ko = reason_ko.upper()
-
-    if reason_ko == 'THE CITIZEN IS NOT IN WHITELIST':
-        assert context.save_onboarding_response.status_code == 403
-        assert context.save_onboarding_response.json()['code'] == 'ONBOARDING_USER_NOT_IN_WHITELIST'
-
-
-@when('the invited citizen tries to onboard on initiative with whitelist')
-def step_invited_citizen_tries_to_onboard(context):
-    fc_citizen_whitelist = secrets.fc_citizen_whitelist
-    token_io = get_io_token(fc_citizen_whitelist)
-
-    context.save_onboarding_response = save_onboarding(token=token_io, initiative_id=context.initiative_id)
 
 @given('the citizen {citizen_name} selects ISEE type "{isee_type}"')
 def step_select_isee_type(context, citizen_name, isee_type):

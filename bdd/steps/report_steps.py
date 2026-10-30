@@ -34,17 +34,6 @@ def step_operator_selects_report_parameters_with_type(context, role, merchant_na
     context.report_access_token = get_institution_selfcare_token(role)
 
 
-@given('the operator with role {role} selects report type {report_type} and a date range of {range_days} days')
-def step_operator_selects_report_parameters_without_merchant(context, role, report_type, range_days):
-    context.report_role = role
-    context.report_request = _build_report_request(
-        range_days=int(range_days),
-        report_type=report_type,
-    )
-    context.report_merchant_id = None
-    context.report_access_token = get_institution_selfcare_token(role)
-
-
 @given('the operator requests the CSV report export')
 @when('the operator tries to request the CSV report export')
 @then('the operator requests the CSV report export')
