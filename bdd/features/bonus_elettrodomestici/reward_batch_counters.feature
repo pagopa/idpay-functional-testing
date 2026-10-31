@@ -25,7 +25,7 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
     Then the live counters of reward batch B match its current transactions
     And the destination reward batch of transaction X has live counters matching its current transactions
 
-  Scenario: L2 rejection keeps EVALUATING counters consistent with current transactions
+  Scenario: Batch counters reflect a transaction rejected by an L2 operator
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
     And An operator with l1 role select transaction X from reward batch list and approve it
