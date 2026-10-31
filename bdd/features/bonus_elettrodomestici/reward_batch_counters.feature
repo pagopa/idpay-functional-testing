@@ -35,7 +35,7 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
     Then the reward batch of transaction X is EVALUATING and assigned to l2
     And the live counters of reward batch X match its current transactions
 
-  Scenario: APPROVING freezes suspendedAmountCents before suspended transactions are reassigned
+  Scenario: Batch approval preserves the suspended amount after transaction reassignment
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
     And An operator with l1 role select transaction X from reward batch list and suspend it
