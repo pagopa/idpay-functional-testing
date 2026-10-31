@@ -108,6 +108,7 @@ IDPAY:
           approved: '/transactions/approved'
           rejected: '/transactions/rejected'
           suspended: '/transactions/suspended'
+          postpone: '/transactions/{transaction_id}/postpone'
       reward_batches: '/idpay/merchant/portal/initiatives'
       reward_batch_test_support: '/idpay/internal/test-support/initiatives'
     merchant:
@@ -214,6 +215,53 @@ initiatives:
       refund:
         timeParameter:
           timeType: 'DAILY'
+  bonus_decoder:
+    it: 'bonus_decoder'
+    cashback_percentage: 70
+    budget_per_citizen: 70
+    fruition_start: '2026-05-27T00:00:00.000+02:00'
+    fruition_end: '2027-08-31T23:59:59.999+02:00'
+    creation_payloads:
+      general:
+        beneficiaryType: 'NF'
+        familyUnitComposition: 'ANPR'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 3000000000
+        beneficiaryBudgetFixed: 70
+        startDate: '2026-05-27'
+        endDate: '2027-08-31'
+        descriptionMap:
+          it: 'Test - Bonus Decoder'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'INFORMATIVE'
+            code: 'ADE'
+            description: 'Canone TV'
+            organization: 'Agenzia delle Entrate'
+            value: 'Descrizione estesa del requisito informativo'
+          - _type: 'INFORMATIVE'
+            code: 'ANPR'
+            description: 'Famiglia anagrafica Test'
+            organization: 'Anagrafe Nazionale della Popolazione Residente'
+            value: 'Descrizione estesa del requisito informativo'
+      reward:
+        initiativeRewardType: 'DISCOUNT'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 70
+          rewardValueType: 'PERCENTAGE'
+        trxRule:
+          rewardLimits: [ ]
+          trxCount:
+            from: 1
+            fromIncluded: true
+            to: 2
+            toIncluded: false
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
   not_started:
     id: 'NOT_STARTED'
     cashback_percentage: 30.22
@@ -227,6 +275,7 @@ initiatives:
         rankingEnabled: false
         budget: 99999999999999
         beneficiaryBudget: 51.5
+        beneficiaryBudgetFixed: 5150
         startDate: 'future'
         endDate: 'future_tomorrow'
         descriptionMap:
@@ -236,6 +285,43 @@ initiatives:
         selfDeclarationCriteria:
           - _type: 'boolean'
             description: '1'
+            subDescription: 'Sub description for the boolean criteria'
+            value: true
+            code: '1'
+      reward:
+        initiativeRewardType: 'REFUND'
+        rewardRule:
+          _type: 'rewardValue'
+          rewardValue: 30.22
+          rewardValueType: 'PERCENTAGE'
+        trxRule: { }
+      refund:
+        timeParameter:
+          timeType: 'DAILY'
+  budget_exhausted:
+    id: 'budget_exhausted'
+    cashback_percentage: 30
+    budget_per_citizen: 20
+    fruition_start: '2023-03-13T00:00:00.000+01:00'
+    fruition_end: '2099-03-13T22:59:59.000Z'
+    creation_payloads:
+      general:
+        beneficiaryType: 'PF'
+        beneficiaryKnown: false
+        rankingEnabled: false
+        budget: 21
+        beneficiaryBudget: 20
+        beneficiaryBudgetFixed: 20
+        startDate: 'today'
+        endDate: 'future'
+        descriptionMap:
+          it: 'Test initiative - Budget exhausted'
+      beneficiary:
+        automatedCriteria: [ ]
+        selfDeclarationCriteria:
+          - _type: 'boolean'
+            description: '1'
+            subDescription: 'Sub description for the boolean criteria'
             value: true
             code: '1'
       reward:

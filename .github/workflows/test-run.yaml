@@ -5,8 +5,10 @@ permissions:
   contents: write
 
 on:
+  pull_request:
+    branches: [main]
   merge_group:
-    types: [ checks_requested ]
+    types: [checks_requested]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -18,8 +20,10 @@ on:
         options:
           - all
           - bonus_elettrodomestici
+          - bonus_decoder
           - rdb
           - portale_enti
+          - merchant_portal
           - report_csv
           - reward_batch
           - reward_batch_counter

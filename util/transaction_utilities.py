@@ -1,6 +1,8 @@
 import datetime
 import time
 
+from api.idpay import get_merchant_processed_transactions
+from api.idpay import get_reward_batch_detail
 from api.idpay import obtain_merchant_test_token
 from api.transaction import delete_reward_batch_cleanup, get_merchant_transactions_processed, get_reports, get_report_download
 from api.transaction import post_approve_transactions
@@ -104,6 +106,114 @@ def assert_transaction_in_processed_reward_batch(merchant_id: str,
         trx['trxId'].strip() == transaction_id.strip()
         for trx in response.json().get('content', [])
     ), f"Transaction {transaction_id} not found in reward batch {reward_batch_id}"
+
+
+def get_reward_batch_transactions(
+        initiative_id: str,
+        merchant_id: str,
+        reward_batch_id: str,
+        access_token: str,
+        reward_batch_trx_status: str | None = None
+):
+    transactions = []
+    page = 0
+    while True:
+        response = get_merchant_processed_transactions(
+            initiative_id=initiative_id,
+            merchant_id=merchant_id,
+            access_token=access_token,
+            page=page,
+            size=100,
+            reward_batch_id=reward_batch_id,
+            reward_batch_trx_status=reward_batch_trx_status
+        )
+        assert response.status_code == 200, (
+            f"Reward batch transactions request failed: "
+            f"{response.status_code} {response.text}"
+        )
+        page_data = response.json()
+        transactions.extend(page_data["content"])
+        if page + 1 >= page_data["totalPages"]:
+            return transactions
+        page += 1
+
+
+def retry_postponed_transaction_reward_batch(
+        initiative_id: str,
+        merchant_id: str,
+        transaction_id: str,
+        source_reward_batch_id: str,
+        access_token: str,
+        tries: int = 20,
+        delay: int = 3
+) -> str:
+    for attempt in range(tries):
+        eligibility = retry_reward_batch_eligibility(
+            transaction_id=transaction_id,
+            merchant_id=merchant_id,
+            access_token=access_token,
+            expected_associated=True,
+        )
+        assert eligibility["transactionId"] == transaction_id
+        assert eligibility["initiativeId"] == initiative_id
+        assert eligibility["merchantId"] == merchant_id
+        destination_reward_batch_id = eligibility["rewardBatchId"]
+        assert destination_reward_batch_id
+        if destination_reward_batch_id != source_reward_batch_id:
+            return destination_reward_batch_id
+        if attempt < tries - 1:
+            time.sleep(delay)
+    assert False, (
+        f"Transaction {transaction_id} remained in reward batch {source_reward_batch_id}"
+    )
+
+
+def assert_transaction_in_next_month_reward_batch(
+        initiative_id: str,
+        merchant_id: str,
+        transaction_id: str,
+        source_reward_batch_id: str,
+        destination_reward_batch_id: str,
+        access_token: str
+):
+    assert destination_reward_batch_id != source_reward_batch_id, (
+        f"Transaction {transaction_id} remained in reward batch {source_reward_batch_id}"
+    )
+    source_response = get_reward_batch_detail(
+        initiative_id=initiative_id,
+        reward_batch_id=source_reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert source_response.status_code == 200, (
+        f"Source reward batch detail failed: "
+        f"{source_response.status_code} {source_response.text}"
+    )
+    source_month = datetime.datetime.strptime(source_response.json()["month"], "%Y-%m")
+    next_month = (source_month.replace(day=28) + datetime.timedelta(days=4)).strftime("%Y-%m")
+    destination_response = get_reward_batch_detail(
+        initiative_id=initiative_id,
+        reward_batch_id=destination_reward_batch_id,
+        merchant_id=merchant_id,
+    )
+    assert destination_response.status_code == 200, (
+        f"Destination reward batch detail failed: "
+        f"{destination_response.status_code} {destination_response.text}"
+    )
+    destination_month = destination_response.json()["month"]
+    assert destination_month == next_month, (
+        f"Expected destination reward batch {destination_reward_batch_id} month "
+        f"{next_month}, got {destination_month}"
+    )
+    destination_transactions = get_reward_batch_transactions(
+        initiative_id=initiative_id,
+        merchant_id=merchant_id,
+        reward_batch_id=destination_reward_batch_id,
+        access_token=access_token,
+    )
+    assert any(
+        transaction["trxId"].strip() == transaction_id.strip()
+        for transaction in destination_transactions
+    ), f"Transaction {transaction_id} not found in next reward batch {destination_reward_batch_id}"
 
 
 def perform_reward_batch_transaction_action(initiative_id: str,

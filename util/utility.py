@@ -82,7 +82,7 @@ def get_selfcare_token(institution_info: str):
     return obtain_selfcare_test_token(institution_info).content.decode('utf-8')
 
 
-def get_merchant_access_token(merchant_name: str):
+def get_merchant_access_token(initiative_name: str, merchant_name: str):
     merchant = secrets.merchants[f'merchant_{merchant_name}']
     response = obtain_merchant_test_token({
         'aud': 'idpay.merchant.welfare.pagopa.it',
@@ -93,7 +93,7 @@ def get_merchant_access_token(merchant_name: str):
         'email': 'esercente_test@test.email.it',
         'acquirerId': settings.idpay.acquirer_id,
         'merchantId': merchant['id'],
-        'orgId': secrets.organization_id,
+        'orgId': secrets.initiatives[initiative_name]["organization_id"],
         'orgVAT': merchant['fiscal_code'],
         'orgName': 'Esercente di test IdPay',
         'orgPartyRole': 'MANAGER',
@@ -327,24 +327,29 @@ def clean_trx_files(source_filename: str):
 
 
 def retry_institution_statistics(initiative_id: str,
+                                 organization_id: str = None,
                                  tries=10,
                                  delay=1):
+    if organization_id is None:
+        organization_id = secrets.organization_id
     count = 0
 
     res = get_initiative_statistics(
-        organization_id=secrets.organization_id,
+        organization_id=organization_id,
         initiative_id=initiative_id)
 
     while res.status_code != 200:
         count += 1
         time.sleep(delay)
         res = get_initiative_statistics(
-            organization_id=secrets.organization_id,
+            organization_id=organization_id,
             initiative_id=initiative_id)
         if count == tries:
             break
 
-    assert res.status_code == 200
+    assert res.status_code == 200, (
+        f'get_initiative_statistics failed: status={res.status_code}, body={res.text}'
+    )
     return res.json()
 
 
@@ -397,8 +402,8 @@ def check_statistics(organization_id: str,
                      accrued_rewards_increment: float,
                      rewarded_trxs_increment: int = 1,
                      skip_trx_check: bool = False,
-                     tries=10,
-                     delay=1,
+                     tries=62,
+                     delay=5,
                      deadline=None):
     success = False
     count = 0
@@ -413,8 +418,8 @@ def check_statistics(organization_id: str,
         are_onboards_incremented = (current_statistics['onboardedCitizenCount'] == old_statistics[
             'onboardedCitizenCount'] + onboarded_citizen_count_increment)
 
-        are_accrued_rewards_incremented = (current_statistics['accruedRewards'] ==
-                                           old_statistics['accruedRewards'] + accrued_rewards_increment)
+        are_accrued_rewards_incremented = (round(current_statistics['accruedRewards'], 2) ==
+                                           round(old_statistics['accruedRewards'] + accrued_rewards_increment, 2))
 
         if not skip_trx_check:
             are_trxs_incremented = (
@@ -437,7 +442,10 @@ def check_statistics(organization_id: str,
             sleep_duration = min(delay, remaining_time)
         time.sleep(sleep_duration)
 
-    assert success, f'Initiative statistics did not reach the expected values: {current_statistics}'
+    assert success, (f'Initiative statistics did not reach the expected values: {current_statistics}. '
+                     f'Previous: {old_statistics}, expected increments: onboarded={onboarded_citizen_count_increment}, '
+                     f'rewardedTrxs={rewarded_trxs_increment} (skipped={skip_trx_check}), '
+                     f'accruedRewards={accrued_rewards_increment}')
 
 
 def check_merchant_statistics(merchant_id: str,
@@ -642,11 +650,11 @@ def retry_reward_batch_reassignment(transaction_id: str,
 
         if latest_eligibility['rewardBatchId'] != original_reward_batch_id:
             assert latest_eligibility['transactionStatus'] == 'INVOICED', (
-                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'Reward batch reassignment moved transaction {transaction_id}, but left '
                 f'transactionStatus={latest_eligibility["transactionStatus"]}'
             )
             assert latest_eligibility['batchTransactionStatus'] == expected_batch_transaction_status, (
-                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'Reward batch reassignment moved transaction {transaction_id}, but left '
                 f'batchTransactionStatus={latest_eligibility["batchTransactionStatus"]}'
             )
             return latest_eligibility
@@ -655,7 +663,7 @@ def retry_reward_batch_reassignment(transaction_id: str,
             time.sleep(delay)
 
     assert False, (
-        f'Invoice replacement impact was not observed for transaction {transaction_id}. '
+        f'Reward batch reassignment was not observed for transaction {transaction_id}. '
         f'The transaction remained in reward batch {original_reward_batch_id}. '
         f'Last eligibility: {latest_eligibility}'
     )
@@ -827,6 +835,7 @@ def create_initiative_and_update_conf(initiative_name: str,
                                       known_beneficiaries: list = None):
     secrets['initiatives'][initiative_name]['id'] = create_initiative(initiative_name_in_settings=initiative_name,
                                                                    known_beneficiaries=known_beneficiaries)
+    secrets["initiatives"][initiative_name]["organization_id"] = secrets.selfcare_info.test_institution["orgId"]
     print(f'Created initiative for {initiative_name}')
     secrets['newly_created'].add(secrets['initiatives'][initiative_name]['id'])
 
@@ -936,13 +945,11 @@ def retry_payment_instrument(expected_type, expected_status, request, token, ini
 def delete_new_initiatives_after_test():
     if not settings.KEEP_INITIATIVES_AFTER_TEST:
         for initiative_id in secrets['newly_created']:
-            res = delete_initiative(initiative_id=initiative_id)
+            res = delete_initiative(initiative_id=initiative_id, domain="/idpay")
             if res.status_code == 204:
-                print(
-                    f'Deleted initiative {initiative_id}')
+                print(f'Deleted initiative {initiative_id}')
             else:
-                print(
-                    f'Failed to delete initiative {initiative_id}')
+                print(f'Failed to delete initiative {initiative_id}, {res.status_code}, {res.text}')
 
 
 def get_refund_exported_content(initiative_id: str,

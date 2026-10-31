@@ -114,7 +114,7 @@ def prepare_defective_csv(context, defect):
     elif defect == 'larger than 2 MB':
         content += b'a' * (2 * 1024 * 1024 + 1)
     elif defect == 'more than 100 rows':
-        s.rows = rdb.cooking_products(101)
+        s.rows = rdb.product_rows(context, 101)
         content = rdb.csv_bytes(s.headers, s.rows)
     elif defect == 'missing headers':
         content = rdb.csv_bytes(s.headers[1:], [row[1:] for row in s.rows])
@@ -125,10 +125,12 @@ def prepare_defective_csv(context, defect):
     elif defect == 'unsupported category':
         s.category = 'UNSUPPORTED'
     elif defect == 'mismatching category':
-        s.rows[0][2] = 'Lavatrice'
+        s.rows[0][s.headers.index('Categoria')] = 'Categoria non corrispondente'
         content = rdb.csv_bytes(s.headers, s.rows)
     elif defect == 'multiple row errors':
-        s.rows[0][0], s.rows[0][4], s.rows[0][5] = '', '', ''
+        s.rows[0][s.headers.index('Codice GTIN/EAN')] = ''
+        s.rows[0][s.headers.index('Marca')] = ''
+        s.rows[0][s.headers.index('Modello')] = ''
         content = rdb.csv_bytes(s.headers, s.rows)
     else:
         raise ValueError(f'Unknown CSV defect: {defect}')
@@ -139,7 +141,7 @@ def decoder_csv(context, gtin=None):
     # Backend postman/file/valid/terrestre_ok.csv, with a fresh business key.
     code = gtin or uuid.uuid4().hex[:14]
     return rdb.set_csv(context, [[code, 'TR01', 'DT', 'RDB Decoder', 'RDB Model']],
-                       [GTIN_COLUMN, 'Codice Prodotto', 'Categoria', 'Marca', 'Modello'], 'DT')
+                       rdb.DECODER_HEADERS, 'DT')
 
 
 def submitted_products(context):

@@ -1,4 +1,4 @@
-@bonus_elettrodomestici @rdb @notification @rdb_email_contract
+@rdb @notification @rdb_email_contract
 Feature: Accept RDB notification payloads at the email service
   The test invokes POST /idpay/email-notification/notify directly.
   HTTP 204 is the acceptance criterion; no telemetry or proxy is required.

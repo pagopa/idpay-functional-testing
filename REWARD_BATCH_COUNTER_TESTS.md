@@ -1,6 +1,6 @@
 # Reward batch counter tests
 
-This suite verifies counters through a single end-to-end flow.
+This suite verifies reward-batch counters across lifecycle operations.
 
 ## How to read the Gherkin scenarios
 
@@ -28,10 +28,30 @@ steps are implemented in `bdd/steps/reward_batch_counter_steps.py`.
 
 ## Running the tests
 
-End-to-end counter scenarios:
+Offline counter-oracle checks (no environment configuration required):
 
 ```shell
-behave --tags @reward_batch_counter
+pipenv run python -m unittest discover -s tests/unit -p test_reward_batch_counters.py -v
+```
+
+Offline unit suite, including mocked API-token, month-rollover, and reassignment
+cleanup checks:
+
+```shell
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' \
+  pipenv run python -m unittest discover -s tests/unit -v
+```
+
+The template's environment section is literally named `<ENV>`. These checks
+do not provision initiatives or call the remote platform.
+
+End-to-end counter scenarios require configured UAT credentials and create
+remote test data. Keep cleanup enabled so both source and destination reward
+batches are removed:
+
+```shell
+PARI_TARGET_ENV=uat PARI_REWARD_BATCH_CLEANUP=true \
+  pipenv run behave --tags @reward_batch_counter
 ```
 
 As described in the repository README, run the official end-to-end suite from

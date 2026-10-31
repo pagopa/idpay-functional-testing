@@ -1,11 +1,11 @@
-@bonus_elettrodomestici @rdb @notification @rdb_fixture
+@bonus_elettrodomestici @rdb @notification @rdb_fixture @bonus_decoder
 Feature: Preserve RDB processing when the operational email is missing
   Email service HTTP 204 acceptance is checked in email_service.feature.
   These scenarios check RDB processing and persistence.
 
   Background:
     Given the RDB user is authenticated as "producer"
-    And the RDB initiative is "A"
+    And the initiative is active
 
   Scenario: Process a CSV when the operational email is missing
     Given the RDB dataset is "producer without email"
