@@ -135,7 +135,14 @@ jobs:
         if: always()
         run: |
           if [ -d allure-results ]; then
-            python3 util/sanitize-allure-results.py allure-results --initiative "$FEATURE_TAG"
+            initiative_args=()
+            # Scenario filters need redaction without assigning an initiative identity.
+            case "$FEATURE_TAG" in
+              bonus_elettrodomestici|bonus_decoder)
+                initiative_args=(--initiative "$FEATURE_TAG")
+                ;;
+            esac
+            python3 util/sanitize-allure-results.py allure-results "${initiative_args[@]}"
           else
             echo "No allure-results directory to sanitize"
           fi

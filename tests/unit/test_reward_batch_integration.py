@@ -1,4 +1,5 @@
 """Offline reward-batch integration checks; use the safe template configuration."""
+import json
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -7,6 +8,7 @@ import requests
 
 from api import transaction
 from bdd.steps import reward_batch_steps
+from model.transaction_model import ChecksErrorDTO
 from model.transaction_model import TransactionActionRequest
 from util import transaction_utilities
 
@@ -140,6 +142,68 @@ class RewardBatchIntegrationTest(unittest.TestCase):
                 'initiative', 'source', 'test-operator-token'
             )
         self.assertEqual(validate.call_count, 2)
+
+    def test_operator_decision_notes_round_trip_without_changing_legacy_fields(self):
+        payload = {
+            'transactionIds': ['transaction'],
+            'reason': 'Rejected by operator',
+            'checksError': ChecksErrorDTO(price_error=True).to_dict(),
+            'officialNote': 'Synthetic operator rejection: price check failed',
+            'internalNote': 'Synthetic rejection for reward-batch counter testing',
+        }
+        request = TransactionActionRequest.from_dict(payload)
+        self.assertEqual(request.to_dict(), payload)
+        self.assertEqual(request.official_note, payload['officialNote'])
+        self.assertEqual(request.internal_note, payload['internalNote'])
+        legacy_payload = {
+            key: value for key, value in payload.items()
+            if key not in ('officialNote', 'internalNote')
+        }
+        self.assertEqual(
+            TransactionActionRequest.from_dict(legacy_payload).to_dict(), legacy_payload
+        )
+
+    def test_operator_actions_serialize_required_decision_notes_at_transport_boundary(self):
+        expected_decisions = {
+            'reject': {
+                'reason': 'Rejected by operator',
+                'checksError': ChecksErrorDTO(price_error=True).to_dict(),
+                'officialNote': 'Synthetic operator rejection: price check failed',
+                'internalNote': 'Synthetic rejection for reward-batch counter testing',
+            },
+            'suspend': {
+                'reason': 'Suspended by operator',
+                'checksError': ChecksErrorDTO(generic_error=True).to_dict(),
+                'officialNote': 'Synthetic operator suspension: generic check requires review',
+                'internalNote': 'Synthetic suspension for reward-batch counter testing',
+            },
+        }
+        for action in ('approve', 'reject', 'suspend'):
+            with self.subTest(action=action):
+                with patch.object(requests, 'post', return_value=response()) as post:
+                    transaction_utilities.perform_reward_batch_transaction_action(
+                        'initiative', 'source', 'test-operator-token', 'transaction', action
+                    )
+                post.assert_called_once()
+                prepared = requests.Request(
+                    'POST', 'https://offline.invalid', json=post.call_args.kwargs['json']
+                ).prepare()
+                payload = json.loads(prepared.body)
+                self.assertEqual(payload, {
+                    'transactionIds': ['transaction'],
+                    **expected_decisions.get(action, {}),
+                })
+
+    def test_operator_action_http_failure_is_still_asserted(self):
+        for action in ('reject', 'suspend'):
+            with self.subTest(action=action):
+                with (
+                    patch.object(requests, 'post', return_value=response(status=400)),
+                    self.assertRaisesRegex(AssertionError, f"'{action}' failed: 400"),
+                ):
+                    transaction_utilities.perform_reward_batch_transaction_action(
+                        'initiative', 'source', 'test-operator-token', 'transaction', action
+                    )
 
     def test_reward_batch_apis_forward_access_token_and_configured_postpone_path(self):
         arguments = {
