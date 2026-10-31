@@ -1,3 +1,3 @@
 "BROKEN","EPIC","FAILED","FEATURE","PASSED","SKIPPED","STORY","UNKNOWN"
-"0","","2","Reward batch counters are derived from current PostgreSQL transactions","1","0","","0"
 "0","","0","Reward batches for initiative barcode payments","4","0","","0"
+"0","","0","Reward batch counters are derived from current PostgreSQL transactions","3","0","","0"
