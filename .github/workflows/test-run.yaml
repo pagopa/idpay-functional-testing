@@ -26,6 +26,7 @@ on:
           - merchant_portal
           - report_csv
           - reward_batch
+          - reward_batch_counter
           - onboarding
           - transaction
           - bar_code

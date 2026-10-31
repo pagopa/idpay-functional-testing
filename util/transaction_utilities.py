@@ -4,14 +4,18 @@ import time
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
 from api.idpay import obtain_merchant_test_token
-from api.transaction import delete_reward_batch_cleanup, get_merchant_transactions_processed, get_reports, get_report_download
+from api.transaction import delete_reward_batch_cleanup
+from api.transaction import get_merchant_transactions_processed
+from api.transaction import get_report_download
+from api.transaction import get_reports
 from api.transaction import post_approve_transactions
 from api.transaction import post_reject_transactions
 from api.transaction import post_suspend_transactions
 from api.transaction import post_validate_reward_batch
 from conf.configuration import secrets
 from conf.configuration import settings
-from model.transaction_model import ChecksErrorDTO, ReportRequest
+from model.transaction_model import ChecksErrorDTO
+from model.transaction_model import ReportRequest
 from model.transaction_model import TransactionActionRequest
 from util.utility import get_selfcare_token
 from util.utility import retry_reward_batch_eligibility
@@ -132,8 +136,8 @@ def get_reward_batch_transactions(
             f"{response.status_code} {response.text}"
         )
         page_data = response.json()
-        transactions.extend(page_data["content"])
-        if page + 1 >= page_data["totalPages"]:
+        transactions.extend(page_data['content'])
+        if page + 1 >= page_data['totalPages']:
             return transactions
         page += 1
 
@@ -154,10 +158,10 @@ def retry_postponed_transaction_reward_batch(
             access_token=access_token,
             expected_associated=True,
         )
-        assert eligibility["transactionId"] == transaction_id
-        assert eligibility["initiativeId"] == initiative_id
-        assert eligibility["merchantId"] == merchant_id
-        destination_reward_batch_id = eligibility["rewardBatchId"]
+        assert eligibility['transactionId'] == transaction_id
+        assert eligibility['initiativeId'] == initiative_id
+        assert eligibility['merchantId'] == merchant_id
+        destination_reward_batch_id = eligibility['rewardBatchId']
         assert destination_reward_batch_id
         if destination_reward_batch_id != source_reward_batch_id:
             return destination_reward_batch_id
@@ -188,8 +192,8 @@ def assert_transaction_in_next_month_reward_batch(
         f"Source reward batch detail failed: "
         f"{source_response.status_code} {source_response.text}"
     )
-    source_month = datetime.datetime.strptime(source_response.json()["month"], "%Y-%m")
-    next_month = (source_month.replace(day=28) + datetime.timedelta(days=4)).strftime("%Y-%m")
+    source_month = datetime.datetime.strptime(source_response.json()['month'], '%Y-%m')
+    next_month = (source_month.replace(day=28) + datetime.timedelta(days=4)).strftime('%Y-%m')
     destination_response = get_reward_batch_detail(
         initiative_id=initiative_id,
         reward_batch_id=destination_reward_batch_id,
@@ -199,7 +203,7 @@ def assert_transaction_in_next_month_reward_batch(
         f"Destination reward batch detail failed: "
         f"{destination_response.status_code} {destination_response.text}"
     )
-    destination_month = destination_response.json()["month"]
+    destination_month = destination_response.json()['month']
     assert destination_month == next_month, (
         f"Expected destination reward batch {destination_reward_batch_id} month "
         f"{next_month}, got {destination_month}"
@@ -211,7 +215,7 @@ def assert_transaction_in_next_month_reward_batch(
         access_token=access_token,
     )
     assert any(
-        transaction["trxId"].strip() == transaction_id.strip()
+        transaction['trxId'].strip() == transaction_id.strip()
         for transaction in destination_transactions
     ), f"Transaction {transaction_id} not found in next reward batch {destination_reward_batch_id}"
 
@@ -227,11 +231,15 @@ def perform_reward_batch_transaction_action(initiative_id: str,
             transaction_ids=[transaction_id],
             reason='Rejected by operator',
             checks_error=ChecksErrorDTO(price_error=True),
+            official_note='Synthetic operator rejection: price check failed',
+            internal_note='Synthetic rejection for reward-batch counter testing',
         ),
         'suspend': TransactionActionRequest(
             transaction_ids=[transaction_id],
             reason='Suspended by operator',
             checks_error=ChecksErrorDTO(generic_error=True),
+            official_note='Synthetic operator suspension: generic check requires review',
+            internal_note='Synthetic suspension for reward-batch counter testing',
         ),
     }
     transaction_action_request = action_requests.get(transaction_action)
@@ -282,8 +290,8 @@ def request_reward_batch_validation(initiative_id: str,
 
 
 def parse_transaction_names(trx_names: str) -> list[str]:
-    normalized_names = trx_names.replace(" and ", ",")
-    parsed_names = [name.strip() for name in normalized_names.split(",") if name.strip()]
+    normalized_names = trx_names.replace(' and ', ',')
+    parsed_names = [name.strip() for name in normalized_names.split(',') if name.strip()]
     assert len(parsed_names) >= 2, (
         f'At least 2 transaction names are required, received: "{trx_names}"'
     )
@@ -304,9 +312,9 @@ def assert_transactions_share_same_reward_batch(trx_names: list[str],
         )
 
     first_trx_name = trx_names[0]
-    first_reward_batch_id = eligibilities_by_trx[first_trx_name]["rewardBatchId"]
+    first_reward_batch_id = eligibilities_by_trx[first_trx_name]['rewardBatchId']
     for trx_name in trx_names[1:]:
-        assert eligibilities_by_trx[trx_name]["rewardBatchId"] == first_reward_batch_id, (
+        assert eligibilities_by_trx[trx_name]['rewardBatchId'] == first_reward_batch_id, (
             f"Transactions {first_trx_name} and {trx_name} are not in the same reward batch: "
             f'{first_reward_batch_id} vs {eligibilities_by_trx[trx_name]["rewardBatchId"]}'
         )

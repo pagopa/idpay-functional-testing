@@ -14,20 +14,22 @@ Feature: Reward batches for initiative barcode payments
     And the onboard of A becomes OK within 300 seconds
     And the merchant 1 is qualified
 
+  @reward_batch_counter
   Scenario: Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    Then the transaction X belongs to a reward batch
+    Then the transaction X belongs to the reward batch named B
     When the reward batch of transaction X is prepared and sent
+    And the counters of reward batch B are captured as after_send
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
-    Then the invoice update of transaction X is rejected
-    And the reward batch of transaction X is SENT
-    When the reward batch of transaction X is sent for evaluation
+    And the reward batch of transaction X is sent for evaluation
     And the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
     Then the invoice update of transaction X is rejected
     And the reward batch of transaction X is EVALUATING
+    And the live counters of reward batch B match its current transactions
+    And reward batch B keeps the initial amount captured as after_send
 
   Scenario: Evaluating a sent reward batch rewards its invoiced transactions synchronously
     Given the citizen A creates the transaction X by Bar Code
@@ -43,16 +45,23 @@ Feature: Reward batches for initiative barcode payments
     Then the reward batch of transaction X is EVALUATING
     And with Bar Code the transaction X is rewarded
 
+  @reward_batch_counter
   Scenario: A merchant updates an invoice while the reward batch is EVALUATING
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    Then the transaction X belongs to a reward batch
+    Then the transaction X belongs to the reward batch named B
     When the reward batch of transaction X is prepared and sent
-    And the reward batch of transaction X is sent for evaluation
+    Then the reward batch of transaction X is SENT
+    When the reward batch of transaction X is sent for evaluation
+    Then the reward batch of transaction X is EVALUATING
+    When the counters of reward batch B are captured as before_invoice_reassignment
     And the merchant 1 updates the invoice of transaction X by Bar Code
     Then the transaction X belongs to a different current-month reward batch as SUSPENDED
+    And the live counters of reward batch B match its current transactions
+    And reward batch B keeps the initial amount captured as before_invoice_reassignment
+    And the destination reward batch of transaction X has live counters matching its current transactions
 
   Scenario: An invoiced payment is associated with a reward batch
     Given the citizen A creates the transaction X by Bar Code
@@ -61,15 +70,18 @@ Feature: Reward batches for initiative barcode payments
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to a reward batch
 
+  @reward_batch_counter
   Scenario: Reversing an invoiced payment removes it from its reward batch
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    Then the transaction X belongs to a reward batch
+    Then the transaction X belongs to the reward batch named B
     When the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
     Then the transaction X does not belong to a reward batch
+    And the live counters of reward batch B match its current transactions
 
+  @reward_batch_counter
   Scenario: A merchant sends an empty reward batch
     Given the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
@@ -77,9 +89,11 @@ Feature: Reward batches for initiative barcode payments
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     Then the transaction X belongs to the reward batch named B
     When the point of sale pos_1 of merchant 1 reverses all transactions in the reward batch named B
-    Then the reward batch named B contains 0 transactions
-    When the merchant 1 prepares and sends the reward batch named B
+    And the merchant 1 prepares and sends the reward batch named B
     Then the reward batch named B is SENT
+    And the reward batch named B contains 0 transactions
+    And the live counters of reward batch B match its current transactions
+    And reward batch B has zero initial amount
 
   Scenario: A merchant postpones a transaction to the next reward batch
     Given the citizen A creates the transaction X by Bar Code

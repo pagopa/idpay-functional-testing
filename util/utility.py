@@ -650,11 +650,11 @@ def retry_reward_batch_reassignment(transaction_id: str,
 
         if latest_eligibility['rewardBatchId'] != original_reward_batch_id:
             assert latest_eligibility['transactionStatus'] == 'INVOICED', (
-                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'Reward batch reassignment moved transaction {transaction_id}, but left '
                 f'transactionStatus={latest_eligibility["transactionStatus"]}'
             )
             assert latest_eligibility['batchTransactionStatus'] == expected_batch_transaction_status, (
-                f'Invoice replacement impact moved transaction {transaction_id}, but left '
+                f'Reward batch reassignment moved transaction {transaction_id}, but left '
                 f'batchTransactionStatus={latest_eligibility["batchTransactionStatus"]}'
             )
             return latest_eligibility
@@ -663,7 +663,7 @@ def retry_reward_batch_reassignment(transaction_id: str,
             time.sleep(delay)
 
     assert False, (
-        f'Invoice replacement impact was not observed for transaction {transaction_id}. '
+        f'Reward batch reassignment was not observed for transaction {transaction_id}. '
         f'The transaction remained in reward batch {original_reward_batch_id}. '
         f'Last eligibility: {latest_eligibility}'
     )
