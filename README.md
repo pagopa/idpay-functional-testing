@@ -7,11 +7,11 @@ Repository containing BDD and functional tests for the PARI platform.
 - GitHub Pages (docs + report): https://pagopa.github.io/idpay-functional-testing/docs
 - Public Allure reports are published from `uat` runs only. The `/bdd/` report shows
   the latest published run, including tag-filtered runs; it is not a cumulative
-  history of every local or CI execution. Check the selection in the report name
-  and its linked Actions run before comparing totals.
-- Full CI runs (`feature=all`) execute both Bonus selections and the complementary
-  scenarios without Bonus tags, sequentially. Cancelled runs do not publish a
-  replacement report. Local runs do not update GitHub Pages automatically.
+  history of every local or CI execution. Check the selected tag in the linked
+  Actions run before comparing totals.
+- CI runs with `feature=all` execute the two Bonus selections. Scenarios without
+  either Bonus tag are outside that matrix. Local runs do not update GitHub Pages
+  automatically.
 - RDB features, environment datasets and reusable utilities: [RDB BDD tests](docs/rdb.md).
 - Family coverage for Elettrodomestici and Decoder: [Family BDD tests](docs/family.md).
 

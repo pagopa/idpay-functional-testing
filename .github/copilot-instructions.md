@@ -21,11 +21,11 @@ Install locked dependencies with `pipenv sync`. CI runs BDD through
 `.github/workflows/test-run.yaml` and `.github/workflows/test-run-bdd.yaml`.
 The remote BDD jobs are skipped on pull requests; manual runs select the environment,
 feature tag and reward-batch cleanup option. The `all` matrix runs the two Bonus
-configurations and the complementary untagged common selection sequentially.
+configurations separately; scenarios without either Bonus tag are outside that matrix.
 The public `/bdd/` report always represents the latest published run, including
-partial tag selections; inspect the selection in its title and the linked run.
-CI uses `pipenv sync --dev` to install the locked Allure formatter. Local runs
-with the default formatter only need `pipenv sync` and do not generate Allure reports.
+partial tag selections; inspect the selected tag in the linked Actions run.
+The restored CI workflow installs `allure-behave` separately for its report
+formatter. Local runs with the default formatter only need `pipenv sync`.
 
 Use `conf/pari-feature-secrets-template.json` to prepare an ignored local secret
 file, or select a secure file with `PARI_SECRET_PATH`. `PARI_TARGET_ENV` selects its
