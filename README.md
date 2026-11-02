@@ -10,9 +10,8 @@ Repository containing BDD and functional tests for the PARI platform.
   history of every local or CI execution. Check the selection in the report name
   and its linked Actions run before comparing totals.
 - Full CI runs (`feature=all`) execute both Bonus selections and the complementary
-  scenarios without Bonus tags, sequentially. JUnit/Allure manifests and the
-  generated report totals are checked before publication. Local runs do not update
-  GitHub Pages automatically.
+  scenarios without Bonus tags, sequentially. Cancelled runs do not publish a
+  replacement report. Local runs do not update GitHub Pages automatically.
 - RDB features, environment datasets and reusable utilities: [RDB BDD tests](docs/rdb.md).
 - Family coverage for Elettrodomestici and Decoder: [Family BDD tests](docs/family.md).
 

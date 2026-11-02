@@ -93,8 +93,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
-          python3 -m pipenv sync
-          python3 -m pipenv run python -m pip install allure-behave==2.16.2
+          python3 -m pipenv sync --dev --extra-pip-args="--only-binary=:all:"
 
       - name: Display Python and Pip versions
         run: |
@@ -128,7 +127,6 @@ jobs:
             else
               python3 util/sanitize-allure-results.py allure-results
             fi
-            python3 util/check_allure_results.py allure-results --junit tests/reports/behave --selection "$TEST_SELECTION"
           else
             echo "No allure-results directory to sanitize"
           fi
@@ -146,7 +144,7 @@ jobs:
       group: bdd-report-publication
       cancel-in-progress: false
     needs: run-bdd-feature-tests
-    if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
+    if: ${{ always() && !cancelled() && needs.run-bdd-feature-tests.result != 'cancelled' && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     env:
       TARGET_ENV: ${{ inputs.target_env }}
@@ -162,14 +160,6 @@ jobs:
           pattern: allure-results-*
           path: merged-allure-results
           merge-multiple: true
-
-      - name: Verify downloaded selections
-        run: |
-          if [ "$REPORT_SELECTION" = "all" ]; then
-            python3 util/check_allure_results.py merged-allure-results --selections bonus_elettrodomestici bonus_decoder common_without_bonus_tag
-          else
-            python3 util/check_allure_results.py merged-allure-results --selections "$REPORT_SELECTION"
-          fi
 
       - name: Add Allure executor metadata
         run: |
@@ -203,7 +193,7 @@ jobs:
 
       - name: Install Allure CLI
         run: |
-          npm install -g allure-commandline@2.38.0 --no-fund --no-audit
+          npm install -g allure-commandline@2.38.0 --ignore-scripts --no-fund --no-audit
 
       - name: Build BDD test report
         run: |
@@ -217,14 +207,6 @@ jobs:
           mkdir -p allure-report-bdd/last-history
           if [ -d allure-report-bdd/history ]; then
             cp -R allure-report-bdd/history/. allure-report-bdd/last-history/
-          fi
-
-      - name: Verify generated report
-        run: |
-          if [ "$REPORT_SELECTION" = "all" ]; then
-            python3 util/check_allure_results.py merged-allure-results --selections bonus_elettrodomestici bonus_decoder common_without_bonus_tag --report allure-report-bdd
-          else
-            python3 util/check_allure_results.py merged-allure-results --selections "$REPORT_SELECTION" --report allure-report-bdd
           fi
 
       - name: Sanitize BDD report

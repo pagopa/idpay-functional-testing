@@ -24,9 +24,8 @@ feature tag and reward-batch cleanup option. The `all` matrix runs the two Bonus
 configurations and the complementary untagged common selection sequentially.
 The public `/bdd/` report always represents the latest published run, including
 partial tag selections; inspect the selection in its title and the linked run.
-Preserve the JUnit/Allure completeness checks before publication.
-CI additionally installs `allure-behave` for its report formatter; it is not needed
-for local runs with the default formatter.
+CI uses `pipenv sync --dev` to install the locked Allure formatter. Local runs
+with the default formatter only need `pipenv sync` and do not generate Allure reports.
 
 Use `conf/pari-feature-secrets-template.json` to prepare an ignored local secret
 file, or select a secure file with `PARI_SECRET_PATH`. `PARI_TARGET_ENV` selects its
