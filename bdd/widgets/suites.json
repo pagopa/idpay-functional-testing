@@ -1,1 +1,1 @@
-{"total":2,"items":[{"uid":"71cf3f25fc5e127d093c9818c846dbcd","name":"Bonus Elettrodomestici","statistic":{"failed":2,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":2}},{"uid":"9e178d1ab514a8f27ea2f0fd12261e72","name":"Bonus Decoder","statistic":{"failed":1,"broken":0,"skipped":0,"passed":19,"unknown":0,"total":20}}]}
+{"total":1,"items":[{"uid":"c51cebd66eb13f108b4195da232ce3fc","name":"Common scenarios without Bonus tags","statistic":{"failed":0,"broken":0,"skipped":0,"passed":15,"unknown":0,"total":15}}]}
