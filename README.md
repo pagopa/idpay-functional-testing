@@ -5,8 +5,16 @@ Repository containing BDD and functional tests for the PARI platform.
 ## Reports and documentation
 
 - GitHub Pages (docs + report): https://pagopa.github.io/idpay-functional-testing/docs
-- Public Allure reports are published from `uat` runs only.
+- Public Allure reports are published from `uat` runs only. The `/bdd/` report shows
+  the latest published run, including tag-filtered runs; it is not a cumulative
+  history of every local or CI execution. Check the selection in the report name
+  and its linked Actions run before comparing totals.
+- Full CI runs (`feature=all`) execute both Bonus selections and the complementary
+  scenarios without Bonus tags, sequentially. JUnit/Allure manifests and the
+  generated report totals are checked before publication. Local runs do not update
+  GitHub Pages automatically.
 - RDB features, environment datasets and reusable utilities: [RDB BDD tests](docs/rdb.md).
+- Family coverage for Elettrodomestici and Decoder: [Family BDD tests](docs/family.md).
 
 ## Test execution
 
@@ -39,7 +47,7 @@ names and default product GTINs. Configuration is selected from execution inputs
 not from tags written in the feature or scenario. A single positive initiative
 in Behave's `--tags` expression takes precedence; otherwise `PARI_FEATURE_TAG`,
 then `FEATURE_TAG` selects the configuration. `all`, an empty value or an unknown
-value selects `common_bonus_features` when the CLI does not select an initiative.
+value selects `bonus_elettrodomestici` when the CLI does not select an initiative.
 Unknown environment values emit a warning. Negated CLI tags do not select an
 initiative. If a CLI expression selects multiple initiatives, an environment
 variable must disambiguate them or the hook fails explicitly.

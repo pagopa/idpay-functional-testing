@@ -1,7 +1,9 @@
 from behave import given
+from behave import then
 
 from api.mock import get_family_from_user_id
 from api.mock import put_mocked_family
+from bdd.steps.onboarding_steps import step_check_initial_wallet
 from util.data_vault_utilities import tokenize_fc
 
 
@@ -27,3 +29,13 @@ def step_given_same_family_id(context, citizens_names):
 
     assert res.json()["familyId"] == family_id
     assert set(res.json()["memberIds"]) == set(user_ids)
+
+
+@then("the family beneficiary {citizen_name} retains the configured Bonus budget")
+def step_family_beneficiary_budget(context, citizen_name):
+    # These scenarios select under_25000; settings supplies the budget per Bonus.
+    step_check_initial_wallet(
+        context=context,
+        citizen_name=citizen_name,
+        budget=context.initiative_settings["budget_per_citizen"],
+    )

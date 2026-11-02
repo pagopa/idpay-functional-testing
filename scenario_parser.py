@@ -136,6 +136,7 @@ mkdocs_config = {
     "nav": [
         {"Home": "index.md"},
         {"RDB guide": "rdb.md"},
+        {"Family guide": "family.md"},
         {"Components": nav_links},
         {
             "Allure Reports": [

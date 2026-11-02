@@ -6,7 +6,11 @@ This repository is a Python 3.14.6 integration-test suite for the PARI/IDPay pla
 The maintained BDD suites are `bdd/features/common_bonus_features`,
 `bdd/features/bonus_elettrodomestici` and `bdd/features/bonus_decoder`, with reusable
 Behave steps in `bdd/steps`. `tests/unit` contains offline unittest checks with
-mocked HTTP operations. The historical pytest integration suite has been retired.
+mocked HTTP operations. The historical pytest integration suite has been retired. Family coverage for both Bonuses
+lives in `bdd/features/common_bonus_features/family`; see `docs/family.md`.
+`archive/family` preserves the originals for reference. Current Bonus rules allow
+one beneficiary per family; do not restore the historical shared 300-euro budget,
+DEMANDED onboarding or QR/IDPay Code flows without a validated business requirement.
 
 `archive/ranking` preserves the historical `ranking` and `ranking_family` scenarios
 and dependency references for possible reuse by Bonus Valore. It is not an active
@@ -17,7 +21,10 @@ Install locked dependencies with `pipenv sync`. CI runs BDD through
 `.github/workflows/test-run.yaml` and `.github/workflows/test-run-bdd.yaml`.
 The remote BDD jobs are skipped on pull requests; manual runs select the environment,
 feature tag and reward-batch cleanup option. The `all` matrix runs the two Bonus
-configurations separately. Untagged common scenarios require a complementary run.
+configurations and the complementary untagged common selection sequentially.
+The public `/bdd/` report always represents the latest published run, including
+partial tag selections; inspect the selection in its title and the linked run.
+Preserve the JUnit/Allure completeness checks before publication.
 CI additionally installs `allure-behave` for its report formatter; it is not needed
 for local runs with the default formatter.
 

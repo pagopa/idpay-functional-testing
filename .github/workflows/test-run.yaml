@@ -10,6 +10,9 @@ on:
   merge_group:
     types: [checks_requested]
     branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+      timezone: 'Europe/Rome'
   workflow_dispatch:
     inputs:
       feature:
