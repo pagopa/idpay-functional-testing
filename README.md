@@ -103,8 +103,10 @@ exit
 ### Active suites and offline checks
 
 The maintained BDD suites are `common_bonus_features`, `bonus_elettrodomestici`
-and `bonus_decoder`. Historical cashback, ranking, whitelist, IDPay-code and
-discount-type suites and the disabled pytest integration workflow were retired.
+and `bonus_decoder`. Historical cashback, whitelist, IDPay-code and discount-type
+suites and the disabled pytest integration workflow were retired. The `ranking`
+and `ranking_family` suites are preserved in [the ranking archive](archive/ranking/README.md)
+for possible Bonus Valore reuse; they are not part of the active BDD suite.
 `tests/unit` contains the active RDB cleanup tests, which mock HTTP operations.
 
 Offline checks use placeholder configuration and make no remote requests:
