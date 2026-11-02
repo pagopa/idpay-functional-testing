@@ -1,1 +1,1 @@
-{"reportName":"BDD Report #216","testRuns":[],"statistic":{"failed":0,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":0},"time":{}}
+{"reportName":"BDD Report #217","testRuns":[],"statistic":{"failed":3,"broken":0,"skipped":0,"passed":19,"unknown":0,"total":22},"time":{"start":1793614431871,"stop":1793615128116,"duration":696245,"minDuration":532,"maxDuration":338688,"sumDuration":1278290}}

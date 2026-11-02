@@ -1,1 +1,1 @@
-{"total":0,"items":[]}
+{"total":3,"items":[{"uid":"afdd5f041b6e9d68f8864f9a8947c810","name":"Barcode payments for initiatives","statistic":{"failed":2,"broken":0,"skipped":0,"passed":8,"unknown":0,"total":10}},{"uid":"acc47abf4e8f876127e3370a9b593b84","name":"Onboarding to an initiative","statistic":{"failed":1,"broken":0,"skipped":0,"passed":9,"unknown":0,"total":10}},{"uid":"5be51501b12b5a04959bd23d6b0cb305","name":"Reward batches for initiative barcode payments","statistic":{"failed":0,"broken":0,"skipped":0,"passed":2,"unknown":0,"total":2}}]}
