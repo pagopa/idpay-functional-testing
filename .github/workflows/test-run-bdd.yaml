@@ -29,14 +29,12 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
-        tag: ${{ inputs.feature_tag == 'all' && fromJson('["bonus_elettrodomestici", "bonus_decoder", "common_without_bonus_tag"]') || fromJson(format('["{0}"]', inputs.feature_tag)) }}
+        tag: ${{ inputs.feature_tag == 'all' && fromJson('["bonus_elettrodomestici", "bonus_decoder"]') || fromJson(format('["{0}"]', inputs.feature_tag)) }}
 
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
-      TEST_SELECTION: ${{ matrix.tag }}
-      FEATURE_TAG: ${{ matrix.tag == 'common_without_bonus_tag' && 'bonus_elettrodomestici' || matrix.tag }}
+      FEATURE_TAG: ${{ matrix.tag }}
       PARI_REWARD_BATCH_CLEANUP: ${{ inputs.reward_batch_cleanup }}
 
     steps:
@@ -93,7 +91,8 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
-          python3 -m pipenv sync --dev --extra-pip-args="--only-binary=:all:"
+          python3 -m pipenv sync
+          python3 -m pipenv install allure-behave
 
       - name: Display Python and Pip versions
         run: |
@@ -104,29 +103,37 @@ jobs:
 
       - name: Run tests with Behave
         run: |
-          echo "Running env=$PARI_TARGET_ENV selection=$TEST_SELECTION"
-          selection="$TEST_SELECTION"
-          if [ "$selection" = "common_without_bonus_tag" ]; then
-            selection="not (bonus_elettrodomestici or bonus_decoder)"
-          fi
-          python3 -m pipenv run behave --no-capture-hooks \
+          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
+          if [ "$FEATURE_TAG" = "all" ]; then
+            python3 -m pipenv run behave --no-capture-hooks\
             bdd/features/common_bonus_features \
             bdd/features/bonus_elettrodomestici \
             bdd/features/bonus_decoder \
-            --tags "$selection" \
-            --junit --junit-directory "tests/reports/behave" \
-            --format pretty -o /dev/stdout \
-            --format allure_behave.formatter:AllureFormatter -o allure-results
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
+          else
+            python3 -m pipenv run behave --no-capture-hooks\
+            bdd/features/common_bonus_features \
+            bdd/features/bonus_elettrodomestici \
+            bdd/features/bonus_decoder \
+            --tags "$FEATURE_TAG" \
+            --junit \
+            --junit-directory "tests/reports/behave" \
+            --format pretty \
+            -o /dev/stdout \
+            --format allure_behave.formatter:AllureFormatter \
+            -o allure-results
+          fi
 
       - name: Sanitize allure results
         if: always()
         run: |
           if [ -d allure-results ]; then
-            if [ "$TEST_SELECTION" = "common_without_bonus_tag" ] || [ "$TEST_SELECTION" = "bonus_elettrodomestici" ] || [ "$TEST_SELECTION" = "bonus_decoder" ]; then
-              python3 util/sanitize-allure-results.py allure-results --initiative "$TEST_SELECTION"
-            else
-              python3 util/sanitize-allure-results.py allure-results
-            fi
+            python3 util/sanitize-allure-results.py allure-results --initiative "$FEATURE_TAG"
           else
             echo "No allure-results directory to sanitize"
           fi
@@ -140,16 +147,11 @@ jobs:
           if-no-files-found: ignore
 
   publish-bdd-report:
-    concurrency:
-      group: bdd-report-publication
-      cancel-in-progress: false
     needs: run-bdd-feature-tests
-    if: ${{ always() && !cancelled() && needs.run-bdd-feature-tests.result != 'cancelled' && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
+    if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     env:
       TARGET_ENV: ${{ inputs.target_env }}
-      REPORT_SELECTION: ${{ inputs.feature_tag }}
-      REPORT_PATH: bdd
     steps:
       - name: Checkout repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
@@ -162,6 +164,7 @@ jobs:
           merge-multiple: true
 
       - name: Add Allure executor metadata
+        if: always()
         run: |
           mkdir -p merged-allure-results
           printf '%s\n' "${TARGET_ENV^^}" > merged-allure-results/environment.properties
@@ -173,13 +176,14 @@ jobs:
             "buildOrder": ${{ github.run_number }},
             "buildName": "${{ github.workflow }} #${{ github.run_number }}",
             "buildUrl": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-            "reportName": "BDD Report #${{ github.run_number }} [$REPORT_SELECTION]",
-            "reportUrl": "https://pagopa.github.io/${{ github.event.repository.name }}/${REPORT_PATH}"
+            "reportName": "BDD Report #${{ github.run_number }}",
+            "reportUrl": "https://pagopa.github.io/${{ github.event.repository.name }}/bdd"
           }
           EOF
 
       - name: Load test report history
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+        if: always()
         continue-on-error: true
         with:
           ref: gh-pages
@@ -192,14 +196,16 @@ jobs:
       - run: java --version
 
       - name: Install Allure CLI
+        if: always()
         run: |
-          npm install -g allure-commandline@2.38.0 --ignore-scripts --no-fund --no-audit
+          npm install -g allure-commandline --no-fund --no-audit
 
       - name: Build BDD test report
+        if: always()
         run: |
-          if [ -d "gh-pages/$REPORT_PATH/last-history" ]; then
+          if [ -d gh-pages/bdd/last-history ]; then
             mkdir -p merged-allure-results/history
-            cp -R "gh-pages/$REPORT_PATH/last-history/." merged-allure-results/history/
+            cp -R gh-pages/bdd/last-history/. merged-allure-results/history/
           fi
 
           allure generate merged-allure-results --clean -o allure-report-bdd
@@ -210,14 +216,16 @@ jobs:
           fi
 
       - name: Sanitize BDD report
+        if: always()
         run: |
           python3 util/sanitize-allure-results.py allure-report-bdd
 
       - name: Publish BDD test report
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e #v4.0.0
+        if: always()
         with:
           github_token: ${{ github.token }}
           publish_branch: gh-pages
           publish_dir: allure-report-bdd
-          destination_dir: ${{ env.REPORT_PATH }}
+          destination_dir: bdd
           keep_files: true
