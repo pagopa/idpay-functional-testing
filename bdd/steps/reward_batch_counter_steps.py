@@ -4,9 +4,11 @@ from behave import given
 from behave import then
 from behave import when
 
-from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
 from util.reward_batch_counters import derive_visible_live_counters
+from util.reward_batch_counters import transaction_batch_status
+from util.reward_batch_counters import transaction_reward_amount
+from util.transaction_utilities import get_reward_batch_transactions
 from util.utility import get_merchant_access_token
 
 
@@ -56,28 +58,14 @@ def _batch_observation_by_id(context, merchant_name, reward_batch_id):
         f'{detail_response.status_code} {detail_response.text}'
     )
 
-    transactions = []
-    page = 0
-    while True:
-        transactions_response = get_merchant_processed_transactions(
-            initiative_id=context.initiative_id,
-            merchant_id=merchant_id,
-            access_token=get_merchant_access_token(
-                initiative_name=context.initiative_name, merchant_name=merchant_name
-            ),
-            page=page,
-            size=100,
-            reward_batch_id=reward_batch_id,
-        )
-        assert transactions_response.status_code == 200, (
-            'Reward batch transactions request failed: '
-            f'{transactions_response.status_code} {transactions_response.text}'
-        )
-        page_data = transactions_response.json()
-        transactions.extend(page_data['content'])
-        if page + 1 >= page_data['totalPages']:
-            break
-        page += 1
+    transactions = get_reward_batch_transactions(
+        initiative_id=context.initiative_id,
+        merchant_id=merchant_id,
+        reward_batch_id=reward_batch_id,
+        access_token=get_merchant_access_token(
+            initiative_name=context.initiative_name, merchant_name=merchant_name
+        ),
+    )
 
     return detail_response.json(), transactions
 
@@ -107,7 +95,7 @@ def _wait_for_live_counter_consistency(observe_batch):
         expected = derive_visible_live_counters(batch['status'], transactions)
         differences = _counter_differences(batch, expected)
         if not differences:
-            return
+            return batch, transactions
         if attempt < 19:
             time.sleep(0.5)
 
@@ -127,7 +115,17 @@ def _wait_for_live_counter_consistency(observe_batch):
     'the counters of reward batch {batch_reference} are captured as {baseline_name}'
 )
 def step_capture_reward_batch_counters(context, batch_reference, baseline_name):
-    batch, transactions = _batch_observation(context, batch_reference)
+    batch, transactions = _wait_for_live_counter_consistency(
+        lambda: _batch_observation(context, batch_reference)
+    )
+    if batch["status"] == "SENT":
+        expected_initial_amount = sum(
+            transaction_reward_amount(transaction) for transaction in transactions
+        )
+        assert batch["initialAmountCents"] == expected_initial_amount, (
+            f"Expected sent initialAmountCents {expected_initial_amount}, "
+            f"got {batch['initialAmountCents']}"
+        )
     _track_observed_batch(context, batch_reference, batch)
     if not hasattr(context, 'reward_batch_counter_baselines'):
         context.reward_batch_counter_baselines = {}
@@ -137,34 +135,29 @@ def step_capture_reward_batch_counters(context, batch_reference, baseline_name):
     }
 
 
-@then(
-    'the counters of reward batch {batch_reference} are unchanged from {baseline_name}'
-)
-def step_reward_batch_counters_are_unchanged(
-    context,
-    batch_reference,
-    baseline_name,
-):
-    batch, _ = _batch_observation(context, batch_reference)
-    baseline = context.reward_batch_counter_baselines[baseline_name]['batch']
-    counter_fields = {
-        'numberOfTransactions',
-        'numberOfTransactionsElaborated',
-        'numberOfTransactionsSuspended',
-        'numberOfTransactionsRejected',
-        'initialAmountCents',
-        'currentAmountCents',
-        'approvedAmountCents',
-        'suspendedAmountCents',
-        'excludedAmountCents',
-    }
-    differences = {
-        field: {'expected': baseline.get(field), 'actual': batch.get(field)}
-        for field in counter_fields
-        if batch.get(field) != baseline.get(field)
-    }
-    assert not differences, (
-        f'Reward batch counters changed unexpectedly: {differences}'
+@then("the transaction {transaction_name} is REJECTED in its reward batch")
+def step_reward_batch_transaction_is_rejected(context, transaction_name):
+    transaction_id = context.transactions[transaction_name]["id"]
+    actual_status = None
+    for attempt in range(20):
+        _, transactions = _batch_observation(context, transaction_name)
+        transaction = next(
+            (
+                row for row in transactions
+                if row["trxId"].strip() == transaction_id.strip()
+            ),
+            None,
+        )
+        actual_status = (
+            transaction_batch_status(transaction) if transaction is not None else None
+        )
+        if actual_status == "REJECTED":
+            return
+        if attempt < 19:
+            time.sleep(0.5)
+    raise AssertionError(
+        f"Expected transaction {transaction_name} to be REJECTED in its reward batch, "
+        f"got {actual_status}"
     )
 
 

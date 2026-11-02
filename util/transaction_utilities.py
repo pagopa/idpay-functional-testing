@@ -203,7 +203,8 @@ def assert_transaction_in_next_month_reward_batch(
         f"Destination reward batch detail failed: "
         f"{destination_response.status_code} {destination_response.text}"
     )
-    destination_month = destination_response.json()['month']
+    destination_batch = destination_response.json()
+    destination_month = destination_batch['month']
     assert destination_month == next_month, (
         f"Expected destination reward batch {destination_reward_batch_id} month "
         f"{next_month}, got {destination_month}"
@@ -218,6 +219,7 @@ def assert_transaction_in_next_month_reward_batch(
         transaction['trxId'].strip() == transaction_id.strip()
         for transaction in destination_transactions
     ), f"Transaction {transaction_id} not found in next reward batch {destination_reward_batch_id}"
+    return destination_batch
 
 
 def perform_reward_batch_transaction_action(initiative_id: str,

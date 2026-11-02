@@ -7,6 +7,8 @@ from unittest.mock import patch
 import requests
 
 from api import transaction
+from bdd.steps import bar_code_steps
+from bdd.steps import reward_batch_counter_steps
 from bdd.steps import reward_batch_steps
 from model.transaction_model import ChecksErrorDTO
 from model.transaction_model import TransactionActionRequest
@@ -57,7 +59,11 @@ class RewardBatchIntegrationTest(unittest.TestCase):
                     patch.object(reward_batch_steps, '_get_reward_batch_transactions',
                                  return_value=[{'trxId': 'transaction'}]),
                     patch.object(reward_batch_steps, 'get_reward_batch_detail',
+                                 return_value=response(source)),
+                    patch.object(transaction_utilities, 'get_reward_batch_detail',
                                  side_effect=[response(source), response(destination)]),
+                    patch.object(transaction_utilities, 'get_reward_batch_transactions',
+                                 return_value=[{'trxId': 'transaction'}]),
                     patch.object(reward_batch_steps, 'post_postpone_transaction',
                                  autospec=True, return_value=response(status=204)) as postpone,
                     patch.object(reward_batch_steps, 'retry_reward_batch_reassignment',
@@ -77,6 +83,243 @@ class RewardBatchIntegrationTest(unittest.TestCase):
                     ('initiative', 'merchant', 'source'),
                     ('initiative', 'merchant', 'destination'),
                 })
+
+    def test_postpone_checks_destination_membership_and_registers_it_before_failure(self):
+        source = {"id": "source", "status": "CREATED", "month": "2026-12"}
+        destination = {"id": "destination", "status": "CREATED", "month": "2027-01"}
+        with (
+            patch.object(reward_batch_steps, "get_merchant_access_token",
+                         return_value="test-merchant-token"),
+            patch.object(reward_batch_steps, "_get_reward_batch_transactions",
+                         return_value=[{"trxId": "transaction"}]),
+            patch.object(reward_batch_steps, "get_reward_batch_detail",
+                         return_value=response(source)),
+            patch.object(reward_batch_steps, "post_postpone_transaction",
+                         return_value=response(status=204)),
+            patch.object(reward_batch_steps, "retry_reward_batch_reassignment",
+                         return_value={"rewardBatchId": "destination"}),
+            patch.object(transaction_utilities, "get_reward_batch_detail",
+                         side_effect=[response(source), response(destination)]),
+            patch.object(transaction_utilities, "get_reward_batch_transactions",
+                         return_value=[]),
+            self.assertRaisesRegex(AssertionError, "not found in next reward batch"),
+        ):
+            reward_batch_steps.step_postpone_transaction_to_next_reward_batch(
+                self.context, "1", "X"
+            )
+        self.assertIn(
+            ("initiative", "merchant", "destination"),
+            self.context.reward_batches_to_cleanup,
+        )
+
+    def test_counter_observation_reuses_pagination_with_one_merchant_token(self):
+        rows = [
+            {"trxId": "transaction", "rewardAmountCents": 6000},
+            {"trxId": "other", "rewardAmountCents": 4000},
+        ]
+        with (
+            patch.object(reward_batch_counter_steps, "get_reward_batch_detail",
+                         return_value=response({"id": "source"})),
+            patch.object(reward_batch_counter_steps, "get_merchant_access_token",
+                         return_value="test-merchant-token") as token,
+            patch.object(transaction_utilities, "get_merchant_processed_transactions",
+                         side_effect=[
+                             response({"content": rows[:1], "totalPages": 2}),
+                             response({"content": rows[1:], "totalPages": 2}),
+                         ]) as processed,
+        ):
+            _, transactions = reward_batch_counter_steps._batch_observation(
+                self.context, "X"
+            )
+        self.assertEqual(transactions, rows)
+        token.assert_called_once_with(
+            initiative_name="bonus_elettrodomestici", merchant_name="1"
+        )
+        self.assertEqual(
+            [call.kwargs["page"] for call in processed.call_args_list], [0, 1]
+        )
+        for call in processed.call_args_list:
+            self.assertEqual(call.kwargs["reward_batch_id"], "source")
+            self.assertEqual(call.kwargs["access_token"], "test-merchant-token")
+
+    def test_successful_reversal_retains_the_token_for_eligibility_checks(self):
+        with (
+            patch.object(bar_code_steps, "get_point_of_sale_access_token",
+                         return_value="refreshed-pos-token"),
+            patch.object(bar_code_steps, "reverse_bar_code_transaction",
+                         return_value=response(status=204)) as reverse,
+        ):
+            bar_code_steps.step_point_of_sale_reversal_bar_code(
+                self.context, "pos_1", "1", "X"
+            )
+        reverse.assert_called_once_with(
+            initiative_id="initiative", transaction_id="transaction",
+            access_token="refreshed-pos-token",
+        )
+        self.assertEqual(
+            self.context.transaction_pos_access_tokens["X"], "refreshed-pos-token"
+        )
+
+    def test_rejection_requires_the_target_transaction_to_be_rejected(self):
+        for target_status in ("APPROVED", "TO_CHECK", None, "REJECTED"):
+            with self.subTest(target_status=target_status):
+                rows = [{"trxId": "other", "rewardBatchTrxStatus": "REJECTED"}]
+                if target_status is not None:
+                    rows.append({
+                        "trxId": "transaction", "rewardBatchTrxStatus": target_status,
+                    })
+                with (
+                    patch.object(reward_batch_counter_steps, "_batch_observation",
+                                 return_value=({}, rows)),
+                    patch.object(reward_batch_counter_steps.time, "sleep"),
+                ):
+                    if target_status == "REJECTED":
+                        reward_batch_counter_steps.step_reward_batch_transaction_is_rejected(
+                            self.context, "X"
+                        )
+                    else:
+                        with self.assertRaisesRegex(AssertionError, "to be REJECTED"):
+                            reward_batch_counter_steps.step_reward_batch_transaction_is_rejected(
+                                self.context, "X"
+                            )
+
+    def test_rejection_waits_for_transition_and_checks_its_counter_contribution(self):
+        before = [{"trxId": "transaction", "rewardBatchTrxStatus": "APPROVED",
+                   "rewardAmountCents": 6000}]
+        after = [{**before[0], "rewardBatchTrxStatus": "REJECTED"}]
+        batch = {
+            "id": "source", "status": "EVALUATING",
+            "numberOfTransactions": 1, "numberOfTransactionsElaborated": 1,
+            "numberOfTransactionsSuspended": 0, "numberOfTransactionsRejected": 1,
+            "currentAmountCents": 6000, "excludedAmountCents": 6000,
+            "approvedAmountCents": 0, "suspendedAmountCents": 0,
+        }
+        with (
+            patch.object(reward_batch_counter_steps, "_batch_observation",
+                         side_effect=[(batch, before), (batch, after)]) as observe,
+            patch.object(reward_batch_counter_steps.time, "sleep"),
+        ):
+            reward_batch_counter_steps.step_reward_batch_transaction_is_rejected(
+                self.context, "X"
+            )
+        self.assertEqual(observe.call_count, 2)
+        for rejected_count, excluded_amount in ((0, 6000), (1, 0), (1, 6000)):
+            with self.subTest(count=rejected_count, amount=excluded_amount):
+                actual = {
+                    **batch, "numberOfTransactionsRejected": rejected_count,
+                    "excludedAmountCents": excluded_amount,
+                }
+                with (
+                    patch.object(reward_batch_counter_steps, "_batch_observation",
+                                 return_value=(actual, after)),
+                    patch.object(reward_batch_counter_steps.time, "sleep"),
+                ):
+                    if rejected_count == 1 and excluded_amount == 6000:
+                        reward_batch_counter_steps.step_live_reward_batch_counters_match(
+                            self.context, "X"
+                        )
+                    else:
+                        with self.assertRaisesRegex(AssertionError, "Differences"):
+                            reward_batch_counter_steps.step_live_reward_batch_counters_match(
+                                self.context, "X"
+                            )
+
+    def test_sent_snapshot_capture_checks_reward_sum_before_preserving_it(self):
+        rows = [{"trxId": "transaction", "rewardBatchTrxStatus": "CONSULTABLE",
+                 "rewardAmountCents": 6000}]
+        batch = {
+            "id": "source", "status": "SENT",
+            "numberOfTransactions": 1, "numberOfTransactionsElaborated": 0,
+            "numberOfTransactionsSuspended": 0, "numberOfTransactionsRejected": 0,
+            "currentAmountCents": 6000, "excludedAmountCents": 0,
+            "approvedAmountCents": 0, "suspendedAmountCents": 0,
+        }
+        for initial_amount in (0, 5000, 6000):
+            with self.subTest(initial_amount=initial_amount):
+                actual = {**batch, "initialAmountCents": initial_amount}
+                with patch.object(reward_batch_counter_steps, "_batch_observation",
+                                  return_value=(actual, rows)):
+                    if initial_amount == 6000:
+                        reward_batch_counter_steps.step_capture_reward_batch_counters(
+                            self.context, "X", "after_send"
+                        )
+                    else:
+                        with self.assertRaisesRegex(AssertionError, "initialAmountCents"):
+                            reward_batch_counter_steps.step_capture_reward_batch_counters(
+                                self.context, "X", "after_send"
+                            )
+        after = {
+            **batch, "status": "EVALUATING", "numberOfTransactions": 0,
+            "currentAmountCents": 0, "initialAmountCents": 6000,
+        }
+        with patch.object(reward_batch_counter_steps, "_batch_observation",
+                          return_value=(after, [])):
+            reward_batch_counter_steps.step_live_reward_batch_counters_match(
+                self.context, "X"
+            )
+            reward_batch_counter_steps.step_reward_batch_keeps_initial_snapshot(
+                self.context, "X", "after_send"
+            )
+        with (
+            patch.object(reward_batch_counter_steps, "_batch_observation",
+                         return_value=({**after, "initialAmountCents": 0}, [])),
+            self.assertRaisesRegex(AssertionError, "initialAmountCents"),
+        ):
+            reward_batch_counter_steps.step_reward_batch_keeps_initial_snapshot(
+                self.context, "X", "after_send"
+            )
+
+    def test_suspended_snapshot_capture_rejects_zero_and_preserves_valid_amount(self):
+        rows = [{"trxId": "transaction", "rewardBatchTrxStatus": "SUSPENDED",
+                 "rewardAmountCents": 6000}]
+        batch = {
+            "id": "source", "status": "EVALUATING",
+            "numberOfTransactions": 1, "numberOfTransactionsElaborated": 1,
+            "numberOfTransactionsSuspended": 1, "numberOfTransactionsRejected": 0,
+            "currentAmountCents": 6000, "excludedAmountCents": 0,
+            "approvedAmountCents": 0,
+        }
+        for suspended_amount in (0, 5000, 6000):
+            with self.subTest(suspended_amount=suspended_amount):
+                actual = {**batch, "suspendedAmountCents": suspended_amount}
+                with (
+                    patch.object(reward_batch_counter_steps, "_batch_observation",
+                                 return_value=(actual, rows)),
+                    patch.object(reward_batch_counter_steps.time, "sleep"),
+                ):
+                    if suspended_amount == 6000:
+                        reward_batch_counter_steps.step_capture_reward_batch_counters(
+                            self.context, "X", "before_approving"
+                        )
+                    else:
+                        with self.assertRaisesRegex(AssertionError, "suspendedAmountCents"):
+                            reward_batch_counter_steps.step_capture_reward_batch_counters(
+                                self.context, "X", "before_approving"
+                            )
+        for status in ("APPROVING", "APPROVED"):
+            with self.subTest(status=status):
+                after = {
+                    **batch, "status": status, "numberOfTransactions": 0,
+                    "numberOfTransactionsElaborated": 0,
+                    "numberOfTransactionsSuspended": 0, "currentAmountCents": 0,
+                    "suspendedAmountCents": 6000,
+                }
+                with patch.object(reward_batch_counter_steps, "_batch_observation",
+                                  return_value=(after, [])):
+                    reward_batch_counter_steps.step_reward_batch_keeps_suspended_snapshot(
+                        self.context, "X", "before_approving"
+                    )
+                    reward_batch_counter_steps.step_live_reward_batch_counters_match(
+                        self.context, "X"
+                    )
+                with (
+                    patch.object(reward_batch_counter_steps, "_batch_observation",
+                                 return_value=({**after, "suspendedAmountCents": 0}, [])),
+                    self.assertRaisesRegex(AssertionError, "suspendedAmountCents"),
+                ):
+                    reward_batch_counter_steps.step_reward_batch_keeps_suspended_snapshot(
+                        self.context, "X", "before_approving"
+                    )
 
     def test_invoice_and_approval_destinations_are_registered_even_if_final_check_fails(self):
         for status, actual_status in (

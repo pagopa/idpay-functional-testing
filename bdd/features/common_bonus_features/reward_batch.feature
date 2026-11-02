@@ -54,10 +54,10 @@ Feature: Reward batches for initiative barcode payments
     Then the transaction X belongs to the reward batch named B
     When the reward batch of transaction X is prepared and sent
     Then the reward batch of transaction X is SENT
+    And the counters of reward batch B are captured as before_invoice_reassignment
     When the reward batch of transaction X is sent for evaluation
     Then the reward batch of transaction X is EVALUATING
-    When the counters of reward batch B are captured as before_invoice_reassignment
-    And the merchant 1 updates the invoice of transaction X by Bar Code
+    When the merchant 1 updates the invoice of transaction X by Bar Code
     Then the transaction X belongs to a different current-month reward batch as SUSPENDED
     And the live counters of reward batch B match its current transactions
     And reward batch B keeps the initial amount captured as before_invoice_reassignment

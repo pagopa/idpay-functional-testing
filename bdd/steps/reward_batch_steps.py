@@ -114,19 +114,17 @@ def step_postpone_transaction_to_next_reward_batch(
         original_reward_batch_id=reward_batch_id,
         expected_batch_transaction_status='CONSULTABLE',
     )
-    destination_response = get_reward_batch_detail(
+    destination_reward_batch_id = eligibility['rewardBatchId']
+    _register_reward_batch_for_cleanup(context, trx_name, destination_reward_batch_id)
+    destination_batch = assert_transaction_in_next_month_reward_batch(
         initiative_id=context.initiative_id,
-        reward_batch_id=eligibility['rewardBatchId'],
         merchant_id=merchant_id,
+        transaction_id=transaction_id,
+        source_reward_batch_id=reward_batch_id,
+        destination_reward_batch_id=destination_reward_batch_id,
+        access_token=access_token,
     )
-    assert destination_response.status_code == 200
-    destination_batch = destination_response.json()
     assert destination_batch['status'] == 'CREATED'
-    assert destination_batch['id'] != source_batch['id']
-    source_year, source_month = map(int, source_batch['month'].split('-'))
-    expected_year = source_year + (1 if source_month == 12 else 0)
-    expected_month = 1 if source_month == 12 else source_month + 1
-    assert destination_batch['month'] == f'{expected_year:04d}-{expected_month:02d}'
 
     if not hasattr(context, 'source_reward_batches'):
         context.source_reward_batches = {}
@@ -134,7 +132,6 @@ def step_postpone_transaction_to_next_reward_batch(
         context.destination_reward_batches = {}
     context.source_reward_batches[trx_name] = source_batch
     context.destination_reward_batches[trx_name] = destination_batch
-    _register_reward_batch_for_cleanup(context, trx_name, destination_batch['id'])
 
 
 @then('the transaction {trx_name} belongs to the next reward batch')
@@ -514,15 +511,6 @@ def step_invoice_update_is_rejected(context, trx_name):
             'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
         )
 
-
-@then('the reversal of transaction {trx_name} is rejected by its reward batch')
-def step_reversal_is_rejected(context, trx_name):
-    response = context.latest_merchant_reversal_bar_code
-    assert response.status_code == 403, (
-        f'Expected reversal of transaction {trx_name} to be rejected, '
-        f'got {response.status_code} {response.text}'
-    )
-    assert response.json()['code'] == 'PAYMENT_REWARD_BATCH_ELIGIBILITY_NOT_ALLOWED'
 
 # Keep the legacy When binding for portal scenarios; this step only observes status.
 @when('the reward batch of transaction {trx_name} is {batch_status:w}')

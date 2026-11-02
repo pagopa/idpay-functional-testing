@@ -20,11 +20,14 @@ steps are implemented in `bdd/steps/reward_batch_counter_steps.py`.
   transaction from the totals, and postponement moves the same live
   contribution to the following month's batch.
 - When a batch moves to `SENT`, `initialAmountCents` remains the snapshot
-  captured when it was sent.
+  captured when it was sent. Before capturing it, the suite checks that the
+  snapshot equals the sum of the batch's transaction rewards.
 - In `APPROVING`, `suspendedAmountCents` remains the snapshot captured before
-  suspended transactions are reassigned.
+  suspended transactions are reassigned. The existing portal approval scenario
+  first verifies a positive suspended amount matching the suspended transactions.
 - The count and amount of `REJECTED` transactions remain live; they do not have
-  a dedicated snapshot.
+  a dedicated snapshot. The rejection scenario verifies that the target
+  transaction becomes `REJECTED` before checking the counters.
 
 ## Running the tests
 
