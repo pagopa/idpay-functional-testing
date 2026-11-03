@@ -1,5 +1,4 @@
 "BROKEN","EPIC","FAILED","FEATURE","PASSED","SKIPPED","STORY","UNKNOWN"
-"0","","0","One beneficiary per family on the selected Bonus","6","0","","0"
-"0","","0","Onboarding Bonus Elettrodomestici","16","0","","0"
-"0","","2","Onboarding to an initiative","18","0","","0"
-"0","","1","Onboarding Bonus Decoder","7","0","","0"
+"0","","7","Reward batches for initiatives and Refund Approval Process","0","0","","0"
+"0","","7","Reward batches for initiative barcode payments","0","0","","0"
+"1","","2","Reward batch counters are derived from current PostgreSQL transactions","0","0","","0"
