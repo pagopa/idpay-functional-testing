@@ -86,6 +86,8 @@ jobs:
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 #v5.2.0
         with:
           python-version: 3.14.6
+          cache: pip
+          cache-dependency-path: Pipfile.lock
 
       - name: Install dependencies
         run: |
@@ -133,7 +135,14 @@ jobs:
         if: always()
         run: |
           if [ -d allure-results ]; then
-            python3 util/sanitize-allure-results.py allure-results --initiative "$FEATURE_TAG"
+            initiative_args=()
+            # Scenario filters need redaction without assigning an initiative identity.
+            case "$FEATURE_TAG" in
+              bonus_elettrodomestici|bonus_decoder)
+                initiative_args=(--initiative "$FEATURE_TAG")
+                ;;
+            esac
+            python3 util/sanitize-allure-results.py allure-results "${initiative_args[@]}"
           else
             echo "No allure-results directory to sanitize"
           fi
