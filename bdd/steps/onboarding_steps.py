@@ -25,6 +25,10 @@ from util.utility import retry_wallet
 wallet_statuses = settings.IDPAY.endpoints.wallet.statuses
 timeline_operations = settings.IDPAY.endpoints.timeline.operations
 
+@given('the citizen {citizen_name} is onboarded')
+def step_named_citizen_onboard(context, citizen_name):
+    perform_full_onboarding(context=context, citizen_name=citizen_name)
+    step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
 @given('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
 @then('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
