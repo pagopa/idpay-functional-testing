@@ -1,0 +1,204 @@
+{
+  "source_commit": "5d44f94ee86284af81fff94b8f2b1bbb425c56da",
+  "purpose": "Historical reference for future Bonus Valore; not an executable suite",
+  "files": {
+    "features/ranking/onboarding.feature": {
+      "original_path": "bdd/features/ranking/onboarding.feature",
+      "sha256": "111e21057b2ca887bc5e0756591d16b6f025cad97bb458b3899711a9ccb95adf"
+    },
+    "features/ranking/suspension.feature": {
+      "original_path": "bdd/features/ranking/suspension.feature",
+      "sha256": "c9fbad9fa06a70851f950c8cddca36af09a978d95dd354f058000f753e4d447b"
+    },
+    "features/ranking/transaction.feature": {
+      "original_path": "bdd/features/ranking/transaction.feature",
+      "sha256": "3b46c14b94c06b370e383b69bdd5d63daecd2259400f633214451a5f163c0eb8"
+    },
+    "features/ranking/unsubscribe.feature": {
+      "original_path": "bdd/features/ranking/unsubscribe.feature",
+      "sha256": "22ac8dd757595f8df8c7628c4617f86a2f1f5d1e288c21d95218562283541e2f"
+    },
+    "features/ranking_family/onboarding.feature": {
+      "original_path": "bdd/features/ranking_family/onboarding.feature",
+      "sha256": "22694e55aeab27552282d7f4a4a089092da2c4cacfeb092e4c11bb4bbda412d1"
+    },
+    "features/ranking_family/suspension.feature": {
+      "original_path": "bdd/features/ranking_family/suspension.feature",
+      "sha256": "0f3b48f3412011f43ef0d629714d5f650bdd1fe80cfed729be6f0e46dc6b0883"
+    },
+    "features/ranking_family/transaction.feature": {
+      "original_path": "bdd/features/ranking_family/transaction.feature",
+      "sha256": "4ec89310593f5ab20a5af762d2c9c252992267ba4edff7d8fb9312ddec3d66bc"
+    },
+    "features/ranking_family/unsubscription.feature": {
+      "original_path": "bdd/features/ranking_family/unsubscription.feature",
+      "sha256": "b6a258aca4fbaedf0d736d2f44b4fab15a16f5900fe048d372b74e3abe4d6773"
+    },
+    "reference/ranking_steps.py.txt": {
+      "original_path": "bdd/steps/ranking_steps.py",
+      "sha256": "661dde4c971140686fcf5cf1606336c074db2b7b883d602dffcbdd136db545fb"
+    }
+  },
+  "steps": [
+    {
+      "path": "bdd/steps/dataset_steps.py",
+      "function": "step_citizen_fc_exact_or_random"
+    },
+    {
+      "path": "bdd/steps/dataset_steps.py",
+      "function": "step_citizens_fc_exact_or_random"
+    },
+    {
+      "path": "bdd/steps/dataset_steps.py",
+      "function": "step_set_citizen_isee"
+    },
+    {
+      "path": "bdd/steps/dataset_steps.py",
+      "function": "step_set_citizens_isee"
+    },
+    {
+      "path": "bdd/steps/discount_transaction_steps.py",
+      "function": "step_check_latest_pre_authorization_failed_citizen_not_onboard"
+    },
+    {
+      "path": "bdd/steps/discount_transaction_steps.py",
+      "function": "step_check_named_transaction_status"
+    },
+    {
+      "path": "bdd/steps/discount_transaction_steps.py",
+      "function": "step_when_merchant_generated_a_named_transaction"
+    },
+    {
+      "path": "bdd/steps/discount_transaction_steps.py",
+      "function": "step_when_merchant_tries_to_create_a_transaction"
+    },
+    {
+      "path": "bdd/steps/discount_transaction_steps.py",
+      "function": "step_when_onboard_citizen_confirms_transaction"
+    },
+    {
+      "path": "bdd/steps/family_steps.py",
+      "function": "step_check_absence_in_ranking_families"
+    },
+    {
+      "path": "bdd/steps/family_steps.py",
+      "function": "step_given_same_family_id"
+    },
+    {
+      "path": "bdd/steps/idpay_code_steps.py",
+      "function": "step_check_latest_trx_creation_through_mil"
+    },
+    {
+      "path": "bdd/steps/idpay_code_steps.py",
+      "function": "step_merchant_tries_to_generate_a_transaction_mil"
+    },
+    {
+      "path": "bdd/steps/initiative_steps.py",
+      "function": "step_create_new_initiative"
+    },
+    {
+      "path": "bdd/steps/initiative_steps.py",
+      "function": "step_given_initiative_name"
+    },
+    {
+      "path": "bdd/steps/initiative_steps.py",
+      "function": "step_initiative_has_a_rank"
+    },
+    {
+      "path": "bdd/steps/initiative_steps.py",
+      "function": "step_initiative_in_grace_period"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_check_citizens_correct_election"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_check_onboarding_citizens_status"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_check_onboarding_status"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_citizen_accepts_tos"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_citizen_tries_to_onboard"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_citizens_join_ranking"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_family_member_onboards_ranking"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_merchant_random_onboard"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_named_citizen_joins_ranking"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_named_citizen_suspension"
+    },
+    {
+      "path": "bdd/steps/onboarding_steps.py",
+      "function": "step_save_pdnd_consent_not_correctly"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_check_absence_in_ranking"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_check_citizen_ranking_status"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_check_ranking_order"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_end_ranking"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_force_ranking"
+    },
+    {
+      "path": "bdd/steps/ranking_steps.py",
+      "function": "step_publish_ranking_"
+    },
+    {
+      "path": "bdd/steps/rewards_step.py",
+      "function": "step_check_rewards_of_citizen"
+    },
+    {
+      "path": "bdd/steps/suspension_readmission_steps.py",
+      "function": "step_check_latest_suspension"
+    },
+    {
+      "path": "bdd/steps/suspension_readmission_steps.py",
+      "function": "step_institution_tries_citizen_suspension"
+    },
+    {
+      "path": "bdd/steps/unsubscribe_steps.py",
+      "function": "step_check_latest_cancellation_failed"
+    },
+    {
+      "path": "bdd/steps/unsubscribe_steps.py",
+      "function": "step_citizen_tries_to_unsubscribe"
+    }
+  ],
+  "scenario_count": 31,
+  "unmatched_steps_in_original": [
+    "the transaction X is not created because it is out of valid period"
+  ]
+}

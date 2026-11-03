@@ -5,12 +5,19 @@ Repository containing BDD and functional tests for the PARI platform.
 ## Reports and documentation
 
 - GitHub Pages (docs + report): https://pagopa.github.io/idpay-functional-testing/docs
-- Public Allure reports are published from `uat` runs only.
+- Public Allure reports are published from `uat` runs only. The `/bdd/` report shows
+  the latest published run, including tag-filtered runs; it is not a cumulative
+  history of every local or CI execution. Check the selected tag in the linked
+  Actions run before comparing totals.
+- CI runs with `feature=all` execute the two Bonus selections. Scenarios without
+  either Bonus tag are outside that matrix. Local runs do not update GitHub Pages
+  automatically.
 - RDB features, environment datasets and reusable utilities: [RDB BDD tests](docs/rdb.md).
+- Family coverage for Elettrodomestici and Decoder: [Family BDD tests](docs/family.md).
 
 ## Test execution
 
-Test execution is managed **only through GitHub Actions**.
+Remote integration test execution is managed through GitHub Actions.
 
 Main workflow: `.github/workflows/test-run.yaml`
 
@@ -39,7 +46,7 @@ names and default product GTINs. Configuration is selected from execution inputs
 not from tags written in the feature or scenario. A single positive initiative
 in Behave's `--tags` expression takes precedence; otherwise `PARI_FEATURE_TAG`,
 then `FEATURE_TAG` selects the configuration. `all`, an empty value or an unknown
-value selects `common_bonus_features` when the CLI does not select an initiative.
+value selects `bonus_elettrodomestici` when the CLI does not select an initiative.
 Unknown environment values emit a warning. Negated CLI tags do not select an
 initiative. If a CLI expression selects multiple initiatives, an environment
 variable must disambiguate them or the hook fails explicitly.
@@ -56,20 +63,19 @@ validate initiative-specific business rules.
 deployed ID, provisions it if needed, and initializes scenario state. Generic
 onboarding steps use `context.initiative_id`; barcode steps with
 `default product GTIN` use `context.product_gtin`. Newly provisioned initiatives
-remain covered by cleanup and failure-preservation controls. Existing explicit
-steps stay available for legacy features and product-specific cases.
+remain covered by cleanup and failure-preservation controls. Product-specific steps remain available where used by active scenarios.
 `Scenario Outline` / `Examples` remain appropriate for business inputs such as
 operator roles, family members and invalid RDB data, not environment configuration.
 
 The runner executes Behave with the selected tag, for example:
 
-### Commands 
+### Commands
 
 ```commandline
 [PARI_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
 ```
 
-For example this command runs in UAT(default) all onboarding tests without legacy tests and save the junitxml report to a file:
+For example, run the active onboarding scenarios in UAT and save JUnit XML:
 
 ```commandline
 behave --junit --junit-directory "tests/reports/behave" --tags @onboarding
@@ -101,6 +107,32 @@ Deactivate the shell:
 exit
 ```
 
-Automatic triggers:
-- push to `main`
-- pull request to `main`
+### Active suites and offline checks
+
+The maintained BDD suites are `common_bonus_features`, `bonus_elettrodomestici`
+and `bonus_decoder`. Historical cashback, whitelist, IDPay-code and discount-type
+suites and the disabled pytest integration workflow were retired. The `ranking`
+and `ranking_family` suites are preserved in [the ranking archive](archive/ranking/README.md)
+for possible Bonus Valore reuse; they are not part of the active BDD suite.
+`tests/unit` contains the active RDB cleanup tests, which mock HTTP operations.
+
+Offline checks use placeholder configuration and make no remote requests:
+
+```bash
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run python -m unittest discover -s tests/unit -v
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run behave --dry-run
+```
+
+For PowerShell, set `$env:PARI_SECRET_PATH` and `$env:PARI_TARGET_ENV` before
+running the commands. The template is for offline checks only; real BDD runs
+require environment credentials from Key Vault and connectivity to dev/uat.
+
+Documentation build (install `mkdocs-material` as in the docs workflow):
+
+```bash
+python scenario_parser.py --page-name "PARI Functional Testing" --repo-name idpay-functional-testing --root-dir bdd/features
+mkdocs build --strict
+```
+
+Pull requests and merge groups invoke the main workflow; remote BDD execution
+is skipped on pull requests. Manual runs select the environment and feature tag.

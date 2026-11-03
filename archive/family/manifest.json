@@ -1,0 +1,30 @@
+{
+  "source_commit": "5d44f94ee86284af81fff94b8f2b1bbb425c56da",
+  "purpose": "Original family scenarios before adaptation to current Bonuses",
+  "files": {
+    "features/cancellation.feature": {
+      "original_path": "bdd/features/family/cancellation.feature",
+      "sha256": "101ed9ccf0ca62703fcf23b0932be721574f4a056dda48ea7907360a6f26bb2b"
+    },
+    "features/onboarding.feature": {
+      "original_path": "bdd/features/family/onboarding.feature",
+      "sha256": "9c7da13d133577c61dd09655bb15ecb8b3dcbc8c6d0238c2d4ef7428e24cf390"
+    },
+    "features/refund.feature": {
+      "original_path": "bdd/features/family/refund.feature",
+      "sha256": "34ac14eb70d082498d27ec196247b176be9089eea3a738692dff8f0655334d6a"
+    },
+    "features/suspension.feature": {
+      "original_path": "bdd/features/family/suspension.feature",
+      "sha256": "edaa96abc4ab8a30d68b5f573a6e5bf0055c6f701ef963eb029bde5833b897e4"
+    },
+    "features/transaction.feature": {
+      "original_path": "bdd/features/family/transaction.feature",
+      "sha256": "0bca52c3b1e592aac16541470789b472193d95bd0a6d06554c577ed407ffb333"
+    },
+    "features/unsubscribe.feature": {
+      "original_path": "bdd/features/family/unsubscribe.feature",
+      "sha256": "3d34888a727c7bf54fa8a26b73b8598327a871ed22a8ad7650285a34fd9ed7c1"
+    }
+  }
+}

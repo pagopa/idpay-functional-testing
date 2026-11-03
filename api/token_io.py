@@ -18,21 +18,3 @@ def login(tax_code):
                          params={'fiscalCode': tax_code},
                          timeout=settings.default_timeout
                          )
-
-
-def introspect(token):
-    """API to introspect an IO token and get user data
-        :param token: IO token to introspect
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.get(f'{secrets.base_path.IO}{settings.SHARED.domain}{settings.SHARED.endpoints.mock_io.user}',
-                        headers={
-                            'Content-Type': 'application/json',
-                            settings.API_KEY_HEADER: secrets.api_key.RTD_Mock_API_Product
-                        },
-                        params={
-                            'token': token
-                        },
-                        timeout=settings.default_timeout
-                        )
