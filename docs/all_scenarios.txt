@@ -1,262 +1,93 @@
-2 transactions are authorized correctly by the same citizen if authorizations are 1 second apart one from the other.
-2 transactions can be authorized by different citizens even if one second has not passed between authorizations.
-2 transactions, created through MIL, are authorized correctly by the same citizen if authorizations are 1 second apart one from the other.
-2 transactions, created through MIL, can be authorized by different citizens even if one second has not passed between authorizations.
-A citizen can generate the IDPay Code
-A citizen can pre-authorize two transactions of maximum amount at the same time
-A citizen can regenerate the IDPay Code
-A citizen in age range who accepted PDND consent tries to onboard successfully
-A citizen in age range who denied PDND consent tries to onboard unsuccessfully
-A citizen is correctly awarded for a transaction confirmed before its suspension
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded cannot create a transaction by Bar Code
-A citizen not onboarded on an initiative tries to enroll the IDPay Code
-A citizen onboard tries to unsubscribe and receives OK
-A citizen over the maximum age tries to onboard unsuccessfully
-A citizen over the maximum age who denied PDND consent tries to onboard unsuccessfully
+A citizen tries to onboard a non published initiative
+A citizen tries to onboard a non started initiative
 A citizen tries to onboard a nonexistent initiative
-A citizen under minimum age who denied PDND consent tries to onboard unsuccessfully
-A citizen under the minimum age tries to onboard unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
-A citizen who denied PDND consent tries onboarding unsuccessfully
+A citizen tries to onboard an initiative with residual budget less than 100 euros
 A citizen who denied PDND consent tries to onboard unsuccessfully
 A citizen who has not accepted the Terms and Conditions tries to onboard unsuccessfully
-A citizen who is just 18 tries to onboard
-A citizen who tries to authorize a transaction, being suspended after pre-authorization, receives a KO result
-A citizen will be 36 years old the day after onboarding
+A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
+A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen's second barcode payment is rejected
-A merchant cannot generate a transaction during the grace period
-A merchant cannot generate a transaction during the grace period
-A merchant cannot generate a transaction during the grace period
-A merchant cannot generate a transaction during the grace period
 A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
-A merchant is not refunded for a transaction made by Bar Code because the institution payment fails
-A merchant is not refunded for a transaction made by Bar Code because the institution payment fails
-A merchant is not refunded for a transaction made by Bar Code because the institution payment fails
-A merchant is not refunded for a transaction made by Bar Code because the institution payment fails
-A merchant is refunded for a transaction made by Bar Code
-A merchant is refunded for a transaction made by Bar Code
-A merchant is refunded for a transaction made by Bar Code
-A merchant is refunded for a transaction made by Bar Code
-A merchant is refunded for a transaction made by Bar Code that exhausted the budget of citizen
-A merchant is refunded for a transaction made by Bar Code that exhausted the budget of citizen
-A merchant is refunded for a transaction made by Bar Code that exhausted the budget of citizen
-A merchant is refunded for a transaction made by Bar Code that exhausted the budget of citizen
+A merchant postpones a transaction to the next reward batch
 A merchant reverses an invoiced barcode payment
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
-A not onboarded merchant tries to authorize a transaction made by Bar Code
+A merchant sends an empty reward batch
+A merchant updates an invoice while the reward batch is EVALUATING
 A point of sale cancels an authorized barcode payment
 A point of sale cannot cancel a captured barcode payment
 A producer cannot approve a product
-A readmitted citizen confirms successfully a transaction and is rewarded
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A readmitted citizen generates a transaction by Bar Code and merchant authorizes it
-A suspended citizen can unsubscribe
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen generates a transaction by Bar Code and merchant cannot authorize it
-A suspended citizen who tries to onboard remains in the "suspended" state
-A suspended citizen who tries to pre-authorize a transaction receives a KO result
-A transaction can still be authorized even if a suspended citizen tried to pre-authorize it
-A transaction greater than the budget by 1 cent is authorized
-A transaction is not authorized if the budget is eroded
-A transaction of 1 cent is authorized
-A transaction, created through MIL, greater than the budget by 1 cent is authorized
-A transaction, created through MIL, is not authorized if the budget is eroded
-A transaction, created through MIL, of 1 cent is authorized
+A rejected family onboarding does not prevent the beneficiary's Barcode authorization
 Accept a notification request for an RDB event
+Accept a published and compliant EPREL product
+Accept a valid CSV for processing
 Access RDB with a generated application token
-After 10 transactions of amount 1500 cents each, the amount of rewards is equal to payment order
-After a cancellation of a transaction by Bar Code the family member budget is updated
-After a cancellation of a transaction by IDPay Code the family member budget is updated
-After a cancellation of a transaction by QR Code the family member budget is updated
-After a cancellation request the transaction X is cancelled
-After a cancellation request the transaction X is cancelled after being confirmed by the citizen
-After a cancellation request the transaction X is cancelled through MIL
-After a cancellation request the transaction X is cancelled through MIL after being confirmed by the citizen
-After the eroded budget, if the merchant cancels the last transaction the citizen can make another transaction
-After the eroded budget, if the merchant through MIL cancels the last transaction the citizen can make another transaction
-All family members pay a transaction by Bar Code and they are rewarded individually, sharing the budget
-All family members pay a transaction by IDPay Code and they are rewarded individually, sharing the budget
-All family members pay a transaction by QR Code and they are rewarded individually, sharing the budget
-Allow an upload on another initiative
-Allow an upload on another initiative
 Allow an upload on another initiative
 An Invitalia operator cannot approve a product
 An approved reward batch keeps its suspended amount after removing suspended transactions
-An approved reward batch keeps its suspended amount after removing suspended transactions
-An authorized and cancelled transaction X cannot be pre-authorized
-An authorized and cancelled transaction X cannot be pre-authorized through MIL
+An invalid product does not prevent valid products from being stored
+An invoiced payment is associated with a reward batch
 An onboarded citizen creates a barcode payment accepted by a merchant
-An onboarded citizen enables the IDPay Code on an initiative having already generated the IDPay Code
-An onboarded citizen enrolls the IDPay Code for the first time on an initiative
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates a transaction by Bar Code and merchant authorizes it
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen generates two transaction concurrently by Bar Code but the budget is exhausted for the second authorization
-An onboarded citizen tries to disable the IDPay Code, after enabling it
-An onboarded citizen tries to disable the IDPay Code, without enabling it
-An onboarded citizen tries to enable the IDPay Code on an initiative not having already generated the IDPay Code
-An onboarded citizen tries to enroll again the IDPay Code, after disabling it
-An unsubscribed citizen on an initiative tries to enroll the IDPay Code
-An unsubscribed citizen tries to authorize a transaction
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to generate a transaction by Bar Code
-An unsubscribed citizen tries to onboard and fails
-An unsubscribed citizen tries to onboard another initiative
-An unsubscribed citizen tries to unsubscribe again and receives OK
-Before pre-authorization, after a cancellation request the transaction is cancelled and cannot be pre-authorized
-Before pre-authorization, after a cancellation request the transaction, created through MIL, is cancelled and cannot be pre-authorized
-Budget not completely eroded with one transaction X of amount 300 cents
-Citizen A (with eroded budget) fails to authorize a transaction, citizen B fail authorizing the same transaction because it is already assigned
-Citizen A (with eroded budget) fails to authorize a transaction, created through MIL, citizen B fail authorizing the same transaction because it is already assigned
-Citizen authorizes a transaction before pre-authorization
-Citizen authorizes successfully a transaction already pre-authorized by himself
-Citizen fails pre-authorizing a non-existing transaction code (chosen at random)
-Citizen makes 1 transaction, then the transaction is confirmed
-Citizen makes 2 transactions, then only 1 is confirmed
-Citizen makes 3 transactions, then all 3 are confirmed
-Citizen makes 3 transactions, then only 2 are confirmed
-Citizen makes 4 transactions, then only 1 is confirmed
-Citizen makes 4 transactions, then only 3 are confirmed
-Citizen pre-authorize 2 times a transaction and it is still identified
-Citizen pre-authorize 2 times a transaction through MIL and it is still identified
-Citizen pre-authorizes successfully a transaction already pre-authorized by himself
-Citizen pre-authorizes successfully a transaction, created through MIL, already pre-authorized by himself
-Citizen tries to pre-authorize a transaction already pre-authorized by another citizen
-Citizen tries to pre-authorize a transaction, created through MIL, already pre-authorized by another citizen
-Citizen's budget is completely eroded with 10 trx
-Citizen's budget is completely eroded with 10 trx, created through MIL
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizen, with worse criteria then other citizens, is not in ranking for budget exhaustion even if it onboards first
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens with different ISEE onboard to ranking initiative in the correct order, given by ISEE value
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Citizens, with same ISEE, onboard to ranking initiative in the correct order, is given by onboarding time
-Combine product filters
+An unsubscribed citizen onboards the same initiative again successfully
+Citizen onboarding allocate correct budget for initiative
+Citizen onboards successfully
+Citizen onboards successfully
+Citizen who has not paid Canone TV tries to onboard unsuccessfully
+Citizen with ISEE equal or above 25k tries to onboard successfully
+Citizen with ISEE lower than 25k tries to onboard successfully
+Citizen with mismatching email tries to onboard unsuccessfully
+Citizen with no declared ISEE tries to onboard successfully
+Citizen without email tries to onboard successfully
+Citizen without email tries to onboard successfully
 Combine product filters
 Count an association missing a mandatory field as failed
+Discard products failing an EPREL check
+Do not process an invalid CSV
 Do not request acceptance of an already accepted version
 Do not update a product through another initiative
+Download a formal validation report
+Download a processing report repeatedly
 Eligible merchant already onboarded fails to onboard
 Eligible merchant onboards successfully
+Evaluating a sent reward batch rewards its invoiced transactions synchronously
+Exclude a CSV with formal errors from history
+Family members' rejected applications do not prevent the beneficiary's unsubscribe
+Filter products by EPREL code
 Filter products by a supported field
-Filter products by a supported field
-If a transaction is authorized by citizen A, B receives an error upon pre-authorizing the same transaction.
-If a transaction is correctly authorized by the citizen, if the latter is suspended, the payment mandate is correctly generated
-If a transaction, created through MIL, is authorized by citizen A, B receives an error upon pre-authorizing the same transaction.
-If citizen A pre-authorizes the transactions X and Y through MIL, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
-If citizen A pre-authorizes the transactions X and Y through MIL, and the transaction X is authorized eroding A's budget, Y remains identified
-If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, A receives an error upon authorizing the transaction Y
-If citizen A pre-authorizes the transactions X and Y, and the transaction X is authorized eroding A's budget, Y remains identified
 Import valid producer associations
-L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
+Keep the first occurrence of a duplicated GTIN
 L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
 L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
-L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
-L2 Operator reject one transaction of reward batch and then approve the reward batch
 L2 Operator reject one transaction of reward batch and then approve the reward batch
 L3 Operator approves the reward batch
-L3 Operator approves the reward batch
+List only uploads belonging to the organization and initiative
 List the producers associated with the initiative
-List the producers associated with the initiative
 Manage the same GTIN independently across initiatives
-Manage the same GTIN independently across initiatives
-Manage the same GTIN independently across initiatives
-Merchant do not receives refund if the institution payment fails
-Merchant receives discount transaction refund
-Merchant receives discount transaction refund for 1 cents transaction
-Merchant receives max refund for discounted transaction exceeding the citizen's budget
 Merchant successfully logs in Merchant Portal
 Merchant without eligible ATECO fails to onboard
 Normalize the producer email during import
-Onboard citizen cannot unsubscribe before onboarding period end
-Onboard citizen cannot unsubscribe before onboarding period end
-Onboard citizen cannot unsubscribe before onboarding period end
-Onboard citizen cannot unsubscribe during the grace period before ranking publish
-Onboard citizen cannot unsubscribe during the grace period before ranking publish
-Onboard citizen cannot unsubscribe during the grace period before ranking publish
-Onboard family cannot unsubscribe before grace period end on a initiative with ranking
-Onboard family cannot unsubscribe before onboarding period end on a initiative with ranking
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Onboarding result depends on citizens' ISEE
-Operator downloads the approved reward batch report
+Onboarded citizen with ISEE equal or above 25k has a wallet with correct budget
+Onboarded citizen with ISEE lower than 25k has a wallet with correct budget
+Onboarded citizen with no declared ISEE has a wallet with correct budget
 Operator downloads the approved reward batch report
 Operator downloads the generated CSV report correctly
 Operator downloads the generated USER_DETAILS CSV report correctly
 Operator requests the CSV report export correctly
 Operator requests the CSV report export with a range exceeding the maximum allowed
 Operator requests the USER_DETAILS CSV report export correctly
+Paginate the CSV upload history
 Perform an allowed product status transition
+Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
+Preserve a product that is already under review
 Process a CSV when the operational email is missing
+Process cooking hobs without requiring EPREL data
 Reimport an association without creating duplicates
+Reject a CSV larger than 2 MB with temporary server error tolerance
 Reject a batch containing different current statuses
 Reject a product when the operational email is missing
 Reject a request without an authentication token
 Reject acceptance of an outdated version
-Reject access to an inaccessible report
 Reject access to an inaccessible report
 Reject access to an inaccessible report
 Reject an application token with invalid claims or signature
@@ -266,102 +97,25 @@ Reject an expired application token
 Reject an incorrect declared current status
 Reject an invalid operational email
 Reject an unauthorized request for producer information
-Reject an unauthorized request for producer information
+Reject concurrent uploads for the same initiative and organization
+Reject invalid CSV file constraints
 Reject the entire batch when one product does not exist
+Reload a product from an allowed status
 Replace the previous operational email
+Report every formal error in the same row
 Request consent for a user who has never accepted
 Restrict batches to the selected organization
-Restrict batches to the selected organization
-Restrict product visibility to the selected organization
 Restrict product visibility to the selected organization
 Retrieve a producer registered in SelfCare
-Retrieve a producer registered in SelfCare
-Return an empty result for a nonexistent GTIN
 Return an empty result for a nonexistent GTIN
 Return exactly the initiatives visible to the current user
+Reversing an invoiced payment removes it from its reward batch
+Separate families can each onboard one beneficiary
 Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
-Suspending a citizen does not free up the budget of an initiative with a fully allocated budget
+Store every valid product
 Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
-Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
-The Institution cannot suspend a citizen before onboarding period end
-The Institution cannot suspend a citizen before onboarding period end
-The Institution cannot suspend a citizen before onboarding period end
-The Institution cannot suspend a citizen before onboarding period end
-The Institution cannot suspend a citizen during grace period before ranking publication
-The Institution cannot suspend a citizen during grace period before ranking publication
-The Institution cannot suspend a citizen during grace period before ranking publication
-The Institution cannot suspend a citizen during grace period before ranking publication
-The Institution tries to readmit a citizen not registered in the initiative and receives a KO
-The Institution tries to readmit a suspended citizen during the fruition period and receives an OK result
-The Institution tries to suspend a citizen not registered in the initiative and receives a KO
-The Institution tries to suspend an onboard citizen during the fruition period and receives an OK result
-The budget is completely eroded with one trx
-The budget is completely eroded with one trx through MIL
-The citizen tries to onboard on a closed initiative
-The citizen tries to onboard on a closed initiative
-The citizen tries to onboard on a closed initiative
-The citizen tries to onboard on a closed initiative
-The citizen tries to onboard on a closed initiative
-The citizen tries to onboard on a closed initiative
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant authorizes a transaction made by Bar Code already authorized
-The merchant cancels a transaction made by Bar Code after authorizing it
-The merchant cancels a transaction made by Bar Code after authorizing it
-The merchant cancels a transaction made by Bar Code after authorizing it
-The merchant cannot generate a transaction during the onboarding period
-The merchant cannot generate a transaction during the onboarding period
-The merchant cannot generate a transaction during the onboarding period
-The merchant cannot generate a transaction during the onboarding period
-The merchant not qualified tries to generate the trx
-The merchant not qualified tries to generate the trx through MIL
-The merchant requests cancellation for 10 transactions of amount 1500 cents each
-The merchant through MIL requests cancellation for 10 transactions of amount 1500 cents each
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code generated by an unsubscribed citizen
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to authorize the transaction made by Bar Code that is not found
-The merchant tries to cancel a transaction made by Bar Code after it has been confirmed
-The merchant tries to cancel a transaction made by Bar Code after it has been confirmed
-The merchant tries to cancel a transaction made by Bar Code after it has been confirmed
-The merchant tries to generate a transaction through MIL
-The merchant tries to generate the trx
-The second time a transaction is pre-authorized by the same citizen an error is returned
-The second time a transaction, created through MIL, is pre-authorized by the same citizen an error is returned
-The transaction can still be authorized if an ever registered citizen tried to authorize it
-The transaction is not authorized for a citizen which got KO during onboarding
-The transaction is not authorized for ever registered citizen
-The transaction is not generated for an amount equal to -1 cents
-The transaction is not generated for an amount equal to -1 cents through MIL
-The transaction is not generated for an amount equal to 0 cents
-The transaction is not generated for an amount equal to 0 cents through MIL
-The transaction made before unsubscribing is present in the rewards file
-The transaction, created through MIL, can still be authorized if an ever registered citizen tried to authorize it
-The transaction, created through MIL, is not authorized for ever registered citizen
-The transaction, created through MIL, is not authorized for onboarding citizen KO
-Transaction cancelled before the citizen’s authorization
-Transaction, created through MIL, cancelled before the citizen’s authorization
-Two family members pay a transaction by Bar Code and the second one exhausts the budget
-Two family members pay a transaction by Bar Code but the first one exhausted the budget
-Two family members pay a transaction by IDPay Code but for the second one the reward pre-calculated cannot be guaranteed
-Two family members pay a transaction by IDPay Code but the second authorization fails because the first one locked the second one
-Two family members pay a transaction by IDPay Code but the second pre-authorization fails because the budget is exhausted
-Two family members pay a transaction by QR Code and the second one exhausts the budget
-Two family members pay a transaction by QR Code but the first one exhausted the budget
-With two transactions generated by two merchants for the citizen to the confirmation of a transaction that erodes the budget to the second authorization receives error
-With two transactions generated by two merchants through MIL for the citizen to the confirmation of a transaction that erodes the budget to the second authorization receives error
+The POS cancels an authorized family beneficiary payment
+The first applicant represents the family independently of the member order
+The merchant reverses the family beneficiary payment after invoicing
+Validate a CSV compliant with the initiative template
