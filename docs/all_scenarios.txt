@@ -30,6 +30,8 @@ An invalid product does not prevent valid products from being stored
 An invoiced payment is associated with a reward batch
 An onboarded citizen creates a barcode payment accepted by a merchant
 An unsubscribed citizen onboards the same initiative again successfully
+Batch counters reflect a transaction rejected by an L2 operator
+Batch counters remain accurate after an invoice update
 Citizen onboarding allocate correct budget for initiative
 Citizen onboards successfully
 Citizen onboards successfully
@@ -79,6 +81,7 @@ Operator requests the USER_DETAILS CSV report export correctly
 Paginate the CSV upload history
 Perform an allowed product status transition
 Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
+Postponing a transaction updates the source and next-month batch counters
 Preserve a product that is already under review
 Process a CSV when the operational email is missing
 Process cooking hobs without requiring EPREL data
