@@ -43,6 +43,6 @@ class ReportDownloadAccessTest(unittest.TestCase):
             with self.subTest(status=status, body=body, content=content):
                 response = Mock(status_code=status, content=content, text=str(body))
                 response.json.return_value = body
+                context = SimpleNamespace(latest_report_download_response=response)
                 with self.assertRaises(AssertionError):
-                    report_steps.step_operator_is_authorized_to_download_csv_report(
-                        SimpleNamespace(latest_report_download_response=response))
+                    report_steps.step_operator_is_authorized_to_download_csv_report(context)
