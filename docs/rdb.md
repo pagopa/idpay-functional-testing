@@ -12,7 +12,7 @@ isolation control. Producer detail requests are initiative-independent.
 Decoder scenarios remain in the decoder suite when the operation under test
 targets B, even if their prerequisites also use A.
 Steps use the APIs of the selected environment; generated datasets do not mock responses.
-Latest full run with simplified cleanup: [UAT, 9 October 2026](rdb-test-results-2026-10-09-uat.md),
+Latest full run with simplified cleanup: UAT, 9 October 2026,
 95 scenarios passed and 1 concurrency check failed, confirmed by an isolated rerun.
 All 96 cleanups completed without hook errors.
 The failure was subsequently fixed by moving preliminary checks outside the
@@ -116,7 +116,7 @@ Following the standup decision, the cases for renewed acceptance after a version
 change and for a disabled producer association were removed from the Behave suite.
 Coverage remains in backend JUnit tests; future UAT integration is deferred,
 without developing dedicated test APIs now. These cases are not counted as passed
-or skipped. Details are in the [decision document](rdb-team-discussion.md).
+or skipped.
 Historical reports retain the original scope of 98 scenarios.
 
 Concurrent upload tests prepare a 100-row EPREL CSV and verify that it is active

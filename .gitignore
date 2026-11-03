@@ -101,6 +101,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
@@ -132,9 +134,18 @@ dmypy.json
 .idea/
 
 # Ignore dynaconf secret files
-conf/pari-feature-secrets.json
-conf/pari-feature-secrets-dev.json
+conf/pari-feature-secrets*.json
+!conf/pari-feature-secrets-template.json
 /secrets/
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.cer
+*.kdbx
+credentials*.json
+service-account*.json
 
 # Exclude cryptography files
 *.key
@@ -145,4 +156,18 @@ conf/pari-feature-secrets-dev.json
 # Exclude MKDocs files
 /docs/features/
 /docs/index.md
+/docs/components/
+/docs/all_scenarios.txt
+/mkdocs.yml
 .vscode/settings.json
+
+# Local tools, generated reports and temporary data
+.uv-cache/
+allure-results*/
+allure-report*/
+merged-allure-results/
+*.tmp
+*.temp
+*.bak
+*.swp
+*~

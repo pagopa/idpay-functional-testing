@@ -1,6 +1,5 @@
 """Models for the Visura Impresa REST client payload."""
 
-from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any

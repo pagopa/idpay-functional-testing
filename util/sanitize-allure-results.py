@@ -15,6 +15,7 @@ _MULTI_SEGMENT_TOKEN = r"[\w-]+(?:\.+[\w-]+)+"
 INITIATIVE_SUITES = {
     "bonus_elettrodomestici": "Bonus Elettrodomestici",
     "bonus_decoder": "Bonus Decoder",
+    "common_without_bonus_tag": "Common scenarios without Bonus tags",
 }
 
 
@@ -115,7 +116,7 @@ def main():
     )
     parser.add_argument(
         '--initiative',
-        choices=('bonus_elettrodomestici', 'bonus_decoder'),
+        choices=tuple(INITIATIVE_SUITES),
         help="Assign initiative labels, parent suite and a separate history to each test result",
     )
     args = parser.parse_args()

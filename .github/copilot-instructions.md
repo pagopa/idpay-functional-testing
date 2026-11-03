@@ -2,59 +2,120 @@
 
 ## Project and test execution
 
-This repository is a Python 3.14.6 integration-test suite for the PARI/IDPay platform. It has two complementary suites:
+This repository is a Python 3.14.6 integration-test suite for the PARI/IDPay platform.
+The maintained BDD suites are `bdd/features/common_bonus_features`,
+`bdd/features/bonus_elettrodomestici` and `bdd/features/bonus_decoder`, with reusable
+Behave steps in `bdd/steps`. `tests/unit` contains offline unittest checks with
+mocked HTTP operations. The historical pytest integration suite has been retired. Family coverage for both Bonuses
+lives in `bdd/features/common_bonus_features/family`; see `docs/family.md`.
+`archive/family` preserves the originals for reference. Current Bonus rules allow
+one beneficiary per family; do not restore the historical shared 300-euro budget,
+DEMANDED onboarding or QR/IDPay Code flows without a validated business requirement.
 
-- **BDD:** Gherkin features in `bdd/features/`, implemented by reusable Behave steps in `bdd/steps/`.
-- **Functional:** pytest flows in `tests/` that exercise the same remote platform directly.
+`archive/ranking` preserves the historical `ranking` and `ranking_family` scenarios
+and dependency references for possible reuse by Bonus Valore. It is not an active
+or validated suite. Do not remove this archive as unused code or add it to normal
+BDD execution without an explicit decision to reactivate and adapt it.
 
-Tests require access to a configured remote environment, mTLS credentials, API keys, and test identities. Create the ignored local secret file from `conf/pari-feature-secrets-template.json`, or point Dynaconf at a secure alternative with `PARI_SECRET_PATH`. Select its top-level environment section with `PARI_TARGET_ENV` (default: `uat`). Never add a populated secret file, certificate, key, or generated `.pgp` file to Git.
+Install locked dependencies with `pipenv sync`. CI runs BDD through
+`.github/workflows/test-run.yaml` and `.github/workflows/test-run-bdd.yaml`.
+The remote BDD jobs are skipped on pull requests; manual runs select the environment,
+feature tag and reward-batch cleanup option. The `all` matrix runs the two Bonus
+configurations separately; scenarios without either Bonus tag are outside that matrix.
+The public `/bdd/` report always represents the latest published run, including
+partial tag selections; inspect the selected tag in the linked Actions run.
+The restored CI workflow installs `allure-behave` separately for its report
+formatter. Local runs with the default formatter only need `pipenv sync`.
 
-Install dependencies with `pipenv sync`. The GitHub Actions runners additionally install `allure-behave` for BDD and `allure-pytest` for functional tests, so install the applicable package locally before reproducing the CI report command.
+Use `conf/pari-feature-secrets-template.json` to prepare an ignored local secret
+file, or select a secure file with `PARI_SECRET_PATH`. `PARI_TARGET_ENV` selects its
+top-level environment section (default: `uat`). The template contains placeholders
+and is only suitable for offline checks. Remote runs need environment connectivity
+and credentials; CI retrieves them from Azure Key Vault. Never commit populated
+secrets, tokens, certificates, private keys, environment identities or raw reports.
+
+Commands below use Bash environment syntax; in PowerShell set the corresponding
+`$env:PARI_SECRET_PATH` and `$env:PARI_TARGET_ENV` before invoking the command.
 
 ```bash
-# BDD suite / one feature / one scenario by name
-PARI_TARGET_ENV=uat pipenv run behave
-PARI_TARGET_ENV=uat pipenv run behave bdd/features/family/onboarding.feature
-PARI_TARGET_ENV=uat pipenv run behave bdd/features/bonus_elettrodomestici/onboarding.feature --name "Citizen with no declared ISEE tries to onboard successfully"
+# Offline unit tests and active BDD step resolution; no remote requests
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run python -m unittest discover -s tests/unit -v
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run behave --dry-run
 
-# Functional suite / one test / marker selection
-PARI_TARGET_ENV=uat pipenv run pytest tests/ -vv
-PARI_TARGET_ENV=uat pipenv run pytest tests/test_not_started/test_login_io.py::test_login_io -vv
-PARI_TARGET_ENV=uat pipenv run pytest tests/ -m IO -vv
+# Remote BDD with real, ignored environment configuration
+PARI_TARGET_ENV=uat pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_elettrodomestici
+PARI_TARGET_ENV=uat pipenv run behave bdd/features/bonus_decoder/onboarding.feature --name "Citizen who has not paid Canone TV tries to onboard unsuccessfully"
 
-# CI-style reports
-PARI_TARGET_ENV=uat pipenv run behave --junit --junit-directory tests/reports/behave --format allure_behave.formatter:AllureFormatter -o allure-results
-PARI_TARGET_ENV=uat pipenv run pytest tests/ --alluredir=allure-results-pytest --junitxml=tests/reports/pytest/junit.xml -vv
+# Local JUnit report; add the Allure formatter only when installed
+PARI_TARGET_ENV=uat pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_decoder --junit --junit-directory tests/reports/behave
 
-# Configured checks
 pre-commit run --all-files
 
-# Documentation generation, as performed in CI
-python3 scenario_parser.py --page-name "PARI Functional Testing" --repo-name idpay-functional-testing --root-dir bdd/features
-mkdocs build
+# Documentation; install mkdocs-material as in the docs workflow
+python scenario_parser.py --page-name "PARI Functional Testing" --repo-name idpay-functional-testing --root-dir bdd/features
+mkdocs build --strict
 ```
 
-`pre-commit` is the only configured formatting/lint check; it enforces import order, double-quoted Python strings, and the repository's JSON/YAML/whitespace checks. When changing dependencies, follow the PR template: update `requirements.txt`, `Pipfile`, and `Pipfile.lock` using `pipenv run pip freeze > requirements.txt` and `pipenv install -r requirements.txt`.
+The configured pre-commit hooks check Python AST/import order/double-quoted strings,
+JSON/YAML/XML, private keys, line endings and whitespace. They can rewrite files;
+review their changes. Keep `Pipfile`, `Pipfile.lock` and `requirements.txt` consistent
+when changing dependencies; avoid freezing unrelated local tools into runtime requirements.
 
-## Architecture and lifecycle
+## Architecture and configuration
 
-`conf/configuration.py` exposes Dynaconf `settings` from `settings.yaml` and environment-specific `secrets`. `settings.yaml` is the source of API paths, timeouts, state constants, and initiative creation payloads; secret JSON supplies base URLs, mTLS material, API keys, and environment-specific IDs.
+`conf/configuration.py` exposes Dynaconf `settings` from `settings.yaml` and
+`secrets` from the selected environment. Configuration fails explicitly for a missing
+or empty environment. Keep API paths, timeouts, state constants and initiative
+payloads in settings; keep URLs, credentials and environment-specific IDs in secrets.
 
-`api/` is the thin transport layer: functions build URLs from `settings` and `secrets`, set service-specific headers/certificates, apply configured timeouts, and return raw `requests.Response` objects. Put reusable multi-call business flows, polling, fake-data generation, encryption, and assertions in `util/`. Reuse its `retry_*`, onboarding/enrollment, transaction-upload, and cleanup helpers instead of hand-rolled waits or duplicating API sequences.
+`api/` is the thin HTTP transport layer: build URLs from settings and secrets,
+set service-specific headers/certificates and return raw `requests.Response`
+objects. Put reusable multi-call flows, polling, data generation and assertions in
+`util/`. Reuse existing `retry_*`, onboarding and cleanup helpers rather than
+duplicating API sequences or replacing polling with fixed sleeps.
 
-Both suites create state in the target environment:
+## Initiative selection and lifecycle
 
-- pytest's `conf/conftest.py` creates the `cashback_like`, `not_started`, `complex`, and `timeframes` initiatives before the session, waits for startup, and deletes newly created initiatives at session finish.
-- Behave's `bdd/environment.py` creates an initiative once per feature when one of that feature's tags matches a key in `settings.initiatives`, then performs the same cleanup.
+Feature and scenario tags filter Behave scenarios. For the Bonus suites, execution
+inputs choose the initiative configuration in `bdd/environment.py::INITIATIVE_CONFIGS`:
+a single positive Bonus in CLI `--tags` takes precedence, followed by
+`PARI_FEATURE_TAG`, then `FEATURE_TAG`. Multiple positive Bonus selections require
+an environment variable to disambiguate them. Negated tags do not select an initiative.
+With no recognized selection the hook defaults to `bonus_elettrodomestici`.
+Shared features may carry both Bonus tags; this does not provision both configurations.
 
-Do not introduce parallel test execution unless each worker has isolated initiatives and cleanup. The existing retry helpers account for asynchronous platform state; retain or extend those polling assertions rather than replacing them with fixed sleeps. `KEEP_INITIATIVES_AFTER_TEST` and `KEEP_INITIATIVES_AFTER_FAILED_TEST` are the deliberate debugging controls.
+`Given the initiative is active` resolves the logical name to its deployed ID,
+creates it when required and initializes scenario state. Generic onboarding steps
+use `context.initiative_id`; Barcode steps use `context.product_gtin`. Other feature
+tags matching `settings.initiatives` can trigger provisioning in `before_feature`.
+When adding a new initiative, update its payload, selection and setup deliberately.
 
-## Test authoring conventions
+Tests create remote state. `bdd/environment.py` tracks newly created initiatives,
+deletes them at the end of the run and coordinates reward-batch cleanup.
+`util/rdb_cleanup.py` manages RDB scenario cleanup. Preserve
+`KEEP_INITIATIVES_AFTER_TEST`, `KEEP_INITIATIVES_AFTER_FAILED_TEST` and
+`PARI_REWARD_BATCH_CLEANUP`, including their failure-preservation semantics.
+Do not run tests concurrently against shared initiatives; parallel workers need
+isolated initiatives and cleanup. Inspect hook/cleanup failures separately from
+business assertions, and do not claim an environment is clean from passing counts alone.
 
-- Add endpoint-specific request functions to the relevant `api/` module; use configuration values rather than literal hosts, credentials, paths, or timeouts.
-- Add a new initiative's payload and expected values under `settings.initiatives`. BDD features that need a provisioned initiative must tag the feature with that exact settings key. Feature steps store scenario state on `context`; initialize it through the existing initiative/setup steps and extend the matching step module.
-- In Gherkin, describe an operation whose result is asserted separately as an attempt, using wording such as `tries to authorize`; keep the outcome in the following assertion (for example, `is AUTHORIZED` or `is REJECTED`) instead of encoding success in the action step.
-- Prefer one Given/When/Then flow per scenario: group preconditions under `Given`/`And`, actions under `When`/`And`, and outcomes under `Then`/`And`. Avoid alternating `When`/`Then` blocks unless an intermediate result is an explicit prerequisite for the next action.
-- Functional tests use domain markers and `@pytest.mark.use_case("<id>")`; preserve these markers when modifying a covered flow so pytest exports the use-case metadata. They share the lifecycle-managed initiative IDs from `secrets.initiatives`.
-- Transaction tests generate and PGP-encrypt CSV inputs via `util.transaction_upload`; clean the plaintext and encrypted files with the corresponding utility after use.
-- `scenario_parser.py` generates the MkDocs feature pages from `bdd/features/`; generated `docs/index.md` and feature pages are ignored. Change Gherkin sources and step implementations, not generated documentation.
+## Test authoring and reports
+
+- Add endpoint-specific requests to the relevant `api/` module; reuse settings and
+  secrets instead of literal hosts, credentials, paths or timeouts.
+- Keep scenario state on Behave's `context`, initialized by existing setup steps.
+  Extend the corresponding step module and reuse utilities before adding duplicates.
+- Describe actions with separately asserted outcomes as attempts, for example
+  `tries to authorize`, followed by the expected success or rejection assertion.
+- Prefer one Given/When/Then flow: group preconditions, actions and outcomes.
+  Alternate When/Then blocks only when an intermediate result is a prerequisite.
+- Use Scenario Outline/Examples for business inputs such as roles, family members
+  and invalid data, rather than selecting deployment configuration.
+- Preserve asynchronous polling and meaningful assertions. Do not suppress failures
+  or extend timeouts simply to obtain a passing result; diagnose the service state.
+- `scenario_parser.py` generates MkDocs pages from active Gherkin. Change feature
+  sources and steps, not generated `docs/index.md`, feature pages or `mkdocs.yml`.
+  Keep the ranking archive outside the active docs and runner roots.
+- Raw JSON/JUnit/Allure logs can contain identities and tokens. Keep them ignored,
+  use `util/sanitize-allure-results.py` for published Allure artifacts as CI does,
+  and include only sanitized evidence in committed reports.

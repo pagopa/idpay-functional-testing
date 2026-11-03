@@ -56,13 +56,3 @@ Feature: Onboarding Bonus Elettrodomestici
     Given the citizen A has fiscal code random
     When the citizen A tries to insert wrong value in self-declared criteria
     Then the citizen onboarding failed because the citizen inserted the wrong value
-
-  Scenario: Family members join first family's onboarding
-    Given citizens A B C have fiscal code random
-    And citizens A B C are in the same family
-    And citizens A B C have ISEE 19999 of type "ordinario"
-    And the citizen A B C selects ISEE type "under_25000"
-    When the citizen A tries to onboard
-    And the citizen B tries to onboard
-    And the citizen C tries to onboard
-    Then the onboards of B C are family joined

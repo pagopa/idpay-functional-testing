@@ -5,9 +5,6 @@ import requests
 
 from conf.configuration import secrets
 from conf.configuration import settings
-from util.certs_loader import load_certificates
-from util.dataset_utility import tomorrow_date
-from util.dataset_utility import yesterday_date
 
 
 def timeline(initiative_id, token, page: int = 0):
@@ -44,122 +41,6 @@ def wallet(initiative_id, token):
         timeout=settings.default_timeout)
 
 
-def unsubscribe(initiative_id, token):
-    """API to unsubscribe a citizen from an initiative.
-        :param initiative_id: ID of the initiative of interest.
-        :param token: token IO.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.delete(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.unsubscribe}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        },
-        timeout=settings.default_timeout)
-
-
-def enroll_iban(initiative_id, token, body):
-    """API to enroll an IBAN
-        :param initiative_id: ID of the initiative of interest.
-        :param token: token IO.
-        :param body: JSON of IBAN and its description.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.start_path}/{initiative_id}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        },
-        json=body,
-        timeout=settings.default_timeout)
-
-
-def get_payment_instruments(initiative_id, token):
-    """API to get payment instruments.
-        :param initiative_id: ID of the initiative of interest.
-        :param token: token IO.
-    """
-    cert = load_certificates()
-    return requests.get(
-        f'{secrets.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.end_path}',
-        cert=cert,
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'it_IT',
-        },
-        timeout=settings.default_timeout)
-
-
-def get_iban_list(token):
-    """API to get list of IBANs associated to a citizen.
-        :param token: token IO.
-    """
-    cert = load_certificates()
-    return requests.get(
-        f'{secrets.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}',
-        cert=cert,
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'it_IT',
-        },
-        timeout=settings.default_timeout)
-
-
-def get_iban_info(iban, token):
-    """API to get information about an IBAN enrolled by a citizen.
-        :param iban: IBAN of interest.
-        :param token: token IO.
-    """
-    cert = load_certificates()
-    return requests.get(
-        f'{secrets.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.onboarding.iban.end_path}/{iban}',
-        cert=cert,
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'it_IT',
-        },
-        timeout=settings.default_timeout)
-
-
-def remove_payment_instrument(initiative_id, token, instrument_id):
-    """API to remove payment instrument by instrument ID.
-        :param initiative_id: ID of the initiative of interest.
-        :param token: token IO.
-        :param instrument_id: ID of the card to remove.
-    """
-    cert = load_certificates()
-    return requests.delete(
-        f'{secrets.base_path.CSTAR}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.end_path}/{instrument_id}',
-        cert=cert,
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'it_IT',
-        },
-        timeout=settings.default_timeout)
-
-
-def force_reward():
-    return requests.get(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}{settings.IDPAY.endpoints.rewards.force_reward}{tomorrow_date()}',
-        timeout=settings.long_timeout
-    )
-
-
-def get_reward_content(organization_id, initiative_id, export_id):
-    return requests.get(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.rewards.path}/organization/{organization_id}/initiative/{initiative_id}/reward/notification/exports/{export_id}/content',
-        timeout=settings.default_timeout
-    )
-
-
 def get_initiative_statistics(organization_id, initiative_id):
     res = requests.get(
         f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.statistics.path}/organization/{organization_id}/initiative/{initiative_id}/statistics',
@@ -178,30 +59,6 @@ def get_initiative_statistics_merchant_portal(initiative_id, merchant_id):
     )
 
 
-def post_merchant_create_transaction_acquirer(initiative_id,
-                                              amount_cents: int,
-                                              merchant_id: str = 'MERCHANTID',
-                                              acquirer_id: str = settings.idpay.acquirer_id,
-                                              apim_request_id: str = 'APIMREQUESTID',
-                                              mcc: str = '1234'):
-    response = requests.post(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/',
-        headers={
-            'Content-Type': 'application/json',
-            'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id,
-            'x-apim-request-id': apim_request_id
-        },
-        json={
-            'amountCents': int(amount_cents),
-            'idTrxAcquirer': str(uuid.uuid4()),
-            'initiativeId': initiative_id,
-            'mcc': mcc
-        },
-    )
-    return response
-
-
 def get_transaction_detail(transaction_id,
                            merchant_id: str = 'MERCHANTID',
                            acquirer_id: str = settings.idpay.acquirer_id
@@ -214,80 +71,6 @@ def get_transaction_detail(transaction_id,
         }
     )
     return response
-
-
-def put_merchant_confirms_payment(transaction_id,
-                                  merchant_id: str = 'MERCHANTID',
-                                  acquirer_id: str = settings.idpay.acquirer_id
-                                  ):
-    response = requests.put(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/confirm',
-        headers={
-            'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id
-        }
-    )
-    return response
-
-
-def put_pre_authorize_payment(trx_code, token):
-    response = requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}/relate-user',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'accept': 'application/json'
-        }
-    )
-    return response
-
-
-def put_authorize_payment(trx_code, token):
-    response = requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}/authorize',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'accept': 'application/json'
-        }
-    )
-    return response
-
-
-def delete_payment_merchant(transaction_id,
-                            merchant_id: str = 'MERCHANTID',
-                            acquirer_id: str = settings.idpay.acquirer_id
-                            ):
-    response = requests.delete(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.payment.path}/{transaction_id}',
-        headers={
-            'x-merchant-id': merchant_id,
-            'x-acquirer-id': acquirer_id
-        }
-    )
-    return response
-
-
-def delete_payment_citizen(trx_code, token):
-    response = requests.delete(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.payment.path}{settings.IDPAY.endpoints.payment.qr_code.path}/{trx_code}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'accept': 'application/json'
-        }
-    )
-    return response
-
-
-def get_merchant_unprocessed_transactions(initiative_id,
-                                          merchant_id: str = 'MERCHANTID',
-                                          page: int = 0
-                                          ):
-    return requests.get(
-        f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.payment.internal_path}{settings.IDPAY.endpoints.transactions.merchant}{settings.IDPAY.endpoints.transactions.portal}/{initiative_id}{settings.IDPAY.endpoints.transactions.unprocessed}?page={page}&size=10',
-        headers={
-            'x-merchant-id': merchant_id
-        },
-        timeout=settings.default_timeout
-    )
 
 
 def get_merchant_processed_transactions(initiative_id,
@@ -521,41 +304,6 @@ def get_initiatives_summary(selfcare_token: str
     )
 
 
-def upload_merchant_csv(selfcare_token: str,
-                        initiative_id: str,
-                        merchants_payload: dict):
-    res = requests.put(
-        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.merchant.path}/initiative/{initiative_id}/upload',
-        files=merchants_payload,
-        headers={
-            'Authorization': f'Bearer {selfcare_token}'
-        },
-        timeout=settings.default_timeout
-    )
-
-    return res
-
-
-def get_merchant_list(selfcare_token: str,
-                      initiative_id: str,
-                      page: int = 0):
-    """API to get initiative statistics.
-        :param selfcare_token: SelfCare token of the test organization.
-        :param initiative_id: ID of the initiative of interest.
-        :param page: Page of merchants to query.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    return requests.get(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.merchant.path}/initiative/{initiative_id}/merchants?page={page}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'Content-Type': 'application/json',
-        },
-        timeout=settings.default_timeout
-    )
-
-
 def delete_initiative(initiative_id: str, domain: str = None):
     """API to delete everything related to an initiative.
             :param initiative_id: ID of the initiative of interest.
@@ -566,152 +314,6 @@ def delete_initiative(initiative_id: str, domain: str = None):
     return requests.delete(
         f'{secrets.base_path.IDPAY.internal}{settings.IDPAY.endpoints.initiatives.portal}{domain or settings.IDPAY.domain}/initiative/{initiative_id}',
         timeout=settings.default_timeout)
-
-
-def put_citizen_suspension(selfcare_token: str,
-                           initiative_id: str,
-                           fiscal_code: str):
-    return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.suspend}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'Fiscal-Code': f'{fiscal_code}',
-        },
-        timeout=settings.default_timeout
-    )
-
-
-def get_payment_dispositions_export_content(selfcare_token: str,
-                                            initiative_id: str,
-                                            exported_file_name: str):
-    """API to get the desired export file.
-        :param selfcare_token: Self-Care token of the test organization that should download the exports.
-        :param initiative_id: ID of the initiative of interest.
-        :param exported_file_name: Name of the export file.
-        :returns: the response of the call.
-        :rtype: requests.Response
-    """
-    res = requests.get(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/exports/{exported_file_name}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'accept': 'application/json'
-        },
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def put_citizen_readmission(selfcare_token: str,
-                            initiative_id: str,
-                            fiscal_code: str):
-    return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/{settings.IDPAY.endpoints.initiatives.beneficiary.path}{settings.IDPAY.endpoints.initiatives.beneficiary.readmit}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'Fiscal-Code': f'{fiscal_code}',
-        },
-        timeout=secrets.default_timeout
-    )
-
-
-def put_ranking_end_date(initiative_id: str):
-    res = requests.put(
-        url=f'{secrets.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/initiative/{initiative_id}/reset-status-set-ranking-end-date?rankingEndDate={yesterday_date()}',
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def force_ranking():
-    res = requests.get(
-        url=f'{secrets.base_path.IDPAY.internal}/idpayranking{settings.IDPAY.domain}/ranking/build/file/start',
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def get_ranking_file(selfcare_token: str, initiative_id: str, ranking_file_path: str):
-    res = requests.get(
-        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports/{ranking_file_path}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-        },
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def get_ranking_page(selfcare_token: str,
-                     initiative_id: str,
-                     page: int = 0):
-    res = requests.get(
-        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/exports?page={page}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-        },
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def put_publish_ranking(selfcare_token: str, initiative_id: str):
-    res = requests.put(
-        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/ranking/notified',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-        },
-        timeout=settings.default_timeout
-    )
-    return res
-
-
-def post_idpay_code_generate(token: str, initiative_id: str = ''):
-    return requests.post(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_generate}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        },
-        json={
-            'initiativeId': initiative_id
-        },
-        timeout=settings.default_timeout)
-
-
-def get_idpay_code_status(token: str):
-    return requests.get(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}{settings.IDPAY.endpoints.wallet.code_status}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        },
-        timeout=settings.default_timeout)
-
-
-def put_code_instrument(token: str, initiative_id: str):
-    return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.code_instruments}',
-        headers={
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
-        },
-        timeout=settings.default_timeout)
-
-
-def put_payment_results(selfcare_token: str,
-                        initiative_id: str,
-                        results_file_name: str,
-                        results_file):
-    return requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/reward/import/{results_file_name}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'accept': 'application/json'
-        },
-        data=results_file,
-        timeout=settings.default_timeout
-    )
 
 
 def post_create_payment_bar_code(token, initiative_id: str):
@@ -844,35 +446,6 @@ def post_reversal_bar_code_merchant(initiative_id: str,
     )
 
 
-def get_initiative_info(selfcare_token: str,
-                        initiative_id: str):
-    """API to get information related to an initiative.
-            :param selfcare_token: SelfCare token of the test organization.
-            :param initiative_id: ID of the initiative of interest.
-            :returns: the response of the call.
-            :rtype: requests.Response
-        """
-    return requests.get(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}',
-        headers={
-            'Authorization': f'Bearer {selfcare_token}',
-            'Content-Type': 'application/json',
-        },
-        timeout=settings.default_timeout)
-
-
-def put_minint_associate_user_and_payment(fiscal_code: str,
-                                          transaction_id: str):
-    response = requests.put(
-        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.MININT.domain}{settings.IDPAY.endpoints.payment.path}/{transaction_id}/user',
-        headers={
-            secrets.API_KEY_HEADER: secrets.api_key.IDPAY_MIN_INT_PRODUCT,
-            'Fiscal-Code': fiscal_code
-        }
-    )
-    return response
-
-
 def upload_whitelist_csv(selfcare_token: str,
                          initiative_id: str,
                          whitelist_payload: dict):
@@ -888,13 +461,17 @@ def upload_whitelist_csv(selfcare_token: str,
     return res
 
 
-def get_onboardings_list(selfcare_token: str,
-                         initiative_id: str,
-                         page: int = 0):
-    return requests.get(
-        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}/onboardings?page={page}&size=10',
+def unsubscribe(initiative_id, token):
+    """API to unsubscribe a citizen from an initiative.
+        :param initiative_id: ID of the initiative of interest.
+        :param token: token IO.
+        :returns: the response of the call.
+        :rtype: requests.Response
+    """
+    return requests.delete(
+        f'{secrets.base_path.IO}{settings.IDPAY.domain}{settings.IDPAY.endpoints.wallet.path}/{initiative_id}{settings.IDPAY.endpoints.wallet.unsubscribe}',
         headers={
-            'Authorization': f'Bearer {selfcare_token}',
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
         },
-        timeout=settings.default_timeout
-    )
+        timeout=settings.default_timeout)

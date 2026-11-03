@@ -3,8 +3,7 @@ import time
 
 from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
-from api.idpay import obtain_merchant_test_token
-from api.transaction import delete_reward_batch_cleanup, get_merchant_transactions_processed, get_reports, get_report_download
+from api.transaction import delete_reward_batch_cleanup, get_merchant_transactions_processed
 from api.transaction import post_approve_transactions
 from api.transaction import post_reject_transactions
 from api.transaction import post_suspend_transactions
@@ -63,16 +62,6 @@ def build_l2_token_body() -> dict[str, str]:
 
 def build_l3_token_body() -> dict[str, str]:
     return _build_institution_token_body(role='l3')
-
-
-def get_institutions_access_token(role: str = 'l1') -> str:
-    response = obtain_merchant_test_token(_build_institution_token_body(role=role))
-    assert response.status_code == 200, (
-        f"Instititution test token failed: {response.status_code} {response.text}"
-    )
-    access_token = response.text
-    assert access_token
-    return access_token
 
 
 def get_institution_selfcare_token(role: str) -> str:

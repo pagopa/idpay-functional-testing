@@ -206,51 +206,6 @@ def post_postpone_transaction(
     )
 
 
-def get_reward_batches(
-        initiative_id: str,
-        status: str | None = None,
-        assignee_level: str | None = None,
-        month: str | None = None,
-        merchant_id: str | None = None,
-        page: int | None = None,
-        size: int | None = None,
-        sort: str | None = None):
-    """API to get reward batches for an initiative.
-        GET /initiatives/{initiativeId}/reward-batches
-        parameters:
-        status: reward batch status
-        assignee_level: assigned operator level (L1, L2, L3)
-        month: reward batch month
-        merchant_id: merchant id
-        page: page number
-        size: page size
-        sort: sort order
-    """
-    params = {}
-
-    if status is not None:
-        params['status'] = status
-    if assignee_level is not None:
-        params['assigneeLevel'] = assignee_level
-    if month is not None:
-        params['month'] = month
-    if merchant_id is not None:
-        params['merchantId'] = merchant_id
-    if page is not None:
-        params['page'] = page
-    if size is not None:
-        params['size'] = size
-    if sort is not None:
-        params['sort'] = sort
-
-    return requests.get(
-        f"{secrets.base_path.IO}{settings.IDPAY.domain}"
-        f"{settings.IDPAY.endpoints.transactions.merchant}/initiatives"
-        f"/{initiative_id}/reward-batches",
-        params=params,
-        timeout=settings.default_timeout
-    )
-
 def delete_reward_batch_cleanup(
         initiative_id: str,
         reward_batch_id: str,
