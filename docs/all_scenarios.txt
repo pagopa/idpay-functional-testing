@@ -54,6 +54,7 @@ Eligible merchant already onboarded fails to onboard
 Eligible merchant onboards successfully
 Evaluating a sent reward batch rewards its invoiced transactions synchronously
 Exclude a CSV with formal errors from history
+Family members join first family's onboarding
 Family members' rejected applications do not prevent the beneficiary's unsubscribe
 Filter products by EPREL code
 Filter products by a supported field
