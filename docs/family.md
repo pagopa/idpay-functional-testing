@@ -55,17 +55,17 @@ specificati dai casi correnti e non sono stati inventati in questa riattivazione
 Con credenziali e connettività dell'ambiente autorizzato:
 
 ```bash
-pipenv run behave bdd/features/common_bonus_features/family --tags "bonus_elettrodomestici and family"
-pipenv run behave bdd/features/common_bonus_features/family --tags "bonus_decoder and family"
+PARI_FEATURE_INITIATIVE=bonus_elettrodomestici pipenv run behave bdd/features/common_bonus_features/family --tags "bonus_elettrodomestici and family"
+PARI_FEATURE_INITIATIVE=bonus_decoder pipenv run behave bdd/features/common_bonus_features/family --tags "bonus_decoder and family"
 ```
 
-I tag CLI selezionano il Bonus per gli hook. Il solo filtro `family` usa invece il
-default Elettrodomestici; non implica una doppia esecuzione.
+`PARI_FEATURE_INITIATIVE` seleziona il Bonus per gli hook; i tag CLI filtrano gli
+scenari. L'input workflow `all` avvia una run separata per ciascun Bonus.
 
 Per verificare esclusivamente risoluzione degli step, senza chiamate remote:
 
 ```bash
-PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run behave bdd/features/common_bonus_features/family --dry-run
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' PARI_FEATURE_INITIATIVE=bonus_elettrodomestici pipenv run behave bdd/features/common_bonus_features/family --dry-run
 ```
 
 In PowerShell impostare le corrispondenti variabili `$env:` prima del comando.

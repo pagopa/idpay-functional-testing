@@ -214,12 +214,14 @@ def perform_reward_batch_transaction_action(initiative_id: str,
         'approve': TransactionActionRequest(transaction_ids=[transaction_id]),
         'reject': TransactionActionRequest(
             transaction_ids=[transaction_id],
-            reason='Rejected by operator',
+            internal_note='Rejected by operator',
+            official_note='Rejected by operator',
             checks_error=ChecksErrorDTO(price_error=True),
         ),
         'suspend': TransactionActionRequest(
             transaction_ids=[transaction_id],
-            reason='Suspended by operator',
+            internal_note='Suspended by operator',
+            official_note='Suspended by operator',
             checks_error=ChecksErrorDTO(generic_error=True),
         ),
     }

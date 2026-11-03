@@ -25,6 +25,7 @@ In PowerShell, explicitly select the environment:
 
 ```powershell
 $env:PARI_TARGET_ENV = "uat"  # or "dev"
+$env:PARI_FEATURE_INITIATIVE = "bonus_elettrodomestici"
 pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb"
 ```
 

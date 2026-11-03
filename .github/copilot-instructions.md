@@ -40,14 +40,14 @@ Commands below use Bash environment syntax; in PowerShell set the corresponding
 ```bash
 # Offline unit tests and active BDD step resolution; no remote requests
 PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run python -m unittest discover -s tests/unit -v
-PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run behave --dry-run
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' PARI_FEATURE_INITIATIVE=bonus_elettrodomestici pipenv run behave --dry-run
 
 # Remote BDD with real, ignored environment configuration
-PARI_TARGET_ENV=uat pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_elettrodomestici
-PARI_TARGET_ENV=uat pipenv run behave bdd/features/bonus_decoder/onboarding.feature --name "Citizen who has not paid Canone TV tries to onboard unsuccessfully"
+PARI_TARGET_ENV=uat PARI_FEATURE_INITIATIVE=bonus_elettrodomestici pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_elettrodomestici
+PARI_TARGET_ENV=uat PARI_FEATURE_INITIATIVE=bonus_decoder pipenv run behave bdd/features/bonus_decoder/onboarding.feature --name "Citizen who has not paid Canone TV tries to onboard unsuccessfully"
 
 # Local JUnit report; add the Allure formatter only when installed
-PARI_TARGET_ENV=uat pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_decoder --junit --junit-directory tests/reports/behave
+PARI_TARGET_ENV=uat PARI_FEATURE_INITIATIVE=bonus_decoder pipenv run behave bdd/features/common_bonus_features bdd/features/bonus_elettrodomestici bdd/features/bonus_decoder --tags bonus_decoder --junit --junit-directory tests/reports/behave
 
 pre-commit run --all-files
 
@@ -77,12 +77,11 @@ duplicating API sequences or replacing polling with fixed sleeps.
 ## Initiative selection and lifecycle
 
 Feature and scenario tags filter Behave scenarios. For the Bonus suites, execution
-inputs choose the initiative configuration in `bdd/environment.py::INITIATIVE_CONFIGS`:
-a single positive Bonus in CLI `--tags` takes precedence, followed by
-`PARI_FEATURE_TAG`, then `FEATURE_TAG`. Multiple positive Bonus selections require
-an environment variable to disambiguate them. Negated tags do not select an initiative.
-With no recognized selection the hook defaults to `bonus_elettrodomestici`.
-Shared features may carry both Bonus tags; this does not provision both configurations.
+input `PARI_FEATURE_INITIATIVE` alone chooses the initiative configuration in
+`bdd/environment.py::INITIATIVE_CONFIGS`; CLI and feature tags only filter scenarios.
+The manual workflow defaults the initiative input to `all` and expands it into
+separate matrix runs, each with a concrete initiative. Shared features may carry
+both Bonus tags; this does not provision both configurations.
 
 `Given the initiative is active` resolves the logical name to its deployed ID,
 creates it when required and initializes scenario state. Generic onboarding steps

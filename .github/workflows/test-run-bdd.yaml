@@ -14,7 +14,11 @@ on:
       feature_tag:
         type: string
         required: true
-        description: 'Behave tag to run'
+        description: 'Behave tag to filter'
+      initiative:
+        type: string
+        required: true
+        description: 'Initiative to run (all, bonus_elettrodomestici or bonus_decoder)'
       reward_batch_cleanup:
         type: boolean
         required: true
@@ -30,11 +34,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: ${{ inputs.feature_tag == 'all' && fromJson('["bonus_elettrodomestici", "bonus_decoder"]') || fromJson(format('["{0}"]', inputs.feature_tag)) }}
+        initiative: ${{ inputs.initiative == 'all' && fromJson('["bonus_elettrodomestici", "bonus_decoder"]') || fromJson(format('["{0}"]', inputs.initiative)) }}
 
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
-      FEATURE_TAG: ${{ matrix.tag }}
+      FEATURE_TAG: ${{ inputs.feature_tag == 'all' && matrix.initiative || inputs.feature_tag }}
+      PARI_FEATURE_INITIATIVE: ${{ matrix.initiative }}
       PARI_REWARD_BATCH_CLEANUP: ${{ inputs.reward_batch_cleanup }}
 
     steps:
@@ -92,7 +97,6 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
           python3 -m pipenv sync
-          python3 -m pipenv install allure-behave
 
       - name: Display Python and Pip versions
         run: |
@@ -103,12 +107,9 @@ jobs:
 
       - name: Run tests with Behave
         run: |
-          echo "Running env=$PARI_TARGET_ENV tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
+          echo "Running env=$PARI_TARGET_ENV initiative=$PARI_FEATURE_INITIATIVE tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
           if [ "$FEATURE_TAG" = "all" ]; then
             python3 -m pipenv run behave --no-capture-hooks\
-            bdd/features/common_bonus_features \
-            bdd/features/bonus_elettrodomestici \
-            bdd/features/bonus_decoder \
             --junit \
             --junit-directory "tests/reports/behave" \
             --format pretty \
@@ -117,9 +118,6 @@ jobs:
             -o allure-results
           else
             python3 -m pipenv run behave --no-capture-hooks\
-            bdd/features/common_bonus_features \
-            bdd/features/bonus_elettrodomestici \
-            bdd/features/bonus_decoder \
             --tags "$FEATURE_TAG" \
             --junit \
             --junit-directory "tests/reports/behave" \
@@ -133,7 +131,7 @@ jobs:
         if: always()
         run: |
           if [ -d allure-results ]; then
-            python3 util/sanitize-allure-results.py allure-results --initiative "$FEATURE_TAG"
+            python3 util/sanitize-allure-results.py allure-results --initiative "$PARI_FEATURE_INITIATIVE"
           else
             echo "No allure-results directory to sanitize"
           fi
@@ -142,7 +140,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: allure-results-${{ matrix.tag }}
+          name: allure-results-${{ matrix.initiative }}
           path: allure-results
           if-no-files-found: ignore
 
