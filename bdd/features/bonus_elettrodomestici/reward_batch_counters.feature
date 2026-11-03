@@ -15,8 +15,9 @@ Feature: Reward batch counters are derived from current PostgreSQL transactions
   Scenario: Batch counters remain accurate after an invoice update
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03
     And the transaction X belongs to the reward batch named B
-    When the point of sale pos_1 of merchant 1 updates the invoice of transaction X by Bar Code
-    Then the live counters of reward batch B match its current transactions
+    When the point of sale pos_1 of merchant 1 tries to update the invoice of transaction X by Bar Code
+    Then the invoice update of transaction X is successful
+    And the live counters of reward batch B match its current transactions
 
   Scenario: Postponing a transaction updates the source and next-month batch counters
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with product GTIN TUMBLEDRYERS03

@@ -495,14 +495,29 @@ def _prepare_and_send_reward_batch(
     context.source_reward_batches[trx_name] = sent_batch
 
 
-@then('the invoice update of transaction {trx_name} is rejected')
-def step_invoice_update_is_rejected(context, trx_name):
-    responses = getattr(
+def _invoice_update_responses(context, trx_name):
+    attempts = getattr(
         context,
         'merchant_invoice_update_attempts_bar_code',
         {},
-    ).get(trx_name, [context.latest_merchant_invoice_update_bar_code])
-    for response in responses:
+    )
+    if trx_name in attempts:
+        return attempts[trx_name]
+    return [context.latest_merchant_invoice_update_bar_code]
+
+
+@then('the invoice update of transaction {trx_name} is successful')
+def step_invoice_update_is_successful(context, trx_name):
+    for response in _invoice_update_responses(context, trx_name):
+        assert response.status_code == 204, (
+            f'Expected invoice update of transaction {trx_name} to succeed, '
+            f'got {response.status_code} {response.text}'
+        )
+
+
+@then('the invoice update of transaction {trx_name} is rejected')
+def step_invoice_update_is_rejected(context, trx_name):
+    for response in _invoice_update_responses(context, trx_name):
         assert response.status_code == 403, (
             f'Expected invoice update of transaction {trx_name} to be rejected, '
             f'got {response.status_code} {response.text}'
