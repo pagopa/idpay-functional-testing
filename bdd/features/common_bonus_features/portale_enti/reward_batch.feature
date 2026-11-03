@@ -50,6 +50,7 @@ Feature: Reward batches for initiatives and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    And the approval of the reward batch containing transaction X is confirmed
     Then the reward batch of transaction X is APPROVED
 
   Scenario: Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
@@ -59,19 +60,25 @@ Feature: Reward batches for initiatives and Refund Approval Process
     Then the reward batch of transaction X has a positive suspended amount
     And the reward batch of transaction X is EVALUATING
 
+  @reward_batch_counter
   Scenario: An approved reward batch keeps its suspended amount after removing suspended transactions
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with default product GTIN
     And the transaction X is prepared, sent and evaluated in reward batch status EVALUATING
     And An operator with l1 role select transaction X from reward batch list and suspend it
     And the reward batch of transaction X has a positive suspended amount
+    And the counters of reward batch X are captured as before_approving
     And An operator with l1 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l2
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    Then the reward batch of transaction X is APPROVING
+    And reward batch X keeps the suspended amount captured as before_approving
+    When the approval of the reward batch containing transaction X is confirmed
     Then the reward batch of transaction X is APPROVED
     And after approval, the transaction X belongs to a different current-month reward batch as SUSPENDED
     And the approved reward batch of transaction X keeps its captured suspended amount after the suspended transaction is reassigned
+    And the live counters of reward batch X match its current transactions
 
   Scenario: Operator downloads the approved reward batch report
     Given the citizen A fully performs the transaction X by Bar Code at point of sale pos_1 of merchant 1 of amount 20000 cents with default product GTIN
@@ -82,6 +89,7 @@ Feature: Reward batches for initiatives and Refund Approval Process
     And An operator with l2 role validating the reward batch containing transaction X
     And the reward batch of transaction X is EVALUATING and assigned to l3
     When An operator with l3 role tries to approve the reward batch containing transaction X
+    And the approval of the reward batch containing transaction X is confirmed
     And the reward batch of transaction X is APPROVED
     And An operator with l3 role downloads the approved reward batch report of transaction X after 30 seconds
     Then the approved reward batch report of transaction X is downloaded
