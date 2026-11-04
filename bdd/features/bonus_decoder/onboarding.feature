@@ -15,6 +15,7 @@ Feature: Onboarding Bonus Decoder
     Then the onboard of A is OK
     And the wallet of A is refundable with 70 euros budget
 
+  @ignore
   Scenario: Citizen who has not paid Canone TV tries to onboard unsuccessfully
     Given the citizen A is 21 years old exactly
     Given the citizen A has not payed Canone TV

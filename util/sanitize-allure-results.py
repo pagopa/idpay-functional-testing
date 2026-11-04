@@ -14,8 +14,7 @@ from typing import Any
 _MULTI_SEGMENT_TOKEN = r"[\w-]+(?:\.+[\w-]+)+"
 INITIATIVE_SUITES = {
     "bonus_elettrodomestici": "Bonus Elettrodomestici",
-    "bonus_decoder": "Bonus Decoder",
-    "common_without_bonus_tag": "Common scenarios without Bonus tags",
+    "bonus_decoder": "Bonus Decoder"
 }
 
 

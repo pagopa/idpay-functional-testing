@@ -90,7 +90,6 @@ class ReasonDTO:
 @dataclass(frozen=True)
 class TransactionActionRequest:
     transaction_ids: list[str]
-    reason: str | None = None
     checks_error: ChecksErrorDTO | None = None
     official_note: str | None = None
     internal_note: str | None = None
@@ -100,20 +99,17 @@ class TransactionActionRequest:
         checks_error = payload.get('checksError')
         return cls(
             transaction_ids=payload['transactionIds'],
-            reason=payload.get('reason'),
-            checks_error=ChecksErrorDTO.from_dict(checks_error) if checks_error else None,
-            official_note=payload.get('officialNote'),
             internal_note=payload.get('internalNote'),
+            official_note=payload.get('officialNote'),
+            checks_error=ChecksErrorDTO.from_dict(checks_error) if checks_error else None,
         )
 
     def to_dict(self) -> dict:
         payload = {'transactionIds': self.transaction_ids}
-        if self.reason is not None:
-            payload['reason'] = self.reason
-        if self.checks_error is not None:
-            payload['checksError'] = self.checks_error.to_dict()
-        if self.official_note is not None:
-            payload['officialNote'] = self.official_note
         if self.internal_note is not None:
             payload['internalNote'] = self.internal_note
+        if self.official_note is not None:
+            payload['officialNote'] = self.official_note
+        if self.checks_error is not None:
+            payload['checksError'] = self.checks_error.to_dict()
         return payload

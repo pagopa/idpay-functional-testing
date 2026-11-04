@@ -43,21 +43,18 @@ this file from Key Vault. The default path for configuration is
 
 The Bonus features use `INITIATIVE_CONFIGS` in `bdd/environment.py` for initiative
 names and default product GTINs. Configuration is selected from execution inputs,
-not from tags written in the feature or scenario. A single positive initiative
-in Behave's `--tags` expression takes precedence; otherwise `PARI_FEATURE_TAG`,
-then `FEATURE_TAG` selects the configuration. `all`, an empty value or an unknown
-value selects `bonus_elettrodomestici` when the CLI does not select an initiative.
-Unknown environment values emit a warning. Negated CLI tags do not select an
-initiative. If a CLI expression selects multiple initiatives, an environment
-variable must disambiguate them or the hook fails explicitly.
+not from feature or scenario tags. `PARI_FEATURE_INITIATIVE` is the only source
+for selecting the initiative; it must be one concrete initiative name. The
+manual workflow defaults its initiative input to `all` and expands that into
+separate runs for each initiative. Behave tags, including `--tags`, only filter
+which features and scenarios run; they do not choose an initiative.
 
 Feature tags still control Behave filtering: a shared feature can carry both
 `@bonus_elettrodomestici` and `@bonus_decoder`, without selecting two configurations
-or provisioning both initiatives. The pipeline matrix supplies `FEATURE_TAG` and
-`--tags` for each separate run. For local execution use
-`pipenv run behave bdd/features/bonus_elettrodomestici --tags bonus_decoder`.
-Setting the environment variable alone does not change Behave's filtering or
-validate initiative-specific business rules.
+or provisioning both initiatives. The pipeline matrix supplies a concrete
+`PARI_FEATURE_INITIATIVE` for each run. For local execution, set both the
+initiative and any desired filter, for example
+`PARI_FEATURE_INITIATIVE=bonus_decoder pipenv run behave bdd/features/bonus_decoder --tags bonus_decoder`.
 
 `Given the initiative is active` resolves the logical initiative name to its
 deployed ID, provisions it if needed, and initializes scenario state. Generic
@@ -72,13 +69,13 @@ The runner executes Behave with the selected tag, for example:
 ### Commands
 
 ```commandline
-[PARI_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
+PARI_FEATURE_INITIATIVE=<initiative> [PARI_TARGET_ENV=<myenv>] behave [--junit --junit-directory <JUNIT_OUTPUT_DIR>] [--tags @<[TEST_TAG/s]>]
 ```
 
 For example, run the active onboarding scenarios in UAT and save JUnit XML:
 
 ```commandline
-behave --junit --junit-directory "tests/reports/behave" --tags @onboarding
+PARI_FEATURE_INITIATIVE=bonus_elettrodomestici behave --junit --junit-directory "tests/reports/behave" --tags @onboarding
 ```
 
 ### Local environment commands (pipenv)
@@ -120,7 +117,7 @@ Offline checks use placeholder configuration and make no remote requests:
 
 ```bash
 PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run python -m unittest discover -s tests/unit -v
-PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' pipenv run behave --dry-run
+PARI_SECRET_PATH=conf/pari-feature-secrets-template.json PARI_TARGET_ENV='<ENV>' PARI_FEATURE_INITIATIVE=bonus_elettrodomestici pipenv run behave --dry-run
 ```
 
 For PowerShell, set `$env:PARI_SECRET_PATH` and `$env:PARI_TARGET_ENV` before

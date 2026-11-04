@@ -1,16 +1,8 @@
-import logging
-import os
-
-from behave.tag_expression import TagExpression, make_tag_expression
-from cucumber_tag_expressions.model import And
-from cucumber_tag_expressions.model import Literal
-from cucumber_tag_expressions.model import Not
-from cucumber_tag_expressions.model import Or
-
 from conf.configuration import secrets
 from conf.configuration import settings
 from util.transaction_utilities import cleanup_reward_batches_and_related_transactions
-from util.utility import create_initiative_and_update_conf, delete_new_initiatives_after_test
+from util.utility import create_initiative_and_update_conf
+from util.utility import delete_new_initiatives_after_test
 
 INITIATIVE_CONFIGS = {
     "bonus_elettrodomestici": {
@@ -22,56 +14,17 @@ INITIATIVE_CONFIGS = {
         "product_gtin": "DECODER20",
     },
 }
-DEFAULT_INITIATIVE = "bonus_elettrodomestici"
-logger = logging.getLogger(__name__)
 
 
-def positive_initiative_tags(expression, negated=False):
-    if isinstance(expression, TagExpression):
-        return {
-            tag for terms in expression.ands for tag in terms
-            if tag in INITIATIVE_CONFIGS
-        }
-    if isinstance(expression, Literal):
-        name = expression.name.lstrip("@")
-        return {name} if not negated and name in INITIATIVE_CONFIGS else set()
-    if isinstance(expression, Not):
-        return positive_initiative_tags(expression.term, not negated)
-    if isinstance(expression, (And, Or)):
-        result = set()
-        for term in expression.terms:
-            result.update(positive_initiative_tags(term, negated))
-        return result
-    return set()
-
-
-def select_initiative(context):
-    """Select from execution arguments, never from feature/scenario tags."""
-    config = getattr(context, "config", None)
-    cli_tags = positive_initiative_tags(
-        make_tag_expression(getattr(config, "tags", []) or [])
-    )
-    environment_tag = (
-        os.environ.get("PARI_FEATURE_TAG") or os.environ.get("FEATURE_TAG", "")
-    ).strip().lstrip("@")
-    if len(cli_tags) == 1:
-        return next(iter(cli_tags))
-    if len(cli_tags) > 1:
-        if environment_tag in cli_tags:
-            return environment_tag
+def select_initiative():
+    """Resolve the initiative supplied by the execution input."""
+    configured_initiative = (settings.get("FEATURE_INITIATIVE", "") or "").strip()
+    if configured_initiative not in INITIATIVE_CONFIGS:
         raise ValueError(
-            "Execution selects multiple initiatives; set PARI_FEATURE_TAG "
-            "or FEATURE_TAG to one of: " + ", ".join(sorted(cli_tags))
+            f"Unknown or missing initiative '{configured_initiative}'; expected one of: "
+            + ", ".join(sorted(INITIATIVE_CONFIGS))
         )
-    if environment_tag in INITIATIVE_CONFIGS:
-        return environment_tag
-    if environment_tag and environment_tag != "all":
-        logger.warning(
-            "Unknown initiative tag '%s'; using '%s'",
-            environment_tag,
-            DEFAULT_INITIATIVE,
-        )
-    return DEFAULT_INITIATIVE
+    return configured_initiative
 
 
 def before_all(context):
@@ -93,7 +46,7 @@ def before_feature(context, feature):
         secrets['initiatives'] = {}
     initiative_names = set(feature.tags).difference(INITIATIVE_CONFIGS)
     if set(feature.tags).intersection(INITIATIVE_CONFIGS):
-        initiative_names.add(select_initiative(context))
+        initiative_names.add(select_initiative())
     for curr_initiative_name in initiative_names:
         if curr_initiative_name in settings.initiatives:
             context.feature_initiative_names.add(curr_initiative_name)
@@ -104,7 +57,7 @@ def before_feature(context, feature):
 
 def before_scenario(context, scenario):
     """Select scenario configuration without mutating the shared defaults."""
-    initiative_name = select_initiative(context)
+    initiative_name = select_initiative()
     context.initiative_config = INITIATIVE_CONFIGS[initiative_name].copy()
     context.product_gtin = context.initiative_config["product_gtin"]
 
@@ -136,7 +89,7 @@ def after_feature(context, feature):
     """
     if settings.KEEP_INITIATIVES_AFTER_FAILED_TEST:
         if any(scenario.status == 'failed' for scenario in feature.scenarios):
-            for curr_initiative_name in feature.tags:
+            for curr_initiative_name in context.feature_initiative_names:
                 # Preserve only initiatives created in this run from the final cleanup.
                 initiative_id = secrets.get('initiatives', {}).get(curr_initiative_name, {}).get('id')
                 if initiative_id in secrets['newly_created']:
