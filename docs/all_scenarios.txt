@@ -1,9 +1,4 @@
-A citizen tries to onboard a non published initiative
-A citizen tries to onboard a non started initiative
-A citizen tries to onboard a nonexistent initiative
-A citizen tries to onboard an initiative with residual budget less than 100 euros
-A citizen who denied PDND consent tries to onboard unsuccessfully
-A citizen who has not accepted the Terms and Conditions tries to onboard unsuccessfully
+A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
@@ -11,87 +6,81 @@ A citizen's second barcode payment is rejected
 A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
-A merchant postpones a transaction to the next reward batch
 A merchant reverses an invoiced barcode payment
-A merchant sends an empty reward batch
-A merchant updates an invoice while the reward batch is EVALUATING
 A point of sale cancels an authorized barcode payment
 A point of sale cannot cancel a captured barcode payment
 A producer cannot approve a product
 A rejected family onboarding does not prevent the beneficiary's Barcode authorization
 Accept a notification request for an RDB event
-Accept a published and compliant EPREL product
-Accept a valid CSV for processing
 Access RDB with a generated application token
+Allow an upload on another initiative
+Allow an upload on another initiative
 Allow an upload on another initiative
 An Invitalia operator cannot approve a product
 An approved reward batch keeps its suspended amount after removing suspended transactions
-An invalid product does not prevent valid products from being stored
-An invoiced payment is associated with a reward batch
+An approved reward batch keeps its suspended amount after removing suspended transactions
 An onboarded citizen creates a barcode payment accepted by a merchant
-An unsubscribed citizen onboards the same initiative again successfully
 Batch counters reflect a transaction rejected by an L2 operator
 Batch counters remain accurate after an invoice update
 Citizen onboarding allocate correct budget for initiative
+Citizen onboarding allocate correct budget for initiative
+Citizen onboarding allocate correct budget for initiative
+Citizen onboarding allocate correct budget for initiative
+Citizen onboards successfully
+Citizen onboards successfully
 Citizen onboards successfully
 Citizen onboards successfully
 Citizen who has not paid Canone TV tries to onboard unsuccessfully
-Citizen with ISEE equal or above 25k tries to onboard successfully
-Citizen with ISEE lower than 25k tries to onboard successfully
-Citizen with mismatching email tries to onboard unsuccessfully
-Citizen with no declared ISEE tries to onboard successfully
+Citizen who has not paid Canone TV tries to onboard unsuccessfully
+Citizen who has not paid Canone TV tries to onboard unsuccessfully
+Citizen who has not paid Canone TV tries to onboard unsuccessfully
+Citizen without email tries to onboard successfully
+Citizen without email tries to onboard successfully
 Citizen without email tries to onboard successfully
 Citizen without email tries to onboard successfully
 Combine product filters
+Combine product filters
 Count an association missing a mandatory field as failed
-Discard products failing an EPREL check
-Do not process an invalid CSV
 Do not request acceptance of an already accepted version
 Do not update a product through another initiative
-Download a formal validation report
-Download a processing report repeatedly
 Eligible merchant already onboarded fails to onboard
 Eligible merchant onboards successfully
-Evaluating a sent reward batch rewards its invoiced transactions synchronously
-Exclude a CSV with formal errors from history
-Family members join first family's onboarding
 Family members' rejected applications do not prevent the beneficiary's unsubscribe
-Filter products by EPREL code
+Filter products by a supported field
 Filter products by a supported field
 Import valid producer associations
-Keep the first occurrence of a duplicated GTIN
+L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
 L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
 L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
+L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
+L2 Operator reject one transaction of reward batch and then approve the reward batch
 L2 Operator reject one transaction of reward batch and then approve the reward batch
 L3 Operator approves the reward batch
-List only uploads belonging to the organization and initiative
+L3 Operator approves the reward batch
 List the producers associated with the initiative
+List the producers associated with the initiative
+Manage the same GTIN independently across initiatives
+Manage the same GTIN independently across initiatives
 Manage the same GTIN independently across initiatives
 Merchant successfully logs in Merchant Portal
 Merchant without eligible ATECO fails to onboard
 Normalize the producer email during import
-Onboarded citizen with ISEE equal or above 25k has a wallet with correct budget
-Onboarded citizen with ISEE lower than 25k has a wallet with correct budget
-Onboarded citizen with no declared ISEE has a wallet with correct budget
+Operator downloads the approved reward batch report
 Operator downloads the approved reward batch report
 Operator downloads the generated CSV report correctly
 Operator downloads the generated USER_DETAILS CSV report correctly
 Operator requests the CSV report export correctly
 Operator requests the CSV report export with a range exceeding the maximum allowed
 Operator requests the USER_DETAILS CSV report export correctly
-Paginate the CSV upload history
 Perform an allowed product status transition
-Point of sale invoice updates are rejected while the reward batch is SENT or EVALUATING
 Postponing a transaction updates the source and next-month batch counters
-Preserve a product that is already under review
 Process a CSV when the operational email is missing
-Process cooking hobs without requiring EPREL data
 Reimport an association without creating duplicates
-Reject a CSV larger than 2 MB with temporary server error tolerance
 Reject a batch containing different current statuses
 Reject a product when the operational email is missing
 Reject a request without an authentication token
 Reject acceptance of an outdated version
+Reject access to an inaccessible report
 Reject access to an inaccessible report
 Reject access to an inaccessible report
 Reject an application token with invalid claims or signature
@@ -101,25 +90,22 @@ Reject an expired application token
 Reject an incorrect declared current status
 Reject an invalid operational email
 Reject an unauthorized request for producer information
-Reject concurrent uploads for the same initiative and organization
-Reject invalid CSV file constraints
+Reject an unauthorized request for producer information
 Reject the entire batch when one product does not exist
-Reload a product from an allowed status
 Replace the previous operational email
-Report every formal error in the same row
 Request consent for a user who has never accepted
 Restrict batches to the selected organization
+Restrict batches to the selected organization
+Restrict product visibility to the selected organization
 Restrict product visibility to the selected organization
 Retrieve a producer registered in SelfCare
+Retrieve a producer registered in SelfCare
+Return an empty result for a nonexistent GTIN
 Return an empty result for a nonexistent GTIN
 Return exactly the initiatives visible to the current user
-Reversing an invoiced payment removes it from its reward batch
-Separate families can each onboard one beneficiary
 Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
-Store every valid product
+Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
 Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
 The POS cancels an authorized family beneficiary payment
-The first applicant represents the family independently of the member order
 The merchant reverses the family beneficiary payment after invoicing
-Validate a CSV compliant with the initiative template

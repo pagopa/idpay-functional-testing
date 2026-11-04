@@ -476,34 +476,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../components/bonus_decoder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    bonus_decoder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../components/bonus_elettrodomestici/" class="md-nav__link">
         
   
@@ -540,6 +512,34 @@
     
   
     common_bonus_features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/bonus_decoder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bonus_decoder
   
 
     
@@ -787,6 +787,7 @@ concurrency window: both concurrent upload cases pass in two consecutive UAT run
 <p>Install dependencies with <code>pipenv sync</code>. The default in <code>settings.yaml</code> is <code>uat</code>.
 In PowerShell, explicitly select the environment:</p>
 <pre><code class="language-powershell">$env:PARI_TARGET_ENV = &quot;uat&quot;  # or &quot;dev&quot;
+$env:PARI_FEATURE_INITIATIVE = &quot;bonus_elettrodomestici&quot;
 pipenv run behave --junit --junit-directory &quot;tests/reports/behave&quot; --tags &quot;@rdb&quot;
 </code></pre>
 <p>In the <code>test-run</code> workflow, select the environment, type <code>bdd</code>, and tag <code>rdb</code>.
