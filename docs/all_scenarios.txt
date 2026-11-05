@@ -69,6 +69,8 @@ Operator downloads the approved reward batch report
 Operator downloads the approved reward batch report
 Operator downloads the generated CSV report correctly
 Operator downloads the generated USER_DETAILS CSV report correctly
+Operator is authorized to download the CSV report
+Operator is authorized to download the USER_DETAILS CSV report
 Operator requests the CSV report export correctly
 Operator requests the CSV report export with a range exceeding the maximum allowed
 Operator requests the USER_DETAILS CSV report export correctly
