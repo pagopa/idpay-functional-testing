@@ -96,6 +96,29 @@ def step_operator_downloads_generated_csv_report(context):
         context=context
     )
 
+
+@when('the operator checks access to the CSV report download without waiting for generation')
+def step_operator_checks_csv_report_download_access(context):
+    context.latest_report_download_response = get_report_download(
+        initiative_id=context.initiative_id,
+        report_id=context.latest_report_request_id,
+        access_token=context.report_access_token,
+    )
+
+
+@then('the operator is authorized to download the CSV report')
+def step_operator_is_authorized_to_download_csv_report(context):
+    response = context.latest_report_download_response
+    # The backend validates the role before checking whether the file is ready.
+    # Accept only that specific readiness error, never a generic client error.
+    if response.status_code == 400:
+        assert response.json().get('code') == 'REPORT_NOT_GENERATED', (
+            f'Expected REPORT_NOT_GENERATED, got {response.text}'
+        )
+    else:
+        step_csv_report_is_downloaded_correctly(context)
+
+
 @then('the CSV report is downloaded correctly')
 def step_csv_report_is_downloaded_correctly(context):
     response = context.latest_report_download_response

@@ -29,15 +29,22 @@ Feature: Export Transactions (Report CSV)
       | l2   |
       | l3   |
 
-  Scenario Outline: Operator downloads the generated CSV report correctly
-    Given the operator with role <role> selects merchant 1 and a date range of 30 days
+  # Run generation polling once; the other roles only check download authorization.
+  Scenario: Operator downloads the generated CSV report correctly
+    Given the operator with role l1 selects merchant 1 and a date range of 30 days
     And the operator requests the CSV report export
     And the report request is inserted
     When the operator tries to download the generated CSV report
     Then the CSV report is downloaded correctly
 
-  Examples:
-    | role |
-    | l1   |
-    | l2   |
-    | l3   |
+  Scenario Outline: Operator is authorized to download the CSV report
+    Given the operator with role <role> selects merchant 1 and a date range of 30 days
+    And the operator requests the CSV report export
+    And the report request is inserted
+    When the operator checks access to the CSV report download without waiting for generation
+    Then the operator is authorized to download the CSV report
+
+    Examples:
+      | role |
+      | l2   |
+      | l3   |
