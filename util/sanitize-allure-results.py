@@ -13,8 +13,10 @@ from typing import Any
 
 _MULTI_SEGMENT_TOKEN = r"[\w-]+(?:\.+[\w-]+)+"
 INITIATIVE_SUITES = {
-    "bonus_elettrodomestici": "Bonus Elettrodomestici",
-    "bonus_decoder": "Bonus Decoder"
+    name: config["report_suite"]
+    for name, config in json.loads(
+        (Path(__file__).resolve().parents[1] / "conf" / "initiatives.json").read_text(encoding="utf-8")
+    ).items()
 }
 
 

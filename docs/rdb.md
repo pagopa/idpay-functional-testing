@@ -27,11 +27,24 @@ In PowerShell, explicitly select the environment:
 ```powershell
 $env:PARI_TARGET_ENV = "uat"  # or "dev"
 $env:PARI_FEATURE_INITIATIVE = "bonus_elettrodomestici"
-pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb"
+pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb" --tags "(bonus_elettrodomestici or not bonus_decoder)"
 ```
 
 In the `test-run` workflow, select the environment, type `bdd`, and tag `rdb`.
+Each matrix job excludes scenarios tagged only with other registered initiatives, while
+retaining shared scenarios and scenarios without Bonus tags. For a local decoder
+run, use `--tags "(bonus_decoder or not bonus_elettrodomestici)"` instead.
 To run a single scenario, use the feature path and `--name "^Scenario name$"`.
+
+The initiative registry is `conf/initiatives.json`. Behave configuration, the CI
+`all` matrix, scenario exclusion filters and Allure suite names use this registry.
+Add new execution initiatives there with their logical ID, product GTIN and report
+suite name; configure their payloads, environment secrets and business-specific
+fixtures separately. The initiative is selected in the pipeline's manual dropdown.
+Add each new initiative to that dropdown in `.github/workflows/test-run.yaml` as
+well: GitHub Actions requires static choice options. Selecting `all` expands the
+matrix automatically from the registry.
+RDB A/B isolation fixtures remain specific to the two existing Bonuses.
 
 The file specified by `PARI_SECRET_PATH` (default: `conf/pari-feature-secrets.json`)
 must contain a section for the selected environment. Imports require access

@@ -1,19 +1,9 @@
 from conf.configuration import secrets
 from conf.configuration import settings
+from conf.initiative_config import INITIATIVE_CONFIGS
 from util.transaction_utilities import cleanup_reward_batches_and_related_transactions
 from util.utility import create_initiative_and_update_conf
 from util.utility import delete_new_initiatives_after_test
-
-INITIATIVE_CONFIGS = {
-    "bonus_elettrodomestici": {
-        "initiative_id": "bonus_elettrodomestici",
-        "product_gtin": "TUMBLEDRYERS03",
-    },
-    "bonus_decoder": {
-        "initiative_id": "bonus_decoder",
-        "product_gtin": "DECODER20",
-    },
-}
 
 
 def select_initiative():

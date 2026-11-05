@@ -18,14 +18,31 @@ on:
       initiative:
         type: string
         required: true
-        description: 'Initiative to run (all, bonus_elettrodomestici or bonus_decoder)'
+        description: 'Initiative name to run, or all'
       reward_batch_cleanup:
         type: boolean
         required: true
         description: 'Cleanup environment after test run'
 
 jobs:
+  select-initiatives:
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    outputs:
+      initiatives: ${{ steps.matrix.outputs.initiatives }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+      - name: Select initiative matrix
+        id: matrix
+        env:
+          SELECTED_INITIATIVE: ${{ inputs.initiative }}
+        run: |
+          initiatives=$(python3 -m conf.initiative_config matrix "$SELECTED_INITIATIVE")
+          echo "initiatives=$initiatives" >> "$GITHUB_OUTPUT"
+
   run-bdd-feature-tests:
+    needs: select-initiatives
     if: ${{ github.event_name != 'pull_request' }}
     timeout-minutes: 90
     runs-on: [ self-hosted-job, "${{ inputs.target_env }}" ]
@@ -34,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        initiative: ${{ inputs.initiative == 'all' && fromJson('["bonus_elettrodomestici", "bonus_decoder"]') || fromJson(format('["{0}"]', inputs.initiative)) }}
+        initiative: ${{ fromJson(needs.select-initiatives.outputs.initiatives) }}
 
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
@@ -110,8 +127,10 @@ jobs:
       - name: Run tests with Behave
         run: |
           echo "Running env=$PARI_TARGET_ENV initiative=$PARI_FEATURE_INITIATIVE tag=$FEATURE_TAG" reward_batch_cleanup=$PARI_REWARD_BATCH_CLEANUP
+          INITIATIVE_FILTER=$(python3 -m conf.initiative_config filter "$PARI_FEATURE_INITIATIVE")
           if [ "$FEATURE_TAG" = "all" ]; then
             python3 -m pipenv run behave --no-capture-hooks\
+            --tags "$INITIATIVE_FILTER" \
             --tags "not @ignore" \
             --junit \
             --junit-directory "tests/reports/behave" \
@@ -122,6 +141,7 @@ jobs:
           else
             python3 -m pipenv run behave --no-capture-hooks\
             --tags "$FEATURE_TAG" \
+            --tags "$INITIATIVE_FILTER" \
             --tags "not @ignore" \
             --junit \
             --junit-directory "tests/reports/behave" \
