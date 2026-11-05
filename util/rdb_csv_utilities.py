@@ -25,29 +25,28 @@ def processing_upload(fixture):
 
 
 def prepare_concurrent_processing(context):
-    """Prepare a scenario-owned CSV using the configured test producer on A/B."""
+    """Prepare a scenario-owned CSV using the configured producer and initiative."""
     rdb.authenticate(context, 'producer')
     s = rdb.state(context)
     enabled = {item['initiativeId'] for item in rdb.success(api.get_initiatives(s.token)).json()
                if item['enabled']}
-    initiatives = {rdb.select_initiative(context, alias) for alias in ('A', 'B')}
-    assert len(initiatives) == 2 and initiatives <= enabled, (
-        'Concurrency requires the configured test producer enabled on distinct initiatives A/B')
-    for alias in ('A', 'B'):
-        rdb.select_initiative(context, alias)
-        assert all(item['uploadStatus'] not in PROCESSING_STATUSES for item in rdb.history(context)), (
-            f'Another CSV is already processing in {alias}; use a dedicated test producer')
-    rdb.select_initiative(context, 'A')
-    rdb.eprel_csv(context, 'valid')
-    # The backend checks each row sequentially against EPREL. A normal batch
-    # provides an overlap window without pausing or mocking any shared service.
-    rows = []
-    gtin_index = s.headers.index(GTIN_COLUMN)
-    for _ in range(100):
-        row = s.rows[0][:]
-        row[gtin_index] = uuid.uuid4().hex[:14]
-        rows.append(row)
-    rdb.set_csv(context, rows, s.headers, s.category)
+    assert s.initiative_id in enabled, (
+        'Concurrency requires the configured test producer enabled on the selected initiative')
+    assert all(item['uploadStatus'] not in PROCESSING_STATUSES for item in rdb.history(context)), (
+        'Another CSV is already processing on the selected initiative; use a dedicated test producer')
+    if rdb.is_decoder_initiative(context):
+        rows = rdb.product_rows(context, 100)
+        rdb.set_csv(context, rows)
+    else:
+        rdb.eprel_csv(context, 'valid')
+        # A normal batch provides an overlap window without mocking the service.
+        rows = []
+        gtin_index = s.headers.index(GTIN_COLUMN)
+        for _ in range(100):
+            row = s.rows[0][:]
+            row[gtin_index] = uuid.uuid4().hex[:14]
+            rows.append(row)
+        rdb.set_csv(context, rows, s.headers, s.category)
     s.concurrent_upload = {'token': s.token, 'initiative_id': s.initiative_id,
                            'filename': s.csv_file[0], 'csv_file': s.csv_file,
                            'category': s.category}

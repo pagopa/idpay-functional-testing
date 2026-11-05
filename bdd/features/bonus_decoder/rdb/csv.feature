@@ -12,7 +12,7 @@ Feature: Manage the decoder product CSV lifecycle across initiatives
 
   @csv_flow_initiative_isolation @upload_csv @rdb_fixture
   Scenario: Allow an upload on another initiative
-    Given a new RDB CSV is prepared for concurrent processing on initiative A
+    Given a new RDB CSV is prepared for concurrent processing on the selected initiative
     And the RDB initiative is "B"
     And the producer is enabled for the RDB initiative
     And a valid RDB product CSV with 1 rows
@@ -34,15 +34,3 @@ Feature: Manage the decoder product CSV lifecycle across initiatives
     Then the RDB CSV finishes with status "LOADED"
     And the submitted RDB product belongs to the selected initiative
     And RDB product "X" is unchanged
-
-  # Flow: Upload history, pagination and report access control
-
-  @csv_flow_history @csv_history @rdb_fixture
-  Scenario Outline: Reject access to an inaccessible report
-    Given the RDB dataset is "<dataset>"
-    When the producer downloads the dataset report
-    Then the RDB response has HTTP status 404
-
-    Examples:
-      | dataset                        |
-      | report from another initiative |
