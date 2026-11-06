@@ -76,6 +76,7 @@ jobs:
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
+      initiative: ${{ github.event_name == 'workflow_dispatch' && inputs.initiative || 'all' }}
       reward_batch_cleanup: ${{ github.event_name != 'workflow_dispatch' || inputs.reward_batch_cleanup }}
     secrets: inherit
 
