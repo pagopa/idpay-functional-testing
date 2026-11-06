@@ -75,6 +75,12 @@ and energy class thresholds are not credentials.
 
 ## Data written by the tests
 
+Decoder CSV fixtures use these eight headers in order: `Codice GTIN/EAN`,
+`Codice Prodotto`, `Categoria`, `Marca`, `Modello`, `Scart`, `Connessione IP`,
+`Scheda tecnica`. Valid generated rows use category `DT`, `SI` for Scart,
+`LAN` for connectivity and an HTTPS technical-sheet URL. Shared, concurrency
+and cross-initiative fixtures reuse the same decoder row generator.
+
 The suite uses the real APIs of the selected environment. CSV uploads and validation
 can create products, history records, and reports; imports and email updates modify
 associations of dedicated producers. Consent and Invitalia datasets create dedicated

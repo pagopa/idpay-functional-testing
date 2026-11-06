@@ -137,10 +137,10 @@ def prepare_defective_csv(context, defect):
 
 
 def decoder_csv(context, gtin=None):
-    # Backend postman/file/valid/terrestre_ok.csv, with a fresh business key.
-    code = gtin or uuid.uuid4().hex[:14]
-    return rdb.set_csv(context, [[code, 'TR01', 'DT', 'RDB Decoder', 'RDB Model']],
-                       rdb.DECODER_HEADERS, 'DT')
+    rows = rdb.decoder_products()
+    if gtin is not None:
+        rows[0][rdb.DECODER_HEADERS.index(GTIN_COLUMN)] = gtin
+    return rdb.set_csv(context, rows, rdb.DECODER_HEADERS, "DT")
 
 
 def submitted_products(context):
