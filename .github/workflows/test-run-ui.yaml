@@ -38,6 +38,7 @@ jobs:
         run: npm run ui:test
 
       - name: Upload UI results
+        id: upload_ui_results
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
@@ -46,6 +47,53 @@ jobs:
             ./test-results
             ./playwright-report
           if-no-files-found: ignore
+
+  pr-ui-report-preview:
+    needs: run-ui-tests
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Resolve UI artifact id
+        id: artifact_lookup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run_id = context.runId;
+            const result = await github.rest.actions.listWorkflowRunArtifacts({ owner, repo, run_id });
+            const artifact = result.data.artifacts.find((a) => a.name === 'ui-test-results' && !a.expired);
+
+            core.setOutput('exists', artifact ? 'true' : 'false');
+            core.setOutput('artifact_id', artifact ? String(artifact.id) : '');
+
+      - name: Comment PR with report preview link
+        if: ${{ steps.artifact_lookup.outputs.exists == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const artifactId = '${{ steps.artifact_lookup.outputs.artifact_id }}';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifactId}`;
+
+            const body = [
+              '### UI Report Preview',
+              '',
+              `- Run: ${runUrl}`,
+              `- Playwright report artifact: ${artifactUrl}`,
+              '',
+              'Download the artifact and open `playwright-report/index.html` locally.'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
 
   publish-ui-report:
     needs: run-ui-tests

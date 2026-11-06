@@ -208,4 +208,5 @@ npm run ui:test
 
 The UI workflow uploads `test-results` and `playwright-report` as artifacts.
 On pull requests, the report is available as Action artifact (`ui-test-results`).
+The workflow also posts a PR comment with a direct preview artifact link.
 On `main`, the HTML report is published to GitHub Pages under `/reports/<run_id>/`.
