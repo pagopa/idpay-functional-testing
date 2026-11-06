@@ -6,21 +6,15 @@ permissions:
 
 on:
   workflow_call:
-    inputs:
-      target_env:
-        type: string
-        required: true
-        description: 'Target environment (dev or uat)'
+    inputs: {}
 
 jobs:
   run-ui-tests:
-    if: ${{ github.event_name != 'pull_request' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target_env }}
 
     env:
-      PARI_TARGET_ENV: ${{ inputs.target_env }}
+      PARI_TARGET_ENV: main
       UI_BASE_URL: ${{ vars.UI_BASE_URL }}
 
     steps:
@@ -54,7 +48,7 @@ jobs:
 
   publish-ui-report:
     needs: run-ui-tests
-    if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
+    if: ${{ always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -82,6 +82,4 @@ jobs:
   run-ui:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all' }}
     uses: ./.github/workflows/test-run-ui.yaml
-    with:
-      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
     secrets: inherit

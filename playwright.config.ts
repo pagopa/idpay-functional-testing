@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+// @ts-ignore
 import dotenv from 'dotenv';
+// @ts-ignore
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
