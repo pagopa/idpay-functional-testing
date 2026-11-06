@@ -5,6 +5,7 @@
   "description": "Playwright UI test setup for IDPay functional testing",
   "scripts": {
     "codegen": "playwright codegen",
+    "ui:test": "playwright test",
     "test": "playwright test",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
