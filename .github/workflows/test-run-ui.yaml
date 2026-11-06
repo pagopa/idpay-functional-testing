@@ -1,0 +1,178 @@
+name: test-run-ui
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs: {}
+
+jobs:
+  run-ui-tests:
+    permissions:
+      contents: read
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    env:
+      PARI_TARGET_ENV: main
+      UI_BASE_URL: ${{ vars.UI_BASE_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Setup Node
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 #v4.0.2
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright browser
+        run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Run UI tests
+        run: npm run ui:test
+
+      - name: Upload UI results
+        id: upload_ui_results
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: ui-test-results
+          path: |
+            ./test-results
+            ./playwright-report
+          if-no-files-found: ignore
+
+  pr-ui-report-preview:
+    needs: run-ui-tests
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Resolve UI artifact id
+        id: artifact_lookup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run_id = context.runId;
+            const result = await github.rest.actions.listWorkflowRunArtifacts({ owner, repo, run_id });
+            const artifact = result.data.artifacts.find((a) => a.name === 'ui-test-results' && !a.expired);
+
+            core.setOutput('exists', artifact ? 'true' : 'false');
+            core.setOutput('artifact_id', artifact ? String(artifact.id) : '');
+
+      - name: Comment PR with report preview link
+        if: ${{ steps.artifact_lookup.outputs.exists == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const artifactId = '${{ steps.artifact_lookup.outputs.artifact_id }}';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifactId}`;
+
+            const body = [
+              '### UI Report Preview',
+              '',
+              `- Run: ${runUrl}`,
+              `- Playwright report artifact: ${artifactUrl}`,
+              '',
+              'Download the artifact and open `playwright-report/index.html` locally.'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
+
+  publish-ui-report:
+    needs: run-ui-tests
+    if: ${{ always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Download UI report artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
+        with:
+          name: ui-test-results
+          path: ./ui-artifacts
+
+      - name: Check if Playwright report exists
+        id: check_report
+        if: always()
+        run: |
+          if [ -d "./ui-artifacts/playwright-report" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Redact sensitive information from Playwright report
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: bash ./redact-passwords.sh ./ui-artifacts/playwright-report
+
+      - name: Generate Playwright report bundle
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: |
+          mkdir -p ./public/reports/${{ github.run_id }}/
+          cp -r -- ./ui-artifacts/playwright-report/* ./public/reports/${{ github.run_id }}/
+          echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
+
+      - name: Generate index page with report links
+        if: always() && steps.check_report.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git worktree add -f ./existing-reports gh-pages || true
+
+          if [ -d "./existing-reports/reports" ]; then
+            cp -r -- ./existing-reports/reports/* ./public/reports/ || true
+          fi
+
+          cd ./public/reports
+          REPORT_LIST=""
+          for d in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | grep -E '^[0-9]+$' | sort -nr); do
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+          done
+          cd ../..
+
+          cat << 'EOF' > ./public/index.html
+          <!DOCTYPE html>
+          <html lang="it">
+          <head>
+            <meta charset="UTF-8">
+            <title>Storico Test UI IDPay</title>
+          </head>
+          <body>
+            <h1>Storico Test UI IDPay</h1>
+            <ul>
+              __REPORT_LIST__
+            </ul>
+          </body>
+          </html>
+          EOF
+
+          sed -i "s|__REPORT_LIST__|${REPORT_LIST}|g" ./public/index.html
+
+      - name: Upload Playwright report to GitHub Pages
+        if: always() && steps.check_report.outputs.exists == 'true'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
+        with:
+          publish_dir: ./public
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          keep_files: true
+

@@ -60,6 +60,8 @@ on:
         type: choice
         options:
           - bdd
+          - ui
+          - all
 
       reward_batch_cleanup:
         description: Cleanup environment after test run
@@ -69,11 +71,19 @@ on:
 
 jobs:
   run-bdd:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' || inputs.test_type == 'all' }}
     uses: ./.github/workflows/test-run-bdd.yaml
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
       initiative: ${{ github.event_name == 'workflow_dispatch' && inputs.initiative || 'all' }}
       reward_batch_cleanup: ${{ github.event_name != 'workflow_dispatch' || inputs.reward_batch_cleanup }}
+    secrets: inherit
+
+  run-ui:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/test-run-ui.yaml
     secrets: inherit
