@@ -1,8 +1,7 @@
 name: test-run-ui
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
 
 on:
   workflow_call:
@@ -10,6 +9,8 @@ on:
 
 jobs:
   run-ui-tests:
+    permissions:
+      contents: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
@@ -28,10 +29,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Run UI tests
         run: npm run ui:test
@@ -42,14 +43,16 @@ jobs:
         with:
           name: ui-test-results
           path: |
-            test-results
-            playwright-report
+            ./test-results
+            ./playwright-report
           if-no-files-found: ignore
 
   publish-ui-report:
     needs: run-ui-tests
     if: ${{ always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
@@ -58,13 +61,13 @@ jobs:
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
         with:
           name: ui-test-results
-          path: ui-artifacts
+          path: ./ui-artifacts
 
       - name: Check if Playwright report exists
         id: check_report
         if: always()
         run: |
-          if [ -d "ui-artifacts/playwright-report" ]; then
+          if [ -d "./ui-artifacts/playwright-report" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -72,13 +75,13 @@ jobs:
 
       - name: Redact sensitive information from Playwright report
         if: always() && steps.check_report.outputs.exists == 'true'
-        run: bash ./redact-passwords.sh ui-artifacts/playwright-report
+        run: bash ./redact-passwords.sh ./ui-artifacts/playwright-report
 
       - name: Generate Playwright report bundle
         if: always() && steps.check_report.outputs.exists == 'true'
         run: |
-          mkdir -p public/reports/${{ github.run_id }}/
-          cp -r ui-artifacts/playwright-report/* public/reports/${{ github.run_id }}/
+          mkdir -p ./public/reports/${{ github.run_id }}/
+          cp -r -- ./ui-artifacts/playwright-report/* ./public/reports/${{ github.run_id }}/
           echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
 
       - name: Generate index page with report links
@@ -86,20 +89,20 @@ jobs:
         continue-on-error: true
         run: |
           git fetch origin gh-pages:gh-pages || true
-          git worktree add -f existing-reports gh-pages || true
+          git worktree add -f ./existing-reports gh-pages || true
 
-          if [ -d "existing-reports/reports" ]; then
-            cp -r existing-reports/reports/* public/reports/ || true
+          if [ -d "./existing-reports/reports" ]; then
+            cp -r -- ./existing-reports/reports/* ./public/reports/ || true
           fi
 
-          cd public/reports
+          cd ./public/reports
           REPORT_LIST=""
-          for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
+          for d in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | grep -E '^[0-9]+$' | sort -nr); do
             REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
           done
           cd ../..
 
-          cat << 'EOF' > public/index.html
+          cat << 'EOF' > ./public/index.html
           <!DOCTYPE html>
           <html lang="it">
           <head>
@@ -115,7 +118,7 @@ jobs:
           </html>
           EOF
 
-          sed -i "s|__REPORT_LIST__|${REPORT_LIST}|g" public/index.html
+          sed -i "s|__REPORT_LIST__|${REPORT_LIST}|g" ./public/index.html
 
       - name: Upload Playwright report to GitHub Pages
         if: always() && steps.check_report.outputs.exists == 'true'
