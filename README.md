@@ -165,6 +165,38 @@ $env:UI_BASE_URL='https://<your-ui-host>'
 npm run ui:test
 ```
 
+### Authenticated UI tests
+
+The Playwright authenticated fixture is in `tests/ui/fixtures/auth.fixture.ts` and stores
+the session in `playwright/.auth/user.json`.
+
+Required variables for authenticated tests:
+
+- `UI_BASE_URL`
+- `USER_USERNAME`
+- `USER_PASSWORD`
+
+Optional UI selector overrides (when defaults do not match the target app):
+
+- `UI_LOGIN_PATH` (default: `/accesso`)
+- `UI_LOGIN_BUTTON_TESTID` (default: `logInButton`)
+- `UI_SPID_BUTTON_TESTID` (default: `spidButton`)
+- `UI_IDP_BUTTON_TESTID` (default: `idp-button-https://idp.uat.oneid.pagopa.it`)
+- `UI_USERNAME_LABEL` (default: `Username`)
+- `UI_PASSWORD_LABEL` (default: `Password`)
+- `UI_SUBMIT_BUTTON_NAME` (default: `Accedi`)
+- `UI_CONSENT_BUTTON_NAME` (default: `Do il consenso`)
+- `UI_POST_LOGIN_PATH` (optional post-login URL assertion)
+
+PowerShell example:
+
+```powershell
+$env:UI_BASE_URL='https://<your-ui-host>'
+$env:USER_USERNAME='<your-username>'
+$env:USER_PASSWORD='<your-password>'
+npm run ui:test
+```
+
 ### CI/CD integration
 
 - Main workflow: `.github/workflows/test-run.yaml`
@@ -175,4 +207,5 @@ npm run ui:test
   - `all`
 
 The UI workflow uploads `test-results` and `playwright-report` as artifacts.
-On `uat`, the HTML report is published to GitHub Pages under `/ui`.
+On pull requests, the report is available as Action artifact (`ui-test-results`).
+On `main`, the HTML report is published to GitHub Pages under `/reports/<run_id>/`.
