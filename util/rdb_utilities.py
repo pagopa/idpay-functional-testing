@@ -202,6 +202,18 @@ def select_initiative(context, alias):
     return s.initiative_id
 
 
+def selected_initiative_alias(context):
+    """Return A/B for the initiative selected by the current test run."""
+    s = state(context)
+    if getattr(s, 'initiative_alias', None) in ('A', 'B'):
+        return s.initiative_alias
+    return 'B' if is_decoder_initiative(context) else 'A'
+
+
+def other_initiative_alias(context):
+    return 'A' if selected_initiative_alias(context) == 'B' else 'B'
+
+
 def is_decoder_initiative(context):
     s = state(context)
     decoder_id = secrets.get('initiatives', {}).get('bonus_decoder', {}).get('id')

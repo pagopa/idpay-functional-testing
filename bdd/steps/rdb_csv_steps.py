@@ -84,7 +84,7 @@ def rdb_processed_csv(context):
     rdb.completed_upload(context)
 
 
-@given('a new RDB CSV is prepared for concurrent processing on initiative A')
+@given('a new RDB CSV is prepared for concurrent processing on the selected initiative')
 def rdb_concurrent_processing(context):
     csv_util.prepare_concurrent_processing(context)
 

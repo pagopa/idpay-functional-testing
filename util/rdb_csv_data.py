@@ -5,7 +5,10 @@ import uuid
 
 HEADERS = ['Codice GTIN/EAN', 'Codice Prodotto', 'Categoria',
            'Paese di Produzione', 'Marca', 'Modello']
-DECODER_HEADERS = ['Codice GTIN/EAN', 'Codice Prodotto', 'Categoria', 'Marca', 'Modello']
+DECODER_HEADERS = [
+    "Codice GTIN/EAN", "Codice Prodotto", "Categoria", "Marca", "Modello",
+    "Scart", "Connessione IP", "Scheda tecnica",
+]
 
 
 def csv_bytes(headers, rows):
@@ -28,5 +31,8 @@ def decoder_products(count=1):
     rows = []
     for _ in range(count):
         code = uuid.uuid4().hex[:14]
-        rows.append([code, 'TR01', 'DT', 'RDB Decoder', f'M{code}'])
+        rows.append([
+            code, "TR01", "DT", "RDB Decoder", f"M{code}",
+            "SI", "LAN", "https://example.com/scheda-tecnica.pdf",
+        ])
     return rows
