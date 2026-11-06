@@ -26,7 +26,6 @@ on:
 
 jobs:
   run-bdd-feature-tests:
-    if: ${{ github.event_name != 'pull_request' }}
     timeout-minutes: 90
     runs-on: [ self-hosted-job, "${{ inputs.target_env }}" ]
     environment: ${{ inputs.target_env }}
