@@ -770,11 +770,12 @@
 <code>bdd/features/common_bonus_features/rdb</code> (26),
 <code>bdd/features/bonus_elettrodomestici/rdb</code> (66), and
 <code>bdd/features/bonus_decoder/rdb</code> (4).
-Appliances-specific scenarios explicitly select initiative A; decoder isolation
-scenarios also require initiative A alongside B. The common initiative-list
-fixtures may require both initiatives. Common registry-scope and CSV-history
-scenarios tagged <code>@multi_initiative</code> use A as the query target and B as an
-isolation control. Producer detail requests are initiative-independent.
+Common scenarios that operate on one Bonus use the initiative selected by
+<code>PARI_FEATURE_INITIATIVE</code>; fixtures that verify isolation use the other Bonus
+as a control. The <code>A</code> and <code>B</code> aliases still identify appliances and decoder
+respectively, but are not fixed query targets in shared scenarios.
+Appliances-specific EPREL scenarios target the appliances initiative.
+Producer detail requests are initiative-independent.
 Decoder scenarios remain in the decoder suite when the operation under test
 targets B, even if their prerequisites also use A.
 Steps use the APIs of the selected environment; generated datasets do not mock responses.
@@ -788,10 +789,22 @@ concurrency window: both concurrent upload cases pass in two consecutive UAT run
 In PowerShell, explicitly select the environment:</p>
 <pre><code class="language-powershell">$env:PARI_TARGET_ENV = &quot;uat&quot;  # or &quot;dev&quot;
 $env:PARI_FEATURE_INITIATIVE = &quot;bonus_elettrodomestici&quot;
-pipenv run behave --junit --junit-directory &quot;tests/reports/behave&quot; --tags &quot;@rdb&quot;
+pipenv run behave --junit --junit-directory &quot;tests/reports/behave&quot; --tags &quot;@rdb&quot; --tags &quot;(bonus_elettrodomestici or not bonus_decoder)&quot;
 </code></pre>
 <p>In the <code>test-run</code> workflow, select the environment, type <code>bdd</code>, and tag <code>rdb</code>.
+Each matrix job excludes scenarios tagged only with other registered initiatives, while
+retaining shared scenarios and scenarios without Bonus tags. For a local decoder
+run, use <code>--tags "(bonus_decoder or not bonus_elettrodomestici)"</code> instead.
 To run a single scenario, use the feature path and <code>--name "^Scenario name$"</code>.</p>
+<p>The initiative registry is <code>conf/initiatives.json</code>. Behave configuration, the CI
+<code>all</code> matrix, scenario exclusion filters and Allure suite names use this registry.
+Add new execution initiatives there with their logical ID, product GTIN and report
+suite name; configure their payloads, environment secrets and business-specific
+fixtures separately. The initiative is selected in the pipeline's manual dropdown.
+Add each new initiative to that dropdown in <code>.github/workflows/test-run.yaml</code> as
+well: GitHub Actions requires static choice options. Selecting <code>all</code> expands the
+matrix automatically from the registry.
+RDB A/B isolation fixtures remain specific to the two existing Bonuses.</p>
 <p>The file specified by <code>PARI_SECRET_PATH</code> (default: <code>conf/pari-feature-secrets.json</code>)
 must contain a section for the selected environment. Imports require access
 to the internal host, through a VPN when necessary.</p>
@@ -843,6 +856,11 @@ Profiles use <code>email</code> and <code>orgVAT</code>, with support for the al
 Keep credentials, JWTs, and personal data out of Git. Public URLs, initiative IDs,
 and energy class thresholds are not credentials.</p>
 <h2 id="data-written-by-the-tests">Data written by the tests</h2>
+<p>Decoder CSV fixtures use these eight headers in order: <code>Codice GTIN/EAN</code>,
+<code>Codice Prodotto</code>, <code>Categoria</code>, <code>Marca</code>, <code>Modello</code>, <code>Scart</code>, <code>Connessione IP</code>,
+<code>Scheda tecnica</code>. Valid generated rows use category <code>DT</code>, <code>SI</code> for Scart,
+<code>LAN</code> for connectivity and an HTTPS technical-sheet URL. Shared, concurrency
+and cross-initiative fixtures reuse the same decoder row generator.</p>
 <p>The suite uses the real APIs of the selected environment. CSV uploads and validation
 can create products, history records, and reports; imports and email updates modify
 associations of dedicated producers. Consent and Invitalia datasets create dedicated
@@ -884,9 +902,9 @@ by the features. <code>profile</code> selects the profile and <code>initiative</
 For tests that write data, expectations derive from inputs or confirmed writes.</p>
 <p>The suite prepares CSV files, products, history, reports, associations, and draft
 initiatives through APIs. Four product/batch read tests reuse existing data:
-products must exist for the configured producer and another organization in A,
-as well as products in B. They verify consistency and isolation, rather than
-independently establishing inventory completeness.
+products must exist for the configured producer and another organization in the
+selected initiative, as well as products in the other initiative. They verify
+consistency and isolation, rather than independently establishing inventory completeness.
 SelfCare cases require an existing institution with a known VAT number.</p>
 <p>Following the standup decision, the cases for renewed acceptance after a version
 change and for a disabled producer association were removed from the Behave suite.
@@ -894,12 +912,12 @@ Coverage remains in backend JUnit tests; future UAT integration is deferred,
 without developing dedicated test APIs now. These cases are not counted as passed
 or skipped.
 Historical reports retain the original scope of 98 scenarios.</p>
-<p>Concurrent upload tests prepare a 100-row EPREL CSV and verify that it is active
-before and after the second upload. Preliminary cleanup checks for both files
-run before the first upload, outside the measured window.
+<p>Concurrent upload tests prepare a 100-row CSV valid for the selected initiative
+and verify that it is active before and after the second upload. Preliminary
+cleanup checks for both files run before the first upload, outside the measured window.
 These tests do not require <code>datasets.upload in progress</code>.
-The producer must be enabled on A/B and have no other active uploads; the test
-waits for its own CSV to finish without suspending shared consumers.</p>
+The producer must be enabled on the selected initiative and have no other active
+uploads; the test waits for its own CSV to finish without suspending shared consumers.</p>
 <h2 id="functional-scope">Functional scope</h2>
 <p>The <code>/register/token/test</code> signer generates application JWTs; it is not a real
 SelfCare exchange. The expired-token test requires the policy to honor <code>exp</code>,

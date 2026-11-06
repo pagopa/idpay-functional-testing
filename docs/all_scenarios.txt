@@ -82,9 +82,6 @@ Reject a batch containing different current statuses
 Reject a product when the operational email is missing
 Reject a request without an authentication token
 Reject acceptance of an outdated version
-Reject access to an inaccessible report
-Reject access to an inaccessible report
-Reject access to an inaccessible report
 Reject an application token with invalid claims or signature
 Reject an email update for an unrelated initiative
 Reject an empty association payload
