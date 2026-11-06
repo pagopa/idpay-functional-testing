@@ -9,6 +9,7 @@ Repository containing BDD and functional tests for the PARI platform.
   the latest published run, including tag-filtered runs; it is not a cumulative
   history of every local or CI execution. Check the selected tag in the linked
   Actions run before comparing totals.
+- UI Playwright report is published from `uat` runs to `https://pagopa.github.io/idpay-functional-testing/ui`.
 - CI runs with `feature=all` execute the two Bonus selections. Scenarios without
   either Bonus tag are outside that matrix. Local runs do not update GitHub Pages
   automatically.
@@ -133,3 +134,45 @@ mkdocs build --strict
 
 Pull requests and merge groups invoke the main workflow; remote BDD execution
 is skipped on pull requests. Manual runs select the environment and feature tag.
+
+## UI test execution (Playwright)
+
+The repository includes a Playwright setup under `tests/ui`.
+
+### Local setup
+
+```bash
+npm ci
+npx playwright install chromium
+```
+
+### Local run
+
+```bash
+npm run ui:test
+```
+
+To run against a deployed environment, set `UI_BASE_URL`:
+
+```bash
+UI_BASE_URL='https://<your-ui-host>' npm run ui:test
+```
+
+For PowerShell:
+
+```powershell
+$env:UI_BASE_URL='https://<your-ui-host>'
+npm run ui:test
+```
+
+### CI/CD integration
+
+- Main workflow: `.github/workflows/test-run.yaml`
+- Reusable UI workflow: `.github/workflows/test-run-ui.yaml`
+- Manual dispatch `test_type` options:
+  - `bdd`
+  - `ui`
+  - `all`
+
+The UI workflow uploads `test-results` and `playwright-report` as artifacts.
+On `uat`, the HTML report is published to GitHub Pages under `/ui`.
