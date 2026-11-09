@@ -5,7 +5,15 @@ permissions:
 
 on:
   workflow_call:
-    inputs: {}
+    inputs:
+      target_env:
+        type: string
+        required: true
+        description: 'Target environment for UI tests (dev or uat)'
+      ui_target:
+        type: string
+        required: true
+        description: 'UI target to test (welfare_enti, welfare_esercenti, rdb, pari_utente)'
 
 jobs:
   run-ui-tests:
@@ -13,10 +21,31 @@ jobs:
       contents: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target_env }}
 
     env:
-      PARI_TARGET_ENV: main
+      PARI_TARGET_ENV: ${{ inputs.target_env }}
+      UI_TARGET: ${{ inputs.ui_target }}
       UI_BASE_URL: ${{ vars.UI_BASE_URL }}
+      UI_LOGIN_PATH: ${{ vars.UI_LOGIN_PATH }}
+      UI_BASE_URL_WELFARE_ENTI: ${{ vars.UI_BASE_URL_WELFARE_ENTI }}
+      UI_BASE_URL_WELFARE_ESERCENTI: ${{ vars.UI_BASE_URL_WELFARE_ESERCENTI }}
+      UI_BASE_URL_RDB: ${{ vars.UI_BASE_URL_RDB }}
+      UI_BASE_URL_PARI_UTENTE: ${{ vars.UI_BASE_URL_PARI_UTENTE }}
+      UI_LOGIN_PATH_WELFARE_ENTI: ${{ vars.UI_LOGIN_PATH_WELFARE_ENTI }}
+      UI_LOGIN_PATH_WELFARE_ESERCENTI: ${{ vars.UI_LOGIN_PATH_WELFARE_ESERCENTI }}
+      UI_LOGIN_PATH_RDB: ${{ vars.UI_LOGIN_PATH_RDB }}
+      UI_LOGIN_PATH_PARI_UTENTE: ${{ vars.UI_LOGIN_PATH_PARI_UTENTE }}
+      USER_USERNAME: ${{ secrets.USER_USERNAME }}
+      USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+      UI_USERNAME_WELFARE_ENTI: ${{ secrets.UI_USERNAME_WELFARE_ENTI }}
+      UI_PASSWORD_WELFARE_ENTI: ${{ secrets.UI_PASSWORD_WELFARE_ENTI }}
+      UI_USERNAME_WELFARE_ESERCENTI: ${{ secrets.UI_USERNAME_WELFARE_ESERCENTI }}
+      UI_PASSWORD_WELFARE_ESERCENTI: ${{ secrets.UI_PASSWORD_WELFARE_ESERCENTI }}
+      UI_USERNAME_RDB: ${{ secrets.UI_USERNAME_RDB }}
+      UI_PASSWORD_RDB: ${{ secrets.UI_PASSWORD_RDB }}
+      UI_USERNAME_PARI_UTENTE: ${{ secrets.UI_USERNAME_PARI_UTENTE }}
+      UI_PASSWORD_PARI_UTENTE: ${{ secrets.UI_PASSWORD_PARI_UTENTE }}
 
     steps:
       - name: Checkout repository
@@ -33,6 +62,55 @@ jobs:
 
       - name: Install Playwright browser
         run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Resolve portal-specific UI configuration
+        run: |
+          TARGET=$(echo "$UI_TARGET" | tr '[:upper:]' '[:lower:]')
+
+          RESOLVED_UI_BASE_URL="$UI_BASE_URL"
+          RESOLVED_UI_LOGIN_PATH="$UI_LOGIN_PATH"
+          RESOLVED_USER_USERNAME="$USER_USERNAME"
+          RESOLVED_USER_PASSWORD="$USER_PASSWORD"
+
+          case "$TARGET" in
+            welfare_enti)
+              RESOLVED_UI_BASE_URL="${UI_BASE_URL_WELFARE_ENTI:-$RESOLVED_UI_BASE_URL}"
+              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_WELFARE_ENTI:-$RESOLVED_UI_LOGIN_PATH}"
+              RESOLVED_USER_USERNAME="${UI_USERNAME_WELFARE_ENTI:-$RESOLVED_USER_USERNAME}"
+              RESOLVED_USER_PASSWORD="${UI_PASSWORD_WELFARE_ENTI:-$RESOLVED_USER_PASSWORD}"
+              ;;
+            welfare_esercenti)
+              RESOLVED_UI_BASE_URL="${UI_BASE_URL_WELFARE_ESERCENTI:-$RESOLVED_UI_BASE_URL}"
+              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_WELFARE_ESERCENTI:-$RESOLVED_UI_LOGIN_PATH}"
+              RESOLVED_USER_USERNAME="${UI_USERNAME_WELFARE_ESERCENTI:-$RESOLVED_USER_USERNAME}"
+              RESOLVED_USER_PASSWORD="${UI_PASSWORD_WELFARE_ESERCENTI:-$RESOLVED_USER_PASSWORD}"
+              ;;
+            rdb)
+              RESOLVED_UI_BASE_URL="${UI_BASE_URL_RDB:-$RESOLVED_UI_BASE_URL}"
+              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_RDB:-$RESOLVED_UI_LOGIN_PATH}"
+              RESOLVED_USER_USERNAME="${UI_USERNAME_RDB:-$RESOLVED_USER_USERNAME}"
+              RESOLVED_USER_PASSWORD="${UI_PASSWORD_RDB:-$RESOLVED_USER_PASSWORD}"
+              ;;
+            pari_utente)
+              RESOLVED_UI_BASE_URL="${UI_BASE_URL_PARI_UTENTE:-$RESOLVED_UI_BASE_URL}"
+              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_PARI_UTENTE:-$RESOLVED_UI_LOGIN_PATH}"
+              RESOLVED_USER_USERNAME="${UI_USERNAME_PARI_UTENTE:-$RESOLVED_USER_USERNAME}"
+              RESOLVED_USER_PASSWORD="${UI_PASSWORD_PARI_UTENTE:-$RESOLVED_USER_PASSWORD}"
+              ;;
+            *)
+              echo "::error::Unsupported ui_target '$UI_TARGET'. Allowed values: welfare_enti, welfare_esercenti, rdb, pari_utente"
+              exit 1
+              ;;
+          esac
+
+          echo "UI_BASE_URL=$RESOLVED_UI_BASE_URL" >> "$GITHUB_ENV"
+          echo "UI_LOGIN_PATH=$RESOLVED_UI_LOGIN_PATH" >> "$GITHUB_ENV"
+          echo "USER_USERNAME=$RESOLVED_USER_USERNAME" >> "$GITHUB_ENV"
+          echo "USER_PASSWORD=$RESOLVED_USER_PASSWORD" >> "$GITHUB_ENV"
+
+          if [ -z "$RESOLVED_UI_BASE_URL" ]; then
+            echo "::warning::UI_BASE_URL is empty after portal resolution. UI authenticated tests may be skipped."
+          fi
 
       - name: Run UI tests
         run: npm run ui:test

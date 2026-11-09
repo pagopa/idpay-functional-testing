@@ -11,9 +11,12 @@ from api.idpay import post_evaluate_sent_reward_batches
 from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
 from api.transaction import get_approved_reward_batch_download
+from api.transaction import get_reward_batches
 from api.transaction import post_approve_reward_batch
+from api.transaction import post_reward_batch_check_outcomes_batch
 from api.transaction import post_postpone_transaction
 from api.transaction import post_reward_batch_confirmation_batch
+from api.transaction import post_reward_batch_delivery_batch
 from bdd.steps.bar_code_steps import get_point_of_sale_access_token
 from bdd.steps.bar_code_steps import reverse_bar_code_transaction
 from util.transaction_utilities import assert_transaction_in_next_month_reward_batch
@@ -562,6 +565,157 @@ def step_named_reward_batch_has_status(context, batch_name, batch_status):
         trx_name=_stored_reward_batch_transaction(context, batch_name),
         batch_status=batch_status
     )
+
+
+@given('an existing reward batch in status APPROVED for merchant {merchant_name} is selected as transaction {trx_name}')
+def step_select_existing_approved_reward_batch(context, merchant_name, trx_name):
+    merchant_id = context.merchants[merchant_name]['id']
+    response = get_reward_batches(
+        initiative_id=context.initiative_id,
+        merchant_id=merchant_id,
+        status='APPROVED',
+        size=100
+    )
+    assert response.status_code == 200, (
+        f'Unable to list APPROVED reward batches: {response.status_code} {response.text}'
+    )
+    approved_batches = [
+        batch for batch in _extract_reward_batches(response.json())
+        if batch.get('status') == 'APPROVED'
+    ]
+    approved_batches.sort(
+        key=lambda batch: batch.get('approvalDate') or batch.get('updateDate') or '',
+        reverse=True
+    )
+    assert approved_batches, (
+        f'No APPROVED reward batch available for merchant {merchant_name} ({merchant_id})'
+    )
+
+    selected_batch = approved_batches[0]
+
+    if not hasattr(context, 'associated_merchant'):
+        context.associated_merchant = {}
+    if not hasattr(context, 'reward_batch_ids'):
+        context.reward_batch_ids = {}
+    if not hasattr(context, 'source_reward_batches'):
+        context.source_reward_batches = {}
+
+    context.associated_merchant[trx_name] = merchant_name
+    context.reward_batch_ids[trx_name] = selected_batch['id']
+    context.source_reward_batches[trx_name] = selected_batch
+
+
+@given('the approved reward batch of transaction {trx_name} is sent for refund delivery')
+@when('the approved reward batch of transaction {trx_name} is sent for refund delivery')
+def step_send_approved_reward_batch_for_refund_delivery(context, trx_name):
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
+    response = post_reward_batch_delivery_batch(
+        initiative_id=context.initiative_id,
+        request_body={
+            'rewardBatchIds': [reward_batch_id]
+        }
+    )
+    assert response.status_code == 200, (
+        f'Refund delivery request failed: {response.status_code} {response.text}'
+    )
+
+
+@when('the refund outcomes are checked for reward batch of transaction {trx_name}')
+def step_check_refund_outcomes_for_reward_batch(context, trx_name):
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
+    response = post_reward_batch_check_outcomes_batch(
+        initiative_id=context.initiative_id,
+        request_body={
+            'rewardBatchIds': [reward_batch_id]
+        }
+    )
+    assert response.status_code == 200, (
+        f'Refund outcomes check failed: {response.status_code} {response.text}'
+    )
+
+
+@given('the invitalia outcome status of reward batch of transaction {trx_name} becomes {outcome_status:w} within {timeout_seconds:d} seconds')
+def step_wait_invitalia_outcome_for_reward_batch(context, trx_name, outcome_status, timeout_seconds):
+    expected_status_by_outcome = {
+        'COMPLETATA': 'REFUNDED',
+        'RIFIUTATA': 'NOT_REFUNDED',
+        'IN_LAVORAZIONE': 'PENDING_REFUND',
+        'ERRORE': 'PENDING_REFUND',
+    }
+    normalized_outcome = outcome_status.upper()
+    assert normalized_outcome in expected_status_by_outcome, (
+        f'Unsupported Invitalia outcome status: {outcome_status}'
+    )
+
+    reward_batch_id = _stored_reward_batch_id(context, trx_name)
+    target_batch_status = expected_status_by_outcome[normalized_outcome]
+    polling_interval = 5
+    deadline = time.time() + timeout_seconds
+    last_status = None
+
+    while time.time() <= deadline:
+        check_response = post_reward_batch_check_outcomes_batch(
+            initiative_id=context.initiative_id,
+            request_body={
+                'rewardBatchIds': [reward_batch_id]
+            }
+        )
+        assert check_response.status_code == 200, (
+            f'Refund outcomes check failed while waiting for {normalized_outcome}: '
+            f'{check_response.status_code} {check_response.text}'
+        )
+
+        merchant_name = context.associated_merchant[trx_name]
+        detail_response = get_reward_batch_detail(
+            initiative_id=context.initiative_id,
+            reward_batch_id=reward_batch_id,
+            merchant_id=context.merchants[merchant_name]['id']
+        )
+        assert detail_response.status_code == 200, (
+            f'Reward batch detail failed while waiting for {normalized_outcome}: '
+            f'{detail_response.status_code} {detail_response.text}'
+        )
+        latest_batch = detail_response.json()
+        last_status = latest_batch['status']
+        if last_status == target_batch_status:
+            return
+
+        remaining_seconds = deadline - time.time()
+        if remaining_seconds > 0:
+            time.sleep(min(polling_interval, remaining_seconds))
+
+    assert False, (
+        f'Expected outcome {normalized_outcome} to map to batch status {target_batch_status} '
+        f'for batch {reward_batch_id} within {timeout_seconds} seconds, got {last_status}'
+    )
+
+
+@given('the reward batch of transaction {trx_name} becomes {batch_status:w} within {timeout_seconds:d} seconds')
+@then('the reward batch of transaction {trx_name} becomes {batch_status:w} within {timeout_seconds:d} seconds')
+def step_wait_reward_batch_status_with_timeout(context, trx_name, batch_status, timeout_seconds):
+    delay = 3
+    tries = max(1, int(timeout_seconds / delay))
+    latest_batch = _wait_for_reward_batch_status(
+        context=context,
+        trx_name=trx_name,
+        expected_status=batch_status,
+        tries=tries,
+        delay=delay
+    )
+    if not hasattr(context, 'source_reward_batches'):
+        context.source_reward_batches = {}
+    context.source_reward_batches[trx_name] = latest_batch
+
+
+def _extract_reward_batches(payload):
+    if isinstance(payload, dict):
+        if isinstance(payload.get('content'), list):
+            return payload['content']
+        if isinstance(payload.get('rewardBatches'), list):
+            return payload['rewardBatches']
+    if isinstance(payload, list):
+        return payload
+    return []
 
 
 @given('the reward batch of transaction {trx_name} is {status} and assigned to {assigneeLevel}')

@@ -63,6 +63,17 @@ on:
           - ui
           - all
 
+      ui_target:
+        description: UI target to test
+        required: false
+        default: welfare_enti
+        type: choice
+        options:
+          - welfare_enti
+          - welfare_esercenti
+          - rdb
+          - pari_utente
+
       reward_batch_cleanup:
         description: Cleanup environment after test run
         required: true
@@ -86,4 +97,7 @@ jobs:
       contents: write
       pull-requests: write
     uses: ./.github/workflows/test-run-ui.yaml
+    with:
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
+      ui_target: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_target || 'welfare_enti' }}
     secrets: inherit
