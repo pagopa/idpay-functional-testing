@@ -2,9 +2,10 @@ export const uiConfig = {
   baseUrl: process.env.UI_BASE_URL ?? process.env.BASE_URL ?? '',
   loginPath: process.env.UI_LOGIN_PATH ?? '/accesso',
   postLoginPath: process.env.UI_POST_LOGIN_PATH ?? '',
+  postLoginUrl: process.env.UI_POST_LOGIN_URL ?? '',
   username: process.env.USER_USERNAME ?? '',
   password: process.env.USER_PASSWORD ?? '',
-  loginButtonTestId: process.env.UI_LOGIN_BUTTON_TESTID ?? 'logInButton',
+  loginButtonTestId: process.env.UI_LOGIN_BUTTON_TESTID ?? '',
   loginButtonName: process.env.UI_LOGIN_BUTTON_NAME ?? '',
   spidButtonTestId: process.env.UI_SPID_BUTTON_TESTID ?? 'spidButton',
   idpButtonTestId:

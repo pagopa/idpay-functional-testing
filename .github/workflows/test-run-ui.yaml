@@ -29,6 +29,8 @@ jobs:
       UI_TARGET: ${{ inputs.ui_target }}
       UI_BASE_URL: ${{ vars.UI_BASE_URL }}
       UI_LOGIN_PATH: ${{ vars.UI_LOGIN_PATH }}
+      UI_POST_LOGIN_PATH: ${{ vars.UI_POST_LOGIN_PATH }}
+      UI_POST_LOGIN_URL: ${{ vars.UI_POST_LOGIN_URL }}
       USER_USERNAME: ${{ secrets.USER_USERNAME }}
       USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
@@ -91,6 +93,8 @@ jobs:
 
           KV_UI_BASE_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].base_url // empty' "$PARI_SECRET_PATH")
           KV_UI_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_path // empty' "$PARI_SECRET_PATH")
+          KV_UI_POST_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_path // empty' "$PARI_SECRET_PATH")
+          KV_UI_POST_LOGIN_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_url // empty' "$PARI_SECRET_PATH")
           KV_USER_USERNAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username // empty' "$PARI_SECRET_PATH")
           KV_USER_PASSWORD=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password // empty' "$PARI_SECRET_PATH")
           KV_LOGIN_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_testid // empty' "$PARI_SECRET_PATH")
@@ -105,6 +109,8 @@ jobs:
 
           RESOLVED_UI_BASE_URL="$UI_BASE_URL"
           RESOLVED_UI_LOGIN_PATH="$UI_LOGIN_PATH"
+          RESOLVED_UI_POST_LOGIN_PATH="$UI_POST_LOGIN_PATH"
+          RESOLVED_UI_POST_LOGIN_URL="$UI_POST_LOGIN_URL"
           RESOLVED_USER_USERNAME="$USER_USERNAME"
           RESOLVED_USER_PASSWORD="$USER_PASSWORD"
 
@@ -118,11 +124,15 @@ jobs:
 
           RESOLVED_UI_BASE_URL="${KV_UI_BASE_URL:-$RESOLVED_UI_BASE_URL}"
           RESOLVED_UI_LOGIN_PATH="${KV_UI_LOGIN_PATH:-$RESOLVED_UI_LOGIN_PATH}"
+          RESOLVED_UI_POST_LOGIN_PATH="${KV_UI_POST_LOGIN_PATH:-$RESOLVED_UI_POST_LOGIN_PATH}"
+          RESOLVED_UI_POST_LOGIN_URL="${KV_UI_POST_LOGIN_URL:-$RESOLVED_UI_POST_LOGIN_URL}"
           RESOLVED_USER_USERNAME="${KV_USER_USERNAME:-$RESOLVED_USER_USERNAME}"
           RESOLVED_USER_PASSWORD="${KV_USER_PASSWORD:-$RESOLVED_USER_PASSWORD}"
 
           echo "UI_BASE_URL=$RESOLVED_UI_BASE_URL" >> "$GITHUB_ENV"
           echo "UI_LOGIN_PATH=$RESOLVED_UI_LOGIN_PATH" >> "$GITHUB_ENV"
+          echo "UI_POST_LOGIN_PATH=$RESOLVED_UI_POST_LOGIN_PATH" >> "$GITHUB_ENV"
+          echo "UI_POST_LOGIN_URL=$RESOLVED_UI_POST_LOGIN_URL" >> "$GITHUB_ENV"
           echo "USER_USERNAME=$RESOLVED_USER_USERNAME" >> "$GITHUB_ENV"
           echo "USER_PASSWORD=$RESOLVED_USER_PASSWORD" >> "$GITHUB_ENV"
 
