@@ -168,6 +168,20 @@ jobs:
           path: allure-results
           if-no-files-found: ignore
 
+      - name: Notify failure to Slack
+        id: slack
+        if: failure()
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: "section"
+                text:
+                  type: "plain_text"
+                  text: "${{ github.event.repository.name }} - Functional tests failed for initiative '${{ matrix.initiative }}' in env ${{ inputs.target_env }}"
+
   publish-bdd-report:
     needs: run-bdd-feature-tests
     if: ${{ always() && inputs.target_env == 'uat' && github.event_name != 'pull_request' }}
