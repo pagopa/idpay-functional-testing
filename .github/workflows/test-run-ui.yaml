@@ -13,7 +13,7 @@ on:
       ui_target:
         type: string
         required: true
-        description: 'UI target to test (welfare_enti, welfare_esercenti, rdb, pari_utente)'
+        description: 'UI target to test (all, welfare_enti, welfare_esercenti, rdb, pari_utente)'
 
 jobs:
   run-ui-tests:
@@ -87,85 +87,78 @@ jobs:
       - name: Install Playwright browser
         run: ./node_modules/.bin/playwright install --with-deps chromium
 
-      - name: Resolve portal-specific UI configuration
+      - name: Resolve UI targets
+        id: resolve_targets
         run: |
           TARGET=$(echo "$UI_TARGET" | tr '[:upper:]' '[:lower:]')
-
-          KV_UI_BASE_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].base_url // empty' "$PARI_SECRET_PATH")
-          KV_UI_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_path // empty' "$PARI_SECRET_PATH")
-          KV_UI_POST_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_path // empty' "$PARI_SECRET_PATH")
-          KV_UI_POST_LOGIN_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_url // empty' "$PARI_SECRET_PATH")
-          KV_USER_USERNAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username // empty' "$PARI_SECRET_PATH")
-          KV_USER_PASSWORD=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password // empty' "$PARI_SECRET_PATH")
-          KV_LOGIN_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_testid // empty' "$PARI_SECRET_PATH")
-          KV_LOGIN_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_name // empty' "$PARI_SECRET_PATH")
-          KV_SPID_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].spid_button_testid // empty' "$PARI_SECRET_PATH")
-          KV_IDP_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].idp_button_testid // empty' "$PARI_SECRET_PATH")
-          KV_USERNAME_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username_label // empty' "$PARI_SECRET_PATH")
-          KV_PASSWORD_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password_label // empty' "$PARI_SECRET_PATH")
-          KV_SUBMIT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].submit_button_name // empty' "$PARI_SECRET_PATH")
-          KV_CONSENT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].consent_button_name // empty' "$PARI_SECRET_PATH")
-          KV_GENERIC_FALLBACKS=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].enable_generic_login_fallbacks // empty' "$PARI_SECRET_PATH")
-
-          RESOLVED_UI_BASE_URL="$UI_BASE_URL"
-          RESOLVED_UI_LOGIN_PATH="$UI_LOGIN_PATH"
-          RESOLVED_UI_POST_LOGIN_PATH="$UI_POST_LOGIN_PATH"
-          RESOLVED_UI_POST_LOGIN_URL="$UI_POST_LOGIN_URL"
-          RESOLVED_USER_USERNAME="$USER_USERNAME"
-          RESOLVED_USER_PASSWORD="$USER_PASSWORD"
-
           case "$TARGET" in
-            welfare_enti|welfare_esercenti|rdb|pari_utente) ;;
+            all)
+              TARGETS="welfare_enti welfare_esercenti rdb pari_utente"
+              ;;
+            welfare_enti|welfare_esercenti|rdb|pari_utente)
+              TARGETS="$TARGET"
+              ;;
             *)
-              echo "::error::Unsupported ui_target '$UI_TARGET'. Allowed values: welfare_enti, welfare_esercenti, rdb, pari_utente"
+              echo "::error::Unsupported ui_target '$UI_TARGET'. Allowed values: all, welfare_enti, welfare_esercenti, rdb, pari_utente"
               exit 1
               ;;
           esac
+          echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
 
-          RESOLVED_UI_BASE_URL="${KV_UI_BASE_URL:-$RESOLVED_UI_BASE_URL}"
-          RESOLVED_UI_LOGIN_PATH="${KV_UI_LOGIN_PATH:-$RESOLVED_UI_LOGIN_PATH}"
-          RESOLVED_UI_POST_LOGIN_PATH="${KV_UI_POST_LOGIN_PATH:-$RESOLVED_UI_POST_LOGIN_PATH}"
-          RESOLVED_UI_POST_LOGIN_URL="${KV_UI_POST_LOGIN_URL:-$RESOLVED_UI_POST_LOGIN_URL}"
-          RESOLVED_USER_USERNAME="${KV_USER_USERNAME:-$RESOLVED_USER_USERNAME}"
-          RESOLVED_USER_PASSWORD="${KV_USER_PASSWORD:-$RESOLVED_USER_PASSWORD}"
+      - name: Run UI tests for selected targets
+        run: |
+          set -euo pipefail
 
-          echo "UI_BASE_URL=$RESOLVED_UI_BASE_URL" >> "$GITHUB_ENV"
-          echo "UI_LOGIN_PATH=$RESOLVED_UI_LOGIN_PATH" >> "$GITHUB_ENV"
-          echo "UI_POST_LOGIN_PATH=$RESOLVED_UI_POST_LOGIN_PATH" >> "$GITHUB_ENV"
-          echo "UI_POST_LOGIN_URL=$RESOLVED_UI_POST_LOGIN_URL" >> "$GITHUB_ENV"
-          echo "USER_USERNAME=$RESOLVED_USER_USERNAME" >> "$GITHUB_ENV"
-          echo "USER_PASSWORD=$RESOLVED_USER_PASSWORD" >> "$GITHUB_ENV"
+          mkdir -p ./ui-reports
+          OVERALL_STATUS=0
 
-          RESOLVED_LOGIN_BUTTON_TESTID="${KV_LOGIN_BUTTON_TESTID:-$UI_LOGIN_BUTTON_TESTID}"
-          RESOLVED_LOGIN_BUTTON_NAME="${KV_LOGIN_BUTTON_NAME:-$UI_LOGIN_BUTTON_NAME}"
-          RESOLVED_SPID_BUTTON_TESTID="${KV_SPID_BUTTON_TESTID:-$UI_SPID_BUTTON_TESTID}"
-          RESOLVED_IDP_BUTTON_TESTID="${KV_IDP_BUTTON_TESTID:-$UI_IDP_BUTTON_TESTID}"
-          RESOLVED_USERNAME_LABEL="${KV_USERNAME_LABEL:-$UI_USERNAME_LABEL}"
-          RESOLVED_PASSWORD_LABEL="${KV_PASSWORD_LABEL:-$UI_PASSWORD_LABEL}"
-          RESOLVED_SUBMIT_BUTTON_NAME="${KV_SUBMIT_BUTTON_NAME:-$UI_SUBMIT_BUTTON_NAME}"
-          RESOLVED_CONSENT_BUTTON_NAME="${KV_CONSENT_BUTTON_NAME:-$UI_CONSENT_BUTTON_NAME}"
-          RESOLVED_GENERIC_FALLBACKS="${KV_GENERIC_FALLBACKS:-$UI_ENABLE_GENERIC_LOGIN_FALLBACKS}"
+          for TARGET in ${{ steps.resolve_targets.outputs.targets }}; do
+            echo "=== Running target: ${TARGET} ==="
 
-          [ -n "$RESOLVED_LOGIN_BUTTON_TESTID" ] && echo "UI_LOGIN_BUTTON_TESTID=$RESOLVED_LOGIN_BUTTON_TESTID" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_LOGIN_BUTTON_NAME" ] && echo "UI_LOGIN_BUTTON_NAME=$RESOLVED_LOGIN_BUTTON_NAME" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_SPID_BUTTON_TESTID" ] && echo "UI_SPID_BUTTON_TESTID=$RESOLVED_SPID_BUTTON_TESTID" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_IDP_BUTTON_TESTID" ] && echo "UI_IDP_BUTTON_TESTID=$RESOLVED_IDP_BUTTON_TESTID" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_USERNAME_LABEL" ] && echo "UI_USERNAME_LABEL=$RESOLVED_USERNAME_LABEL" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_PASSWORD_LABEL" ] && echo "UI_PASSWORD_LABEL=$RESOLVED_PASSWORD_LABEL" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_SUBMIT_BUTTON_NAME" ] && echo "UI_SUBMIT_BUTTON_NAME=$RESOLVED_SUBMIT_BUTTON_NAME" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_CONSENT_BUTTON_NAME" ] && echo "UI_CONSENT_BUTTON_NAME=$RESOLVED_CONSENT_BUTTON_NAME" >> "$GITHUB_ENV"
-          [ -n "$RESOLVED_GENERIC_FALLBACKS" ] && echo "UI_ENABLE_GENERIC_LOGIN_FALLBACKS=$RESOLVED_GENERIC_FALLBACKS" >> "$GITHUB_ENV"
+            KV_UI_BASE_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].base_url // empty' "$PARI_SECRET_PATH")
+            KV_UI_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_path // empty' "$PARI_SECRET_PATH")
+            KV_UI_POST_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_path // empty' "$PARI_SECRET_PATH")
+            KV_UI_POST_LOGIN_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_url // empty' "$PARI_SECRET_PATH")
+            KV_USER_USERNAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username // empty' "$PARI_SECRET_PATH")
+            KV_USER_PASSWORD=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password // empty' "$PARI_SECRET_PATH")
+            KV_LOGIN_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_testid // empty' "$PARI_SECRET_PATH")
+            KV_LOGIN_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_name // empty' "$PARI_SECRET_PATH")
+            KV_SPID_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].spid_button_testid // empty' "$PARI_SECRET_PATH")
+            KV_IDP_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].idp_button_testid // empty' "$PARI_SECRET_PATH")
+            KV_USERNAME_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username_label // empty' "$PARI_SECRET_PATH")
+            KV_PASSWORD_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password_label // empty' "$PARI_SECRET_PATH")
+            KV_SUBMIT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].submit_button_name // empty' "$PARI_SECRET_PATH")
+            KV_CONSENT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].consent_button_name // empty' "$PARI_SECRET_PATH")
+            KV_GENERIC_FALLBACKS=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].enable_generic_login_fallbacks // empty' "$PARI_SECRET_PATH")
 
-          if [ -z "$RESOLVED_UI_BASE_URL" ]; then
-            echo "::warning::UI_BASE_URL is empty after portal resolution. UI authenticated tests may be skipped."
-          fi
+            export UI_BASE_URL="${KV_UI_BASE_URL:-$UI_BASE_URL}"
+            export UI_LOGIN_PATH="${KV_UI_LOGIN_PATH:-$UI_LOGIN_PATH}"
+            export UI_POST_LOGIN_PATH="${KV_UI_POST_LOGIN_PATH:-$UI_POST_LOGIN_PATH}"
+            export UI_POST_LOGIN_URL="${KV_UI_POST_LOGIN_URL:-$UI_POST_LOGIN_URL}"
+            export USER_USERNAME="${KV_USER_USERNAME:-$USER_USERNAME}"
+            export USER_PASSWORD="${KV_USER_PASSWORD:-$USER_PASSWORD}"
+            export UI_LOGIN_BUTTON_TESTID="${KV_LOGIN_BUTTON_TESTID:-${UI_LOGIN_BUTTON_TESTID:-}}"
+            export UI_LOGIN_BUTTON_NAME="${KV_LOGIN_BUTTON_NAME:-${UI_LOGIN_BUTTON_NAME:-}}"
+            export UI_SPID_BUTTON_TESTID="${KV_SPID_BUTTON_TESTID:-${UI_SPID_BUTTON_TESTID:-}}"
+            export UI_IDP_BUTTON_TESTID="${KV_IDP_BUTTON_TESTID:-${UI_IDP_BUTTON_TESTID:-}}"
+            export UI_USERNAME_LABEL="${KV_USERNAME_LABEL:-${UI_USERNAME_LABEL:-}}"
+            export UI_PASSWORD_LABEL="${KV_PASSWORD_LABEL:-${UI_PASSWORD_LABEL:-}}"
+            export UI_SUBMIT_BUTTON_NAME="${KV_SUBMIT_BUTTON_NAME:-${UI_SUBMIT_BUTTON_NAME:-}}"
+            export UI_CONSENT_BUTTON_NAME="${KV_CONSENT_BUTTON_NAME:-${UI_CONSENT_BUTTON_NAME:-}}"
+            export UI_ENABLE_GENERIC_LOGIN_FALLBACKS="${KV_GENERIC_FALLBACKS:-${UI_ENABLE_GENERIC_LOGIN_FALLBACKS:-}}"
 
-          if [ -z "$RESOLVED_USER_USERNAME" ] || [ -z "$RESOLVED_USER_PASSWORD" ]; then
-            echo "::warning::Credentials are empty for target '$TARGET'. UI authenticated tests may be skipped."
-          fi
+            rm -rf ./playwright/.auth ./playwright-report ./test-results
 
-      - name: Run UI tests
-        run: npm run ui:test -- --project=chromium
+            if ! npm run ui:test -- --project=chromium; then
+              OVERALL_STATUS=1
+            fi
+
+            mkdir -p "./ui-reports/${TARGET}"
+            [ -d ./playwright-report ] && cp -r ./playwright-report "./ui-reports/${TARGET}/"
+            [ -d ./test-results ] && cp -r ./test-results "./ui-reports/${TARGET}/"
+          done
+
+          exit $OVERALL_STATUS
 
       - name: Upload UI results
         id: upload_ui_results
@@ -174,8 +167,7 @@ jobs:
         with:
           name: ui-test-results
           path: |
-            ./test-results
-            ./playwright-report
+            ./ui-reports
           if-no-files-found: ignore
 
   pr-ui-report-preview:
@@ -213,9 +205,9 @@ jobs:
               '### UI Report Preview',
               '',
               `- Run: ${runUrl}`,
-              `- Playwright report artifact: ${artifactUrl}`,
+              `- Consolidated UI report artifact: ${artifactUrl}`,
               '',
-              'Download the artifact and open `playwright-report/index.html` locally.'
+              'Download the artifact and open one of the target reports in `ui-reports/<target>/playwright-report/index.html`.'
             ].join('\n');
 
             await github.rest.issues.createComment({
@@ -245,7 +237,7 @@ jobs:
         id: check_report
         if: always()
         run: |
-          if [ -d "./ui-artifacts/playwright-report" ]; then
+          if [ -d "./ui-artifacts/ui-reports" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -253,14 +245,43 @@ jobs:
 
       - name: Redact sensitive information from Playwright report
         if: always() && steps.check_report.outputs.exists == 'true'
-        run: bash ./redact-passwords.sh ./ui-artifacts/playwright-report
+        run: |
+          find ./ui-artifacts/ui-reports -type d -name playwright-report -print0 | while IFS= read -r -d '' REPORT_DIR; do
+            bash ./redact-passwords.sh "$REPORT_DIR"
+          done
 
       - name: Generate Playwright report bundle
         if: always() && steps.check_report.outputs.exists == 'true'
         run: |
           mkdir -p ./public/reports/${{ github.run_id }}/
-          cp -r -- ./ui-artifacts/playwright-report/* ./public/reports/${{ github.run_id }}/
-          echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
+          TARGET_LIST=""
+          for TARGET_DIR in ./ui-artifacts/ui-reports/*; do
+            TARGET_NAME=$(basename "$TARGET_DIR")
+            if [ -d "$TARGET_DIR/playwright-report" ]; then
+              mkdir -p "./public/reports/${{ github.run_id }}/${TARGET_NAME}"
+              cp -r -- "$TARGET_DIR/playwright-report"/* "./public/reports/${{ github.run_id }}/${TARGET_NAME}/"
+              TARGET_LIST="${TARGET_LIST}<li><a href='./${TARGET_NAME}/'>${TARGET_NAME}</a></li>"
+            fi
+          done
+
+          cat << 'EOF' > ./public/reports/${{ github.run_id }}/index.html
+          <!DOCTYPE html>
+          <html lang="it">
+          <head>
+            <meta charset="UTF-8">
+            <title>UI Reports Run ${{ github.run_id }}</title>
+          </head>
+          <body>
+            <h1>UI Reports - Run ${{ github.run_id }}</h1>
+            <ul>
+              __TARGET_LIST__
+            </ul>
+          </body>
+          </html>
+          EOF
+
+          sed -i "s|__TARGET_LIST__|${TARGET_LIST}|g" ./public/reports/${{ github.run_id }}/index.html
+          echo "Playwright reports generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
 
       - name: Generate index page with report links
         if: always() && steps.check_report.outputs.exists == 'true'

@@ -93,10 +93,6 @@ jobs:
 
   run-ui:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        ui_target: ${{ fromJson(github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.ui_target) || '["welfare_enti","welfare_esercenti","rdb","pari_utente"]') }}
     permissions:
       id-token: write
       contents: write
@@ -104,5 +100,5 @@ jobs:
     uses: ./.github/workflows/test-run-ui.yaml
     with:
       target_env: ${{ github.event_name == 'pull_request' && 'dev' || (github.event_name == 'workflow_dispatch' && inputs.environment || 'uat') }}
-      ui_target: ${{ matrix.ui_target }}
+      ui_target: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_target || 'all' }}
     secrets: inherit
