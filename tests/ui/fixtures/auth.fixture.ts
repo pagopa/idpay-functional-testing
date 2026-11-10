@@ -22,6 +22,24 @@ async function clickIfVisible(page: Page, testId: string): Promise<void> {
   }
 }
 
+async function ensureActivePage(page: Page): Promise<Page> {
+  if (!page.isClosed()) {
+    return page;
+  }
+
+  const openPage = page
+    .context()
+    .pages()
+    .reverse()
+    .find((p) => !p.isClosed());
+
+  if (openPage) {
+    return openPage;
+  }
+
+  return page.context().waitForEvent('page', { timeout: 5000 });
+}
+
 async function clickRoleButtonIfVisible(page: Page, buttonName: string): Promise<void> {
   const locator = page.getByRole('button', { name: buttonName }).first();
   if (await locator.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -52,25 +70,26 @@ async function clickLinkByRegexIfVisible(page: Page, pattern: RegExp): Promise<v
 
 async function dumpAuthDiagnostics(page: Page, reason: string): Promise<void> {
   try {
+    const activePage = await ensureActivePage(page).catch(() => page);
     fs.mkdirSync(AUTH_DEBUG_DIR, { recursive: true });
     const stamp = new Date().toISOString().replace(/[.:]/g, '-');
     const baseName = `auth-${stamp}`;
 
-    const frameInfo = page
+    const frameInfo = activePage
       .frames()
       .map((frame, idx) => `${idx}: ${frame.url()}`)
       .join('\n');
 
     const metadata = [
       `reason: ${reason}`,
-      `page_url: ${page.url()}`,
+      `page_url: ${activePage.url()}`,
       'frames:',
       frameInfo
     ].join('\n');
 
     fs.writeFileSync(path.join(AUTH_DEBUG_DIR, `${baseName}.txt`), metadata, 'utf8');
-    fs.writeFileSync(path.join(AUTH_DEBUG_DIR, `${baseName}.html`), await page.content(), 'utf8');
-    await page.screenshot({ path: path.join(AUTH_DEBUG_DIR, `${baseName}.png`), fullPage: true });
+    fs.writeFileSync(path.join(AUTH_DEBUG_DIR, `${baseName}.html`), await activePage.content(), 'utf8');
+    await activePage.screenshot({ path: path.join(AUTH_DEBUG_DIR, `${baseName}.png`), fullPage: true });
   } catch {
     // Best-effort diagnostics, ignore failures to avoid masking root cause.
   }
@@ -95,33 +114,37 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
   return false;
 }
 
-async function alignToCredentialStep(page: Page): Promise<void> {
+async function alignToCredentialStep(page: Page): Promise<Page> {
+  let currentPage = page;
+
   for (let i = 0; i < 6; i++) {
-    if (page.isClosed()) {
-      throw new Error('Authentication page was closed while aligning to credential step.');
+    currentPage = await ensureActivePage(currentPage);
+
+    if (await isAnyCredentialFieldVisible(currentPage)) {
+      return currentPage;
     }
 
-    if (await isAnyCredentialFieldVisible(page)) {
-      return;
-    }
-
-    await clickRoleButtonIfVisible(page, 'Entra con SPID');
-    await clickRoleButtonIfVisible(page, 'SPID');
+    await clickRoleButtonIfVisible(currentPage, 'Entra con SPID');
+    await clickRoleButtonIfVisible(currentPage, 'SPID');
     if (uiConfig.enableGenericLoginFallbacks) {
-      await clickRoleByRegexIfVisible(page, /spid/i);
-      await clickTextIfVisible(page, 'Entra con SPID');
-      await clickTextIfVisible(page, 'SPID');
-      await clickTextIfVisible(page, 'OneID');
-      await clickLinkByRegexIfVisible(page, /spid/i);
+      await clickRoleByRegexIfVisible(currentPage, /spid/i);
+      await clickTextIfVisible(currentPage, 'Entra con SPID');
+      await clickTextIfVisible(currentPage, 'SPID');
+      await clickTextIfVisible(currentPage, 'OneID');
+      await clickLinkByRegexIfVisible(currentPage, /spid/i);
     }
 
-    const knownIdp = page.getByTestId(/idp-button-https:\/\/idp\.(dev|uat)\.oneid\.pagopa\.it/).first();
+    const knownIdp = currentPage
+      .getByTestId(/idp-button-https:\/\/idp\.(dev|uat)\.oneid\.pagopa\.it/)
+      .first();
     if (await knownIdp.isVisible({ timeout: 2000 }).catch(() => false)) {
       await knownIdp.click();
     }
 
-    await page.waitForTimeout(1000).catch(() => undefined);
+    await currentPage.waitForTimeout(1000).catch(() => undefined);
   }
+
+  return ensureActivePage(currentPage);
 }
 
 type FillContext = Page | Frame;
@@ -130,51 +153,51 @@ async function fillFirstAvailable(
   page: Page,
   candidates: Array<(ctx: FillContext) => Locator>,
   value: string
-): Promise<void> {
+): Promise<Page> {
+  let currentPage = page;
   const timeoutMs = 30000;
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
-    if (page.isClosed()) {
-      throw new Error('Authentication page was closed while waiting for credential fields.');
-    }
+    currentPage = await ensureActivePage(currentPage);
 
-    const contexts: FillContext[] = [page, ...page.frames()];
+    const contexts: FillContext[] = [currentPage, ...currentPage.frames()];
 
     for (const ctx of contexts) {
       for (const candidate of candidates) {
         const locator = candidate(ctx).first();
         if (await locator.isVisible({ timeout: 1000 }).catch(() => false)) {
           await locator.fill(value);
-          return;
+          return currentPage;
         }
       }
     }
 
-    await page.waitForTimeout(500);
+    await currentPage.waitForTimeout(500);
   }
 
-  await dumpAuthDiagnostics(page, 'credential fields not found');
+  await dumpAuthDiagnostics(currentPage, 'credential fields not found');
 
-  const frameUrls = page.frames().map((frame) => frame.url()).filter(Boolean);
+  const frameUrls = currentPage.frames().map((frame) => frame.url()).filter(Boolean);
   throw new Error(
-    `Unable to find a visible input field for credential filling. Current URL: ${page.url()} | Frames: ${frameUrls.join(' | ')}`
+    `Unable to find a visible input field for credential filling. Current URL: ${currentPage.url()} | Frames: ${frameUrls.join(' | ')}`
   );
 }
 
 async function performLogin(page: Page): Promise<void> {
-  await page.goto(`${uiConfig.baseUrl}${uiConfig.loginPath}`);
+  let currentPage = page;
+  await currentPage.goto(`${uiConfig.baseUrl}${uiConfig.loginPath}`);
 
   if (uiConfig.loginButtonName) {
-    await clickRoleButtonIfVisible(page, uiConfig.loginButtonName);
+    await clickRoleButtonIfVisible(currentPage, uiConfig.loginButtonName);
   }
-  await clickIfVisible(page, uiConfig.loginButtonTestId);
-  await clickIfVisible(page, uiConfig.spidButtonTestId);
-  await clickIfVisible(page, uiConfig.idpButtonTestId);
-  await alignToCredentialStep(page);
+  await clickIfVisible(currentPage, uiConfig.loginButtonTestId);
+  await clickIfVisible(currentPage, uiConfig.spidButtonTestId);
+  await clickIfVisible(currentPage, uiConfig.idpButtonTestId);
+  currentPage = await alignToCredentialStep(currentPage);
 
-  await fillFirstAvailable(
-    page,
+  currentPage = await fillFirstAvailable(
+    currentPage,
     [
       (ctx) => ctx.getByLabel(uiConfig.usernameLabel),
       (ctx) => ctx.locator('input[name="username"]'),
@@ -186,8 +209,8 @@ async function performLogin(page: Page): Promise<void> {
     uiConfig.username
   );
 
-  await fillFirstAvailable(
-    page,
+  currentPage = await fillFirstAvailable(
+    currentPage,
     [
       (ctx) => ctx.getByLabel(uiConfig.passwordLabel),
       (ctx) => ctx.locator('input[name="password"]'),
@@ -197,24 +220,27 @@ async function performLogin(page: Page): Promise<void> {
     ],
     uiConfig.password
   );
-  await page.getByRole('button', { name: uiConfig.submitButtonName }).click();
+  await currentPage.getByRole('button', { name: uiConfig.submitButtonName }).click();
 
-  await clickRoleButtonIfVisible(page, uiConfig.consentButtonName);
+  currentPage = await ensureActivePage(currentPage);
+  await clickRoleButtonIfVisible(currentPage, uiConfig.consentButtonName);
 
   const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
 
   // Some portals complete authentication on SelfCare first, then require a manual navigation back.
   await Promise.race([
-    page.waitForURL(baseUrlRegex, { timeout: 60000 }),
-    page.waitForURL(/selfcare\.pagopa\.it\/dashboard(\/party-selection)?/, { timeout: 60000 })
+    currentPage.waitForURL(baseUrlRegex, { timeout: 60000 }),
+    currentPage.waitForURL(/selfcare\.pagopa\.it\/dashboard(\/party-selection)?/, { timeout: 60000 })
   ]).catch(() => undefined);
 
-  if (!baseUrlRegex.test(page.url())) {
-    await page.goto(uiConfig.baseUrl, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(baseUrlRegex, { timeout: 60000 });
+  currentPage = await ensureActivePage(currentPage);
+
+  if (!baseUrlRegex.test(currentPage.url())) {
+    await currentPage.goto(uiConfig.baseUrl, { waitUntil: 'domcontentloaded' });
+    await currentPage.waitForURL(baseUrlRegex, { timeout: 60000 });
   }
 
-  await expect(page).toHaveURL(baseUrlRegex);
+  await expect(currentPage).toHaveURL(baseUrlRegex);
 }
 
 export const test = base.extend<AuthFixtures>({
