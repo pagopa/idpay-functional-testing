@@ -22,22 +22,33 @@ async function clickIfVisible(page: Page, testId: string): Promise<void> {
   }
 }
 
-async function ensureActivePage(page: Page): Promise<Page> {
+async function ensureActivePage(page: Page, fallbackUrl?: string): Promise<Page> {
   if (!page.isClosed()) {
     return page;
   }
 
-  const openPage = page
-    .context()
-    .pages()
-    .reverse()
-    .find((p) => !p.isClosed());
+  const context = page.context();
 
-  if (openPage) {
-    return openPage;
+  for (let i = 0; i < 10; i++) {
+    const openPage = context
+      .pages()
+      .reverse()
+      .find((p) => !p.isClosed());
+
+    if (openPage) {
+      return openPage;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
-  return page.context().waitForEvent('page', { timeout: 5000 });
+  if (fallbackUrl) {
+    const newPage = await context.newPage();
+    await newPage.goto(fallbackUrl, { waitUntil: 'domcontentloaded' });
+    return newPage;
+  }
+
+  throw new Error('Authentication page was closed and no active page is available in context.');
 }
 
 async function clickRoleButtonIfVisible(page: Page, buttonName: string): Promise<void> {
@@ -116,9 +127,10 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
 
 async function alignToCredentialStep(page: Page): Promise<Page> {
   let currentPage = page;
+  const loginUrl = `${uiConfig.baseUrl}${uiConfig.loginPath}`;
 
   for (let i = 0; i < 6; i++) {
-    currentPage = await ensureActivePage(currentPage);
+    currentPage = await ensureActivePage(currentPage, loginUrl);
 
     if (await isAnyCredentialFieldVisible(currentPage)) {
       return currentPage;
@@ -155,11 +167,12 @@ async function fillFirstAvailable(
   value: string
 ): Promise<Page> {
   let currentPage = page;
+  const loginUrl = `${uiConfig.baseUrl}${uiConfig.loginPath}`;
   const timeoutMs = 30000;
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
-    currentPage = await ensureActivePage(currentPage);
+    currentPage = await ensureActivePage(currentPage, loginUrl);
 
     const contexts: FillContext[] = [currentPage, ...currentPage.frames()];
 
@@ -186,7 +199,8 @@ async function fillFirstAvailable(
 
 async function performLogin(page: Page): Promise<void> {
   let currentPage = page;
-  await currentPage.goto(`${uiConfig.baseUrl}${uiConfig.loginPath}`);
+  const loginUrl = `${uiConfig.baseUrl}${uiConfig.loginPath}`;
+  await currentPage.goto(loginUrl);
 
   if (uiConfig.loginButtonName) {
     await clickRoleButtonIfVisible(currentPage, uiConfig.loginButtonName);
@@ -222,7 +236,7 @@ async function performLogin(page: Page): Promise<void> {
   );
   await currentPage.getByRole('button', { name: uiConfig.submitButtonName }).click();
 
-  currentPage = await ensureActivePage(currentPage);
+  currentPage = await ensureActivePage(currentPage, loginUrl);
   await clickRoleButtonIfVisible(currentPage, uiConfig.consentButtonName);
 
   const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
@@ -233,7 +247,7 @@ async function performLogin(page: Page): Promise<void> {
     currentPage.waitForURL(/selfcare\.pagopa\.it\/dashboard(\/party-selection)?/, { timeout: 60000 })
   ]).catch(() => undefined);
 
-  currentPage = await ensureActivePage(currentPage);
+  currentPage = await ensureActivePage(currentPage, loginUrl);
 
   if (!baseUrlRegex.test(currentPage.url())) {
     await currentPage.goto(uiConfig.baseUrl, { waitUntil: 'domcontentloaded' });
