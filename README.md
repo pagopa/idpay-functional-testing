@@ -176,13 +176,8 @@ Required variables for authenticated tests:
 - `USER_USERNAME`
 - `USER_PASSWORD`
 
-Optional target-specific overrides (used when `ui_target` is selected in CI):
-
-- `UI_BASE_URL_WELFARE_ENTI`, `UI_USERNAME_WELFARE_ENTI`, `UI_PASSWORD_WELFARE_ENTI`
-- `UI_BASE_URL_WELFARE_ESERCENTI`, `UI_USERNAME_WELFARE_ESERCENTI`, `UI_PASSWORD_WELFARE_ESERCENTI`
-- `UI_BASE_URL_RDB`, `UI_USERNAME_RDB`, `UI_PASSWORD_RDB`
-- `UI_BASE_URL_PARI_UTENTE`, `UI_USERNAME_PARI_UTENTE`, `UI_PASSWORD_PARI_UTENTE`
-- optional login path overrides per target: `UI_LOGIN_PATH_*`
+In CI, values for each UI target are read from the Key Vault secret JSON
+(`ui_targets.<target>`) using the selected `ui_target`.
 
 Optional UI selector overrides (when defaults do not match the target app):
 
@@ -223,5 +218,9 @@ The UI workflow uploads `test-results` and `playwright-report` as artifacts.
 On pull requests, the report is available as Action artifact (`ui-test-results`).
 The workflow also posts a PR comment with a direct preview artifact link.
 On `main`, the HTML report is published to GitHub Pages under `/reports/<run_id>/`.
-The workflow resolves credentials and base URL by `ui_target`, with fallback to
-generic `UI_BASE_URL`, `USER_USERNAME`, and `USER_PASSWORD`.
+The workflow resolves credentials and base URL by `ui_target`, reading target
+values from Key Vault and using generic `UI_BASE_URL`, `UI_LOGIN_PATH`,
+`USER_USERNAME`, and `USER_PASSWORD` only as fallback.
+Like BDD, the UI workflow retrieves `pari-feature-secrets` from Key Vault and
+can read target-specific values from `.[$PARI_TARGET_ENV].ui_targets.<target>`
+(`base_url`, `login_path`, `username`, `password`).

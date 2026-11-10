@@ -18,6 +18,7 @@ on:
 jobs:
   run-ui-tests:
     permissions:
+      id-token: write
       contents: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -28,24 +29,10 @@ jobs:
       UI_TARGET: ${{ inputs.ui_target }}
       UI_BASE_URL: ${{ vars.UI_BASE_URL }}
       UI_LOGIN_PATH: ${{ vars.UI_LOGIN_PATH }}
-      UI_BASE_URL_WELFARE_ENTI: ${{ vars.UI_BASE_URL_WELFARE_ENTI }}
-      UI_BASE_URL_WELFARE_ESERCENTI: ${{ vars.UI_BASE_URL_WELFARE_ESERCENTI }}
-      UI_BASE_URL_RDB: ${{ vars.UI_BASE_URL_RDB }}
-      UI_BASE_URL_PARI_UTENTE: ${{ vars.UI_BASE_URL_PARI_UTENTE }}
-      UI_LOGIN_PATH_WELFARE_ENTI: ${{ vars.UI_LOGIN_PATH_WELFARE_ENTI }}
-      UI_LOGIN_PATH_WELFARE_ESERCENTI: ${{ vars.UI_LOGIN_PATH_WELFARE_ESERCENTI }}
-      UI_LOGIN_PATH_RDB: ${{ vars.UI_LOGIN_PATH_RDB }}
-      UI_LOGIN_PATH_PARI_UTENTE: ${{ vars.UI_LOGIN_PATH_PARI_UTENTE }}
       USER_USERNAME: ${{ secrets.USER_USERNAME }}
       USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
-      UI_USERNAME_WELFARE_ENTI: ${{ secrets.UI_USERNAME_WELFARE_ENTI }}
-      UI_PASSWORD_WELFARE_ENTI: ${{ secrets.UI_PASSWORD_WELFARE_ENTI }}
-      UI_USERNAME_WELFARE_ESERCENTI: ${{ secrets.UI_USERNAME_WELFARE_ESERCENTI }}
-      UI_PASSWORD_WELFARE_ESERCENTI: ${{ secrets.UI_PASSWORD_WELFARE_ESERCENTI }}
-      UI_USERNAME_RDB: ${{ secrets.UI_USERNAME_RDB }}
-      UI_PASSWORD_RDB: ${{ secrets.UI_PASSWORD_RDB }}
-      UI_USERNAME_PARI_UTENTE: ${{ secrets.UI_USERNAME_PARI_UTENTE }}
-      UI_PASSWORD_PARI_UTENTE: ${{ secrets.UI_PASSWORD_PARI_UTENTE }}
+      KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
+      SECRET_NAME: ${{ secrets.SECRET_NAME }}
 
     steps:
       - name: Checkout repository
@@ -57,6 +44,41 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Azure Login
+        uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a #v2.1.1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Retrieve Key Vault secret as JSON file
+        run: |
+          echo "Fetching secret from Key Vault..."
+
+          mkdir -p "$GITHUB_WORKSPACE/secrets"
+
+          az keyvault secret show \
+            --name "$SECRET_NAME" \
+            --vault-name "$KEYVAULT_NAME" \
+            --query 'value' -o json | jq -r '.' > "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json"
+
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "::error::Failed to fetch secret from Key Vault"
+            exit 1
+          fi
+
+          if [ ! -s "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" ]; then
+            echo "::error::Secret file is empty"
+            exit 1
+          fi
+
+          if ! jq empty "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" 2>/dev/null; then
+            echo "::error::Invalid JSON format in secrets file"
+            exit 1
+          fi
+
+          echo "PARI_SECRET_PATH=$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
@@ -67,41 +89,28 @@ jobs:
         run: |
           TARGET=$(echo "$UI_TARGET" | tr '[:upper:]' '[:lower:]')
 
+          KV_UI_BASE_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].base_url // empty' "$PARI_SECRET_PATH")
+          KV_UI_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_path // empty' "$PARI_SECRET_PATH")
+          KV_USER_USERNAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username // empty' "$PARI_SECRET_PATH")
+          KV_USER_PASSWORD=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password // empty' "$PARI_SECRET_PATH")
+
           RESOLVED_UI_BASE_URL="$UI_BASE_URL"
           RESOLVED_UI_LOGIN_PATH="$UI_LOGIN_PATH"
           RESOLVED_USER_USERNAME="$USER_USERNAME"
           RESOLVED_USER_PASSWORD="$USER_PASSWORD"
 
           case "$TARGET" in
-            welfare_enti)
-              RESOLVED_UI_BASE_URL="${UI_BASE_URL_WELFARE_ENTI:-$RESOLVED_UI_BASE_URL}"
-              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_WELFARE_ENTI:-$RESOLVED_UI_LOGIN_PATH}"
-              RESOLVED_USER_USERNAME="${UI_USERNAME_WELFARE_ENTI:-$RESOLVED_USER_USERNAME}"
-              RESOLVED_USER_PASSWORD="${UI_PASSWORD_WELFARE_ENTI:-$RESOLVED_USER_PASSWORD}"
-              ;;
-            welfare_esercenti)
-              RESOLVED_UI_BASE_URL="${UI_BASE_URL_WELFARE_ESERCENTI:-$RESOLVED_UI_BASE_URL}"
-              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_WELFARE_ESERCENTI:-$RESOLVED_UI_LOGIN_PATH}"
-              RESOLVED_USER_USERNAME="${UI_USERNAME_WELFARE_ESERCENTI:-$RESOLVED_USER_USERNAME}"
-              RESOLVED_USER_PASSWORD="${UI_PASSWORD_WELFARE_ESERCENTI:-$RESOLVED_USER_PASSWORD}"
-              ;;
-            rdb)
-              RESOLVED_UI_BASE_URL="${UI_BASE_URL_RDB:-$RESOLVED_UI_BASE_URL}"
-              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_RDB:-$RESOLVED_UI_LOGIN_PATH}"
-              RESOLVED_USER_USERNAME="${UI_USERNAME_RDB:-$RESOLVED_USER_USERNAME}"
-              RESOLVED_USER_PASSWORD="${UI_PASSWORD_RDB:-$RESOLVED_USER_PASSWORD}"
-              ;;
-            pari_utente)
-              RESOLVED_UI_BASE_URL="${UI_BASE_URL_PARI_UTENTE:-$RESOLVED_UI_BASE_URL}"
-              RESOLVED_UI_LOGIN_PATH="${UI_LOGIN_PATH_PARI_UTENTE:-$RESOLVED_UI_LOGIN_PATH}"
-              RESOLVED_USER_USERNAME="${UI_USERNAME_PARI_UTENTE:-$RESOLVED_USER_USERNAME}"
-              RESOLVED_USER_PASSWORD="${UI_PASSWORD_PARI_UTENTE:-$RESOLVED_USER_PASSWORD}"
-              ;;
+            welfare_enti|welfare_esercenti|rdb|pari_utente) ;;
             *)
               echo "::error::Unsupported ui_target '$UI_TARGET'. Allowed values: welfare_enti, welfare_esercenti, rdb, pari_utente"
               exit 1
               ;;
           esac
+
+          RESOLVED_UI_BASE_URL="${KV_UI_BASE_URL:-$RESOLVED_UI_BASE_URL}"
+          RESOLVED_UI_LOGIN_PATH="${KV_UI_LOGIN_PATH:-$RESOLVED_UI_LOGIN_PATH}"
+          RESOLVED_USER_USERNAME="${KV_USER_USERNAME:-$RESOLVED_USER_USERNAME}"
+          RESOLVED_USER_PASSWORD="${KV_USER_PASSWORD:-$RESOLVED_USER_PASSWORD}"
 
           echo "UI_BASE_URL=$RESOLVED_UI_BASE_URL" >> "$GITHUB_ENV"
           echo "UI_LOGIN_PATH=$RESOLVED_UI_LOGIN_PATH" >> "$GITHUB_ENV"
@@ -110,6 +119,10 @@ jobs:
 
           if [ -z "$RESOLVED_UI_BASE_URL" ]; then
             echo "::warning::UI_BASE_URL is empty after portal resolution. UI authenticated tests may be skipped."
+          fi
+
+          if [ -z "$RESOLVED_USER_USERNAME" ] || [ -z "$RESOLVED_USER_PASSWORD" ]; then
+            echo "::warning::Credentials are empty for target '$TARGET'. UI authenticated tests may be skipped."
           fi
 
       - name: Run UI tests
