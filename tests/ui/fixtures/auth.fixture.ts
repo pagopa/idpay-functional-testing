@@ -97,24 +97,30 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
 
 async function alignToCredentialStep(page: Page): Promise<void> {
   for (let i = 0; i < 6; i++) {
+    if (page.isClosed()) {
+      throw new Error('Authentication page was closed while aligning to credential step.');
+    }
+
     if (await isAnyCredentialFieldVisible(page)) {
       return;
     }
 
     await clickRoleButtonIfVisible(page, 'Entra con SPID');
     await clickRoleButtonIfVisible(page, 'SPID');
-    await clickRoleByRegexIfVisible(page, /spid/i);
-    await clickTextIfVisible(page, 'Entra con SPID');
-    await clickTextIfVisible(page, 'SPID');
-    await clickTextIfVisible(page, 'OneID');
-    await clickLinkByRegexIfVisible(page, /spid/i);
+    if (uiConfig.enableGenericLoginFallbacks) {
+      await clickRoleByRegexIfVisible(page, /spid/i);
+      await clickTextIfVisible(page, 'Entra con SPID');
+      await clickTextIfVisible(page, 'SPID');
+      await clickTextIfVisible(page, 'OneID');
+      await clickLinkByRegexIfVisible(page, /spid/i);
+    }
 
     const knownIdp = page.getByTestId(/idp-button-https:\/\/idp\.(dev|uat)\.oneid\.pagopa\.it/).first();
     if (await knownIdp.isVisible({ timeout: 2000 }).catch(() => false)) {
       await knownIdp.click();
     }
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1000).catch(() => undefined);
   }
 }
 
@@ -129,6 +135,10 @@ async function fillFirstAvailable(
   const start = Date.now();
 
   while (Date.now() - start < timeoutMs) {
+    if (page.isClosed()) {
+      throw new Error('Authentication page was closed while waiting for credential fields.');
+    }
+
     const contexts: FillContext[] = [page, ...page.frames()];
 
     for (const ctx of contexts) {
@@ -155,6 +165,9 @@ async function fillFirstAvailable(
 async function performLogin(page: Page): Promise<void> {
   await page.goto(`${uiConfig.baseUrl}${uiConfig.loginPath}`);
 
+  if (uiConfig.loginButtonName) {
+    await clickRoleButtonIfVisible(page, uiConfig.loginButtonName);
+  }
   await clickIfVisible(page, uiConfig.loginButtonTestId);
   await clickIfVisible(page, uiConfig.spidButtonTestId);
   await clickIfVisible(page, uiConfig.idpButtonTestId);
@@ -205,27 +218,30 @@ async function performLogin(page: Page): Promise<void> {
 }
 
 export const test = base.extend<AuthFixtures>({
-  authenticatedPage: async ({ browser }, use) => {
-    if (!hasAuthPrerequisites()) {
-      throw new Error(`Missing auth configuration: ${missingAuthEnv().join(', ')}`);
-    }
+  authenticatedPage: [
+    async ({ browser }, use) => {
+      if (!hasAuthPrerequisites()) {
+        throw new Error(`Missing auth configuration: ${missingAuthEnv().join(', ')}`);
+      }
 
-    fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
+      fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
 
-    if (!fs.existsSync(AUTH_FILE)) {
-      const setupContext = await browser.newContext();
-      const setupPage = await setupContext.newPage();
-      await performLogin(setupPage);
-      await setupContext.storageState({ path: AUTH_FILE });
-      await setupContext.close();
-    }
+      if (!fs.existsSync(AUTH_FILE)) {
+        const setupContext = await browser.newContext();
+        const setupPage = await setupContext.newPage();
+        await performLogin(setupPage);
+        await setupContext.storageState({ path: AUTH_FILE });
+        await setupContext.close();
+      }
 
-    const authContext = await browser.newContext({ storageState: AUTH_FILE });
-    const authPage = await authContext.newPage();
+      const authContext = await browser.newContext({ storageState: AUTH_FILE });
+      const authPage = await authContext.newPage();
 
-    await use(authPage);
-    await authContext.close();
-  }
+      await use(authPage);
+      await authContext.close();
+    },
+    { timeout: 120000 }
+  ]
 });
 
 

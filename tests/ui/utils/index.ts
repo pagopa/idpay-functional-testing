@@ -5,13 +5,15 @@ export const uiConfig = {
   username: process.env.USER_USERNAME ?? '',
   password: process.env.USER_PASSWORD ?? '',
   loginButtonTestId: process.env.UI_LOGIN_BUTTON_TESTID ?? 'logInButton',
+  loginButtonName: process.env.UI_LOGIN_BUTTON_NAME ?? '',
   spidButtonTestId: process.env.UI_SPID_BUTTON_TESTID ?? 'spidButton',
   idpButtonTestId:
     process.env.UI_IDP_BUTTON_TESTID ?? 'idp-button-https://idp.uat.oneid.pagopa.it',
   usernameLabel: process.env.UI_USERNAME_LABEL ?? 'Username',
   passwordLabel: process.env.UI_PASSWORD_LABEL ?? 'Password',
   submitButtonName: process.env.UI_SUBMIT_BUTTON_NAME ?? 'Accedi',
-  consentButtonName: process.env.UI_CONSENT_BUTTON_NAME ?? 'Do il consenso'
+  consentButtonName: process.env.UI_CONSENT_BUTTON_NAME ?? 'Do il consenso',
+  enableGenericLoginFallbacks: (process.env.UI_ENABLE_GENERIC_LOGIN_FALLBACKS ?? 'true') === 'true'
 };
 
 export function hasBaseUiConfig(): boolean {
