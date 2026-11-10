@@ -5,6 +5,7 @@ import path = require('path');
 import { hasAuthPrerequisites, missingAuthEnv, uiConfig } from '../utils';
 
 const AUTH_FILE = path.join('playwright', '.auth', 'user.json');
+const AUTH_DEBUG_DIR = path.join('test-results', 'auth-debug');
 
 type AuthFixtures = {
   authenticatedPage: Page;
@@ -46,6 +47,32 @@ async function clickLinkByRegexIfVisible(page: Page, pattern: RegExp): Promise<v
   const locator = page.getByRole('link', { name: pattern }).first();
   if (await locator.isVisible({ timeout: 2000 }).catch(() => false)) {
     await locator.click();
+  }
+}
+
+async function dumpAuthDiagnostics(page: Page, reason: string): Promise<void> {
+  try {
+    fs.mkdirSync(AUTH_DEBUG_DIR, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[.:]/g, '-');
+    const baseName = `auth-${stamp}`;
+
+    const frameInfo = page
+      .frames()
+      .map((frame, idx) => `${idx}: ${frame.url()}`)
+      .join('\n');
+
+    const metadata = [
+      `reason: ${reason}`,
+      `page_url: ${page.url()}`,
+      'frames:',
+      frameInfo
+    ].join('\n');
+
+    fs.writeFileSync(path.join(AUTH_DEBUG_DIR, `${baseName}.txt`), metadata, 'utf8');
+    fs.writeFileSync(path.join(AUTH_DEBUG_DIR, `${baseName}.html`), await page.content(), 'utf8');
+    await page.screenshot({ path: path.join(AUTH_DEBUG_DIR, `${baseName}.png`), fullPage: true });
+  } catch {
+    // Best-effort diagnostics, ignore failures to avoid masking root cause.
   }
 }
 
@@ -116,6 +143,8 @@ async function fillFirstAvailable(
 
     await page.waitForTimeout(500);
   }
+
+  await dumpAuthDiagnostics(page, 'credential fields not found');
 
   const frameUrls = page.frames().map((frame) => frame.url()).filter(Boolean);
   throw new Error(
