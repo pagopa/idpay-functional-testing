@@ -126,7 +126,7 @@ jobs:
           fi
 
       - name: Run UI tests
-        run: npm run ui:test
+        run: npm run ui:test -- --project=chromium
 
       - name: Upload UI results
         id: upload_ui_results

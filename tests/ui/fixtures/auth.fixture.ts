@@ -35,6 +35,20 @@ async function clickTextIfVisible(page: Page, text: string): Promise<void> {
   }
 }
 
+async function clickRoleByRegexIfVisible(page: Page, pattern: RegExp): Promise<void> {
+  const locator = page.getByRole('button', { name: pattern }).first();
+  if (await locator.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await locator.click();
+  }
+}
+
+async function clickLinkByRegexIfVisible(page: Page, pattern: RegExp): Promise<void> {
+  const locator = page.getByRole('link', { name: pattern }).first();
+  if (await locator.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await locator.click();
+  }
+}
+
 async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
   const candidates = [
     page.locator('input[name="username"]').first(),
@@ -55,18 +69,25 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
 }
 
 async function alignToCredentialStep(page: Page): Promise<void> {
-  if (await isAnyCredentialFieldVisible(page)) {
-    return;
-  }
+  for (let i = 0; i < 6; i++) {
+    if (await isAnyCredentialFieldVisible(page)) {
+      return;
+    }
 
-  await clickRoleButtonIfVisible(page, 'Entra con SPID');
-  await clickRoleButtonIfVisible(page, 'SPID');
-  await clickTextIfVisible(page, 'Entra con SPID');
-  await clickTextIfVisible(page, 'SPID');
+    await clickRoleButtonIfVisible(page, 'Entra con SPID');
+    await clickRoleButtonIfVisible(page, 'SPID');
+    await clickRoleByRegexIfVisible(page, /spid/i);
+    await clickTextIfVisible(page, 'Entra con SPID');
+    await clickTextIfVisible(page, 'SPID');
+    await clickTextIfVisible(page, 'OneID');
+    await clickLinkByRegexIfVisible(page, /spid/i);
 
-  const knownIdp = page.getByTestId(/idp-button-https:\/\/idp\.(dev|uat)\.oneid\.pagopa\.it/).first();
-  if (await knownIdp.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await knownIdp.click();
+    const knownIdp = page.getByTestId(/idp-button-https:\/\/idp\.(dev|uat)\.oneid\.pagopa\.it/).first();
+    if (await knownIdp.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await knownIdp.click();
+    }
+
+    await page.waitForTimeout(1000);
   }
 }
 
@@ -77,16 +98,23 @@ async function fillFirstAvailable(
   candidates: Array<(ctx: FillContext) => Locator>,
   value: string
 ): Promise<void> {
-  const contexts: FillContext[] = [page, ...page.frames()];
+  const timeoutMs = 30000;
+  const start = Date.now();
 
-  for (const ctx of contexts) {
-    for (const candidate of candidates) {
-      const locator = candidate(ctx).first();
-      if (await locator.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await locator.fill(value);
-        return;
+  while (Date.now() - start < timeoutMs) {
+    const contexts: FillContext[] = [page, ...page.frames()];
+
+    for (const ctx of contexts) {
+      for (const candidate of candidates) {
+        const locator = candidate(ctx).first();
+        if (await locator.isVisible({ timeout: 1000 }).catch(() => false)) {
+          await locator.fill(value);
+          return;
+        }
       }
     }
+
+    await page.waitForTimeout(500);
   }
 
   const frameUrls = page.frames().map((frame) => frame.url()).filter(Boolean);
@@ -108,6 +136,8 @@ async function performLogin(page: Page): Promise<void> {
     [
       (ctx) => ctx.getByLabel(uiConfig.usernameLabel),
       (ctx) => ctx.locator('input[name="username"]'),
+      (ctx) => ctx.locator('#username'),
+      (ctx) => ctx.locator('input[autocomplete="username"]'),
       (ctx) => ctx.locator('input[type="email"]'),
       (ctx) => ctx.locator('input[type="text"]')
     ],
@@ -119,6 +149,8 @@ async function performLogin(page: Page): Promise<void> {
     [
       (ctx) => ctx.getByLabel(uiConfig.passwordLabel),
       (ctx) => ctx.locator('input[name="password"]'),
+      (ctx) => ctx.locator('#password'),
+      (ctx) => ctx.locator('input[autocomplete="current-password"]'),
       (ctx) => ctx.locator('input[type="password"]')
     ],
     uiConfig.password
