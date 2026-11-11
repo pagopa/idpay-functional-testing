@@ -263,7 +263,11 @@ jobs:
           git worktree add -f ./existing-reports gh-pages || true
 
           if [ -d "./existing-reports/reports" ]; then
-            cp -r -- ./existing-reports/reports/* ./public/reports/ || true
+            for REPORT_DIR in ./existing-reports/reports/*; do
+              if [ "$(basename "$REPORT_DIR")" != "${{ github.run_id }}" ]; then
+                cp -r -- "$REPORT_DIR" ./public/reports/ || true
+              fi
+            done
           fi
 
           cd ./public/reports
