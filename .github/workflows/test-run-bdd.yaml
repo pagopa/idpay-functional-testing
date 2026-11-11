@@ -180,7 +180,7 @@ jobs:
                 text:
                   type: "mrkdwn"
                   text: |-
-                    "*${{ github.event.repository.name }} — functional tests failed*
+                    *${{ github.event.repository.name }} — functional tests failed*
                     • *Initiative:* `${{ matrix.initiative }}`
                     • *Environment:* `${{ inputs.target_env }}`
                     • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open run #${{ github.run_number }}>"
