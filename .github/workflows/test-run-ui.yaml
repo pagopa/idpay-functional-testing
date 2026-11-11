@@ -296,7 +296,7 @@ jobs:
           sed -i "s|__REPORT_LIST__|${REPORT_LIST}|g" ./public/index.html
 
       - name: Upload Playwright report to GitHub Pages
-        if: always() && steps.check_report.outputs.exists == 'true'
+        if: success() && steps.check_report.outputs.exists == 'true'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
         with:
           publish_dir: ./public
