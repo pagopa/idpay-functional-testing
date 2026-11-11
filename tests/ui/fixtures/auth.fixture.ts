@@ -1,5 +1,6 @@
 import { test as base, expect, Frame, Locator, Page } from '@playwright/test';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import path = require('path');
 
 import { hasAuthPrerequisites, missingAuthEnv, uiConfig } from '../utils';
@@ -31,8 +32,24 @@ function buildAbsolutePathUrl(baseUrl: string, relativePath: string): string {
   return `${trimmedBase}${normalizedPath}`;
 }
 
+function toFileSafeSegment(value: string, fallback: string): string {
+  const normalized = value.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return normalized || fallback;
+}
+
 function resolveAuthFile(browserName: string, workerIndex: number): string {
-  return path.join(AUTH_DIR, `user-${browserName}-w${workerIndex}.json`);
+  const targetSegment = toFileSafeSegment(process.env.UI_TARGET ?? 'default-target', 'default-target');
+  const userSegment = toFileSafeSegment(uiConfig.username ?? 'default-user', 'default-user');
+  const scopeMaterial = [
+    process.env.PARI_TARGET_ENV ?? '',
+    process.env.UI_TARGET ?? '',
+    uiConfig.baseUrl,
+    uiConfig.username,
+    uiConfig.postLoginUrl ?? '',
+    uiConfig.postLoginPath ?? ''
+  ].join('|');
+  const scopeHash = crypto.createHash('sha256').update(scopeMaterial).digest('hex').slice(0, 12);
+  return path.join(AUTH_DIR, `user-${browserName}-w${workerIndex}-${targetSegment}-${userSegment}-${scopeHash}.json`);
 }
 
 function resolveRequiredPortalRegex(): RegExp {
@@ -312,15 +329,17 @@ function buildExpectedFinalRegex(): RegExp {
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
     ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
     : null;
-  const expectedPortalRegex = uiConfig.postLoginPath
+  const expectedPostLoginPathRegex = uiConfig.postLoginPath
     ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`)
-    : resolveRequiredPortalRegex();
+    : null;
 
   return expectedPostLoginUrlRegex
     ? expectedPostLoginUrlRegex
-    : mustLandOnPortal
-      ? expectedPortalRegex
-      : selfcareDashboardRegex;
+    : expectedPostLoginPathRegex
+      ? expectedPostLoginPathRegex
+      : mustLandOnPortal
+        ? resolveRequiredPortalRegex()
+        : selfcareDashboardRegex;
 }
 
 function isPostLoginDestinationUrl(url: string): boolean {
@@ -434,14 +453,15 @@ async function performLogin(page: Page): Promise<void> {
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
     ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
     : null;
-  const expectedPortalRegex = uiConfig.postLoginPath
+  const expectedPostLoginPathRegex = uiConfig.postLoginPath
     ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`)
-    : resolveRequiredPortalRegex();
+    : null;
+  const expectedPortalRegex = expectedPostLoginPathRegex ?? (mustLandOnPortal ? resolveRequiredPortalRegex() : null);
   const expectedFinalRegex = expectedPostLoginUrlRegex
     ? expectedPostLoginUrlRegex
-    : mustLandOnPortal
-      ? expectedPortalRegex
-      : selfcareDashboardRegex;
+    : expectedPostLoginPathRegex
+      ? expectedPostLoginPathRegex
+      : expectedPortalRegex ?? selfcareDashboardRegex;
 
   const alreadyOnFinalDestination = expectedFinalRegex.test(currentPage.url());
   const credentialFieldsVisible = await isAnyCredentialFieldVisible(currentPage);
@@ -502,14 +522,17 @@ async function performLogin(page: Page): Promise<void> {
     if (expectedPostLoginUrlRegex && uiConfig.postLoginUrl) {
       await currentPage.goto(uiConfig.postLoginUrl, { waitUntil: 'domcontentloaded' });
       await currentPage.waitForURL(expectedPostLoginUrlRegex, { timeout: remainingMs(deadlineMs, 5000) });
+    } else if (expectedPostLoginPathRegex && uiConfig.postLoginPath) {
+      const fallbackPostLoginPathUrl = buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath);
+      await currentPage.goto(fallbackPostLoginPathUrl, { waitUntil: 'domcontentloaded' });
+      await currentPage.waitForURL(expectedPostLoginPathRegex, { timeout: remainingMs(deadlineMs, 5000) });
     } else if (mustLandOnPortal) {
-      const fallbackPortalUrl = uiConfig.postLoginPath
-        ? buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath)
-        : (() => {
-            throw new Error(
-              `Missing authenticated destination for portal base URL '${uiConfig.baseUrl}'. Set post_login_path or post_login_url for this target in secrets.`
-            );
-          })();
+      if (!uiConfig.postLoginPath || !expectedPortalRegex) {
+        throw new Error(
+          `Missing authenticated destination for portal base URL '${uiConfig.baseUrl}'. Set post_login_path or post_login_url for this target in secrets.`
+        );
+      }
+      const fallbackPortalUrl = buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath);
       await currentPage.goto(fallbackPortalUrl, { waitUntil: 'domcontentloaded' });
       await currentPage.waitForURL(expectedPortalRegex, { timeout: remainingMs(deadlineMs, 5000) });
     }
