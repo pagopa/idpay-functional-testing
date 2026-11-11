@@ -91,7 +91,7 @@ jobs:
     secrets: inherit
 
   run-ui:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all' }}
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && (github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all') }}
     permissions:
       actions: read
       id-token: write
