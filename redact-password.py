@@ -100,9 +100,9 @@ def process_html(html_path):
                 continue
 
             redacted, changed = redact_text(text)
+            if has_sensitive_leftovers(redacted):
+                validation_failed.append(item.filename)
             if changed:
-                if has_sensitive_leftovers(redacted):
-                    validation_failed.append(item.filename)
                 zout.writestr(item, redacted.encode('utf-8'))
                 file_changed = True
                 print(f"  [REDACTED] {item.filename}")
