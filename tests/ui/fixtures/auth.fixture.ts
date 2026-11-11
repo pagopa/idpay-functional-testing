@@ -295,7 +295,7 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
 
 function buildExpectedFinalRegex(): RegExp {
   const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
-  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/;
+  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/|[?#].*)?$/;
   const mustLandOnPortal = /pari\.pagopa\.it/.test(uiConfig.baseUrl);
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
     ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
@@ -312,7 +312,7 @@ function buildExpectedFinalRegex(): RegExp {
 }
 
 function isPostLoginDestinationUrl(url: string): boolean {
-  return buildExpectedFinalRegex().test(url) || /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/.test(url);
+  return buildExpectedFinalRegex().test(url) || /selfcare\.pagopa\.it\/dashboard(?:\/|[?#].*)?$/.test(url);
 }
 
 async function alignToCredentialStep(page: Page, loginUrl: string, deadlineMs: number): Promise<Page> {
@@ -417,7 +417,7 @@ async function performLogin(page: Page): Promise<void> {
   currentPage = await alignToCredentialStep(currentPage, loginUrl, deadlineMs);
 
   const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
-  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/;
+  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/|[?#].*)?$/;
   const mustLandOnPortal = /pari\.pagopa\.it/.test(uiConfig.baseUrl);
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
     ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
