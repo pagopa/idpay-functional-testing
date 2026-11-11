@@ -271,22 +271,48 @@ async function dumpAuthDiagnostics(page: Page, reason: string): Promise<void> {
 }
 
 async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
-  const candidates = [
-    page.locator('input[name="username"]').first(),
-    page.locator('input[name="password"]').first(),
-    page.locator('input[type="email"]').first(),
-    page.locator('input[type="password"]').first(),
-    page.getByLabel(uiConfig.usernameLabel).first(),
-    page.getByLabel(uiConfig.passwordLabel).first()
-  ];
+  const contexts: Array<Page | Frame> = [page, ...page.frames()];
 
-  for (const locator of candidates) {
-    if (await locator.isVisible({ timeout: 1000 }).catch(() => false)) {
-      return true;
+  for (const ctx of contexts) {
+    const candidates = [
+      ctx.locator('input[name="username"]').first(),
+      ctx.locator('input[name="password"]').first(),
+      ctx.locator('input[type="email"]').first(),
+      ctx.locator('input[type="password"]').first(),
+      ctx.getByLabel(uiConfig.usernameLabel).first(),
+      ctx.getByLabel(uiConfig.passwordLabel).first()
+    ];
+
+    for (const locator of candidates) {
+      if (await locator.isVisible({ timeout: 1000 }).catch(() => false)) {
+        return true;
+      }
     }
   }
 
   return false;
+}
+
+function buildExpectedFinalRegex(): RegExp {
+  const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
+  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/;
+  const mustLandOnPortal = /pari\.pagopa\.it/.test(uiConfig.baseUrl);
+  const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
+    ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
+    : null;
+  const expectedPortalRegex = uiConfig.postLoginPath
+    ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`)
+    : baseUrlRegex;
+
+  return expectedPostLoginUrlRegex
+    ? expectedPostLoginUrlRegex
+    : mustLandOnPortal
+      ? expectedPortalRegex
+      : selfcareDashboardRegex;
+}
+
+function isPostLoginDestinationUrl(url: string): boolean {
+  return buildExpectedFinalRegex().test(url) || /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/.test(url);
 }
 
 async function alignToCredentialStep(page: Page, loginUrl: string, deadlineMs: number): Promise<Page> {
@@ -294,6 +320,11 @@ async function alignToCredentialStep(page: Page, loginUrl: string, deadlineMs: n
 
   while (Date.now() < deadlineMs) {
     currentPage = await ensureActivePage(currentPage, loginUrl);
+
+    // Some targets can restore an already-authenticated session and land directly on dashboard.
+    if (isPostLoginDestinationUrl(currentPage.url())) {
+      return currentPage;
+    }
 
     if (await isAnyCredentialFieldVisible(currentPage)) {
       return currentPage;
@@ -385,48 +416,8 @@ async function performLogin(page: Page): Promise<void> {
   }, 10000);
   currentPage = await alignToCredentialStep(currentPage, loginUrl, deadlineMs);
 
-  currentPage = await fillFirstAvailable(
-    currentPage,
-    [
-      (ctx) => ctx.getByLabel(uiConfig.usernameLabel),
-      (ctx) => ctx.locator('input[name="username"]'),
-      (ctx) => ctx.locator('#username'),
-      (ctx) => ctx.locator('input[autocomplete="username"]'),
-      (ctx) => ctx.locator('input[type="email"]'),
-      (ctx) => ctx.locator('input[type="text"]')
-    ],
-    uiConfig.username,
-    loginUrl,
-    deadlineMs
-  );
-
-  currentPage = await fillFirstAvailable(
-    currentPage,
-    [
-      (ctx) => ctx.getByLabel(uiConfig.passwordLabel),
-      (ctx) => ctx.locator('input[name="password"]'),
-      (ctx) => ctx.locator('#password'),
-      (ctx) => ctx.locator('input[autocomplete="current-password"]'),
-      (ctx) => ctx.locator('input[type="password"]')
-    ],
-    uiConfig.password,
-    loginUrl,
-    deadlineMs
-  );
-  await currentPage.getByRole('button', { name: uiConfig.submitButtonName }).click();
-
-  currentPage = await ensureActivePage(currentPage, loginUrl);
-  // Consent often triggers redirects that never reach "load"; avoid auto-wait deadlocks.
-  currentPage = await clickRoleButtonUntilVisible(currentPage, uiConfig.consentButtonName, loginUrl, deadlineMs, {
-    noWaitAfter: true
-  });
-  await clickRoleButtonIfVisible(currentPage, uiConfig.consentButtonName, {
-    noWaitAfter: true,
-    force: true
-  });
-
   const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
-  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(\/party-selection)?/;
+  const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/?(?:[?#].*)?)?$/;
   const mustLandOnPortal = /pari\.pagopa\.it/.test(uiConfig.baseUrl);
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
     ? new RegExp(`^${escapeRegex(uiConfig.postLoginUrl)}`)
@@ -439,6 +430,52 @@ async function performLogin(page: Page): Promise<void> {
     : mustLandOnPortal
       ? expectedPortalRegex
       : selfcareDashboardRegex;
+
+  const alreadyOnFinalDestination = expectedFinalRegex.test(currentPage.url());
+  const credentialFieldsVisible = await isAnyCredentialFieldVisible(currentPage);
+
+  if (!alreadyOnFinalDestination || credentialFieldsVisible) {
+    currentPage = await fillFirstAvailable(
+      currentPage,
+      [
+        (ctx) => ctx.getByLabel(uiConfig.usernameLabel),
+        (ctx) => ctx.locator('input[name="username"]'),
+        (ctx) => ctx.locator('#username'),
+        (ctx) => ctx.locator('input[autocomplete="username"]'),
+        (ctx) => ctx.locator('input[type="email"]'),
+        (ctx) => ctx.locator('input[type="text"]')
+      ],
+      uiConfig.username,
+      loginUrl,
+      deadlineMs
+    );
+
+    currentPage = await fillFirstAvailable(
+      currentPage,
+      [
+        (ctx) => ctx.getByLabel(uiConfig.passwordLabel),
+        (ctx) => ctx.locator('input[name="password"]'),
+        (ctx) => ctx.locator('#password'),
+        (ctx) => ctx.locator('input[autocomplete="current-password"]'),
+        (ctx) => ctx.locator('input[type="password"]')
+      ],
+      uiConfig.password,
+      loginUrl,
+      deadlineMs
+    );
+    await currentPage.getByRole('button', { name: uiConfig.submitButtonName }).click();
+
+    currentPage = await ensureActivePage(currentPage, loginUrl);
+    // Consent often triggers redirects that never reach "load"; avoid auto-wait deadlocks.
+    currentPage = await clickRoleButtonUntilVisible(currentPage, uiConfig.consentButtonName, loginUrl, deadlineMs, {
+      noWaitAfter: true
+    });
+    await clickRoleButtonIfVisible(currentPage, uiConfig.consentButtonName, {
+      noWaitAfter: true,
+      force: true
+    });
+  }
+
   const postAuthTimeout = remainingMs(deadlineMs, 5000);
 
   // Some portals complete authentication on SelfCare dashboard, while others redirect back to portal.
