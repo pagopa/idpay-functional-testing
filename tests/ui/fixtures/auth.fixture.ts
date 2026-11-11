@@ -4,7 +4,7 @@ import path = require('path');
 
 import { hasAuthPrerequisites, missingAuthEnv, uiConfig } from '../utils';
 
-const AUTH_FILE = path.join('playwright', '.auth', 'user.json');
+const AUTH_DIR = path.join('playwright', '.auth');
 const AUTH_DEBUG_DIR = path.join('test-results', 'auth-debug');
 const AUTH_SETUP_TIMEOUT_MS = 180000;
 const LOGIN_BUDGET_MS = 150000;
@@ -29,6 +29,19 @@ function buildAbsolutePathUrl(baseUrl: string, relativePath: string): string {
   const trimmedBase = baseUrl.replace(/\/+$/, '');
   const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
   return `${trimmedBase}${normalizedPath}`;
+}
+
+function resolveAuthFile(browserName: string, workerIndex: number): string {
+  return path.join(AUTH_DIR, `user-${browserName}-w${workerIndex}.json`);
+}
+
+function resolveRequiredPortalRegex(): RegExp {
+  if (!uiConfig.postLoginPath) {
+    throw new Error(
+      `Missing authenticated destination for portal base URL '${uiConfig.baseUrl}'. Set post_login_path or post_login_url for this target in secrets.`
+    );
+  }
+  return new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`);
 }
 
 function isPageClosedLikeError(error: unknown): boolean {
@@ -294,7 +307,6 @@ async function isAnyCredentialFieldVisible(page: Page): Promise<boolean> {
 }
 
 function buildExpectedFinalRegex(): RegExp {
-  const baseUrlRegex = new RegExp(`^${escapeRegex(uiConfig.baseUrl)}`);
   const selfcareDashboardRegex = /selfcare\.pagopa\.it\/dashboard(?:\/|[?#].*)?$/;
   const mustLandOnPortal = /pari\.pagopa\.it/.test(uiConfig.baseUrl);
   const expectedPostLoginUrlRegex = uiConfig.postLoginUrl
@@ -302,7 +314,7 @@ function buildExpectedFinalRegex(): RegExp {
     : null;
   const expectedPortalRegex = uiConfig.postLoginPath
     ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`)
-    : baseUrlRegex;
+    : resolveRequiredPortalRegex();
 
   return expectedPostLoginUrlRegex
     ? expectedPostLoginUrlRegex
@@ -424,7 +436,7 @@ async function performLogin(page: Page): Promise<void> {
     : null;
   const expectedPortalRegex = uiConfig.postLoginPath
     ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath))}`)
-    : baseUrlRegex;
+    : resolveRequiredPortalRegex();
   const expectedFinalRegex = expectedPostLoginUrlRegex
     ? expectedPostLoginUrlRegex
     : mustLandOnPortal
@@ -493,7 +505,11 @@ async function performLogin(page: Page): Promise<void> {
     } else if (mustLandOnPortal) {
       const fallbackPortalUrl = uiConfig.postLoginPath
         ? buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath)
-        : uiConfig.baseUrl;
+        : (() => {
+            throw new Error(
+              `Missing authenticated destination for portal base URL '${uiConfig.baseUrl}'. Set post_login_path or post_login_url for this target in secrets.`
+            );
+          })();
       await currentPage.goto(fallbackPortalUrl, { waitUntil: 'domcontentloaded' });
       await currentPage.waitForURL(expectedPortalRegex, { timeout: remainingMs(deadlineMs, 5000) });
     }
@@ -504,22 +520,24 @@ async function performLogin(page: Page): Promise<void> {
 
 export const test = base.extend<AuthFixtures>({
   authenticatedPage: [
-    async ({ browser }, use) => {
+    async ({ browser, browserName }, use, testInfo) => {
       if (!hasAuthPrerequisites()) {
         throw new Error(`Missing auth configuration: ${missingAuthEnv().join(', ')}`);
       }
 
-      fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
+      const authFile = resolveAuthFile(browserName, testInfo.workerIndex);
 
-      if (!fs.existsSync(AUTH_FILE)) {
+      fs.mkdirSync(path.dirname(authFile), { recursive: true });
+
+      if (!fs.existsSync(authFile)) {
         const setupContext = await browser.newContext();
         const setupPage = await setupContext.newPage();
         await performLogin(setupPage);
-        await setupContext.storageState({ path: AUTH_FILE });
+        await setupContext.storageState({ path: authFile });
         await setupContext.close();
       }
 
-      const authContext = await browser.newContext({ storageState: AUTH_FILE });
+      const authContext = await browser.newContext({ storageState: authFile });
       const authPage = await authContext.newPage();
 
       await use(authPage);
