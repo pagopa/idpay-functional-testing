@@ -123,6 +123,7 @@ jobs:
           exit $OVERALL_STATUS
 
       - name: Redact sensitive information from UI reports before upload
+        id: sanitize_ui_reports
         if: always()
         run: |
           if [ -d ./ui-reports ]; then
@@ -133,7 +134,7 @@ jobs:
 
       - name: Upload UI results
         id: upload_ui_results
-        if: always()
+        if: ${{ always() && steps.sanitize_ui_reports.outcome == 'success' }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ui-test-results
