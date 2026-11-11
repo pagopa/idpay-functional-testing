@@ -18,25 +18,36 @@ PATTERN = re.compile(
 )
 
 # Covers common Playwright traces independently from the locator API used.
-PASSWORD_FILL_RE = re.compile(
-    r'(?P<prefix>Fill\s+(?P<quote>"|\\"))(?P<value>.*?)(?P=quote)(?=[^\n]{0,240}(?:password|current-password|type=.?password))',
+FILL_PLAIN_RE = re.compile(
+    r'(?P<prefix>\bFill\s+")(?P<value>(?:\\.|[^"\\])*)(?P<suffix>")',
     re.IGNORECASE,
 )
-PASSWORD_FIELD_VALUE_RE = re.compile(
-    r'((?:"|\\")(?:password|pass|pwd)(?:"|\\")\s*:\s*)("|\\")(.*?)("|\\")',
+FILL_ESCAPED_RE = re.compile(
+    r'(?P<prefix>\bFill\s+\\")(?P<value>.*?)(?P<suffix>\\")',
     re.IGNORECASE,
 )
-INPUT_VALUE_PASSWORD_RE = re.compile(
-    r'((?:"|\\")value(?:"|\\")\s*:\s*)("|\\")(.*?)("|\\")(?=[^\n]{0,240}(?:password|current-password|type=.?password))',
+CREDENTIAL_FIELD_VALUE_RE = re.compile(
+    r'(?P<prefix>(?:"|\\")(?:password|pass|pwd|pin|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)(?:"|\\")\s*:\s*(?P<quote>"|\\"))(?P<value>.*?)(?P=quote)',
+    re.IGNORECASE,
+)
+FILL_ACTION_VALUE_RE = re.compile(
+    r'(?P<prefix>(?:"|\\")value(?:"|\\")\s*:\s*(?P<quote>"|\\"))(?P<value>.*?)(?P=quote)(?=[^\n]{0,320}(?:fill|insertText|pressSequentially))',
     re.IGNORECASE,
 )
 
-SENSITIVE_FILL_LEFTOVER_RE = re.compile(
-    r'Fill\s+(?P<quote>"|\\")(?P<value>.*?)(?P=quote)(?=[^\n]{0,240}(?:password|current-password|type=.?password))',
-    re.IGNORECASE,
-)
-SENSITIVE_LEFTOVERS = [
-    re.compile(r'(?:"|\\")(?:password|pass|pwd)(?:"|\\")\s*:\s*(?:"|\\")(?!\*\*\*)', re.IGNORECASE),
+SENSITIVE_FILL_LEFTOVER_RES = [
+    re.compile(r'\bFill\s+"(?P<value>(?:\\.|[^"\\])*)"', re.IGNORECASE),
+    re.compile(r'\bFill\s+\\"(?P<value>.*?)\\"', re.IGNORECASE),
+]
+SENSITIVE_VALUE_LEFTOVER_RES = [
+    re.compile(
+        r'(?:"|\\")value(?:"|\\")\s*:\s*(?:"|\\")(?P<value>.*?)(?:"|\\")(?=[^\n]{0,320}(?:fill|insertText|pressSequentially))',
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r'(?:"|\\")(?:password|pass|pwd|pin|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)(?:"|\\")\s*:\s*(?:"|\\")(?P<value>.*?)(?:"|\\")',
+        re.IGNORECASE,
+    ),
 ]
 
 REDACT_TO = '***'
@@ -45,35 +56,37 @@ REDACT_TO = '***'
 def redact_text(text):
     changed = False
 
-    text, count = PASSWORD_FILL_RE.subn(
-        lambda m: f"{m.group('prefix')}{REDACT_TO}{m.group('quote')}",
-        text,
-    )
-    if count:
-        changed = True
+    for regex in (FILL_PLAIN_RE, FILL_ESCAPED_RE):
+        text, count = regex.subn(
+            lambda m: f"{m.group('prefix')}{REDACT_TO}{m.group('suffix')}",
+            text,
+        )
+        if count:
+            changed = True
 
-    text, count = PASSWORD_FIELD_VALUE_RE.subn(
-        lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
-        text,
-    )
-    if count:
-        changed = True
-
-    text, count = INPUT_VALUE_PASSWORD_RE.subn(
-        lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
-        text,
-    )
-    if count:
-        changed = True
+    for regex in (CREDENTIAL_FIELD_VALUE_RE, FILL_ACTION_VALUE_RE):
+        text, count = regex.subn(
+            lambda m: f"{m.group('prefix')}{REDACT_TO}{m.group('quote')}",
+            text,
+        )
+        if count:
+            changed = True
 
     return text, changed
 
 
 def has_sensitive_leftovers(text):
-    for match in SENSITIVE_FILL_LEFTOVER_RE.finditer(text):
-        if match.group('value') != REDACT_TO:
-            return True
-    return any(regex.search(text) for regex in SENSITIVE_LEFTOVERS)
+    for regex in SENSITIVE_FILL_LEFTOVER_RES:
+        for match in regex.finditer(text):
+            if match.group('value') != REDACT_TO:
+                return True
+
+    for regex in SENSITIVE_VALUE_LEFTOVER_RES:
+        for match in regex.finditer(text):
+            if match.group('value') != REDACT_TO:
+                return True
+
+    return False
 
 
 def process_html(html_path):
