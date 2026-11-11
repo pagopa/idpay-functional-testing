@@ -21,6 +21,10 @@ function remainingMs(deadlineMs: number, minMs = 1000): number {
   return Math.max(minMs, deadlineMs - Date.now());
 }
 
+function resolveStepDeadline(globalDeadlineMs: number, maxStepWaitMs: number): number {
+  return Math.min(globalDeadlineMs, Date.now() + maxStepWaitMs);
+}
+
 function buildAbsolutePathUrl(baseUrl: string, relativePath: string): string {
   const trimmedBase = baseUrl.replace(/\/+$/, '');
   const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
@@ -143,14 +147,17 @@ async function clickTestIdUntilVisible(
   testId: string,
   loginUrl: string,
   deadlineMs: number,
-  options?: { noWaitAfter?: boolean }
+  options?: { noWaitAfter?: boolean },
+  maxStepWaitMs = 12000
 ): Promise<Page> {
   let currentPage = page;
   if (!testId) {
     return currentPage;
   }
 
-  while (Date.now() < deadlineMs) {
+  const stepDeadlineMs = resolveStepDeadline(deadlineMs, maxStepWaitMs);
+
+  while (Date.now() < stepDeadlineMs) {
     currentPage = await ensureActivePage(currentPage, loginUrl);
     const locator = currentPage.getByTestId(testId).first();
     if (await locator.isVisible({ timeout: 500 }).catch(() => false)) {
@@ -168,14 +175,17 @@ async function clickRoleButtonUntilVisible(
   buttonName: string,
   loginUrl: string,
   deadlineMs: number,
-  options?: { noWaitAfter?: boolean; force?: boolean }
+  options?: { noWaitAfter?: boolean; force?: boolean },
+  maxStepWaitMs = 12000
 ): Promise<Page> {
   let currentPage = page;
   if (!buttonName) {
     return currentPage;
   }
 
-  while (Date.now() < deadlineMs) {
+  const stepDeadlineMs = resolveStepDeadline(deadlineMs, maxStepWaitMs);
+
+  while (Date.now() < stepDeadlineMs) {
     currentPage = await ensureActivePage(currentPage, loginUrl);
     if (await clickRoleButtonIfVisible(currentPage, buttonName, options)) {
       return currentPage;
@@ -191,14 +201,17 @@ async function clickNamedControlUntilVisible(
   controlName: string,
   loginUrl: string,
   deadlineMs: number,
-  options?: { noWaitAfter?: boolean; force?: boolean }
+  options?: { noWaitAfter?: boolean; force?: boolean },
+  maxStepWaitMs = 12000
 ): Promise<Page> {
   let currentPage = page;
   if (!controlName) {
     return currentPage;
   }
 
-  while (Date.now() < deadlineMs) {
+  const stepDeadlineMs = resolveStepDeadline(deadlineMs, maxStepWaitMs);
+
+  while (Date.now() < stepDeadlineMs) {
     currentPage = await ensureActivePage(currentPage, loginUrl);
     if (await clickNamedControlIfVisible(currentPage, controlName, options)) {
       return currentPage;
@@ -359,17 +372,17 @@ async function performLogin(page: Page): Promise<void> {
   if (uiConfig.loginButtonName) {
     currentPage = await clickNamedControlUntilVisible(currentPage, uiConfig.loginButtonName, loginUrl, deadlineMs, {
       noWaitAfter: true
-    });
+    }, 8000);
   }
   currentPage = await clickTestIdUntilVisible(currentPage, uiConfig.loginButtonTestId, loginUrl, deadlineMs, {
     noWaitAfter: true
-  });
+  }, 8000);
   currentPage = await clickTestIdUntilVisible(currentPage, uiConfig.spidButtonTestId, loginUrl, deadlineMs, {
     noWaitAfter: true
-  });
+  }, 10000);
   currentPage = await clickTestIdUntilVisible(currentPage, uiConfig.idpButtonTestId, loginUrl, deadlineMs, {
     noWaitAfter: true
-  });
+  }, 10000);
   currentPage = await alignToCredentialStep(currentPage, loginUrl, deadlineMs);
 
   currentPage = await fillFirstAvailable(

@@ -108,20 +108,28 @@ jobs:
 
           for TARGET in ${{ steps.resolve_targets.outputs.targets }}; do
             echo "=== Running target: ${TARGET} ==="
-            export UI_TARGET="$TARGET"
 
             rm -rf ./playwright/.auth ./playwright-report ./test-results
 
-            if ! npm run ui:test -- --project=chromium; then
+            # Run each target in an isolated process-level env to avoid value leaks.
+            if ! UI_TARGET="$TARGET" npm run ui:test -- --project=chromium; then
               OVERALL_STATUS=1
             fi
 
             mkdir -p "./ui-reports/${TARGET}"
             [ -d ./playwright-report ] && cp -r ./playwright-report "./ui-reports/${TARGET}/"
-            [ -d ./test-results ] && cp -r ./test-results "./ui-reports/${TARGET}/"
           done
 
           exit $OVERALL_STATUS
+
+      - name: Redact sensitive information from UI reports before upload
+        if: always()
+        run: |
+          if [ -d ./ui-reports ]; then
+            find ./ui-reports -type d -name playwright-report -print0 | while IFS= read -r -d '' REPORT_DIR; do
+              bash ./redact-passwords.sh "$REPORT_DIR"
+            done
+          fi
 
       - name: Upload UI results
         id: upload_ui_results
@@ -138,6 +146,7 @@ jobs:
     if: ${{ always() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
       pull-requests: write
     steps:
@@ -194,7 +203,7 @@ jobs:
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
         with:
           name: ui-test-results
-          path: ./ui-artifacts
+          path: ./ui-artifacts/ui-reports
 
       - name: Check if Playwright report exists
         id: check_report

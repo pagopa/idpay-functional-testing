@@ -93,6 +93,7 @@ jobs:
   run-ui:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all' }}
     permissions:
+      actions: read
       id-token: write
       contents: write
       pull-requests: write

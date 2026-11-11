@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-Redacts passwords from Playwright report base64 zips embedded in index.html files.
-Matches the pattern:  Fill "<value>" getByLabel('Password')
-and replaces <value> with *** — no hardcoded password needed.
-Usage: python3 redact-passwords.py [directory]   (defaults to current directory)
+Redacts sensitive credentials from Playwright report base64 zips embedded in index.html files.
+The sanitizer is locator-agnostic and validates output to avoid publishing clear-text passwords.
+Usage: python3 redact-password.py [directory]   (defaults to current directory)
 """
 
 import sys
@@ -17,10 +16,52 @@ PATTERN = re.compile(
     r'(<template id="playwrightReportBase64">data:application/zip;base64,)([^<]+)(</template>)',
     re.DOTALL
 )
-# Matches: Fill "<anything>" getByLabel('Password')
-# The password value is captured in group 1 so we never need to know it.
-PASSWORD_RE = re.compile(r"""(Fill \\")(.*?)(\\" getByLabel\('Password'\))""")
-REDACT_TO   = '***'
+
+# Covers common Playwright traces independently from the locator API used.
+PASSWORD_FILL_RE = re.compile(
+    r'(Fill \\")(.*?)(\\")(?=[^\n]{0,240}(?:password|current-password|type=.?password|Password))',
+    re.IGNORECASE,
+)
+PASSWORD_FIELD_VALUE_RE = re.compile(
+    r'((?:"|\\")(?:password|pass|pwd)(?:"|\\")\s*:\s*)("|\\")(.*?)("|\\")',
+    re.IGNORECASE,
+)
+INPUT_VALUE_PASSWORD_RE = re.compile(
+    r'((?:"|\\")value(?:"|\\")\s*:\s*)("|\\")(.*?)("|\\")(?=[^\n]{0,240}(?:password|current-password|type=.?password))',
+    re.IGNORECASE,
+)
+
+SENSITIVE_LEFTOVERS = [
+    re.compile(r'Fill \\\".*?\\\"(?=[^\n]{0,240}(?:password|current-password|type=.?password|Password))', re.IGNORECASE),
+    re.compile(r'(?:"|\\")(?:password|pass|pwd)(?:"|\\")\s*:\s*(?:"|\\")(?!\*\*\*)', re.IGNORECASE),
+]
+
+REDACT_TO = '***'
+
+
+def redact_text(text):
+    changed = False
+
+    text, count = PASSWORD_FILL_RE.subn(lambda m: m.group(1) + REDACT_TO + m.group(3), text)
+    changed = changed or count > 0
+
+    text, count = PASSWORD_FIELD_VALUE_RE.subn(
+        lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
+        text,
+    )
+    changed = changed or count > 0
+
+    text, count = INPUT_VALUE_PASSWORD_RE.subn(
+        lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
+        text,
+    )
+    changed = changed or count > 0
+
+    return text, changed
+
+
+def has_sensitive_leftovers(text):
+    return any(regex.search(text) for regex in SENSITIVE_LEFTOVERS)
 
 
 def process_html(html_path):
@@ -39,6 +80,7 @@ def process_html(html_path):
 
     # 2. Re-pack zip with passwords redacted
     file_changed = False
+    validation_failed = []
     buf = io.BytesIO()
 
     with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zin, \
@@ -54,16 +96,19 @@ def process_html(html_path):
                 zout.writestr(item, data)
                 continue
 
-            redacted, n = PASSWORD_RE.subn(
-                lambda m: m.group(1) + REDACT_TO + m.group(3),
-                text
-            )
-            if n > 0:
+            redacted, changed = redact_text(text)
+            if changed:
+                if has_sensitive_leftovers(redacted):
+                    validation_failed.append(item.filename)
                 zout.writestr(item, redacted.encode('utf-8'))
                 file_changed = True
                 print(f"  [REDACTED] {item.filename}")
             else:
                 zout.writestr(item, data)
+
+    if validation_failed:
+        print(f"[ERROR]  {html_path}  -- redaction validation failed for: {', '.join(validation_failed)}")
+        raise RuntimeError('Sensitive credential values still present after redaction')
 
     if not file_changed:
         print(f"[SKIP]  {html_path}  -- password pattern not found in zip contents")
@@ -98,8 +143,21 @@ def main():
         print(f"No index.html files found in '{search_dir}'.")
         sys.exit(0)
 
-    modified = sum(1 for p in html_files if process_html(p))
+    modified = 0
+    failed = 0
+
+    for p in html_files:
+        try:
+            if process_html(p):
+                modified += 1
+        except Exception as exc:  # noqa: BLE001 - fail whole sanitization at the end.
+            failed += 1
+            print(f"[FAIL]  {p}  -- {exc}")
+
     print(f"\nFinished. {modified} file(s) updated.")
+    if failed:
+        print(f"Sanitization failed for {failed} file(s).")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
