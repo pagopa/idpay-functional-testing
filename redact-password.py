@@ -19,7 +19,7 @@ PATTERN = re.compile(
 
 # Covers common Playwright traces independently from the locator API used.
 PASSWORD_FILL_RE = re.compile(
-    r'(Fill \\")(.*?)(\\")(?=[^\n]{0,240}(?:password|current-password|type=.?password|Password))',
+    r'(Fill \")(.*?)(\")(?=[^\n]{0,240}(?:password|current-password|type=.?password))',
     re.IGNORECASE,
 )
 PASSWORD_FIELD_VALUE_RE = re.compile(
@@ -32,7 +32,7 @@ INPUT_VALUE_PASSWORD_RE = re.compile(
 )
 
 SENSITIVE_LEFTOVERS = [
-    re.compile(r'Fill \\\".*?\\\"(?=[^\n]{0,240}(?:password|current-password|type=.?password|Password))', re.IGNORECASE),
+    re.compile(r'Fill \\\".*?\\\"(?=[^\n]{0,240}(?:password|current-password|type=.?password))', re.IGNORECASE),
     re.compile(r'(?:"|\\")(?:password|pass|pwd)(?:"|\\")\s*:\s*(?:"|\\")(?!\*\*\*)', re.IGNORECASE),
 ]
 
@@ -43,19 +43,22 @@ def redact_text(text):
     changed = False
 
     text, count = PASSWORD_FILL_RE.subn(lambda m: m.group(1) + REDACT_TO + m.group(3), text)
-    changed = changed or count > 0
+    if count:
+        changed = True
 
     text, count = PASSWORD_FIELD_VALUE_RE.subn(
         lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
         text,
     )
-    changed = changed or count > 0
+    if count:
+        changed = True
 
     text, count = INPUT_VALUE_PASSWORD_RE.subn(
         lambda m: m.group(1) + m.group(2) + REDACT_TO + m.group(4),
         text,
     )
-    changed = changed or count > 0
+    if count:
+        changed = True
 
     return text, changed
 
