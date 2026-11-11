@@ -100,6 +100,44 @@ async function clickRoleButtonIfVisible(
   return false;
 }
 
+function buildExactNameRegex(name: string): RegExp {
+  const normalized = name.trim().replace(/\s+/g, ' ');
+  const escaped = escapeRegex(normalized).replace(/\s+/g, '\\s+');
+  return new RegExp(`^${escaped}$`, 'i');
+}
+
+async function clickNamedControlIfVisible(
+  page: Page,
+  controlName: string,
+  options?: { noWaitAfter?: boolean; force?: boolean }
+): Promise<boolean> {
+  if (!controlName) {
+    return false;
+  }
+
+  const nameRegex = buildExactNameRegex(controlName);
+  const candidates = [
+    page.getByRole('button', { name: nameRegex }).first(),
+    page.getByRole('link', { name: nameRegex }).first(),
+    page.getByText(nameRegex).first()
+  ];
+
+  for (const locator of candidates) {
+    if (await locator.isVisible({ timeout: 1200 }).catch(() => false)) {
+      try {
+        await locator.click({ noWaitAfter: options?.noWaitAfter, force: options?.force });
+      } catch (error) {
+        if (!isPageClosedLikeError(error)) {
+          throw error;
+        }
+      }
+      return true;
+    }
+  }
+
+  return false;
+}
+
 async function clickTestIdUntilVisible(
   page: Page,
   testId: string,
@@ -140,6 +178,29 @@ async function clickRoleButtonUntilVisible(
   while (Date.now() < deadlineMs) {
     currentPage = await ensureActivePage(currentPage, loginUrl);
     if (await clickRoleButtonIfVisible(currentPage, buttonName, options)) {
+      return currentPage;
+    }
+    await currentPage.waitForTimeout(300).catch(() => undefined);
+  }
+
+  return currentPage;
+}
+
+async function clickNamedControlUntilVisible(
+  page: Page,
+  controlName: string,
+  loginUrl: string,
+  deadlineMs: number,
+  options?: { noWaitAfter?: boolean; force?: boolean }
+): Promise<Page> {
+  let currentPage = page;
+  if (!controlName) {
+    return currentPage;
+  }
+
+  while (Date.now() < deadlineMs) {
+    currentPage = await ensureActivePage(currentPage, loginUrl);
+    if (await clickNamedControlIfVisible(currentPage, controlName, options)) {
       return currentPage;
     }
     await currentPage.waitForTimeout(300).catch(() => undefined);
@@ -296,7 +357,7 @@ async function performLogin(page: Page): Promise<void> {
   await currentPage.goto(loginUrl);
 
   if (uiConfig.loginButtonName) {
-    currentPage = await clickRoleButtonUntilVisible(currentPage, uiConfig.loginButtonName, loginUrl, deadlineMs, {
+    currentPage = await clickNamedControlUntilVisible(currentPage, uiConfig.loginButtonName, loginUrl, deadlineMs, {
       noWaitAfter: true
     });
   }

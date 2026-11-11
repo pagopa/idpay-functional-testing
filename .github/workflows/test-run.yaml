@@ -50,7 +50,6 @@ on:
         default: uat
         type: choice
         options:
-          - dev
           - uat
 
       test_type:
@@ -99,6 +98,6 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/test-run-ui.yaml
     with:
-      target_env: ${{ github.event_name == 'pull_request' && 'dev' || (github.event_name == 'workflow_dispatch' && inputs.environment || 'uat') }}
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       ui_target: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_target || 'all' }}
     secrets: inherit

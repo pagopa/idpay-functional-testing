@@ -9,7 +9,7 @@ on:
       target_env:
         type: string
         required: true
-        description: 'Target environment for UI tests (dev or uat)'
+        description: 'Target environment for UI tests (uat)'
       ui_target:
         type: string
         required: true
@@ -27,12 +27,6 @@ jobs:
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
       UI_TARGET: ${{ inputs.ui_target }}
-      UI_BASE_URL: ${{ vars.UI_BASE_URL }}
-      UI_LOGIN_PATH: ${{ vars.UI_LOGIN_PATH }}
-      UI_POST_LOGIN_PATH: ${{ vars.UI_POST_LOGIN_PATH }}
-      UI_POST_LOGIN_URL: ${{ vars.UI_POST_LOGIN_URL }}
-      USER_USERNAME: ${{ secrets.USER_USERNAME }}
-      USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
       SECRET_NAME: ${{ secrets.SECRET_NAME }}
 
@@ -114,38 +108,7 @@ jobs:
 
           for TARGET in ${{ steps.resolve_targets.outputs.targets }}; do
             echo "=== Running target: ${TARGET} ==="
-
-            KV_UI_BASE_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].base_url // empty' "$PARI_SECRET_PATH")
-            KV_UI_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_path // empty' "$PARI_SECRET_PATH")
-            KV_UI_POST_LOGIN_PATH=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_path // empty' "$PARI_SECRET_PATH")
-            KV_UI_POST_LOGIN_URL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].post_login_url // empty' "$PARI_SECRET_PATH")
-            KV_USER_USERNAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username // empty' "$PARI_SECRET_PATH")
-            KV_USER_PASSWORD=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password // empty' "$PARI_SECRET_PATH")
-            KV_LOGIN_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_testid // empty' "$PARI_SECRET_PATH")
-            KV_LOGIN_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].login_button_name // empty' "$PARI_SECRET_PATH")
-            KV_SPID_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].spid_button_testid // empty' "$PARI_SECRET_PATH")
-            KV_IDP_BUTTON_TESTID=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].idp_button_testid // empty' "$PARI_SECRET_PATH")
-            KV_USERNAME_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].username_label // empty' "$PARI_SECRET_PATH")
-            KV_PASSWORD_LABEL=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].password_label // empty' "$PARI_SECRET_PATH")
-            KV_SUBMIT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].submit_button_name // empty' "$PARI_SECRET_PATH")
-            KV_CONSENT_BUTTON_NAME=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].consent_button_name // empty' "$PARI_SECRET_PATH")
-            KV_GENERIC_FALLBACKS=$(jq -r --arg env "$PARI_TARGET_ENV" --arg target "$TARGET" '.[$env].ui_targets[$target].enable_generic_login_fallbacks // empty' "$PARI_SECRET_PATH")
-
-            export UI_BASE_URL="${KV_UI_BASE_URL:-$UI_BASE_URL}"
-            export UI_LOGIN_PATH="${KV_UI_LOGIN_PATH:-$UI_LOGIN_PATH}"
-            export UI_POST_LOGIN_PATH="${KV_UI_POST_LOGIN_PATH:-$UI_POST_LOGIN_PATH}"
-            export UI_POST_LOGIN_URL="${KV_UI_POST_LOGIN_URL:-$UI_POST_LOGIN_URL}"
-            export USER_USERNAME="${KV_USER_USERNAME:-$USER_USERNAME}"
-            export USER_PASSWORD="${KV_USER_PASSWORD:-$USER_PASSWORD}"
-            export UI_LOGIN_BUTTON_TESTID="${KV_LOGIN_BUTTON_TESTID:-${UI_LOGIN_BUTTON_TESTID:-}}"
-            export UI_LOGIN_BUTTON_NAME="${KV_LOGIN_BUTTON_NAME:-${UI_LOGIN_BUTTON_NAME:-}}"
-            export UI_SPID_BUTTON_TESTID="${KV_SPID_BUTTON_TESTID:-${UI_SPID_BUTTON_TESTID:-}}"
-            export UI_IDP_BUTTON_TESTID="${KV_IDP_BUTTON_TESTID:-${UI_IDP_BUTTON_TESTID:-}}"
-            export UI_USERNAME_LABEL="${KV_USERNAME_LABEL:-${UI_USERNAME_LABEL:-}}"
-            export UI_PASSWORD_LABEL="${KV_PASSWORD_LABEL:-${UI_PASSWORD_LABEL:-}}"
-            export UI_SUBMIT_BUTTON_NAME="${KV_SUBMIT_BUTTON_NAME:-${UI_SUBMIT_BUTTON_NAME:-}}"
-            export UI_CONSENT_BUTTON_NAME="${KV_CONSENT_BUTTON_NAME:-${UI_CONSENT_BUTTON_NAME:-}}"
-            export UI_ENABLE_GENERIC_LOGIN_FALLBACKS="${KV_GENERIC_FALLBACKS:-${UI_ENABLE_GENERIC_LOGIN_FALLBACKS:-}}"
+            export UI_TARGET="$TARGET"
 
             rm -rf ./playwright/.auth ./playwright-report ./test-results
 
