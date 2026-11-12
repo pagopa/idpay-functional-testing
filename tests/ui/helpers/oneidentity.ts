@@ -37,8 +37,22 @@ function resolveStepDeadline(globalDeadlineMs: number, maxStepWaitMs: number): n
 }
 
 function buildAbsolutePathUrl(baseUrl: string, relativePath: string): string {
+  if (/^https?:\/\//i.test(relativePath)) {
+    return relativePath;
+  }
+
   const trimmedBase = baseUrl.replace(/\/+$/, '');
   const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+
+  if (relativePath.startsWith('/')) {
+    const parsedBase = new URL(baseUrl);
+    const basePath = parsedBase.pathname.replace(/\/+$/, '');
+
+    if (normalizedPath === basePath || normalizedPath.startsWith(`${basePath}/`)) {
+      return `${parsedBase.origin}${normalizedPath}`;
+    }
+  }
+
   return `${trimmedBase}${normalizedPath}`;
 }
 
