@@ -16,17 +16,45 @@ on:
         description: 'UI target to test (all, welfare_enti, welfare_esercenti, rdb, pari_utente)'
 
 jobs:
+  resolve-ui-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.resolve.outputs.matrix }}
+    steps:
+      - name: Resolve UI targets matrix
+        id: resolve
+        run: |
+          TARGET=$(echo "${{ inputs.ui_target }}" | tr '[:upper:]' '[:lower:]')
+          case "$TARGET" in
+            all)
+              MATRIX='["welfare_enti","welfare_esercenti","rdb","pari_utente"]'
+              ;;
+            welfare_enti|welfare_esercenti|rdb|pari_utente)
+              MATRIX="[\"$TARGET\"]"
+              ;;
+            *)
+              echo "::error::Unsupported ui_target '${{ inputs.ui_target }}'. Allowed values: all, welfare_enti, welfare_esercenti, rdb, pari_utente"
+              exit 1
+              ;;
+          esac
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
   run-ui-tests:
+    needs: resolve-ui-targets
     permissions:
       id-token: write
       contents: read
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_env }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.resolve-ui-targets.outputs.matrix) }}
 
     env:
       PARI_TARGET_ENV: ${{ inputs.target_env }}
-      UI_TARGET: ${{ inputs.ui_target }}
+      UI_TARGET: ${{ matrix.target }}
       KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
       SECRET_NAME: ${{ secrets.SECRET_NAME }}
 
@@ -81,46 +109,16 @@ jobs:
       - name: Install Playwright browser
         run: ./node_modules/.bin/playwright install --with-deps chromium
 
-      - name: Resolve UI targets
-        id: resolve_targets
+      - name: Run UI tests for target
         run: |
-          TARGET=$(echo "$UI_TARGET" | tr '[:upper:]' '[:lower:]')
-          case "$TARGET" in
-            all)
-              TARGETS="welfare_enti welfare_esercenti rdb pari_utente"
-              ;;
-            welfare_enti|welfare_esercenti|rdb|pari_utente)
-              TARGETS="$TARGET"
-              ;;
-            *)
-              echo "::error::Unsupported ui_target '$UI_TARGET'. Allowed values: all, welfare_enti, welfare_esercenti, rdb, pari_utente"
-              exit 1
-              ;;
-          esac
-          echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
+          rm -rf ./playwright/.auth ./playwright-report ./test-results
+          npm run ui:test -- --project=chromium
 
-      - name: Run UI tests for selected targets
+      - name: Collect target report
+        if: always()
         run: |
-          set -euo pipefail
-
-          mkdir -p ./ui-reports
-          OVERALL_STATUS=0
-
-          for TARGET in ${{ steps.resolve_targets.outputs.targets }}; do
-            echo "=== Running target: ${TARGET} ==="
-
-            rm -rf ./playwright/.auth ./playwright-report ./test-results
-
-            # Run each target in an isolated process-level env to avoid value leaks.
-            if ! UI_TARGET="$TARGET" npm run ui:test -- --project=chromium; then
-              OVERALL_STATUS=1
-            fi
-
-            mkdir -p "./ui-reports/${TARGET}"
-            [ -d ./playwright-report ] && cp -r ./playwright-report "./ui-reports/${TARGET}/"
-          done
-
-          exit $OVERALL_STATUS
+          mkdir -p "./ui-reports/${{ matrix.target }}"
+          [ -d ./playwright-report ] && cp -r ./playwright-report "./ui-reports/${{ matrix.target }}/"
 
       - name: Redact sensitive information from UI reports before upload
         id: sanitize_ui_reports
@@ -137,13 +135,32 @@ jobs:
         if: ${{ always() && steps.sanitize_ui_reports.outcome == 'success' }}
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: ui-test-results
+          name: ui-test-results-${{ matrix.target }}
           path: |
             ./ui-reports
           if-no-files-found: ignore
 
-  pr-ui-report-preview:
+  collect-ui-results:
     needs: run-ui-tests
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download per-target UI artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
+        with:
+          pattern: ui-test-results-*
+          merge-multiple: true
+          path: ./ui-reports
+
+      - name: Upload consolidated UI artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: ui-test-results
+          path: ./ui-reports
+          if-no-files-found: ignore
+
+  pr-ui-report-preview:
+    needs: collect-ui-results
     if: ${{ always() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
@@ -191,7 +208,7 @@ jobs:
             });
 
   publish-ui-report:
-    needs: run-ui-tests
+    needs: collect-ui-results
     if: ${{ always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
