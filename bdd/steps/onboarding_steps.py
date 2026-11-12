@@ -358,12 +358,14 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         assert False, f'Unexpected onboarding status {status} for citizen {citizen_name} in initiative {context.initiative_id}'
 
     if not skip_statistics_check:
+        # Rewards from previous scenarios update the shared initiative totals asynchronously.
         check_statistics(organization_id=context.organization_id,
                          initiative_id=context.initiative_id,
                          old_statistics=context.base_statistics,
                          onboarded_citizen_count_increment=curr_onboarded_citizen_count_increment,
                          accrued_rewards_increment=0,
                          skip_trx_check=True,
+                         skip_accrued_rewards_check=True,
                          deadline=statistics_deadline)
         context.base_statistics = get_initiative_statistics(organization_id=context.organization_id,
                                                             initiative_id=context.initiative_id).json()

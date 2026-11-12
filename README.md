@@ -8,7 +8,10 @@ Repository containing BDD and functional tests for the PARI platform.
 - Public Allure reports are published from `uat` runs only. The `/bdd/` report shows
   the latest published run, including tag-filtered runs; it is not a cumulative
   history of every local or CI execution. Check the selected tag in the linked
-  Actions run before comparing totals.
+  Actions run before comparing totals. Newly published runs also have a report at
+  `/bdd/<run-number>/`, linked from the Allure history. Re-running the same Actions
+  run replaces its numbered report; older runs published before this change do not
+  automatically gain a report at that URL.
 - CI runs with `feature=all` execute the two Bonus selections. Scenarios without
   either Bonus tag are outside that matrix. Local runs do not update GitHub Pages
   automatically.
