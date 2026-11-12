@@ -26,8 +26,13 @@ FILL_ESCAPED_RE = re.compile(
     r'(?P<prefix>\bFill\s+\\")(?P<value>.*?)(?P<suffix>\\")',
     re.IGNORECASE,
 )
+
+# Keep credential keys centralized and compact to reduce regex complexity.
+QUOTED_MARK = r'\\?"'
+CREDENTIAL_KEY = r'(?:p(?:assword|ass|wd|in)|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)'
+
 CREDENTIAL_FIELD_VALUE_RE = re.compile(
-    r'(?P<prefix>(?:"|\\")(?:password|pass|pwd|pin|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)(?:"|\\")\s*:\s*(?P<quote>"|\\"))(?P<value>.*?)(?P=quote)',
+    rf'(?P<prefix>(?:{QUOTED_MARK}){CREDENTIAL_KEY}(?:{QUOTED_MARK})\s*:\s*(?P<quote>{QUOTED_MARK}))(?P<value>.*?)(?P=quote)',
     re.IGNORECASE,
 )
 FILL_ACTION_VALUE_RE = re.compile(
@@ -45,7 +50,7 @@ SENSITIVE_VALUE_LEFTOVER_RES = [
         re.IGNORECASE,
     ),
     re.compile(
-        r'(?:"|\\")(?:password|pass|pwd|pin|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)(?:"|\\")\s*:\s*(?:"|\\")(?P<value>.*?)(?:"|\\")',
+        rf'(?:{QUOTED_MARK}){CREDENTIAL_KEY}(?:{QUOTED_MARK})\s*:\s*(?:{QUOTED_MARK})(?P<value>.*?)(?:{QUOTED_MARK})',
         re.IGNORECASE,
     ),
 ]
