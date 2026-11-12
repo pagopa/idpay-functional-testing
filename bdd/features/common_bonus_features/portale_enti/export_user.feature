@@ -23,7 +23,7 @@ Feature: Export User Details (Report CSV)
     Given the operator with role l1 prepares report type USER_DETAILS for merchant 1 with a date range of 30 days
     And the operator requests the CSV report export
     And the report request is inserted
-    When the operator tries to download the generated CSV report
+    When the operator tries to download the generated CSV report within 600 seconds
     Then the CSV report is downloaded correctly
 
   Scenario Outline: Operator is authorized to download the USER_DETAILS CSV report
