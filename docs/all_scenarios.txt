@@ -1,7 +1,3 @@
-A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
-A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
-A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
-A citizen with self-declared incorrect criteria tries to onboard unsuccessfully
 A citizen's second barcode payment is rejected
 A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
@@ -12,43 +8,42 @@ A point of sale cannot cancel a captured barcode payment
 A producer cannot approve a product
 A rejected family onboarding does not prevent the beneficiary's Barcode authorization
 Accept a notification request for an RDB event
+Accept a valid CSV for processing
+Accept a valid CSV for processing
+Accept a valid CSV for processing
 Access RDB with a generated application token
-Allow an upload on another initiative
-Allow an upload on another initiative
-Allow an upload on another initiative
 An Invitalia operator cannot approve a product
 An approved reward batch keeps its suspended amount after removing suspended transactions
 An approved reward batch keeps its suspended amount after removing suspended transactions
 An onboarded citizen creates a barcode payment accepted by a merchant
 Batch counters reflect a transaction rejected by an L2 operator
 Batch counters remain accurate after an invoice update
-Citizen onboarding allocate correct budget for initiative
-Citizen onboarding allocate correct budget for initiative
-Citizen onboarding allocate correct budget for initiative
-Citizen onboarding allocate correct budget for initiative
-Citizen onboards successfully
-Citizen onboards successfully
-Citizen onboards successfully
-Citizen onboards successfully
-Citizen who has not paid Canone TV tries to onboard unsuccessfully
-Citizen who has not paid Canone TV tries to onboard unsuccessfully
-Citizen who has not paid Canone TV tries to onboard unsuccessfully
-Citizen who has not paid Canone TV tries to onboard unsuccessfully
-Citizen without email tries to onboard successfully
-Citizen without email tries to onboard successfully
-Citizen without email tries to onboard successfully
-Citizen without email tries to onboard successfully
 Combine product filters
 Combine product filters
 Count an association missing a mandatory field as failed
+Do not process an invalid CSV
+Do not process an invalid CSV
+Do not process an invalid CSV
 Do not request acceptance of an already accepted version
 Do not update a product through another initiative
+Download a formal validation report
+Download a formal validation report
+Download a formal validation report
+Download a processing report repeatedly
+Download a processing report repeatedly
+Download a processing report repeatedly
 Eligible merchant already onboarded fails to onboard
 Eligible merchant onboards successfully
+Exclude a CSV with formal errors from history
+Exclude a CSV with formal errors from history
+Exclude a CSV with formal errors from history
 Family members' rejected applications do not prevent the beneficiary's unsubscribe
 Filter products by a supported field
 Filter products by a supported field
 Import valid producer associations
+Keep the first occurrence of a duplicated GTIN
+Keep the first occurrence of a duplicated GTIN
+Keep the first occurrence of a duplicated GTIN
 L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
 L1 Operator tries to validate successfully a reward batch after performing checks on at least 15% of the transactions
 L1 operator tries to validate unsuccessfully a reward batch without performing checks on at least 15% of the transactions
@@ -57,11 +52,11 @@ L2 Operator reject one transaction of reward batch and then approve the reward b
 L2 Operator reject one transaction of reward batch and then approve the reward batch
 L3 Operator approves the reward batch
 L3 Operator approves the reward batch
+List only uploads belonging to the organization and initiative
+List only uploads belonging to the organization and initiative
+List only uploads belonging to the organization and initiative
 List the producers associated with the initiative
 List the producers associated with the initiative
-Manage the same GTIN independently across initiatives
-Manage the same GTIN independently across initiatives
-Manage the same GTIN independently across initiatives
 Merchant successfully logs in Merchant Portal
 Merchant without eligible ATECO fails to onboard
 Normalize the producer email during import
@@ -74,14 +69,29 @@ Operator is authorized to download the USER_DETAILS CSV report
 Operator requests the CSV report export correctly
 Operator requests the CSV report export with a range exceeding the maximum allowed
 Operator requests the USER_DETAILS CSV report export correctly
+Paginate the CSV upload history
+Paginate the CSV upload history
+Paginate the CSV upload history
 Perform an allowed product status transition
 Postponing a transaction updates the source and next-month batch counters
+Preserve a product that is already under review
+Preserve a product that is already under review
+Preserve a product that is already under review
 Process a CSV when the operational email is missing
+Process products without requiring EPREL data
+Process products without requiring EPREL data
+Process products without requiring EPREL data
 Reimport an association without creating duplicates
+Reject a CSV larger than 2 MB with temporary server error tolerance
+Reject a CSV larger than 2 MB with temporary server error tolerance
+Reject a CSV larger than 2 MB with temporary server error tolerance
 Reject a batch containing different current statuses
 Reject a product when the operational email is missing
 Reject a request without an authentication token
 Reject acceptance of an outdated version
+Reject access to an inaccessible report
+Reject access to an inaccessible report
+Reject access to an inaccessible report
 Reject an application token with invalid claims or signature
 Reject an email update for an unrelated initiative
 Reject an empty association payload
@@ -90,8 +100,20 @@ Reject an incorrect declared current status
 Reject an invalid operational email
 Reject an unauthorized request for producer information
 Reject an unauthorized request for producer information
+Reject concurrent uploads for the same initiative and organization
+Reject concurrent uploads for the same initiative and organization
+Reject concurrent uploads for the same initiative and organization
+Reject invalid CSV file constraints
+Reject invalid CSV file constraints
+Reject invalid CSV file constraints
 Reject the entire batch when one product does not exist
+Reload a product from an allowed status
+Reload a product from an allowed status
+Reload a product from an allowed status
 Replace the previous operational email
+Report every formal error in the same row
+Report every formal error in the same row
+Report every formal error in the same row
 Request consent for a user who has never accepted
 Restrict batches to the selected organization
 Restrict batches to the selected organization
@@ -102,9 +124,23 @@ Retrieve a producer registered in SelfCare
 Return an empty result for a nonexistent GTIN
 Return an empty result for a nonexistent GTIN
 Return exactly the initiatives visible to the current user
+Separate families can each onboard one beneficiary
+Separate families can each onboard one beneficiary
+Separate families can each onboard one beneficiary
+Separate families can each onboard one beneficiary
 Sort the producer initiatives by name
 Store acceptance of the current terms and conditions
+Store every valid product
+Store every valid product
+Store every valid product
 Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
 Suspending a transaction updates the live suspended amount while the reward batch is EVALUATING
 The POS cancels an authorized family beneficiary payment
+The first applicant represents the family independently of the member order
+The first applicant represents the family independently of the member order
+The first applicant represents the family independently of the member order
+The first applicant represents the family independently of the member order
 The merchant reverses the family beneficiary payment after invoicing
+Validate a CSV compliant with the initiative template
+Validate a CSV compliant with the initiative template
+Validate a CSV compliant with the initiative template
