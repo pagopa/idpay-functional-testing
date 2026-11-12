@@ -24,6 +24,11 @@ const LOGIN_BUDGET_MS = 150000;
 
 type FillContext = Page | Frame;
 
+type FillResult = {
+  page: Page;
+  context: FillContext;
+};
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -402,7 +407,7 @@ async function fillFirstAvailable(
   loginUrl: string,
   deadlineMs: number,
   debugDir: string
-): Promise<Page> {
+): Promise<FillResult> {
   let currentPage = page;
 
   while (Date.now() < deadlineMs) {
@@ -415,7 +420,7 @@ async function fillFirstAvailable(
         const locator = candidate(ctx).first();
         if (await locator.isVisible({ timeout: 1000 }).catch(() => false)) {
           await locator.fill(value);
-          return currentPage;
+          return { page: currentPage, context: ctx };
         }
       }
     }
@@ -429,6 +434,43 @@ async function fillFirstAvailable(
   throw new Error(
     `Unable to find a visible input field for credential filling. Current URL: ${currentPage.url()} | Frames: ${frameUrls.join(' | ')}`
   );
+}
+
+async function submitCredentials(
+  page: Page,
+  submitContext: FillContext,
+  submitButtonName: string,
+  loginUrl: string
+): Promise<Page> {
+  const candidateLocators = [
+    submitContext.getByRole('button', { name: submitButtonName }).first(),
+    submitContext.locator('button[type="submit"]').first(),
+    submitContext.locator('input[type="submit"]').first(),
+  ];
+
+  for (const locator of candidateLocators) {
+    if (await locator.isVisible({ timeout: 1500 }).catch(() => false)) {
+      try {
+        await locator.click({ noWaitAfter: true });
+      } catch (error) {
+        if (!isPageClosedLikeError(error)) {
+          throw error;
+        }
+      }
+      return ensureActivePage(page, loginUrl);
+    }
+  }
+
+  // Fallback for pages where submit is outside the credentials iframe.
+  try {
+    await page.getByRole('button', { name: submitButtonName }).click({ noWaitAfter: true });
+  } catch (error) {
+    if (!isPageClosedLikeError(error)) {
+      throw error;
+    }
+  }
+
+  return ensureActivePage(page, loginUrl);
 }
 
 export async function performOneIdentityLogin(
@@ -477,7 +519,7 @@ export async function performOneIdentityLogin(
   const credentialFieldsVisible = await isAnyCredentialFieldVisible(currentPage, config);
 
   if (!alreadyOnFinalDestination || credentialFieldsVisible) {
-    currentPage = await fillFirstAvailable(
+    const usernameFill = await fillFirstAvailable(
       currentPage,
       [
         (ctx) => ctx.getByLabel(config.usernameLabel),
@@ -492,8 +534,9 @@ export async function performOneIdentityLogin(
       deadlineMs,
       debugDir
     );
+    currentPage = usernameFill.page;
 
-    currentPage = await fillFirstAvailable(
+    const passwordFill = await fillFirstAvailable(
       currentPage,
       [
         (ctx) => ctx.getByLabel(config.passwordLabel),
@@ -507,7 +550,10 @@ export async function performOneIdentityLogin(
       deadlineMs,
       debugDir
     );
-    await currentPage.getByRole('button', { name: config.submitButtonName }).click();
+    currentPage = passwordFill.page;
+
+    const submitContext = passwordFill.context ?? usernameFill.context;
+    currentPage = await submitCredentials(currentPage, submitContext, config.submitButtonName, loginUrl);
 
     currentPage = await ensureActivePage(currentPage, loginUrl);
     currentPage = await clickRoleButtonUntilVisible(currentPage, config.consentButtonName, loginUrl, deadlineMs, {

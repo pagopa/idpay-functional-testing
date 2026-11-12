@@ -23,16 +23,19 @@ FILL_PLAIN_RE = re.compile(
     re.IGNORECASE,
 )
 FILL_ESCAPED_RE = re.compile(
-    r'(?P<prefix>\bFill\s+\\")(?P<value>.*?)(?P<suffix>\\")',
+    r'(?P<prefix>\bFill\s+\\")(?P<value>(?:\\\\.|[^\\])*)(?P<suffix>\\")',
     re.IGNORECASE,
 )
 
 # Keep credential keys centralized and compact to reduce regex complexity.
-QUOTED_MARK = r'\\?"'
 CREDENTIAL_KEY = r'(?:p(?:assword|ass|wd|in)|otp|token|secret|codice(?:[_\s-]?di[_\s-]?accesso)?)'
 
-CREDENTIAL_FIELD_VALUE_RE = re.compile(
-    rf'(?P<prefix>(?:{QUOTED_MARK}){CREDENTIAL_KEY}(?:{QUOTED_MARK})\s*:\s*(?P<quote>{QUOTED_MARK}))(?P<value>.*?)(?P=quote)',
+CREDENTIAL_FIELD_VALUE_PLAIN_RE = re.compile(
+    rf'(?P<prefix>"{CREDENTIAL_KEY}"\s*:\s*")(?P<value>(?:\\.|[^"\\])*)(?P<suffix>")',
+    re.IGNORECASE,
+)
+CREDENTIAL_FIELD_VALUE_ESCAPED_RE = re.compile(
+    rf'(?P<prefix>\\"{CREDENTIAL_KEY}\\"\s*:\s*\\")(?P<value>(?:\\\\.|[^\\])*)(?P<suffix>\\")',
     re.IGNORECASE,
 )
 FILL_ACTION_VALUE_RE = re.compile(
@@ -42,7 +45,7 @@ FILL_ACTION_VALUE_RE = re.compile(
 
 SENSITIVE_FILL_LEFTOVER_RES = [
     re.compile(r'\bFill\s+"(?P<value>(?:\\.|[^"\\])*)"', re.IGNORECASE),
-    re.compile(r'\bFill\s+\\"(?P<value>.*?)\\"', re.IGNORECASE),
+    re.compile(r'\bFill\s+\\"(?P<value>(?:\\\\.|[^\\])*)\\"', re.IGNORECASE),
 ]
 SENSITIVE_VALUE_LEFTOVER_RES = [
     re.compile(
@@ -50,7 +53,11 @@ SENSITIVE_VALUE_LEFTOVER_RES = [
         re.IGNORECASE,
     ),
     re.compile(
-        rf'(?:{QUOTED_MARK}){CREDENTIAL_KEY}(?:{QUOTED_MARK})\s*:\s*(?:{QUOTED_MARK})(?P<value>.*?)(?:{QUOTED_MARK})',
+        rf'"{CREDENTIAL_KEY}"\s*:\s*"(?P<value>(?:\\.|[^"\\])*)"',
+        re.IGNORECASE,
+    ),
+    re.compile(
+        rf'\\"{CREDENTIAL_KEY}\\"\s*:\s*\\"(?P<value>(?:\\\\.|[^\\])*)\\"',
         re.IGNORECASE,
     ),
 ]
@@ -69,7 +76,15 @@ def redact_text(text):
         if count:
             changed = True
 
-    for regex in (CREDENTIAL_FIELD_VALUE_RE, FILL_ACTION_VALUE_RE):
+    for regex in (CREDENTIAL_FIELD_VALUE_PLAIN_RE, CREDENTIAL_FIELD_VALUE_ESCAPED_RE):
+        text, count = regex.subn(
+            lambda m: f"{m.group('prefix')}{REDACT_TO}{m.group('suffix')}",
+            text,
+        )
+        if count:
+            changed = True
+
+    for regex in (FILL_ACTION_VALUE_RE,):
         text, count = regex.subn(
             lambda m: f"{m.group('prefix')}{REDACT_TO}{m.group('quote')}",
             text,
