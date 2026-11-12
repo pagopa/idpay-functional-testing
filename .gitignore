@@ -171,3 +171,10 @@ merged-allure-results/
 *.bak
 *.swp
 *~
+
+# Node and Playwright artifacts
+node_modules/
+playwright-report/
+test-results/
+playwright/.auth/
+tests/ui/recordings/

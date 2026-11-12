@@ -9,6 +9,7 @@ Repository containing BDD and functional tests for the PARI platform.
   the latest published run, including tag-filtered runs; it is not a cumulative
   history of every local or CI execution. Check the selected tag in the linked
   Actions run before comparing totals.
+- UI Playwright report is published from `uat` runs to `https://pagopa.github.io/idpay-functional-testing/ui`.
 - CI runs with `feature=all` execute the two Bonus selections. Scenarios without
   either Bonus tag are outside that matrix. Local runs do not update GitHub Pages
   automatically.
@@ -133,3 +134,93 @@ mkdocs build --strict
 
 Pull requests and merge groups invoke the main workflow; remote BDD execution
 is skipped on pull requests. Manual runs select the environment and feature tag.
+
+## UI test execution (Playwright)
+
+The repository includes a Playwright setup under `tests/ui`.
+
+### Local setup
+
+```bash
+npm ci
+npx playwright install chromium
+```
+
+### Local run
+
+```bash
+npm run ui:test
+```
+
+To run against a deployed environment, set `UI_BASE_URL`:
+
+```bash
+UI_BASE_URL='https://<your-ui-host>' npm run ui:test
+```
+
+For PowerShell:
+
+```powershell
+$env:UI_BASE_URL='https://<your-ui-host>'
+npm run ui:test
+```
+
+### Authenticated UI tests
+
+The Playwright authenticated fixture is in `tests/ui/fixtures/auth.fixture.ts` and stores
+the session in `playwright/.auth/user.json`.
+
+Required variables for authenticated tests:
+
+- `UI_BASE_URL`
+- `USER_USERNAME`
+- `USER_PASSWORD`
+
+In CI, values for each UI target are read from the Key Vault secret JSON
+(`ui_targets.<target>`) using the selected `ui_target`.
+
+Optional UI selector overrides (when defaults do not match the target app):
+
+- `UI_LOGIN_PATH` (default: `/accesso`)
+- `UI_LOGIN_BUTTON_TESTID` (default: `logInButton`)
+- `UI_SPID_BUTTON_TESTID` (default: `spidButton`)
+- `UI_IDP_BUTTON_TESTID` (default: `idp-button-https://idp.uat.oneid.pagopa.it`)
+- `UI_USERNAME_LABEL` (default: `Username`)
+- `UI_PASSWORD_LABEL` (default: `Password`)
+- `UI_SUBMIT_BUTTON_NAME` (default: `Accedi`)
+- `UI_CONSENT_BUTTON_NAME` (default: `Do il consenso`)
+- `UI_POST_LOGIN_PATH` (optional post-login URL assertion)
+
+PowerShell example:
+
+```powershell
+$env:UI_BASE_URL='https://<your-ui-host>'
+$env:USER_USERNAME='<your-username>'
+$env:USER_PASSWORD='<your-password>'
+npm run ui:test
+```
+
+### CI/CD integration
+
+- Main workflow: `.github/workflows/test-run.yaml`
+- Reusable UI workflow: `.github/workflows/test-run-ui.yaml`
+- Manual dispatch `test_type` options:
+  - `bdd`
+  - `ui`
+  - `all`
+- Manual dispatch `ui_target` options (for UI runs):
+  - `welfare_enti`
+  - `welfare_esercenti`
+  - `rdb`
+  - `pari_utente`
+
+The UI workflow uploads `test-results` and `playwright-report` as artifacts.
+On pull requests, the report is available as Action artifact (`ui-test-results`).
+The workflow also posts a PR comment with a direct preview artifact link.
+On `main`, the HTML report is published to GitHub Pages under `/reports/<run_id>/`.
+The workflow resolves credentials and base URL by `ui_target`, reading target
+values from Key Vault and using generic `UI_BASE_URL`, `UI_LOGIN_PATH`,
+`USER_USERNAME`, and `USER_PASSWORD` only as fallback.
+Like BDD, the UI workflow retrieves `pari-feature-secrets` from Key Vault and
+can read target-specific values from `.[$PARI_TARGET_ENV].ui_targets.<target>`
+(`base_url`, `login_path`, `username`, `password`).

@@ -1,0 +1,323 @@
+name: test-run-ui
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      target_env:
+        type: string
+        required: true
+        description: 'Target environment for UI tests (uat)'
+      ui_target:
+        type: string
+        required: true
+        description: 'UI target to test (all, welfare_enti, welfare_esercenti, rdb, pari_utente)'
+
+jobs:
+  resolve-ui-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.resolve.outputs.matrix }}
+    steps:
+      - name: Resolve UI targets matrix
+        id: resolve
+        run: |
+          TARGET=$(echo "${{ inputs.ui_target }}" | tr '[:upper:]' '[:lower:]')
+          case "$TARGET" in
+            all)
+              MATRIX='["welfare_enti","welfare_esercenti","rdb","pari_utente"]'
+              ;;
+            welfare_enti|welfare_esercenti|rdb|pari_utente)
+              MATRIX="[\"$TARGET\"]"
+              ;;
+            *)
+              echo "::error::Unsupported ui_target '${{ inputs.ui_target }}'. Allowed values: all, welfare_enti, welfare_esercenti, rdb, pari_utente"
+              exit 1
+              ;;
+          esac
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  run-ui-tests:
+    needs: resolve-ui-targets
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_env }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.resolve-ui-targets.outputs.matrix) }}
+
+    env:
+      PARI_TARGET_ENV: ${{ inputs.target_env }}
+      UI_TARGET: ${{ matrix.target }}
+      KEYVAULT_NAME: ${{ secrets.KEYVAULT_NAME }}
+      SECRET_NAME: ${{ secrets.SECRET_NAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Setup Node
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 #v4.0.2
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Azure Login
+        uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a #v2.1.1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Retrieve Key Vault secret as JSON file
+        run: |
+          echo "Fetching secret from Key Vault..."
+
+          mkdir -p "$GITHUB_WORKSPACE/secrets"
+
+          az keyvault secret show \
+            --name "$SECRET_NAME" \
+            --vault-name "$KEYVAULT_NAME" \
+            --query 'value' -o json | jq -r '.' > "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json"
+
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "::error::Failed to fetch secret from Key Vault"
+            exit 1
+          fi
+
+          if [ ! -s "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" ]; then
+            echo "::error::Secret file is empty"
+            exit 1
+          fi
+
+          if ! jq empty "$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" 2>/dev/null; then
+            echo "::error::Invalid JSON format in secrets file"
+            exit 1
+          fi
+
+          echo "PARI_SECRET_PATH=$GITHUB_WORKSPACE/secrets/pari-feature-secrets.json" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright browser
+        run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Run UI tests for target
+        run: |
+          rm -rf ./playwright/.auth ./playwright-report ./test-results
+          npm run ui:test -- --project=chromium
+
+      - name: Collect target report
+        if: always()
+        run: |
+          mkdir -p "./ui-reports/${{ matrix.target }}"
+          [ -d ./playwright-report ] && cp -r ./playwright-report "./ui-reports/${{ matrix.target }}/"
+
+      - name: Redact sensitive information from UI reports before upload
+        id: sanitize_ui_reports
+        if: always()
+        run: |
+          if [ -d ./ui-reports ]; then
+            find ./ui-reports -type d -name playwright-report -print0 | while IFS= read -r -d '' REPORT_DIR; do
+              bash ./redact-passwords.sh "$REPORT_DIR"
+            done
+          fi
+
+      - name: Upload UI results
+        id: upload_ui_results
+        if: ${{ always() && steps.sanitize_ui_reports.outcome == 'success' }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: ui-test-results-${{ matrix.target }}
+          path: |
+            ./ui-reports
+          if-no-files-found: ignore
+
+  collect-ui-results:
+    needs: run-ui-tests
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download per-target UI artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
+        with:
+          pattern: ui-test-results-*
+          merge-multiple: true
+          path: ./ui-reports
+
+      - name: Upload consolidated UI artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: ui-test-results
+          path: ./ui-reports
+          if-no-files-found: ignore
+
+  pr-ui-report-preview:
+    needs: collect-ui-results
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Resolve UI artifact id
+        id: artifact_lookup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run_id = context.runId;
+            const result = await github.rest.actions.listWorkflowRunArtifacts({ owner, repo, run_id });
+            const artifact = result.data.artifacts.find((a) => a.name === 'ui-test-results' && !a.expired);
+
+            core.setOutput('exists', artifact ? 'true' : 'false');
+            core.setOutput('artifact_id', artifact ? String(artifact.id) : '');
+
+      - name: Comment PR with report preview link
+        if: ${{ steps.artifact_lookup.outputs.exists == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const artifactId = '${{ steps.artifact_lookup.outputs.artifact_id }}';
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifactId}`;
+
+            const body = [
+              '### UI Report Preview',
+              '',
+              `- Run: ${runUrl}`,
+              `- Consolidated UI report artifact: ${artifactUrl}`,
+              '',
+              'Download the artifact and open one of the target reports in `ui-reports/<target>/playwright-report/index.html`.'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
+
+  publish-ui-report:
+    needs: collect-ui-results
+    if: ${{ always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 #v4.2.0
+
+      - name: Download UI report artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 #v4.1.8
+        with:
+          name: ui-test-results
+          path: ./ui-artifacts/ui-reports
+
+      - name: Check if Playwright report exists
+        id: check_report
+        if: always()
+        run: |
+          if [ -d "./ui-artifacts/ui-reports" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Redact sensitive information from Playwright report
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: |
+          find ./ui-artifacts/ui-reports -type d -name playwright-report -print0 | while IFS= read -r -d '' REPORT_DIR; do
+            bash ./redact-passwords.sh "$REPORT_DIR"
+          done
+
+      - name: Generate Playwright report bundle
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: |
+          mkdir -p ./public/reports/${{ github.run_id }}/
+          TARGET_LIST=""
+          for TARGET_DIR in ./ui-artifacts/ui-reports/*; do
+            TARGET_NAME=$(basename "$TARGET_DIR")
+            if [ -d "$TARGET_DIR/playwright-report" ]; then
+              mkdir -p "./public/reports/${{ github.run_id }}/${TARGET_NAME}"
+              cp -r -- "$TARGET_DIR/playwright-report"/* "./public/reports/${{ github.run_id }}/${TARGET_NAME}/"
+              TARGET_LIST="${TARGET_LIST}<li><a href='./${TARGET_NAME}/'>${TARGET_NAME}</a></li>"
+            fi
+          done
+
+          cat << 'EOF' > ./public/reports/${{ github.run_id }}/index.html
+          <!DOCTYPE html>
+          <html lang="it">
+          <head>
+            <meta charset="UTF-8">
+            <title>UI Reports Run ${{ github.run_id }}</title>
+          </head>
+          <body>
+            <h1>UI Reports - Run ${{ github.run_id }}</h1>
+            <ul>
+              __TARGET_LIST__
+            </ul>
+          </body>
+          </html>
+          EOF
+
+          sed -i "s|__TARGET_LIST__|${TARGET_LIST}|g" ./public/reports/${{ github.run_id }}/index.html
+          echo "Playwright reports generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
+
+      - name: Generate index page with report links
+        if: always() && steps.check_report.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git worktree add -f ./existing-reports gh-pages || true
+
+          if [ -d "./existing-reports/reports" ]; then
+            for REPORT_DIR in ./existing-reports/reports/*; do
+              if [ "$(basename "$REPORT_DIR")" != "${{ github.run_id }}" ]; then
+                cp -r -- "$REPORT_DIR" ./public/reports/ || true
+              fi
+            done
+          fi
+
+          cd ./public/reports
+          REPORT_LIST=""
+          for d in $(find . -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | grep -E '^[0-9]+$' | sort -nr); do
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+          done
+          cd ../..
+
+          cat << 'EOF' > ./public/index.html
+          <!DOCTYPE html>
+          <html lang="it">
+          <head>
+            <meta charset="UTF-8">
+            <title>Storico Test UI IDPay</title>
+          </head>
+          <body>
+            <h1>Storico Test UI IDPay</h1>
+            <ul>
+              __REPORT_LIST__
+            </ul>
+          </body>
+          </html>
+          EOF
+
+          sed -i "s|__REPORT_LIST__|${REPORT_LIST}|g" ./public/index.html
+
+      - name: Upload Playwright report to GitHub Pages
+        if: success() && steps.check_report.outputs.exists == 'true'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
+        with:
+          publish_dir: ./public
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          keep_files: true
+

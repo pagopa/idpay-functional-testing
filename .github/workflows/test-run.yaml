@@ -50,7 +50,6 @@ on:
         default: uat
         type: choice
         options:
-          - dev
           - uat
 
       test_type:
@@ -60,6 +59,19 @@ on:
         type: choice
         options:
           - bdd
+          - ui
+          - all
+
+      ui_target:
+        description: UI target to test
+        required: false
+        default: welfare_enti
+        type: choice
+        options:
+          - welfare_enti
+          - welfare_esercenti
+          - rdb
+          - pari_utente
 
       reward_batch_cleanup:
         description: Cleanup environment after test run
@@ -69,11 +81,24 @@ on:
 
 jobs:
   run-bdd:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_type == 'bdd' || inputs.test_type == 'all' }}
     uses: ./.github/workflows/test-run-bdd.yaml
     with:
       target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
       feature_tag: ${{ github.event_name == 'workflow_dispatch' && inputs.feature || 'all' }}
       initiative: ${{ github.event_name == 'workflow_dispatch' && inputs.initiative || 'all' }}
       reward_batch_cleanup: ${{ github.event_name != 'workflow_dispatch' || inputs.reward_batch_cleanup }}
+    secrets: inherit
+
+  run-ui:
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && (github.event_name != 'workflow_dispatch' || inputs.test_type == 'ui' || inputs.test_type == 'all') }}
+    permissions:
+      actions: read
+      id-token: write
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/test-run-ui.yaml
+    with:
+      target_env: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'uat' }}
+      ui_target: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_target || 'all' }}
     secrets: inherit
