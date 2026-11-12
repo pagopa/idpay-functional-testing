@@ -216,7 +216,7 @@ jobs:
             "buildName": "${{ github.workflow }} #${{ github.run_number }}",
             "buildUrl": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
             "reportName": "BDD Report #${{ github.run_number }}",
-            "reportUrl": "https://pagopa.github.io/${{ github.event.repository.name }}/bdd"
+            "reportUrl": "https://pagopa.github.io/${{ github.event.repository.name }}/bdd/${{ github.run_number }}/"
           }
           EOF
 
@@ -259,12 +259,17 @@ jobs:
         run: |
           python3 util/sanitize-allure-results.py allure-report-bdd
 
+      - name: Prepare latest and per-run BDD reports
+        run: |
+          mkdir -p "bdd-publish/$GITHUB_RUN_NUMBER"
+          cp -R allure-report-bdd/. bdd-publish/
+          cp -R allure-report-bdd/. "bdd-publish/$GITHUB_RUN_NUMBER/"
+
       - name: Publish BDD test report
         uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e #v4.0.0
-        if: always()
         with:
           github_token: ${{ github.token }}
           publish_branch: gh-pages
-          publish_dir: allure-report-bdd
+          publish_dir: bdd-publish
           destination_dir: bdd
           keep_files: true
