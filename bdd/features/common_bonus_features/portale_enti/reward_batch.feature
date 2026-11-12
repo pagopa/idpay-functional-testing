@@ -91,5 +91,5 @@ Feature: Reward batches for initiatives and Refund Approval Process
     When An operator with l3 role tries to approve the reward batch containing transaction X
     And the approval of the reward batch containing transaction X is confirmed
     And the reward batch of transaction X is APPROVED
-    And An operator with l3 role downloads the approved reward batch report of transaction X after 30 seconds
+    And An operator with l3 role downloads the approved reward batch report of transaction X within 300 seconds
     Then the approved reward batch report of transaction X is downloaded

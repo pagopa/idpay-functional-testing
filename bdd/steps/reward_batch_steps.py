@@ -10,7 +10,6 @@ from api.idpay import get_reward_batch_detail
 from api.idpay import post_evaluate_sent_reward_batches
 from api.idpay import post_prepare_reward_batch_for_send
 from api.idpay import post_send_reward_batch
-from api.transaction import get_approved_reward_batch_download
 from api.transaction import post_approve_reward_batch
 from api.transaction import post_postpone_transaction
 from api.transaction import post_reward_batch_confirmation_batch
@@ -24,6 +23,7 @@ from util.transaction_utilities import get_reward_batch_transactions as _get_rew
 from util.transaction_utilities import parse_transaction_names
 from util.transaction_utilities import perform_reward_batch_transaction_action
 from util.transaction_utilities import request_reward_batch_validation
+from util.transaction_utilities import retry_approved_reward_batch_download
 from util.transaction_utilities import retry_postponed_transaction_reward_batch
 from util.transaction_utilities import validate_reward_batch_as_operator
 from util.utility import get_merchant_access_token
@@ -825,20 +825,20 @@ def step_confirm_reward_batch_approval(context, trx_name):
     )
 
 
-@when('An operator with {role} role downloads the approved reward batch report of transaction {trx_name} after {wait_seconds} seconds')
-def step_operator_downloads_approved_reward_batch_report(context, role, trx_name, wait_seconds):
+@when('An operator with {role} role downloads the approved reward batch report of transaction {trx_name} within {timeout_seconds} seconds')
+def step_operator_downloads_approved_reward_batch_report(context, role, trx_name, timeout_seconds):
     reward_batch_id = context.source_reward_batches[trx_name]['id']
     merchant_name = context.associated_merchant[trx_name]
     institution_selfcare_token = get_institution_selfcare_token(role)
 
-    download_response = get_approved_reward_batch_download(
+    download_response = retry_approved_reward_batch_download(
         initiative_id=context.initiative_id,
         reward_batch_id=reward_batch_id,
         access_token=institution_selfcare_token,
-        wait_seconds=float(wait_seconds),
+        timeout_seconds=float(timeout_seconds),
     )
     assert download_response.status_code == 200, (
-        f"Approved reward batch download failed: "
+        f"Approved reward batch download failed within {timeout_seconds} seconds: "
         f"{download_response.status_code} {download_response.text}"
     )
     assert download_response.content, 'Approved reward batch download returned empty content'

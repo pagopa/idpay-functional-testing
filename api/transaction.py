@@ -1,5 +1,3 @@
-import time
-
 import requests
 
 from conf.configuration import secrets
@@ -117,10 +115,7 @@ def post_approve_reward_batch(
 def get_approved_reward_batch_download(
         initiative_id: str,
         reward_batch_id: str,
-        access_token: str,
-        wait_seconds: float | int = 0):
-    if wait_seconds:
-        time.sleep(float(wait_seconds))
+        access_token: str):
     reward_batch = settings.IDPAY.endpoints.transactions.reward_batch
     return requests.get(
         f"{_reward_batch_base_path(initiative_id, reward_batch_id)}"
