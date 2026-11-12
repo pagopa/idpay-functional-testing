@@ -466,7 +466,7 @@ export async function performOneIdentityLogin(
   const expectedPostLoginPathRegex = config.postLoginPath
     ? new RegExp(`^${escapeRegex(buildAbsolutePathUrl(config.baseUrl, config.postLoginPath))}`)
     : null;
-  const expectedPortalRegex = expectedPostLoginPathRegex ?? (mustLandOnPortal ? resolveRequiredPortalRegex(config) : null);
+  const expectedPortalRegex = expectedPostLoginUrlRegex ?? expectedPostLoginPathRegex ?? (mustLandOnPortal ? resolveRequiredPortalRegex(config) : null);
   const expectedFinalRegex = expectedPostLoginUrlRegex
     ? expectedPostLoginUrlRegex
     : expectedPostLoginPathRegex
