@@ -286,6 +286,6 @@ jobs:
                 text:
                   type: "mrkdwn"
                   text: |-
-                    *${{ github.event.repository.name }} — BDD test report is ready*
+                    *${{ github.event.repository.name }} — Functional test report is ready*
                     • *Environment:* `${{ inputs.target_env }}`
-                    • <https://pagopa.github.io/${{ github.event.repository.name }}/bdd/${{ github.run_number }}/|Open BDD report #${{ github.run_number }}>
+                    • <https://pagopa.github.io/${{ github.event.repository.name }}/bdd/${{ github.run_number }}/|Open report #${{ github.run_number }}>
