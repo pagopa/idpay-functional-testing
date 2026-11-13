@@ -273,3 +273,19 @@ jobs:
           publish_dir: bdd-publish
           destination_dir: bdd
           keep_files: true
+
+      - name: Notify test report to Slack when tests fail
+        if: needs.run-bdd-feature-tests.result == 'failure'
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_NOTIFICATION_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: |-
+                    *${{ github.event.repository.name }} — BDD test report is ready*
+                    • *Environment:* `${{ inputs.target_env }}`
+                    • <https://pagopa.github.io/${{ github.event.repository.name }}/bdd/${{ github.run_number }}/|Open BDD report #${{ github.run_number }}>
