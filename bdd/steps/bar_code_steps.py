@@ -271,7 +271,10 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
     if status == 'CREATED':
-        assert context.transactions[trx_name]['status'] == 'CREATED'
+        assert context.transactions[trx_name]['status'] == 'CREATED', (
+            f"Expected transaction {trx_name} to be CREATED, "
+            f"got {context.transactions[trx_name]['status']}"
+        )
         return
 
     res = get_transaction_detail(
@@ -280,8 +283,14 @@ def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     )
 
     if status in {'AUTHORIZED', 'CAPTURED', 'INVOICED', 'REFUNDED', 'REJECTED', 'REWARDED'}:
-        assert res.status_code == 200
-        assert res.json()['status'] == status
+        assert res.status_code == 200, (
+            f'Failed to get transaction {trx_name} details: '
+            f'{res.status_code} {res.text}'
+        )
+        assert res.json()['status'] == status, (
+            f'Expected transaction {trx_name} to be {status}, '
+            f"got {res.json()['status']}"
+        )
         return
 
     elif status == 'CANCELLED':
