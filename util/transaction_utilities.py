@@ -5,6 +5,7 @@ from api.idpay import get_merchant_processed_transactions
 from api.idpay import get_reward_batch_detail
 from api.idpay import obtain_merchant_test_token
 from api.transaction import delete_reward_batch_cleanup
+from api.transaction import get_approved_reward_batch_download
 from api.transaction import get_merchant_transactions_processed
 from api.transaction import get_report_download
 from api.transaction import get_reports
@@ -22,6 +23,35 @@ from util.utility import retry_reward_batch_eligibility
 
 MERCHANT_TOKEN_AUD = 'idpay.merchant.welfare.pagopa.it'
 DEFAULT_POINT_OF_SALE_ID = '1234'
+REWARD_BATCH_CSV_NOT_GENERATED = 'REWARD_BATCH_CSV_NOT_GENERATED'
+
+
+def _is_reward_batch_csv_pending(response) -> bool:
+    if response.status_code != 400:
+        return False
+    try:
+        return response.json().get('code') == REWARD_BATCH_CSV_NOT_GENERATED
+    except ValueError:
+        return False
+
+
+def retry_approved_reward_batch_download(initiative_id: str,
+                                         reward_batch_id: str,
+                                         access_token: str,
+                                         timeout_seconds: float,
+                                         delay: float = 10):
+
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        response = get_approved_reward_batch_download(
+            initiative_id=initiative_id,
+            reward_batch_id=reward_batch_id,
+            access_token=access_token,
+        )
+        remaining_time = deadline - time.monotonic()
+        if not _is_reward_batch_csv_pending(response) or remaining_time <= 0:
+            return response
+        time.sleep(min(delay, remaining_time))
 
 
 def _get_institution_token_profile(role: str) -> dict[str, str]:
@@ -372,3 +402,54 @@ def _extract_reports_payload(response) -> list[dict]:
     if isinstance(payload, list):
         return payload
     raise AssertionError(f'Unable to extract reports list from response: {response.text}')
+
+
+def retry_generated_report_download(initiative_id: str,
+                                    report_id: str,
+                                    report_type: str,
+                                    access_token: str,
+                                    timeout_seconds: float,
+                                    delay: float = 15):
+    """Poll an asynchronous CSV report until it is GENERATED and downloadable.
+
+    INSERTED and IN_PROGRESS are expected while the Data Factory pipeline runs;
+    FAILED is a terminal backend state and is reported immediately.
+    """
+    start = time.monotonic()
+    deadline = start + timeout_seconds
+    status_history = []
+
+    while True:
+        reports_response = get_reports(
+            initiative_id=initiative_id,
+            report_type=report_type,
+            access_token=access_token,
+        )
+        assert reports_response.status_code == 200, (
+            f'Reports list failed: {reports_response.status_code} {reports_response.text}'
+        )
+        status = _find_report_in_list(_extract_reports_payload(reports_response), report_id).get('reportStatus')
+        if not status_history or status_history[-1] != status:
+            status_history.append(status)
+
+        assert status != 'FAILED', (
+            f'CSV report {report_id} generation FAILED after '
+            f'{time.monotonic() - start:.0f} seconds. Status history: {status_history}'
+        )
+
+        if status == 'GENERATED':
+            download_response = get_report_download(
+                initiative_id=initiative_id,
+                report_id=report_id,
+                access_token=access_token,
+            )
+            if download_response.status_code == 200 and download_response.content:
+                return download_response
+
+        remaining_time = deadline - time.monotonic()
+        if remaining_time <= 0:
+            raise AssertionError(
+                f'CSV report {report_id} was not downloadable within {timeout_seconds:.0f} seconds. '
+                f'Last report status: {status}. Status history: {status_history}'
+            )
+        time.sleep(min(delay, remaining_time))

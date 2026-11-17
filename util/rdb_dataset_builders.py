@@ -11,7 +11,6 @@ from conf.configuration import secrets
 from util import rdb_utilities as rdb
 from util.rdb_cleanup import remember_portal
 from util.rdb_cleanup import remember_producer
-from util.rdb_csv_utilities import decoder_csv
 
 FOREIGN_CSV_BATCHES = 'foreign CSV batches'
 ORGANIZATION_CSV_BATCHES = 'organization CSV batches'
@@ -29,7 +28,9 @@ def producer_identity(context):
     return profile
 
 
-def new_producer(context, aliases=('A',), email=None):
+def new_producer(context, aliases=None, email=None):
+    if aliases is None:
+        aliases = (rdb.selected_initiative_alias(context),)
     assert aliases, 'Dataset producer requires at least one initiative'
     initiative_ids = [rdb.select_initiative(context, alias) for alias in aliases]
     assert len(set(initiative_ids)) == len(initiative_ids), 'Dataset requires distinct initiatives'
@@ -48,18 +49,21 @@ def new_producer(context, aliases=('A',), email=None):
 def enabled_initiatives(context):
     # Import a fresh producer so the exact expected set is independent of other
     # associations of the shared test identity in the selected environment.
-    profile, ids = new_producer(context, ('A', 'B'))
-    return {'profile': profile, 'initiative': 'A', 'initiative_ids': ids}
+    selected = rdb.selected_initiative_alias(context)
+    other = rdb.other_initiative_alias(context)
+    profile, ids = new_producer(context, (selected, other))
+    return {'profile': profile, 'initiative': selected, 'initiative_ids': ids}
 
 
 def unassociated_initiative(context):
-    rdb.select_initiative(context, 'A')
+    selected = rdb.selected_initiative_alias(context)
+    rdb.select_initiative(context, selected)
     rdb.authenticate(context, 'producer')
-    # A must really exist: unknown IDs would exercise a different error.
+    # The selected initiative must exist: unknown IDs would exercise a different error.
     assert any(x['initiativeId'] == context.rdb.initiative_id
                for x in rdb.success(api.get_initiatives(context.rdb.token)).json())
     rdb.producer_without_initiatives(context)
-    return {'profile': context.rdb.profile, 'initiative': 'A'}
+    return {'profile': context.rdb.profile, 'initiative': selected}
 
 
 def institution(context, unauthorized=False):
@@ -95,7 +99,9 @@ def scoped_records(context, kind):
     rdb.authenticate(context, 'Invitalia')
     inventories = {}
     initiative_ids = []
-    for alias in ('A', 'B'):
+    selected = rdb.selected_initiative_alias(context)
+    other = rdb.other_initiative_alias(context)
+    for alias in (selected, other):
         initiative = rdb.select_initiative(context, alias)
         initiative_ids.append(initiative)
         inventories[alias] = rdb.products(context)
@@ -104,54 +110,61 @@ def scoped_records(context, kind):
             f'Product list returned records outside initiative {alias}')
     assert len(set(initiative_ids)) == 2, 'Read fixture requires two distinct initiatives'
 
-    own = [p for p in inventories['A'] if p['organizationId'] == organization]
-    foreign = [p for p in inventories['A'] if p['organizationId'] != organization]
-    assert own, 'Read fixture requires existing products for the configured producer in A'
-    assert foreign, 'Read fixture requires products of another organization in A'
+    target_alias = selected
+    own = [p for p in inventories[target_alias] if p['organizationId'] == organization]
+    foreign = [p for p in inventories[target_alias] if p['organizationId'] != organization]
+    assert own, f'Read fixture requires existing products for the configured producer in {target_alias}'
+    assert foreign, f'Read fixture requires products of another organization in {target_alias}'
     profile = 'producer'
-    selected = own
+    products = own
     if kind in (INVITALIA_REGISTRY, FOREIGN_CSV_BATCHES):
         profile = 'Invitalia'
         organization = min(p['organizationId'] for p in foreign)
-        selected = [p for p in foreign if p['organizationId'] == organization]
-    data = {'profile': profile, 'initiative': 'A', 'organization_id': organization,
-            'product_gtins': [p['gtinCode'] for p in selected]}
+        products = [p for p in foreign if p['organizationId'] == organization]
+    data = {'profile': profile, 'initiative': target_alias,
+            'organization_id': organization,
+            'product_gtins': [p['gtinCode'] for p in products]}
     if kind in (ORGANIZATION_CSV_BATCHES, FOREIGN_CSV_BATCHES):
-        data['batch_ids'] = product_batch_ids(selected)
+        data['batch_ids'] = product_batch_ids(products)
     return data
 
 
 def csv_history(context):
     """Use acknowledged uploads with unambiguous ownership and exact expected IDs."""
-    profile, _ = new_producer(context, ('A', 'B'))
+    selected = rdb.selected_initiative_alias(context)
+    other = rdb.other_initiative_alias(context)
+    profile, _ = new_producer(context, (selected, other))
     own = [rdb.upload_generated_csv(context) for _ in range(2)]
-    rdb.select_initiative(context, 'B')
-    decoder_csv(context)
+    rdb.select_initiative(context, other)
+    rdb.set_csv(context)
     other_initiative = rdb.finish_upload(context)
+    rdb.select_initiative(context, selected)
     new_producer(context)
     other_producer = rdb.upload_generated_csv(context)
     ids = [item['productFileId'] for item in (*own, other_initiative, other_producer)]
     assert len(set(ids)) == 4, 'Independent uploads must have distinct file IDs'
-    return {'profile': profile, 'initiative': 'A',
+    return {'profile': profile, 'initiative': selected,
             'upload_ids': [item['productFileId'] for item in own]}
 
 
 def inaccessible_report(context, other_initiative=False):
     s = rdb.state(context)
+    selected = rdb.selected_initiative_alias(context)
+    other = rdb.other_initiative_alias(context)
     if other_initiative:
         # Report access is scoped by organization AND initiative. Reuse the
         # configured producer, but prove it is enabled on both initiatives.
         rdb.authenticate(context, 'producer')
-        ids = {rdb.select_initiative(context, alias) for alias in ('A', 'B')}
+        ids = {rdb.select_initiative(context, alias) for alias in (selected, other)}
         assert len(ids) == 2, 'Report isolation requires two distinct initiatives'
         enabled = {item['initiativeId'] for item in rdb.success(api.get_initiatives(s.token)).json()
                    if item['enabled'] is True}
-        assert ids <= enabled, 'The configured producer must be enabled on A and B'
-        rdb.select_initiative(context, 'A')
+        assert ids <= enabled, 'The configured producer must be enabled on both initiatives'
+        rdb.select_initiative(context, selected)
     else:
         rdb.authenticate(context, 'producer')
-        rdb.select_initiative(context, 'A')
-    rows = rdb.cooking_products()
+        rdb.select_initiative(context, selected)
+    rows = rdb.product_rows(context)
     rows[0][0] = ''
     rdb.set_csv(context, rows)
     result = rdb.outcome(api.verify_product_file(s.token, s.initiative_id, s.category, s.csv_file), 'KO')
@@ -160,10 +173,10 @@ def inaccessible_report(context, other_initiative=False):
     # Demonstrate report existence before testing access from a different scope.
     rdb.success(api.download_product_file_report(s.token, s.initiative_id, file_id))
     if other_initiative:
-        initiative = 'B'
-        rdb.select_initiative(context, initiative)
+        rdb.select_initiative(context, other)
+        initiative = other
     else:
-        initiative = 'A'
+        initiative = selected
         owner = s.organization_id
         # DownloadReport checks the report's organization and initiative, without
         # an association precondition. A fresh producer token is sufficient.
@@ -175,16 +188,19 @@ def inaccessible_report(context, other_initiative=False):
 
 def producer_without_email(context):
     profile, _ = new_producer(context)
-    return {'profile': profile, 'initiative': 'A', 'producer_profile': profile}
+    return {'profile': profile, 'initiative': rdb.selected_initiative_alias(context),
+            'producer_profile': profile}
 
 
 def initiative_producers(context):
     """Import positive/negative association controls, independently of seeded products."""
-    new_producer(context, ('A',))
+    selected = rdb.selected_initiative_alias(context)
+    other = rdb.other_initiative_alias(context)
+    new_producer(context, (selected,))
     own = rdb.state(context).organization_id
-    new_producer(context, ('B',))
+    new_producer(context, (other,))
     foreign = rdb.state(context).organization_id
-    return {'profile': 'Invitalia', 'initiative': 'A',
+    return {'profile': 'Invitalia', 'initiative': selected,
             'known_producer_ids': [own], 'foreign_producer_ids': [foreign]}
 
 

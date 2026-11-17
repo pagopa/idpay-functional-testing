@@ -34,7 +34,7 @@ Feature: Export Transactions (Report CSV)
     Given the operator with role l1 selects merchant 1 and a date range of 30 days
     And the operator requests the CSV report export
     And the report request is inserted
-    When the operator tries to download the generated CSV report
+    When the operator tries to download the generated CSV report within 600 seconds
     Then the CSV report is downloaded correctly
 
   Scenario Outline: Operator is authorized to download the CSV report

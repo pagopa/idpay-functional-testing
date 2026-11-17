@@ -38,7 +38,7 @@ Feature: Manage the product CSV lifecycle
     And all submitted RDB products have status "UPLOADED"
 
   @csv_flow_success @csv_processing
-  Scenario: Process cooking hobs without requiring EPREL data
+  Scenario: Process products without requiring EPREL data
     Given the producer is enabled for the RDB initiative
     And a valid RDB product CSV with 1 rows
     When the producer uploads the RDB product CSV
@@ -109,7 +109,7 @@ Feature: Manage the product CSV lifecycle
   # Flow: Concurrent uploads and isolation between initiatives
   @csv_flow_initiative_isolation @upload_csv @rdb_fixture
   Scenario: Reject concurrent uploads for the same initiative and organization
-    Given a new RDB CSV is prepared for concurrent processing on initiative A
+    Given a new RDB CSV is prepared for concurrent processing on the selected initiative
     And a valid RDB product CSV with 1 rows
     When the producer uploads the RDB product CSV during the first processing
     Then the first RDB CSV was processing before and after the second upload request
@@ -176,6 +176,7 @@ Feature: Manage the product CSV lifecycle
       | dataset                        |
       | report from another producer   |
       | upload without report          |
+      | report from another initiative |
 
   @csv_flow_history @csv_history @rdb_fixture
   Scenario: List only uploads belonging to the organization and initiative

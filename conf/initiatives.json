@@ -1,0 +1,12 @@
+{
+  "bonus_elettrodomestici": {
+    "initiative_id": "bonus_elettrodomestici",
+    "product_gtin": "TUMBLEDRYERS03",
+    "report_suite": "Bonus Elettrodomestici"
+  },
+  "bonus_decoder": {
+    "initiative_id": "bonus_decoder",
+    "product_gtin": "DECODER20",
+    "report_suite": "Bonus Decoder"
+  }
+}

@@ -1,6 +1,6 @@
 @rdb @read_registry @bonus_decoder @bonus_elettrodomestici
 Feature: Consult RDB registry scope and producer details
-  Multi-initiative fixtures compare appliances initiative A with decoder initiative B.
+  Multi-initiative fixtures use the selected initiative as the query target and the other as an isolation control.
   Producer detail requests do not select an initiative.
 
   @rdb_fixture

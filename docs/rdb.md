@@ -4,11 +4,12 @@ The RDB suite contains 96 independent scenarios, split across
 `bdd/features/common_bonus_features/rdb` (26),
 `bdd/features/bonus_elettrodomestici/rdb` (66), and
 `bdd/features/bonus_decoder/rdb` (4).
-Appliances-specific scenarios explicitly select initiative A; decoder isolation
-scenarios also require initiative A alongside B. The common initiative-list
-fixtures may require both initiatives. Common registry-scope and CSV-history
-scenarios tagged `@multi_initiative` use A as the query target and B as an
-isolation control. Producer detail requests are initiative-independent.
+Common scenarios that operate on one Bonus use the initiative selected by
+`PARI_FEATURE_INITIATIVE`; fixtures that verify isolation use the other Bonus
+as a control. The `A` and `B` aliases still identify appliances and decoder
+respectively, but are not fixed query targets in shared scenarios.
+Appliances-specific EPREL scenarios target the appliances initiative.
+Producer detail requests are initiative-independent.
 Decoder scenarios remain in the decoder suite when the operation under test
 targets B, even if their prerequisites also use A.
 Steps use the APIs of the selected environment; generated datasets do not mock responses.
@@ -26,11 +27,24 @@ In PowerShell, explicitly select the environment:
 ```powershell
 $env:PARI_TARGET_ENV = "uat"  # or "dev"
 $env:PARI_FEATURE_INITIATIVE = "bonus_elettrodomestici"
-pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb"
+pipenv run behave --junit --junit-directory "tests/reports/behave" --tags "@rdb" --tags "(bonus_elettrodomestici or not bonus_decoder)"
 ```
 
 In the `test-run` workflow, select the environment, type `bdd`, and tag `rdb`.
+Each matrix job excludes scenarios tagged only with other registered initiatives, while
+retaining shared scenarios and scenarios without Bonus tags. For a local decoder
+run, use `--tags "(bonus_decoder or not bonus_elettrodomestici)"` instead.
 To run a single scenario, use the feature path and `--name "^Scenario name$"`.
+
+The initiative registry is `conf/initiatives.json`. Behave configuration, the CI
+`all` matrix, scenario exclusion filters and Allure suite names use this registry.
+Add new execution initiatives there with their logical ID, product GTIN and report
+suite name; configure their payloads, environment secrets and business-specific
+fixtures separately. The initiative is selected in the pipeline's manual dropdown.
+Add each new initiative to that dropdown in `.github/workflows/test-run.yaml` as
+well: GitHub Actions requires static choice options. Selecting `all` expands the
+matrix automatically from the registry.
+RDB A/B isolation fixtures remain specific to the two existing Bonuses.
 
 The file specified by `PARI_SECRET_PATH` (default: `conf/pari-feature-secrets.json`)
 must contain a section for the selected environment. Imports require access
@@ -60,6 +74,12 @@ Keep credentials, JWTs, and personal data out of Git. Public URLs, initiative ID
 and energy class thresholds are not credentials.
 
 ## Data written by the tests
+
+Decoder CSV fixtures use these eight headers in order: `Codice GTIN/EAN`,
+`Codice Prodotto`, `Categoria`, `Marca`, `Modello`, `Scart`, `Connessione IP`,
+`Scheda tecnica`. Valid generated rows use category `DT`, `SI` for Scart,
+`LAN` for connectivity and an HTTPS technical-sheet URL. Shared, concurrency
+and cross-initiative fixtures reuse the same decoder row generator.
 
 The suite uses the real APIs of the selected environment. CSV uploads and validation
 can create products, history records, and reports; imports and email updates modify
@@ -108,9 +128,9 @@ For tests that write data, expectations derive from inputs or confirmed writes.
 
 The suite prepares CSV files, products, history, reports, associations, and draft
 initiatives through APIs. Four product/batch read tests reuse existing data:
-products must exist for the configured producer and another organization in A,
-as well as products in B. They verify consistency and isolation, rather than
-independently establishing inventory completeness.
+products must exist for the configured producer and another organization in the
+selected initiative, as well as products in the other initiative. They verify
+consistency and isolation, rather than independently establishing inventory completeness.
 SelfCare cases require an existing institution with a known VAT number.
 
 Following the standup decision, the cases for renewed acceptance after a version
@@ -120,12 +140,12 @@ without developing dedicated test APIs now. These cases are not counted as passe
 or skipped.
 Historical reports retain the original scope of 98 scenarios.
 
-Concurrent upload tests prepare a 100-row EPREL CSV and verify that it is active
-before and after the second upload. Preliminary cleanup checks for both files
-run before the first upload, outside the measured window.
+Concurrent upload tests prepare a 100-row CSV valid for the selected initiative
+and verify that it is active before and after the second upload. Preliminary
+cleanup checks for both files run before the first upload, outside the measured window.
 These tests do not require `datasets.upload in progress`.
-The producer must be enabled on A/B and have no other active uploads; the test
-waits for its own CSV to finish without suspending shared consumers.
+The producer must be enabled on the selected initiative and have no other active
+uploads; the test waits for its own CSV to finish without suspending shared consumers.
 
 ## Functional scope
 
