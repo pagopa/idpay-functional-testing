@@ -4,5 +4,5 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-"$SCRIPT_DIR/redact-password.sh" "${1:-.}"
+bash "$SCRIPT_DIR/redact-password.sh" "${1:-.}"
 
