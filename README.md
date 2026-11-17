@@ -209,10 +209,10 @@ npm run ui:test
   - `ui`
   - `all`
 - Manual dispatch `ui_target` options (for UI runs):
-  - `welfare_enti`
-  - `welfare_esercenti`
-  - `rdb`
-  - `pari_utente`
+  - `Portale enti`
+  - `Portale esercente`
+  - `Registro dei beni`
+  - `Portale utente`
 
 The UI workflow uploads `test-results` and `playwright-report` as artifacts.
 On pull requests, the report is available as Action artifact (`ui-test-results`).

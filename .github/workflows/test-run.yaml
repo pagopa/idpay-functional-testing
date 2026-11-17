@@ -65,13 +65,13 @@ on:
       ui_target:
         description: UI target to test
         required: false
-        default: welfare_enti
+        default: Portale enti
         type: choice
         options:
-          - welfare_enti
-          - welfare_esercenti
-          - rdb
-          - pari_utente
+          - Portale enti
+          - Portale esercente
+          - Registro dei beni
+          - Portale utente
 
       reward_batch_cleanup:
         description: Cleanup environment after test run

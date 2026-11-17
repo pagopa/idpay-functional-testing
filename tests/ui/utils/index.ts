@@ -53,10 +53,42 @@ function toBoolean(value: string | boolean | undefined, fallback: boolean): bool
   return fallback;
 }
 
+const LEGACY_TO_CANONICAL_TARGET: Record<string, string> = {
+  'portale enti': 'portale_enti',
+  'portale esercente': 'portale_esercente',
+  'registro dei beni': 'registro_dei_beni',
+  'portale utente': 'portale_utente',
+  welfare_enti: 'portale_enti',
+  welfare_ente: 'portale_enti',
+  welfare_esercente: 'portale_esercente',
+  welfare_esercenti: 'portale_esercente',
+  welfare_rdb: 'registro_dei_beni',
+  rdb: 'registro_dei_beni',
+  pari_utente: 'portale_utente'
+};
+
+const CANONICAL_TO_LEGACY_TARGETS: Record<string, string[]> = {
+  portale_enti: ['welfare_enti', 'welfare_ente'],
+  portale_esercente: ['welfare_esercente', 'welfare_esercenti'],
+  registro_dei_beni: ['rdb', 'welfare_rdb'],
+  portale_utente: ['pari_utente']
+};
+
+function normalizeUiTargetName(targetName: string): string {
+  const normalized = targetName.trim().toLowerCase();
+  return LEGACY_TO_CANONICAL_TARGET[normalized] ?? normalized;
+}
+
+function resolveTargetCandidates(targetName: string): string[] {
+  const normalized = normalizeUiTargetName(targetName);
+  return [normalized, ...(CANONICAL_TO_LEGACY_TARGETS[normalized] ?? [])];
+}
+
 function readUiTargetFromSecretFile(): UiTargetSecrets | null {
   const secretPath = process.env.PARI_SECRET_PATH;
   const targetEnv = process.env.PARI_TARGET_ENV;
-  const uiTarget = (process.env.UI_TARGET ?? '').toLowerCase();
+  const rawUiTarget = process.env.UI_TARGET ?? '';
+  const uiTarget = normalizeUiTargetName(rawUiTarget);
 
   if (!secretPath || !targetEnv || !uiTarget || uiTarget === 'all') {
     return null;
@@ -81,7 +113,9 @@ function readUiTargetFromSecretFile(): UiTargetSecrets | null {
     throw new Error(`Missing 'ui_targets' under environment '${targetEnv}' in ${secretPath}.`);
   }
 
-  const targetConfig = uiTargets[uiTarget];
+  const targetConfig = resolveTargetCandidates(uiTarget)
+    .map((target) => uiTargets[target])
+    .find((config) => config && typeof config === 'object');
   if (!targetConfig || typeof targetConfig !== 'object') {
     throw new Error(
       `Missing UI target '${uiTarget}' in ${secretPath} for environment '${targetEnv}'.`
@@ -92,19 +126,19 @@ function readUiTargetFromSecretFile(): UiTargetSecrets | null {
 }
 
 const uiTargetConfig = readUiTargetFromSecretFile();
-const uiTargetName = (process.env.UI_TARGET ?? '').toLowerCase();
+const uiTargetName = normalizeUiTargetName(process.env.UI_TARGET ?? '');
 
 const UI_TARGET_DEFAULTS: Record<string, UiTargetDefaults> = {
-  welfare_enti: {
+  portale_enti: {
     loginPath: '/accesso'
   },
-  welfare_esercenti: {
+  portale_esercente: {
     loginPath: '/accesso'
   },
-  rdb: {
+  registro_dei_beni: {
     loginPath: ''
   },
-  pari_utente: {
+  portale_utente: {
     loginPath: '',
     loginButtonName: 'Continua sul sito',
     postLoginPath: '/dashboard'
