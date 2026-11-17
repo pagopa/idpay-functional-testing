@@ -45,6 +45,24 @@ function buildExpectedAuthenticatedUrlRegex(): RegExp {
   return /selfcare\.pagopa\.it\/dashboard(?:\/|[?#].*)?$/;
 }
 
+function resolveAuthenticatedEntryUrl(): string {
+  if (uiConfig.postLoginUrl) {
+    return uiConfig.postLoginUrl;
+  }
+
+  if (uiConfig.postLoginPath) {
+    return buildAbsolutePathUrl(uiConfig.baseUrl, uiConfig.postLoginPath);
+  }
+
+  if (/pari\.pagopa\.it/.test(uiConfig.baseUrl)) {
+    throw new Error(
+      `Missing authenticated destination for portal base URL '${uiConfig.baseUrl}'. Set post_login_path or post_login_url for this target in secrets.`
+    );
+  }
+
+  return 'https://uat.selfcare.pagopa.it/dashboard';
+}
+
 authTest.describe('UI authenticated session', () => {
   if (process.env.CI && !hasAuthPrerequisites()) {
     throw new Error(`Missing auth configuration: ${missingAuthEnv().join(', ')}`);
@@ -53,7 +71,7 @@ authTest.describe('UI authenticated session', () => {
 
   authTest('reuses authenticated browser context', async ({ authenticatedPage }) => {
     const expectedAuthenticatedUrlRegex = buildExpectedAuthenticatedUrlRegex();
-    await authenticatedPage.goto(uiConfig.baseUrl);
+    await authenticatedPage.goto(resolveAuthenticatedEntryUrl());
     await expect(authenticatedPage).toHaveURL(expectedAuthenticatedUrlRegex);
   });
 });

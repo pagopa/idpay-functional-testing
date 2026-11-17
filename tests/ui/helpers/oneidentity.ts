@@ -196,7 +196,7 @@ async function clickTestIdUntilVisible(
   const stepDeadlineMs = resolveStepDeadline(deadlineMs, maxStepWaitMs);
 
   while (Date.now() < stepDeadlineMs) {
-    currentPage = await ensureActivePage(currentPage, loginUrl);
+    currentPage = await ensureActivePage(currentPage);
     const locator = currentPage.getByTestId(testId).first();
     if (await locator.isVisible({ timeout: 500 }).catch(() => false)) {
       await locator.click({ noWaitAfter: options?.noWaitAfter });
@@ -258,6 +258,32 @@ async function clickNamedControlUntilVisible(
   }
 
   return currentPage;
+}
+
+async function clickSpidEntryPoint(
+  page: Page,
+  loginUrl: string,
+  deadlineMs: number,
+  config: OneIdentityUiConfig
+): Promise<Page> {
+  let currentPage = page;
+
+  // Prefer explicit configured test id first.
+  currentPage = await clickTestIdUntilVisible(currentPage, config.spidButtonTestId, loginUrl, deadlineMs, {
+    noWaitAfter: true
+  }, 10000);
+
+  // Fallbacks for portals where SPID entry is rendered with role/text instead of test id.
+  if (!/oneid\.pagopa\.it/.test(currentPage.url())) {
+    currentPage = await clickNamedControlUntilVisible(currentPage, 'Entra con SPID', loginUrl, deadlineMs, {
+      noWaitAfter: true
+    }, 6000);
+    currentPage = await clickRoleButtonUntilVisible(currentPage, 'SPID', loginUrl, deadlineMs, {
+      noWaitAfter: true
+    }, 4000);
+  }
+
+  return ensureActivePage(currentPage, loginUrl);
 }
 
 async function clickTextIfVisible(page: Page, text: string): Promise<void> {
@@ -491,9 +517,7 @@ export async function performOneIdentityLogin(
   currentPage = await clickTestIdUntilVisible(currentPage, config.loginButtonTestId, loginUrl, deadlineMs, {
     noWaitAfter: true
   }, 8000);
-  currentPage = await clickTestIdUntilVisible(currentPage, config.spidButtonTestId, loginUrl, deadlineMs, {
-    noWaitAfter: true
-  }, 10000);
+  currentPage = await clickSpidEntryPoint(currentPage, loginUrl, deadlineMs, config);
   currentPage = await clickTestIdUntilVisible(currentPage, config.idpButtonTestId, loginUrl, deadlineMs, {
     noWaitAfter: true
   }, 10000);
@@ -572,7 +596,7 @@ export async function performOneIdentityLogin(
     currentPage.waitForURL(selfcareDashboardRegex, { timeout: postAuthTimeout })
   ]).catch(() => undefined);
 
-  currentPage = await ensureActivePage(currentPage, loginUrl);
+  currentPage = await ensureActivePage(currentPage);
 
   if (!expectedFinalRegex.test(currentPage.url())) {
     if (expectedPostLoginUrlRegex && config.postLoginUrl) {
