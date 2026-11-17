@@ -258,7 +258,7 @@ jobs:
           keep_files: true
 
       - name: Notify test report to Slack when tests fail
-        if: needs.run-bdd-feature-tests.result == 'failure'
+        if: always() && needs.run-bdd-feature-tests.result == 'failure'
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           webhook: ${{ secrets.SLACK_NOTIFICATION_WEBHOOK }}
@@ -274,4 +274,4 @@ jobs:
                   type: "mrkdwn"
                   text: |-
                     • *Environment:* `${{ inputs.target_env }}`
-                    • <https://pagopa.github.io/${{ github.event.repository.name }}/bdd/${{ github.run_number }}/|Open report #${{ github.run_number }}>
+                    • ${{ success() && format('<https://pagopa.github.io/{0}/bdd/{1}/|Open report #{1}>', github.event.repository.name, github.run_number) || format('<{0}/{1}/actions/runs/{2}|Open run #{3}>', github.server_url, github.repository, github.run_id, github.run_number) }}
