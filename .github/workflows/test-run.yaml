@@ -50,6 +50,7 @@ on:
         default: uat
         type: choice
         options:
+          - dev
           - uat
 
       test_type:
