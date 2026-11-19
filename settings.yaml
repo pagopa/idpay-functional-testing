@@ -58,6 +58,8 @@ IDPAY:
     payment:
       path: '/payment'
       internal_path: '/idpaypayment/idpay'
+      transaction_end_date_test_support: '/internal/test-support/transactions/{transaction_id}/end-date'
+      expired_transactions_update_status: '/transactions/expired/initiatives/{initiative_id}/update-status'
       bar_code:
         path: '/bar-code'
     transactions:
