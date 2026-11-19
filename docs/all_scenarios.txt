@@ -1,4 +1,5 @@
 A citizen's second barcode payment is rejected
+A merchant cannot authorize an expired barcode payment
 A merchant captures an authorized barcode payment
 A merchant invoices a captured barcode payment
 A merchant invoices an already invoiced barcode payment
