@@ -60,10 +60,19 @@ class PostMergeCompatibilityTest(unittest.TestCase):
         initialize.assert_called_once_with(context)
 
     def test_new_negative_case_initiative_is_registered_for_cleanup(self):
-        secrets = Box(initiatives={}, newly_created=set())
+        institution_info = object()
+        secrets = Box(
+            initiatives={},
+            newly_created=set(),
+            selfcare_info=Box(test_institution=institution_info))
         with patch.object(initiative_steps, "secrets", secrets), \
-             patch.object(initiative_steps, "create_initiative", return_value="created-test") as create:
+             patch.object(initiative_steps, "create_initiative", return_value="created-test") as create, \
+             patch.object(initiative_steps, "get_selfcare_token", return_value="offline-token") as get_token, \
+             patch.object(initiative_steps, "wait_for_initiative_ready") as wait_ready:
             initiative_steps.step_new_initiative_created(SimpleNamespace(), "NOT_STARTED")
         create.assert_called_once_with("NOT_STARTED")
+        get_token.assert_called_once_with(institution_info=institution_info)
+        wait_ready.assert_called_once_with(
+            selfcare_token="offline-token", initiative_id="created-test")
         self.assertEqual(secrets.initiatives["NOT_STARTED"]["id"], "created-test")
         self.assertEqual(secrets.newly_created, {"created-test"})
