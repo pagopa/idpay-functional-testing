@@ -65,9 +65,9 @@ def step_transaction_is_not_associated_with_reward_batch(context, trx_name):
     'the merchant {merchant_name} postpones transaction {trx_name} to the next reward batch'
 )
 def step_postpone_transaction_to_next_reward_batch(
-    context,
-    merchant_name,
-    trx_name,
+        context,
+        merchant_name,
+        trx_name,
 ):
     reward_batch_id = _stored_reward_batch_id(context, trx_name)
     merchant_id = context.merchants[merchant_name]['id']
@@ -376,8 +376,8 @@ def step_approved_reward_batch_keeps_suspended_amount(context, trx_name):
         f'{sent_reward_batch["initialAmountCents"]}, got {reward_batch["initialAmountCents"]}'
     )
     expected_number_of_transactions = (
-        captured_counters['numberOfTransactions']
-        - captured_counters['suspendedTransactionsCount']
+            captured_counters['numberOfTransactions']
+            - captured_counters['suspendedTransactionsCount']
     )
     assert reward_batch['numberOfTransactions'] == expected_number_of_transactions, (
         f'Expected approved reward batch {reward_batch["id"]} to contain '
@@ -385,8 +385,8 @@ def step_approved_reward_batch_keeps_suspended_amount(context, trx_name):
         f'got {reward_batch["numberOfTransactions"]}'
     )
     expected_current_amount = (
-        captured_counters['currentAmountCents']
-        - captured_counters['suspendedTransactionsAmountCents']
+            captured_counters['currentAmountCents']
+            - captured_counters['suspendedTransactionsAmountCents']
     )
     assert reward_batch['currentAmountCents'] == expected_current_amount, (
         f'Expected approved reward batch {reward_batch["id"]} to have current amount '
