@@ -55,14 +55,13 @@ Feature: Onboarding to an initiative
     When the citizen A tries to onboard the initiative NOT_STARTED
     Then the citizen onboarding failed because initiative not started
 
-    Scenario: A citizen tries to onboard an initiative with residual budget less than 100 euros
+  Scenario: A citizen tries to onboard an initiative with residual budget less than 100 euros
     Given the citizen A is 21 years old exactly
     And the new initiative budget_exhausted is created
     When the citizen A tries to onboard the initiative budget_exhausted
     Then the citizen onboarding failed because initiative budget exhausted
 
-    @wip
-    Scenario: A citizen reonboards after transaction refund
+  Scenario: A citizen reonboards after transaction refund
     Given the citizen A is 21 years old exactly
     And the citizen A tries to onboard the initiative
     And the onboard of A becomes OK within 300 seconds
