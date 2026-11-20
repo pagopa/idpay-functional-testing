@@ -6,6 +6,7 @@ from behave import given
 from api.idpay import post_initiative_info
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.initiative_utilities import wait_for_initiative_ready
 from util.utility import create_initiative
 from util.utility import create_initiative_and_update_conf
 from util.utility import get_selfcare_token
@@ -76,6 +77,8 @@ def step_new_initiative_created(context, initiative_name):
         secrets.initiatives[initiative_name] = {'id': None}
     secrets.initiatives[initiative_name]['id'] = initiative_id
     secrets["newly_created"].add(initiative_id)
+    token = get_selfcare_token(institution_info=secrets.selfcare_info.test_institution)
+    wait_for_initiative_ready(selfcare_token=token, initiative_id=initiative_id)
 
 
 @given('the new initiative {initiative_name} is created but not published')

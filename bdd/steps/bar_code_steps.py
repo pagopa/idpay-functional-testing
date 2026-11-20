@@ -15,8 +15,11 @@ from api.idpay import put_capture_bar_code_merchant
 from api.idpay import put_invoice_bar_code_as_merchant
 from api.idpay import wallet
 from api.keycloak import get_client_credentials_token
+from api.payment import patch_transaction_end_date
+from api.payment import post_update_expired_transactions_status
 from conf.configuration import secrets
 from conf.configuration import settings
+from util.data_vault_utilities import tokenize_fc
 from util.utility import get_io_token
 from util.utility import get_merchant_access_token
 from util.utility import retry_bar_code_transaction_cancellation
@@ -55,6 +58,46 @@ def step_citizen_create_bar_code(context, citizen_name, trx_name):
 
     context.transactions[trx_name] = response.json()
     context.associated_citizen[trx_name] = context.citizens_fc[citizen_name]
+    context.transactions[trx_name]['userId'] = tokenize_fc(
+        fiscal_code=context.associated_citizen[trx_name]
+    )
+
+
+@given('the end date of transaction {trx_name} by Bar Code is set to the past')
+def step_set_bar_code_end_date_to_past(context, trx_name):
+    end_date = datetime.datetime.now(ZoneInfo('Europe/Rome')) - datetime.timedelta(days=2)
+    transaction = context.transactions[trx_name]
+    response = patch_transaction_end_date(
+        transaction_id=transaction['id'],
+        initiative_id=context.initiative_id,
+        user_id=transaction['userId'],
+        new_end_date=end_date,
+    )
+    assert response.status_code == 204, (
+        f'Barcode end date update failed: {response.status_code} {response.text}'
+    )
+
+
+@given('expired transaction statuses are updated for the initiative')
+def step_update_expired_bar_code_transactions(context):
+    response = post_update_expired_transactions_status(
+        initiative_id=context.initiative_id
+    )
+    assert response.status_code == 200, (
+        f'Expired transaction status update failed: {response.status_code} {response.text}'
+    )
+
+
+@then('the Bar Code authorization is rejected with error {error_code}')
+def step_check_bar_code_authorization_error(context, error_code):
+    response = context.latest_merchant_authorization_bar_code
+    assert response.status_code == 404, (
+        f'Expected barcode authorization HTTP 404, got '
+        f'{response.status_code} {response.text}'
+    )
+    assert response.json()['code'] == error_code, (
+        f'Expected barcode authorization error {error_code}, got {response.text}'
+    )
 
 
 def get_point_of_sale_access_token(merchant_name, point_of_sale_name):
