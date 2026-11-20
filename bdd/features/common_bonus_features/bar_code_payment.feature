@@ -68,3 +68,10 @@ Feature: Barcode payments for initiatives
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     And the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
     Then with Bar Code the transaction X is refunded
+
+  Scenario: A merchant cannot authorize an expired barcode payment
+    Given the citizen A creates the transaction X by Bar Code
+    And the end date of transaction X by Bar Code is set to the past
+    And expired transaction statuses are updated for the initiative
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
+    Then the Bar Code authorization is rejected with error PAYMENT_NOT_FOUND_OR_EXPIRED
