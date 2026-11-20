@@ -64,22 +64,17 @@ Feature: Onboarding to an initiative
     @wip
     Scenario: A citizen reonboards after transaction refund
     Given the citizen A is 21 years old exactly
-    And the citizen A has ISEE 24000 of type "ordinario"
-    And the citizen A selects ISEE type "under_25000"
     And the citizen A tries to onboard the initiative
     And the onboard of A becomes OK within 300 seconds
     And the merchant 1 is qualified
     And the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
-    And sleep 10 seconds
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
     And sleep 10 seconds
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
     And sleep 10 seconds
     And the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
-    And sleep 10 seconds
     And with Bar Code the transaction X is refunded
     And the onboard of A becomes UNSUBSCRIBED within 300 seconds
-    And sleep 10 seconds
     And the citizen A tries to onboard the initiative
     Then the onboard attempt 2 of A becomes OK within 300 seconds
