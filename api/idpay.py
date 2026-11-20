@@ -304,6 +304,18 @@ def get_initiatives_summary(selfcare_token: str
     )
 
 
+def get_initiative_detail(selfcare_token: str,
+                          initiative_id: str
+                          ):
+    return requests.get(
+        url=f'{secrets.base_path.IO}{settings.IDPAY.domain}/initiative/{initiative_id}',
+        headers={
+            'Authorization': f'Bearer {selfcare_token}',
+        },
+        timeout=settings.default_timeout
+    )
+
+
 def delete_initiative(initiative_id: str, domain: str = None):
     """API to delete everything related to an initiative.
             :param initiative_id: ID of the initiative of interest.
