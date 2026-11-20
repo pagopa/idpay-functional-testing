@@ -73,40 +73,24 @@ def get_merchant_access_token(initiative_name: str, merchant_name: str):
     return access_token
 
 
-def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5,
-                   message='Test failed', page: int = 0):
-    count = 0
-    res = request(initiative_id, token, page)
-
-    if res.status_code == 404:
+def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5, page: int = 0):
+    success = False
+    tries_count = 0
+    while not success and tries_count < tries:
         res = request(initiative_id, token, page)
-        while res.status_code == 404:
-            time.sleep(delay)
-            res = request(initiative_id, token, page)
-
-    operations = []
-    for operation in res.json()['operationList']:
-        if field in operation:
-            if operation[field] == expected:
-                operations.append(operation)
-    success = len(operations) == num_required
-
-    while not success:
-        count += 1
-        if count == tries:
-            break
+        if 200 <= res.status_code < 300:
+            count = 0
+            for operation in res.json()['operationList']:
+                if field in operation and operation[field] == expected:
+                    count += 1
+            print(f'Found {count} of "{expected}" in "{field}"')
+            success = count == int(num_required)
+        tries_count += 1
         time.sleep(delay)
-        res = request(initiative_id, token, page)
 
-        operations = []
-        for operation in res.json()['operationList']:
-            if field in operation:
-                if operation[field] == expected:
-                    operations.append(operation)
-        success = len(operations) == num_required
+    assert 200 <= res.status_code < 300, f'timeline request failed: status: {res.status_code}, body: {res.text}'
+    assert success, (f'Expected {num_required} of "{expected}" in "{field}"; response status: {res.status_code}; body: {res.text}')
 
-    assert success, (
-        f'result retry timeline {res.json()[field]} does not match expected {expected} for field {field}')
     return res
 
 
@@ -483,5 +467,4 @@ def citizen_unsubscribe_from_initiative(initiative_id: str,
     retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token,
                  initiative_id=initiative_id, field='status', tries=3, delay=3)
     retry_timeline(expected=timeline_operations.unsubscribed, request=timeline, num_required=1, token=token,
-                   initiative_id=initiative_id, field='operationType', tries=10, delay=3,
-                   message='Not unsubscribed')
+                   initiative_id=initiative_id, field='operationType', tries=10, delay=3)

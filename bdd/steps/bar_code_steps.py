@@ -1,4 +1,5 @@
 import datetime
+import time
 from zoneinfo import ZoneInfo
 
 from behave import given
@@ -265,8 +266,9 @@ def step_merchant_update_invoice_bar_code(context, merchant_name, trx_name):
     context.invoice_update_months[trx_name] = expected_months
 
 
-@then('with Bar Code the transaction {trx_name} is {expected_status}')
 @given('with Bar Code the transaction {trx_name} is {expected_status}')
+@when('with Bar Code the transaction {trx_name} is {expected_status}')
+@then('with Bar Code the transaction {trx_name} is {expected_status}')
 def step_check_detail_transaction_bar_code(context, trx_name, expected_status):
     status = expected_status.upper()
 
