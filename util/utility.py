@@ -83,7 +83,6 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
             for operation in res.json()['operationList']:
                 if field in operation and operation[field] == expected:
                     count += 1
-            print(f'Found {count} of "{expected}" in "{field}"')
             success = count == int(num_required)
         tries_count += 1
         time.sleep(delay)
@@ -105,6 +104,7 @@ def retry_wallet(expected, request, token, initiative_id, field, tries=3, delay=
         time.sleep(delay)
         res = request(initiative_id, token)
         success = (res.status_code == 200 and expected == res.json()[field])
+    assert res.status_code == 200, f'result retry wallet, status: {res.status_code}; body: {res.text}'
     assert success, (
         f'result retry wallet {res.json()[field]} does not match expected {expected} for field {field}'
     )
