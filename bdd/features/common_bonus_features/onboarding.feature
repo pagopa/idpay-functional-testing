@@ -69,9 +69,7 @@ Feature: Onboarding to an initiative
     And the citizen A creates the transaction X by Bar Code
     When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
     And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
-    And sleep 10 seconds
     And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
-    And sleep 10 seconds
     And the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
     And with Bar Code the transaction X is refunded
     And the onboard of A becomes UNSUBSCRIBED within 300 seconds
