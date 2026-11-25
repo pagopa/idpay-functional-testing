@@ -76,7 +76,7 @@ def get_merchant_access_token(initiative_name: str, merchant_name: str):
 def retry_timeline(expected, request, token, initiative_id, field, num_required=1, tries=3, delay=5, page: int = 0):
     success = False
     tries_count = 0
-    while not success and tries_count < tries:
+    while True:
         res = request(initiative_id, token, page)
         if 200 <= res.status_code < 300:
             count = 0
@@ -85,6 +85,8 @@ def retry_timeline(expected, request, token, initiative_id, field, num_required=
                     count += 1
             success = count == int(num_required)
         tries_count += 1
+        if success or tries_count >= tries:
+            break
         time.sleep(delay)
 
     assert 200 <= res.status_code < 300, f'timeline request failed: status: {res.status_code}, body: {res.text}'
