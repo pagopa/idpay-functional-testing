@@ -61,12 +61,17 @@ Feature: Onboarding to an initiative
     When the citizen A tries to onboard the initiative budget_exhausted
     Then the citizen onboarding failed because initiative budget exhausted
 
-  @timeout
-  Scenario: An unsubscribed citizen onboards the same initiative again successfully
+  Scenario: A citizen reonboards after transaction refund
     Given the citizen A is 21 years old exactly
     And the citizen A tries to onboard the initiative
-    And the onboard of A is OK
-    And the citizen A unsubscribes
-    And the onboard of A is unsubscribed
-    When the citizen A tries to onboard the initiative
-    Then the onboard of A is OK
+    And the onboard of A becomes OK within 300 seconds
+    And the merchant 1 is qualified
+    And the citizen A creates the transaction X by Bar Code
+    When the point of sale pos_1 of merchant 1 tries to authorize the transaction X by Bar Code of amount 20000 cents with default product GTIN
+    And the point of sale pos_1 of merchant 1 captures the transaction X by Bar Code
+    And the point of sale pos_1 of merchant 1 invoices the transaction X by Bar Code
+    And the point of sale pos_1 of merchant 1 reverses the transaction X by Bar Code
+    And with Bar Code the transaction X is refunded
+    And the onboard of A becomes UNSUBSCRIBED within 300 seconds
+    And the citizen A tries to onboard the initiative
+    Then the onboard attempt 2 of A becomes OK within 300 seconds

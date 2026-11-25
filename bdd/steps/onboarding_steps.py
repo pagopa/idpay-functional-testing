@@ -1,5 +1,6 @@
 import time
 from hashlib import sha256
+from datetime import datetime
 
 from behave import given
 from behave import then
@@ -30,26 +31,44 @@ def step_named_citizen_onboard(context, citizen_name):
     perform_full_onboarding(context=context, citizen_name=citizen_name)
     step_check_onboarding_status(context=context, citizen_name=citizen_name, status='OK')
 
-@given('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
-@then('the onboard of {citizen_name} becomes OK within {timeout_seconds} seconds')
-def step_wait_for_onboarding_ok(context, citizen_name, timeout_seconds):
+
+@when('sleep {timeout_seconds} seconds')
+def step_sleep(context, timeout_seconds):
+    time.sleep(int(timeout_seconds))
+
+
+@given('the onboard of {citizen_name} becomes {status} within {timeout_seconds} seconds')
+@when('the onboard of {citizen_name} becomes {status} within {timeout_seconds} seconds')
+@then('the onboard of {citizen_name} becomes {status} within {timeout_seconds} seconds')
+@then('the onboard attempt {num} of {citizen_name} becomes {status} within {timeout_seconds} seconds')
+def step_wait_for_onboarding_status(context, citizen_name, status, timeout_seconds, num=1):
     timeout_seconds = int(timeout_seconds)
     onboarding_deadline = time.monotonic() + timeout_seconds
     token_io = get_io_token(context.citizens_fc[citizen_name])
+
+    if status == 'UNSUBSCRIBED':
+        expected = 'ONBOARDING_USER_NOT_ONBOARDED'
+        field = 'code'
+    else:
+        expected = 'ONBOARDING_' + status
+        field = 'status'
+
     retry_io_onboarding(
-        expected='ONBOARDING_OK',
+        expected=expected,
         request=status_onboarding,
         token=token_io,
         initiative_id=context.initiative_id,
-        field='status',
+        field=field,
         tries=timeout_seconds * 2,
         delay=0.5,
-        message=f'Citizen onboard not OK within {timeout_seconds} seconds'
+        message=f'Citizen onboard not {status} within {timeout_seconds} seconds'
     )
+
     step_check_onboarding_status(
         context=context,
         citizen_name=citizen_name,
-        status='OK',
+        status=status,
+        num=num,
         statistics_deadline=onboarding_deadline
     )
 
@@ -201,9 +220,10 @@ def step_onboarding_unsatisfied_requirements(context, citizen_name):
     )
 
 
-@then('the onboard of {citizen_name} is {status}')
 @given('the onboard of {citizen_name} is {status}')
-def step_check_onboarding_status(context, citizen_name, status, statistics_deadline=None):
+@then('the onboard of {citizen_name} is {status}')
+@then('the onboard attempt {num} of {citizen_name} is {status}')
+def step_check_onboarding_status(context, citizen_name, status, num=1, statistics_deadline=None):
     skip_statistics_check = False
     curr_onboarded_citizen_count_increment = 0
 
@@ -234,8 +254,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         retry_wallet(expected=wallet_statuses.suspended, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.suspended, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not suspended')
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'READMITTED':
@@ -247,8 +266,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.readmitted, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not readmitted')
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'OK':
@@ -258,9 +276,8 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
                             initiative_id=context.initiative_id, field='status', tries=62, delay=5,
                             message=f'Citizen onboard not {status}'
                             )
-        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not onboard')
+        retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=int(num), token=token_io,
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
         curr_onboarded_citizen_count_increment = 1
 
     elif status == 'UNSUBSCRIBED':
@@ -272,8 +289,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         retry_wallet(expected=wallet_statuses.unsubscribed, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.unsubscribed, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not unsubscribed')
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
         curr_onboarded_citizen_count_increment = 0
 
     elif status == 'ON_EVALUATION':
@@ -295,8 +311,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not onboard')
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
         expect_wallet_counters(expected_amount=context.initiative_settings['budget_per_citizen'],
                                expected_accrued=0,
                                token=token_io,
@@ -330,8 +345,7 @@ def step_check_onboarding_status(context, citizen_name, status, statistics_deadl
         retry_wallet(expected=wallet_statuses.refundable, request=wallet, token=token_io,
                      initiative_id=context.initiative_id, field='status', tries=3, delay=3)
         retry_timeline(expected=timeline_operations.onboarding, request=timeline, num_required=1, token=token_io,
-                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3,
-                       message='Not onboard')
+                       initiative_id=context.initiative_id, field='operationType', tries=10, delay=3)
 
         curr_onboarded_citizen_count_increment = 0
 
