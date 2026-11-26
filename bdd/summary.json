@@ -1,1 +1,1 @@
-{"name":"BDD Report #376","stats":{"failed":11,"broken":0,"skipped":0,"passed":28,"unknown":0,"total":39},"status":"failed","duration":2531927,"createdAt":1795695446866,"plugin":"Allure2","meta":{"reportId":"b50da5ef-e4c5-4688-9029-f3898983caca","singleFile":false}}
+{"name":"BDD Report #376","stats":{"failed":12,"broken":2,"skipped":0,"passed":25,"unknown":0,"total":39},"status":"failed","duration":1759163,"createdAt":1795701891415,"plugin":"Allure2","meta":{"reportId":"645cd243-cd8b-4032-adb7-6bffac5a786c","singleFile":false}}
