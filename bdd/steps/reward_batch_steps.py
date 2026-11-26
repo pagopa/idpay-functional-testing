@@ -872,8 +872,17 @@ def step_operator_validation_reward_batch_fails(context, role, trx_name, reason)
             f'{validate_reward_batch.status_code}: {validate_reward_batch.text}'
         )
         response_body = validate_reward_batch.json()
-        assert response_body.get('code') == 'BATCH_NOT_ELABORATED_15_PERCENT', (
-            f'Expected validation error code BATCH_NOT_ELABORATED_15_PERCENT, '
+        if context.initiative_config['initiative_id'] == 'bonus_decoder':
+            expected_code = 'BATCH_CONTROL_THRESHOLD_NOT_MET'
+            expected_message = 'At least 50% of transactions must be elaborated'
+            assert response_body.get('message') == expected_message, (
+                f'Expected validation error message "{expected_message}", '
+                f'got {response_body}'
+            )
+        else:
+            expected_code = 'BATCH_NOT_ELABORATED_15_PERCENT'
+        assert response_body.get('code') == expected_code, (
+            f'Expected validation error code {expected_code}, '
             f'got {response_body}'
         )
 
