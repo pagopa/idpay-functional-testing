@@ -1,0 +1,6 @@
+"BROKEN","EPIC","FAILED","FEATURE","PASSED","SKIPPED","STORY","UNKNOWN"
+"0","","0","Reward batches for initiatives and Refund Approval Process","10","0","","0"
+"0","","0","Reward batches for initiative barcode payments","14","0","","0"
+"0","","0","Reward batch counters are derived from current PostgreSQL transactions","3","0","","0"
+"0","","0","Reward batch validation threshold of 50% for Bonus Decoder","2","0","","0"
+"0","","0","Reward batch validation threshold of 15% for Bonus Elettrodomestici","2","0","","0"
