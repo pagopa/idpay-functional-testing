@@ -274,4 +274,5 @@ jobs:
                   type: "mrkdwn"
                   text: |-
                     • *Environment:* `${{ inputs.target_env }}`
-                    • ${{ success() && format('<https://pagopa.github.io/{0}/bdd/{1}/|Open report #{1}>', github.event.repository.name, github.run_number) || format('<{0}/{1}/actions/runs/{2}|Open run #{3}>', github.server_url, github.repository, github.run_id, github.run_number) }}
+                    • GitHub run: ${{ format('<{0}/{1}/actions/runs/{2}|Open run #{3}>', github.server_url, github.repository, github.run_id, github.run_number) }}
+                    • Allure report: ${{ format('<https://pagopa.github.io/{0}/bdd/{1}/|Open report #{1}>', github.event.repository.name, github.run_number) }}
